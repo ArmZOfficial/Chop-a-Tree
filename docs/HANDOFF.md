@@ -3,6 +3,17 @@
 > อัปเดตล่าสุด: 2026-10-01 17:05 (เวลาไทย) · เขียนโดย Claude ก่อนส่งต่องาน
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
 
+## 0. เริ่มตรงนี้ (สรุป 30 วินาที)
+
+1. Phase 0 (ระบบฐาน + Admin Panel) **เสร็จ ทดสอบแล้ว**
+2. Phase 1 (แมพโครง) **ต้องสร้างใหม่**: ArmZ เลิกแบบภูเขาเกลียว → อยากได้ **ทวีปกว้างแนวนอน** (plan.md หัวข้อ 3 ร่างที่ 9 แก้แล้ว, รายละเอียดหัวข้อ 6.0 ข้างล่าง)
+3. งานแรกของ AI ตัวถัดไป:
+   1. ถาม ArmZ ว่า **ลบแมพภูเขาเดิมใน Studio (`Workspace.Map`) ได้ไหม** — ถามไปแล้วแต่ยังไม่ได้คำตอบ
+   2. แก้ `src/shared/Config/Zones.luau` + เขียน `MapBuilder.Layout()/BuildWorld()/BuildZone()` ใหม่ตามผังตัว S (6.0)
+   3. ซิงก์เข้า Studio (หัวข้อ 8) → รัน → ตรวจ (raycast + Play เดินจริง) → ส่งภาพให้ ArmZ → commit/push → อัปเดตไฟล์นี้
+   4. ArmZ โอเคแล้วเริ่ม Phase 2 ได้เลย (เขาสั่งไว้แล้ว)
+4. ตอบเป็นภาษาไทย bullet มีตัวเลข, มีตัวเลือก (Recommended) ก่อนลงมือ, ใกล้ limit ให้อัปเดตไฟล์นี้
+
 ---
 
 ## 1. โปรเจกต์คืออะไร
@@ -83,50 +94,35 @@
    - ทดสอบ: Report(), raycast ตามเส้นทาง, Play เดินจริง (RequestStreamAroundAsync ก่อนวาร์ป)
 4. แมพภูเขาที่สร้างไว้ยังอยู่ใน Studio และโค้ดอยู่ใน commit `3522508` (ถ้าอยากดูวิธีแก้บั๊กกำแพง/ทางลาด)
 
-### 6.1 คำตอบของ ArmZ สำหรับแมพ
-1. หมู่บ้าน: **วงกลมรอบลานกลาง** (แท่นหีบกลาง, ร้าน/NPC วงใน, ฐาน 7 ฐานวงนอก, เว้นช่องตรงประตูป่า)
-2. ทางขึ้นเขา: **เกลียววนรอบภูเขาลูกเดียว**
-3. โมเดล: **สร้างจาก Part low-poly เอง**
-4. ต้นไม้: **~120 ต้น/โซน** (ป่าใช้ร่วมทั้งเซิร์ฟ 7 คน)
+### 6.1 คำตอบของ ArmZ ที่ยังใช้กับผังใหม่
+1. หมู่บ้าน: **วงกลมรอบลานกลาง** (แท่นหีบกลาง, ร้าน/NPC วงใน, ฐาน 7 ฐานวงนอก, เว้นช่องตรงประตูป่า) — ลานเป็นสนามหญ้า ลานกลางเป็นหิน
+2. โมเดล: **สร้างจาก Part low-poly เอง** (ไม่ใช้ Creator Store)
+3. ต้นไม้: **160 ต้น/โซน** ในโซนที่สร้างเต็ม (1–2), โซน 3–8 เป็นโครง (PreviewTree 14 ต้น + ป้าย "สร้างเต็มใน Phase 7")
+4. ~~ทางขึ้นเขาเกลียว~~ → ยกเลิก ใช้ทวีปตัว S แทน
 
-### 6.2 ไฟล์ที่เขียนแล้ว
-1. `src/shared/Config/Zones.luau` — 8 โซน (y, radius, สี, ไข่, บอส), MountainBase 820, MountainSlope 0.5, RoadMaxSlopeDeg 18, Village (angle 0, distance 1180, radius 190) — **อยู่ใน Studio แล้ว**
-2. `tools/map/MapBuilder.luau` — ตัวสร้างแมพ (edit-time, ไม่อยู่ใน Rojo tree) — **อยู่ใน Studio ที่ `ServerStorage.MapTools.MapBuilder` แล้ว checksum ตรง repo** (43788 bytes, h=94128592)
+### 6.2 สถานะไฟล์ (repo ตรงกับ Studio)
+1. `src/shared/Config/Zones.luau` — **ยังเป็นค่าของภูเขา** (y 20…1360, radius, MountainBase 820, MountainSlope 0.5, RoadMaxSlopeDeg 18, Village angle 0 / distance 1180 / radius 190) → ต้องแก้ตาม 6.0; อยู่ใน Studio ที่ `ReplicatedStorage.Shared.Config.Zones`
+2. `tools/map/MapBuilder.luau` (edit-time, ไม่อยู่ใน Rojo tree) — อยู่ใน Studio ที่ `ServerStorage.MapTools.MapBuilder` **checksum ตรง repo: 44827 bytes, h=1243792539** (รวมการแก้ล่าสุด: ภูเขาไล่สีตามโซน + ต้นไม้ 160 — ส่วนภูเขาจะถูกทิ้ง)
+3. ฟังก์ชันใน MapBuilder: `Layout()`, `RoadPoints(r)`, `BuildWorld()`, `BuildVillage()`, `BuildZone(i)`, `BuildAllZones()`, `BuildAll()`, `Report()` + helper `P`, `F`, `M`, `tag`, `disk`, `sign`, `pathSegments`, `withHistory` (ChangeHistoryService), `fresh` (ลบโฟลเดอร์เดิมแล้วสร้างใหม่ → รันซ้ำได้)
+4. ของที่ใช้ต่อได้เลย: `BuildVillage()` ทั้งหมด, ใน `BuildZone()` ส่วนต้นไม้/หีบ/รัง/ศาลเจ้า/ลานบอส/ประตูราเน่า/หินวาร์ป/ป้าย/ZoneSpawn/Lumora/RealmGate และระบบ `free()` กันของวางทับกัน
+5. สิ่งที่อยู่ใน Studio ตอนนี้: `Workspace.Map.{Ground, Mountain, Roads, Village, Wilds.Zone1..8}` (แมพภูเขา), Baseplate/SpawnLocation เดิมอยู่ `ServerStorage.OldTemplate`, Lighting = Future + Atmosphere (Density 0.2, Offset 0.3, Haze 0.3), `StreamingEnabled = true`
 
-### 6.3 ผังที่คำนวณแล้ว (ตรวจด้วย Python: ทุกถนนชัน 18°, ไม่ทับกัน, วนรอบเขา ~2 รอบ)
-| โซน | y | R จากกลางเขา | มุม |
-|---|---|---|---|
-| 1 ทุ่งหญ้า | 20 | 884 | 40° |
-| 2 เมเปิล | 150 | 815 | 92° |
-| 3 บึงเห็ด | 280 | 740 | 146° |
-| 4 ซากุระ | 440 | 656 | 211° |
-| 5 ไผ่ | 620 | 562 | 289° |
-| 6 น้ำแข็ง | 840 | 449 | 36° |
-| 7 คริสตัล | 1080 | 322 | 181° |
-| 8 เกาะลอยฟ้า | 1360 | 0 (ยอดเขา) | — |
-หมู่บ้านอยู่ (0, 0, 1180)
-
-### 6.4 ผลการรัน (2026-10-01) และขั้นตอนต่อ
-1. รันครบแล้ว: `BuildWorld`, `BuildVillage`, `BuildZone(1..8)` — `Report()` = Tree 240, PreviewTree 84, ChestSpot 20, Nest 4, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena 8, Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 1, ForestGate 1, ArenaPortal 1, RealmGate 1, Lumora 1, Leaderboard 2, ChestAltar 1, Parts ~2.8K
-2. บั๊กที่แก้แล้ว (ทั้ง repo + Studio):
-   - หมอกหนาเกิน (Atmosphere Density 0.28/Haze 1.2) มองไม่เห็นยอดเขา → Density 0.2, Haze 0.3, Offset 0.3
-   - ลานหมู่บ้านเป็นหินเทาทั้งวง → เปลี่ยนเป็นสนามหญ้า (ลานกลางยังเป็นหิน)
-   - กำแพงล่องหนรอบโซนบังทางเข้า (ช่องว่างแคบเกิน) → ช่อง = ครึ่งความยาวกำแพง + 16
-   - ถนนไปชนขอบที่ราบปลายทางต่ำกว่าพื้น 6–12 studs (กระโดดไม่ขึ้น) → `RoadPoints` ไต่ระดับเฉพาะช่วงที่อยู่นอกที่ราบทั้งสองฝั่ง (ชันสุด ~20°, ถนน 7→8 ~25°)
-   - ถนนขึ้นยอดเขาจบห่างที่ราบ 30 studs → ต่อสะพานถึงจุดเข้าโซน 8
-   - RealmGate วางขวางทางเข้าโซน 8 → ย้ายไปฝั่งตรงข้าม
-3. ทดสอบแล้ว: ตรวจพื้นด้วย raycast ตลอดเส้นทาง 1,816 จุด (หมู่บ้าน → ยอดเขา) เหลือแค่ RotBarrier ที่ตั้งใจให้กั้น, กด Play เดินจริง หมู่บ้าน→โซน 1, ถนน→โซน 2/3/4, ถนน→ยอดเขา ผ่านหมด, console ไม่มี error
-4. **ถัดไป**: รอ ArmZ ตอบว่าอยากปรับอะไร (คำถามที่ถามไว้: สีภูเขา, ลานหมู่บ้าน, ความหนาแน่นต้นไม้, ขนาดพื้นหญ้ารอบเขา) → แก้ → rebuild ด้วย:
+### 6.3 บทเรียนจากแมพภูเขา (เอาไปใช้กับผังใหม่)
+1. **กำแพงล่องหนรอบโซนต้องเว้นช่องกว้างพอ**: ช่อง = ครึ่งความยาวกำแพง + 16 (ถนนกว้าง 26) ไม่งั้นบังทางเข้า
+2. **ทางเชื่อมต้องถึงระดับพื้นโซนก่อนชนขอบ** ไม่งั้นเหลือขั้น 6–12 studs เดินขึ้นไม่ได้ (Humanoid ก้าวขึ้นได้แค่ ~2–3 studs)
+3. RealmGate ต้องอยู่ **ฝั่งตรงข้ามทางเข้า** (`C + inward * (radius - 20)`) — แก้แล้วในโค้ด
+4. หมอกต้องบาง (Density 0.2/Haze 0.3) ไม่งั้นมองไกลไม่เห็น — สำคัญกับเกาะลอยโซน 8 ที่ต้องเห็นจากทั่วแมพ
+5. วิธีตรวจที่ใช้ได้ผล: (ก) Edit mode raycast ลงพื้นทุก 4 studs ตามเส้นทาง เช็คขั้นสูง >3.5 และสิ่งกีดขวางระดับอก (ข) Play แล้ว `Humanoid:MoveTo` ทีละจุด
+6. ตอนทดสอบใน Play: StreamingEnabled เปิดอยู่ → เรียก `player:RequestStreamAroundAsync(pos)` ก่อนวาร์ป ไม่งั้นตัวละครตกทะลุพื้น; `execute_luau` timeout 60 วิ → งานยาวใช้ `task.spawn` แล้วอ่านผลจาก `_G` ในการเรียกครั้งถัดไป
+7. คำสั่งรัน (หลังเขียนใหม่ก็ใช้แบบเดียวกัน):
    ```lua
    local B = require(game.ServerStorage.MapTools.MapBuilder:Clone())
    B.BuildWorld() ; B.BuildVillage() ; for i = 1, 8 do B.BuildZone(i) end
    return B.Report()
    ```
-   ทุกฟังก์ชันลบโฟลเดอร์ของตัวเองแล้วสร้างใหม่ (`fresh`) จึงรันซ้ำได้ ห่อด้วย ChangeHistoryService (Ctrl+Z ได้)
-5. หลัง ArmZ โอเค → ปิด Phase 1 แล้วเริ่ม Phase 2 (หัวข้อ 10)
-6. ข้อควรรู้ตอนทดสอบเดินด้วยสคริปต์: StreamingEnabled เปิดอยู่ ต้องเรียก `player:RequestStreamAroundAsync(pos)` ก่อนวาร์ป ไม่งั้นตัวละครตกทะลุพื้น; execute_luau timeout 60 วิ → ใช้ `task.spawn` แล้วอ่านผลจาก `_G` ทีหลัง
+8. ภาพแมพภูเขา (ไว้เทียบ): `docs/screens/phase1_overview.jpg`, `phase1_village.jpg`, `phase1_zone1.jpg` — commit `3522508`
 
-### 6.5 Tags / Attributes ที่แมพสร้าง (ระบบ Phase 2+ ใช้)
+### 6.4 Tags / Attributes ที่แมพสร้าง (ระบบ Phase 2+ ใช้)
 `Tree` (Zone, Tier 1–6), `PreviewTree`, `ChestSpot` (Zone, Depth), `Nest` (Zone, EggType), `ZoneGate` (FromZone, ToZone, Open), `WarpStone` (Zone; 0 = หมู่บ้าน), `ZoneSpawn` (Zone), `BossArena` (Zone, Boss), `Shrine` (Zone, Lit), `PlayerBase` (BaseIndex, OwnerUserId), `GardenSlot` (BaseIndex, SlotIndex), `Incubator`, `PetPen`, `OwnerSign`, `BaseSpawn`, `Shop` (ShopType), `NPC` (NpcId), `Leaderboard` (Board), `ForestGate`, `ArenaPortal`, `RealmGate`, `Lumora`, `ChestAltar`
 — ค่า HP/รางวัลของต้นไม้ **ไม่เก็บในโมเดล** ให้คำนวณจาก `Shared.Balance` ตาม Zone/Tier
 
@@ -164,4 +160,4 @@
 
 ## 11. Skill ที่ใช้
 
-- `roblox-map-builder` (skill ของ ArmZ) — เวอร์ชันที่บันทึกในบัญชีเป็นเวอร์ชันแรก (โฟลเดอร์ `Map/<Zone>`) แต่ให้ใช้โครงตาม plan.md: `Workspace.Map.Village`, `Workspace.Map.Wilds.ZoneN_<Key>`, สูตร ×100/โซน
+- `roblox-map-builder` (skill ของ ArmZ) — บังคับถามรายละเอียดก่อนสร้างแมพ; เวอร์ชันในบัญชีเป็นเวอร์ชันแรก (โฟลเดอร์ `Map/<Zone>`) แต่ให้ใช้โครงตาม plan.md: `Workspace.Map.Village`, `Workspace.Map.Wilds.ZoneN_<Key>`, สูตร ×100/โซน, ผังทวีปแนวนอน (ไม่ใช่ภูเขา)
