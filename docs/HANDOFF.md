@@ -6,15 +6,15 @@
 
 - **Phase 8g ร้าน Robux + Season Pass ทำและทดสอบแล้ว; ยังไม่ Publish.** ไม่สรุปว่าเกม/ทุก Phase พร้อมเปิดจริง.
 - Shop: 10 Pass + 17 Developer Products ID จริงใน `src/shared/Config/Products.luau`; เปิด flag Shop/SeasonPass, PvP ปิด. ราคา UI อ่านสดจาก Roblox.
-- Shop **34/34**, Season **29/29**, GUI เปิดจริง, source Season 11/11 ตรง Studio Edit, console ไม่มี error. หลักฐาน/ข้อจำกัด: [Phase 8g](phase8_shop_season_validation.md). ไม่ได้รัน regression ชุดเก่าทั้งหมดหลังร้าน; เปิด 10 หีบยังไม่ได้คลิกจริง.
+- Shop **34/34** (รอบเดิม), Season **33/33** (ล่าสุดเพิ่ม rollover ซีซัน 2), console ไม่มี error. GUI/11-source proof เป็นรอบ 8g เดิม; ล่าสุด Config/Season ตรง Studio 2257 bytes/hash31 522002800. หลักฐาน/ข้อจำกัด: [Phase 8g](phase8_shop_season_validation.md). ไม่ได้รัน regression ชุดเก่าทั้งหมดหลังร้าน; เปิด 10 หีบยังไม่ได้คลิกจริง.
 - Premium ID **3715870274**, ราคาฐาน **499 Robux**. ผู้ใช้รายงานซื้อจริงผ่าน; automation ตรวจ ProcessReceipt โดยตรง ไม่ได้คลิกยืนยันจ่าย Robux.
-- ซีซัน `s1_2026_10`: 2026-10-01 ถึง 2026-11-01 UTC, 30 เลเวล × 1,000 XP. Pending purchase ผูกซีซัน; มี Premium แล้ว/ซีซันจบ → fallback 4,500 Gems. ค่า XP/รางวัล/fallback ยังเป็น Beta.
+- ซีซัน `s1_2026_10`: 2026-10-01 ถึง 11-01 UTC; `s2_2026_11` ป่าแสงจันทร์: 11-01 ถึง 12-01 UTC ต่อกันอัตโนมัติ. ใช้รางวัลเดิม 30 เลเวล × 1,000 XP. Pending purchase ผูกซีซัน; มี Premium แล้ว/ซีซันจบ → fallback 4,500 Gems. ค่า XP/รางวัล/fallback ยังเป็น Beta.
 - **คอสเมติก: ArmZ ให้รอก่อน.** Premium ปัจจุบันเป็น Gems/บูสต์/หีบ ไม่ใช่ระบบสกินที่เสร็จแล้ว.
-- รอบนี้ลบ raw JSON/screens/validation เก่าและ archive ซ้ำ; รวม seams ใน systems.md, คง spec ใน design.md. docs เหลือ 8 ไฟล์; ประวัติก่อน cleanup อยู่ Git 5d09e37. ไม่เปลี่ยนโค้ด/ไม่รัน Roblox ใหม่.
+- ล่าสุดเพิ่มซีซัน 2 ด้วย Config แถวเดียว; scenario เดิมเพิ่ม 4 checks ผ่าน 33/33 (VM เกม, restore profile/flags/ตำแหน่งตาม harness). Balance ผ่านด้วย python -X utf8; Studio Edit ไม่มี test script ค้าง. ไม่ Publish. เปิด ponytail full + caveman full; docs ยัง 8 ไฟล์.
 
 ## งานถัดไป / ค้าง
 
-1. เพิ่มแถวซีซัน 2 ID ใหม่ใน `Config/Season.luau` **ก่อน 2026-11-01 UTC**; มิฉะนั้นไม่มีซีซันให้เล่น/ขาย.
+1. ซีซัน 2 พร้อมแล้ว; เพิ่มแถวซีซัน 3 ID ใหม่ **ก่อน 2026-12-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ตรวจร้านหลังรวมระบบ: regression ที่กระทบ, คลิก OpenTen จริง, ซื้อ/receipt/reconnect/failed-save กับบัญชีและอุปกรณ์จริง.
 3. งานเดิมค้าง: NPC/บทพูด/คัตซีนบท 3–8, ตกแต่งฐาน/กับดัก/สัตว์เฝ้า, GardenController refresh ไม่สร้างปุ่มใหม่. ยืนยันกับโค้ดก่อนแก้.
 4. Multi-account ขโมย/บอสร่วม, multi-server Live Events/world boss, mobile/gamepad ยังไม่พิสูจน์ครบ. Balance/เสียง/VFX/UI polish Phase 10.

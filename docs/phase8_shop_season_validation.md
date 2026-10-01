@@ -25,7 +25,11 @@
 ## ข้อจำกัด / ต้องทำต่อ
 
 1. หน้าซื้อ Robux จริงเป็น CoreGui คลิกด้วยเครื่องมือไม่ได้ → receipt ทดสอบผ่าน `ProcessReceipt` โดยตรง. ArmZ ทดสอบเองในเกมแล้วว่าผ่าน.
-2. **ต้องเพิ่มซีซัน 2 ใน `Seasons` ก่อน 2026-11-01 UTC** ไม่งั้นไม่มีซีซันให้เล่น/ขาย.
+2. ซีซัน 2 `s2_2026_11` "ป่าแสงจันทร์" พร้อมช่วง 2026-11-01→12-01 UTC, ใช้ XP/รางวัลเดิม. เพิ่มซีซัน 3 ก่อน 2026-12-01 UTC เพื่อให้มีซีซันต่อไป.
 3. ค่า XP/รางวัล/ชื่อซีซัน/4,500 Gems เป็นค่าเริ่มต้น Beta ยังไม่ผ่านข้อมูลผู้เล่นจริง.
 4. ปุ่ม Season Pass ชิดกล่องเควสด้านล่าง; จัด HUD ใหม่ใน Phase 10.
 5. ยังไม่ได้ Publish.
+
+## ตรวจเพิ่มซีซัน 2 — 2026-10-02
+
+Phase8SeasonScenario เดิมปรับ boundary ให้รองรับหลายซีซัน เพิ่ม 4 checks: ไม่มี gap, rollover reset XP/Premium/claims แต่คง pendingFor, ใบเสร็จซีซัน 1 มาช้าจ่าย fallback ไม่ปลดซีซัน 2, Premium/claim สองแถวซีซัน 2. ผ่าน **33/33** ใน Script VM; harness คืน profile/flags/ตำแหน่ง. ไม่เปลี่ยน service/สูตร/รางวัล. Balance simulator ผ่าน (`python -X utf8`; รอบแรก console cp1252 พิมพ์ไทยไม่ได้). Config/Season ตรง Studio Edit 2257 bytes/hash31 522002800, ไม่มี error/test script ค้าง; ไม่ Publish. Shop/GUI/regression อื่นยังเป็นผลรอบเดิม.

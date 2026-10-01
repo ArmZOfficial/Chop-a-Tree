@@ -21,6 +21,7 @@ local levels=rewards({
 return table.freeze({
 	Seasons={
 		{id="s1_2026_10",name="ซีซัน 1 • ป่าแรกผลิ",startsAt=1790812800,endsAt=1793491200}, -- 2026-10-01 → 2026-11-01 UTC
+		{id="s2_2026_11",name="ซีซัน 2 • ป่าแสงจันทร์",startsAt=1793491200,endsAt=1796083200}, -- 2026-11-01 → 2026-12-01 UTC
 	},
 	XpPerLevel=1000,
 	Levels=levels,
