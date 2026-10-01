@@ -11,6 +11,8 @@ local p=game.Players:GetPlayers()[1]
 workspace:SetAttribute("Phase2TestStatus","running")
 assert(D.WaitForData(p,30),"Player data not ready")
 local original=D.ExportJSON(p)
+local Weather=require(game.ServerScriptService.Server.Services.WeatherService)
+local oldWeather=Weather.GetOverride();Weather.Force("Clear",3600)
 script:SetAttribute("OriginalData",original) -- server-only recovery if a test is interrupted
 local savedPosition=p.Character:GetPivot()
 local oldOverride=p:GetAttribute("AdminCutPower")
@@ -111,6 +113,7 @@ D.ImportJSON(p,original)
 p:SetAttribute("AdminCutPower",oldOverride)
 p.Character:PivotTo(savedPosition)
 R.Send(p)
+if oldWeather then Weather.Force(oldWeather.id,math.max(1,oldWeather.endsAt-os.time())) else Weather.Force(nil) end
 workspace:SetAttribute("Phase2TestResults",Http:JSONEncode({passed=ok,checks=results,error=not ok and err or nil}))
 workspace:SetAttribute("Phase2TestStatus",ok and "passed" or "failed")
 print("[Phase2Scenario]",ok and "passed" or err,#results)

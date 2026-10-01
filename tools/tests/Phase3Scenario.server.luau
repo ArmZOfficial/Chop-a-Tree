@@ -13,6 +13,8 @@ local p=game.Players:GetPlayers()[1]
 workspace:SetAttribute("Phase3TestStatus","running")
 assert(D.WaitForData(p,30))
 local original=D.ExportJSON(p);script:SetAttribute("OriginalData",original)
+local Weather=require(game.ServerScriptService.Server.Services.WeatherService)
+local oldWeather=Weather.GetOverride();Weather.Force("Clear",3600)
 local pos=p.Character:GetPivot();local override=p:GetAttribute("AdminCutPower");local oldBalance=B.Overrides()
 local results,temporary={},{}
 local function check(name,condition) assert(condition,name);table.insert(results,{name=name,passed=true}) end
@@ -99,6 +101,7 @@ for _,m in temporary do m:Destroy() end
 F.Set("Chests",true);B.ClearOverrides();for k,v in oldBalance do B.SetOverride(k,v) end
 R.SetMode(p,"AutoCut",false);R.SetMode(p,"AutoAttack",false)
 D.ImportJSON(p,original);p:SetAttribute("AdminCutPower",override);p.Character:PivotTo(pos);W.RefreshTool(p);R.Send(p)
+if oldWeather then Weather.Force(oldWeather.id,math.max(1,oldWeather.endsAt-os.time())) else Weather.Force(nil) end
 workspace:SetAttribute("Phase3TestResults",Http:JSONEncode({passed=ok,checks=results,error=not ok and err or nil}))
 workspace:SetAttribute("Phase3TestStatus",ok and "passed" or "failed")
 print("[Phase3Scenario]",ok and "passed" or err,#results)

@@ -1,16 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 3 หีบ + อาวุธ core ทดสอบแล้ว
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 4 สวน + อากาศ core ทดสอบแล้ว
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 10) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
 1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
 2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
-3. ArmZ สั่ง **ทำต่อได้เลย** หลังเพิ่มงาน UI ใน Phase 10. **Phase 3 core ทำแล้ว**: เปิดหีบ 5 rarity, inventory, equip, Fuse, Giant, Power/Speed/Area และ admin chests/weapons. อ่าน `docs/phase3_validation.md` ก่อนต่อ **Phase 4 สวน + อากาศ**. Phase 2 AFK ไม่จำกัดเวลายังไม่รองรับ; โล่ AFK ต่อ Phase 5.
+3. ArmZ สั่ง **ทำเลย** ต่อจาก Phase 3. **Phase 4 core ทำแล้ว**: สวน 6→30 ช่อง, เมล็ด 8 ชนิด, ปลูก/รด/เก็บผลซ้ำ/ขาย/ตัด/offline growth/EXP buff, ร้าน restock, อากาศ UTC Rain/Storm/Snow/Golden, mutation/combos, UI และ admin garden/weather. อ่าน `docs/phase4_validation.md` ก่อนต่อ **Phase 5 ไข่/สัตว์/ขโมย/ฐาน**. Phase 2 AFK ไม่จำกัดเวลายังไม่รองรับ; โล่ AFK ต่อ Phase 5.
 4. ผลตรวจ: raycast 2,048 จุด ไม่มีพื้นขาด ขั้นสูง >3.5 studs หรือสิ่งกีดขวาง (ยกเว้นประตูที่ตั้งใจปิด). Play เดินจริงผ่านครบ **16 เส้นทาง**: ทางเชื่อม 8 เส้น + ทางในโซน 8 เส้น. ทางเชื่อมพื้นดินเดินที่ WalkSpeed 16, รากขึ้นฟ้า 80, ทางในโซน 40 เพื่อเร่งทดสอบ. ใช้ PreparePlayRoutes.luau (Server) แล้ว PlayRoutes.luau (Client).
-5. ภาพแมพ/Run เดิมและภาพใหม่ `docs/screens/phase3_inventory.jpg`, `phase3_chest_open.jpg`. Phase 3 ผ่าน 36 checks + GUI เปิด/หลอม/สวมใส่/ทิ้ง; Phase 2 regression ผ่าน 23/23. ชุดทดสอบ `tools/tests/Phase3Scenario.server.luau`; คืนข้อมูลผู้เล่นแล้ว.
-6. โค้ด Zones/MapBuilder และ Phase 3 จำนวน 14 ไฟล์ตรง repo กับ Studio ตรวจ checksum แล้ว (`docs/phase3_source_checksums.json`). Studio กลับ Edit; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
+5. Phase 4 ผ่าน **55/55** (`docs/phase4_test_results.json`) + mouse GUI ปลูก/รด/เก็บ/เพิ่มช่อง/ขาย/ซื้อ/ตัดยืนยัน. Regression Phase 2/3 ผ่าน **23/36** checks. ภาพ `docs/screens/phase4_garden.jpg`, `phase4_snow.jpg`, `phase4_golden.jpg`. ชุดทดสอบ Scenario และ GUIHarness ใน `tools/tests/`; คืน profile จริงและอากาศแล้ว.
+6. โค้ด Phase 4 ที่เพิ่ม/แก้ **21 ไฟล์**ตรง Studio Edit ตาม `docs/phase4_source_checksums.json`; checksum Phase 3 เป็นบันทึกรอบก่อน. Zones/MapBuilder ไม่แก้ในรอบนี้. Studio กลับ Edit ไม่มี test Script ค้าง; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
 7. ยังไม่ได้ Publish การเปลี่ยนแมพขึ้นเกมจริง; ผู้ใช้ต้อง Save/Publish ใน Studio เพื่อเก็บ place. GitHub เก็บตัวสร้างแมพและโค้ด.
 
 ---
@@ -47,12 +47,13 @@
 
 | Phase | สถานะ |
 |---|---|
-| วางแผน (plan.md ร่างที่ 8) | ✅ เสร็จ — คำถามทุกข้อตอบแล้ว |
+| วางแผน (plan.md ร่างที่ 10) | ✅ อัปเดตสถานะ Phase 4 และงาน UI แล้ว |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
 | **Phase 3 หีบ + อาวุธ** | ✅ core ผ่าน 36 checks + GUI; ภาพโมเดล procedural รอขัดเกลา Phase 10 |
-| Phase 4–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
+| **Phase 4 สวน + อากาศพื้นฐาน** | ✅ core ผ่าน 55 checks + GUI; ทดสอบเซิร์ฟจริงหลายเครื่อง/มือถือและภาพ/เสียง/UI สุดท้ายยังค้าง |
+| Phase 5–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
 
@@ -75,6 +76,8 @@
 **ผลทดสอบ Phase 0**: คำสั่งผ่านหมด, ยืนยัน 2 ชั้นบล็อกถูก, rate limit ทำงาน, HUD อัปเดตสด, Balance SelfTest 8/8, กดปุ่ม UI จริงได้ (ซ่อนหน้าต่างแชทตอนเปิดแผงเพราะแชทของ Roblox ทับฝั่งซ้าย)
 
 **อัปเดต Phase 3**: `Config.Weapons` 100 ชิ้นใส่ใน Studio แล้ว. ดู `docs/phase3_validation.md` สำหรับ WeaponService, Loot, WeaponVisual และ InventoryController.
+
+**อัปเดต Phase 4**: GardenService เป็นเจ้าของฐาน/เมล็ด/ผล/แปลง; WeatherService ส่ง WeatherState โดยใช้ WeatherSchedule UTC. Config.Seeds/Garden/Weather/Mutations + GardenMath, GardenController/WeatherController และ AdminCommands.GardenCommands ใส่ใน Studio แล้ว. DataService v1 Reconcile เพิ่ม Garden และ Seeds/Fruits/Run.Seeds; อ่าน `docs/phase4_validation.md` สำหรับค่าตั้งต้น mutation formula และการทดสอบ.
 
 ## 6. Phase 1 — ทวีปใหม่ (เสร็จ)
 
@@ -151,10 +154,10 @@
 
 ## 10. Phase ถัดไปหลังแมพเสร็จ
 
-1. **Phase 4 สวน + อากาศพื้นฐาน**: GardenService, Seeds Config, แปลง/เมล็ด/ปลูก/โต/เก็บ/ขาย, WeatherService แบบซิงก์ทุกเซิร์ฟ, ฝน/พายุฟ้าผ่า/หิมะ/แสงทอง และ Mutation ซ้อน (plan.md หัวข้อ 7).
-2. อ่าน `docs/phase3_validation.md` สำหรับค่าตั้งต้น odds/Fuse และโครง inventory; seed/egg drops ต่อ Phase 4–5. mobile/gamepad และ friend boost หลายบัญชียังต้องทดสอบจริง. AFK ยาวยังไม่รองรับ; โล่ AFK Phase 5. โมเดลอาวุธปัจจุบันเป็น procedural silhouettes; งานภาพสุดท้าย/element trails/ท่าและ UI polish ต่อ Phase 10.
+1. **Phase 5 ไข่/สัตว์/ขโมย/ฐาน**: รังป่า/ผู้พิทักษ์, สายพานซื้อไข่, ตู้ฟัก/คอก/รายได้ offline, สัตว์ติดตัว/Mount, ขโมยไข่และแจ้งเตือน, ล็อกฐาน/โล่ AFK ตาม plan 4.6. ใช้ Garden.Base และ OwnerUserId/BaseIndex เดิม; อย่าสร้าง ownership อีกชุด.
+2. อ่าน `docs/phase4_validation.md` และ `phase3_validation.md` สำหรับ state/economy seams. เมล็ดต่อแล้ว; egg drops จากหีบต่อ Phase 5. ยังต้องทดสอบ multi-account/reconnect/multi-server จริง มือถือ/gamepad และ friend boost หลายบัญชี. อากาศชุดที่เหลือ/Live Event ต่อ Phase 8; art/เสียง/element trails/ท่าและ UI polish ต่อ Phase 10.
 3. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
-4. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, ร้านค้า, เควส และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
+4. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, สวน/เมล็ด, พยากรณ์อากาศ, ร้านค้า, เควส และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
 
 ## 11. Skill ที่ใช้
 

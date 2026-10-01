@@ -9,6 +9,8 @@ local Zones = require(Shared.Config.Zones)
 local Data = require(script.Parent.DataService)
 local Features = require(script.Parent.FeatureService)
 local Weapon = require(script.Parent.WeaponService)
+local Garden = require(script.Parent.GardenService)
+local Weather = require(script.Parent.WeatherService)
 local Loot = require(Shared.Loot)
 local Http = game:GetService("HttpService")
 local chestRng = Random.new()
@@ -83,7 +85,7 @@ function Run.Begin(player)
 	if not Features.IsEnabled("Forest") or not Data.IsLoaded(player) then return false end
 	local current=Run.Get(player)
 	if current.Active then return true end
-	Data.Set(player,"Run",{Active=true,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},StartedAt=os.time()})
+	Data.Set(player,"Run",{Active=true,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},StartedAt=os.time()})
 	modes[player]={AutoAttack=false,AutoCut=false}
 	giveAxe(player); Run.Send(player)
 	return true
@@ -92,14 +94,15 @@ end
 function Run.End(player,teleport)
 	local r=Run.Get(player)
 	if not r or not r.Active then return false end
-	local summary={wood=r.Wood,coins=r.Coins,trees=r.Trees,level=r.Level,chests=r.Chests,seconds=math.max(0,os.time()-r.StartedAt)}
+	local summary={wood=r.Wood,coins=r.Coins,trees=r.Trees,level=r.Level,chests=r.Chests,seeds=r.Seeds or {},seconds=math.max(0,os.time()-r.StartedAt)}
 	-- No yields between transferring and marking settled; duplicate requests are harmless.
 	r.Active=false
 	Data.AddCurrency(player,"Wood",r.Wood); Data.AddCurrency(player,"Coins",r.Coins)
 	local inventory=Data.Get(player,"Inventory.Chests")
 	for _, chest in r.Chests do table.insert(inventory,table.clone(chest)) end
 	Data.Set(player,"Inventory.Chests",inventory)
-	Data.Set(player,"Run",{Active=false,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},StartedAt=0})
+	for _,seed in r.Seeds or {} do Garden.GrantSeed(player,seed.id,seed.zone,seed.rebirthDrop,seed.count,seed.admin_spawned==true) end
+	Data.Set(player,"Run",{Active=false,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},StartedAt=0})
 	modes[player]={AutoAttack=false,AutoCut=false}
 	Data.Set(player,"Settings.AutoAttack",false); Data.Set(player,"Settings.AutoCut",false)
 	local char=player.Character
@@ -119,12 +122,15 @@ function Run.End(player,teleport)
 	return true
 end
 
-function Run.Award(player,zone,tier,autoCut)
+function Run.Award(player,zone,tier,autoCut,rewardMult)
 	local r=Run.Get(player)
 	if not r or not r.Active then return end
 	local reward=Balance.TreeReward(zone,tier,Data.Get(player,"Progress.Rebirth"),autoCut)
 	local boost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1
-	r.Wood+=reward.wood*boost; r.Coins+=reward.coins*boost; r.Exp+=reward.exp*boost; r.Trees+=1; r.Zone=zone
+	boost*=rewardMult or 1
+	local weather=Weather.Def()
+	r.Wood+=reward.wood*boost*weather.wood; r.Coins+=reward.coins*boost; r.Exp+=reward.exp*boost*weather.exp*Garden.ExpBuff(); r.Trees+=1; r.Zone=zone
+	Garden.TreeDrop(player,zone,tier,autoCut)
 	while r.Exp>=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")) do
 		r.Exp-=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")); r.Level+=1
 	end
@@ -141,10 +147,11 @@ function Run.CollectChest(player,spot,generation)
 	local rarity=spot and Loot.SpotRarity(spot:GetAttribute("Depth"),chestRng) or "Common"
 	local rb=Data.Get(player,"Progress.Rebirth")
 	local admin=Data.Get(player,"Meta.AdminTouched")
+	local level=r.Level+(Weather.Def().chestLevel or 0)
 	for _,c in r.Chests do
-		if c.level==r.Level and c.zone==r.Zone and c.rarity==rarity and c.rebirthDrop==rb and c.admin_spawned==admin then c.count+=1; Run.Send(player); return true end
+		if c.level==level and c.zone==r.Zone and c.rarity==rarity and c.rebirthDrop==rb and c.admin_spawned==admin then c.count+=1; Run.Send(player); return true end
 	end
-	table.insert(r.Chests,{uid=Http:GenerateGUID(false),level=r.Level,zone=r.Zone,rarity=rarity,count=1,rebirthDrop=rb,admin_spawned=admin})
+	table.insert(r.Chests,{uid=Http:GenerateGUID(false),level=level,zone=r.Zone,rarity=rarity,count=1,rebirthDrop=rb,admin_spawned=admin})
 	Run.Send(player)
 	return true
 end

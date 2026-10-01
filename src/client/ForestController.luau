@@ -109,7 +109,8 @@ function Forest.Start()
 		for i,c in state.chests do UI.Label(c.rarity.." • LEVEL "..c.level.."  ×"..c.count,15,{LayoutOrder=i,Parent=chests}) end
 		if state.summary then
 			local s=state.summary; local count=0; for _,c in s.chests do count+=c.count end
-			summaryText.Text="LEVEL "..s.level.." • "..s.trees.." trees\nWood +"..NF.Short(s.wood).."\nCoins +"..NF.Short(s.coins).."\nChests: "..count.." (เก็บในกระเป๋าแล้ว)"
+			local seeds=0;for _,v in s.seeds or {} do seeds+=v.count end
+			summaryText.Text="LEVEL "..s.level.." • "..s.trees.." trees\nWood +"..NF.Short(s.wood).."\nCoins +"..NF.Short(s.coins).."\nChests: "..count.." • Seeds: "..seeds
 			summary.Visible=true
 		end
 	end)
@@ -166,8 +167,10 @@ function Forest.Start()
 						end
 						local zone,tier=m:GetAttribute("Zone"),m:GetAttribute("Tier")
 						local rb=Data.Get("Progress.Rebirth") or 0
-						local req=Balance.TreeRequiredPower(zone,tier,rb)
-						local hp=Balance.TreeHP(zone,tier,rb)
+						local weather=game.ReplicatedStorage:FindFirstChild("WeatherState")
+						local health=weather and weather:GetAttribute("HealthMult") or 1
+						local req=Balance.TreeRequiredPower(zone,tier,rb)*health
+						local hp=Balance.TreeHP(zone,tier,rb)*health
 						bars[m].label.Text=state.power<req and ("🔒 Power "..NF.Short(req)) or ("T"..tier.."  "..NF.Short(hp*(m:GetAttribute("HealthRatio") or 1)).." / "..NF.Short(hp))
 						bars[m].label.TextColor3=state.power<req and UI.Colors.Red or UI.Colors.Text
 						bars[m].fill.Size=UDim2.fromScale(math.clamp(m:GetAttribute("HealthRatio") or 1,0,1),1)

@@ -39,4 +39,4 @@ python3 tools/gen_weapons.py                             # สร้างรา
 
 ## สถานะ
 
-Phase 0–1 เสร็จ · Phase 2 core ผ่าน 23 checks · Phase 3 หีบ/อาวุธ/Inventory/Equip/Fuse/Giant ผ่าน 36 checks และ GUI ใน Studio. AFK ไม่จำกัดเวลายังไม่รองรับ; งานภาพ/ปรับ UI เต็มใน Phase 10. ดู `docs/phase3_validation.md` และ `docs/HANDOFF.md`; ถัดไป Phase 4 สวน+อากาศ.
+Phase 0–1 เสร็จ · Phase 2/3 core ผ่าน 23/36 checks · Phase 4 สวน 6–30 ช่อง เมล็ด/ผล/ร้านและอากาศ UTC 4 แบบผ่าน 55 checks และ GUI ใน Studio. AFK ไม่จำกัดเวลายังไม่รองรับ; งานภาพ/เสียง/ปรับ UI ทุกหน้ารวมสวนและอากาศใน Phase 10. ดู `docs/phase4_validation.md` และ `docs/HANDOFF.md`; ถัดไป Phase 5 ไข่/สัตว์/ขโมย/ฐาน. ยังไม่ได้ Publish place.

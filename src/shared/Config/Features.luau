@@ -8,8 +8,8 @@ return table.freeze({
 	FriendBoost = true,
 	AutoCut = true,
 	Chests = true, -- Phase 3
-	Garden = false, -- Phase 4
-	Weather = false, -- Phase 4
+	Garden = true, -- Phase 4
+	Weather = true, -- Phase 4
 	Eggs = false, -- Phase 5
 	Stealing = false, -- Phase 5
 	Story = false, -- Phase 6

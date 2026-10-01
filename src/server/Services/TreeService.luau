@@ -10,6 +10,8 @@ local Data=require(script.Parent.DataService)
 local Run=require(script.Parent.RunService)
 local Features=require(script.Parent.FeatureService)
 local Weapon=require(script.Parent.WeaponService)
+local Weather=require(script.Parent.WeatherService)
+local WeatherConfig=require(Shared.Config.Weather)
 local Tree={}
 local trees, cooldowns, navigating, chestStates, collected={},{},{},{},{}
 local rng=Random.new()
@@ -48,7 +50,7 @@ local function fell(model,s,now)
 	for part in s.parts do if part.Parent then part.Transparency=1; part.CanCollide=false end end
 	for contributor,entry in s.contributors do
 		if now-entry.at<=Config.ContributionWindow and contributor.Parent and Run.Get(contributor)==entry.run then
-			Run.Award(contributor,model:GetAttribute("Zone"),model:GetAttribute("Tier"),entry.autoCut)
+			Run.Award(contributor,model:GetAttribute("Zone"),model:GetAttribute("Tier"),entry.autoCut,entry.rewardMult)
 		end
 	end
 	local cycle=s.cycle
@@ -56,6 +58,19 @@ local function fell(model,s,now)
 	for _,other in Players:GetPlayers() do if Run.ZoneAt(other)==model:GetAttribute("Zone") then population+=1 end end
 	local delay=Config.RespawnSeconds/math.clamp(population/3,1,2)
 	task.delay(delay,function() if trees[model]==s and s.cycle==cycle then Tree.Reset(model) end end)
+end
+
+function Tree.Strike(model)
+	local s=trees[model];if not Features.IsEnabled("Forest") or not s or s.ratio<=0 or not model.Parent then return false end
+	local zone=model:GetAttribute("Zone");local p=position(model);local now=os.clock()
+	for _,player in Players:GetPlayers() do
+		local hr=root(player);local r=Run.Get(player)
+		if hr and r and r.Active and Run.CanAccess(player,zone) and Run.ZoneAt(player)==zone and flatDistance(hr.Position,p)<=75 then
+			s.contributors[player]={at=now,autoCut=Run.GetModes(player).AutoCut,run=r,rewardMult=WeatherConfig.LightningReward}
+		end
+	end
+	for _,entry in s.contributors do entry.rewardMult=WeatherConfig.LightningReward end
+	s.ratio=0;fell(model,s,now);Net.Event("WeatherStrike"):FireAllClients(p);return true
 end
 
 function Tree.ClearZone(player)
@@ -81,7 +96,8 @@ function Tree.Hit(player,model)
 	if flatDistance(hr.Position,p)>Config.AttackRange or math.abs(hr.Position.Y-p.Y)>12 then return false,"Out of range" end
 	local rebirth=Data.Get(player,"Progress.Rebirth")
 	local power=Run.Power(player)
-	if power<Balance.TreeRequiredPower(zone,tier,rebirth) then return false,"Power too low" end
+	local health=Weather.Def().hp
+	if power<Balance.TreeRequiredPower(zone,tier,rebirth)*health then return false,"Power too low" end
 	local now=os.clock()
 	if now<(cooldowns[player] or 0) then return false,"Cooldown" end
 	local combat=Weapon.Combat(player)
@@ -93,7 +109,7 @@ function Tree.Hit(player,model)
 	cooldowns[player]=now+Config.AttackInterval/combat.speed
 	local crit=rng:NextNumber()<Balance.Get("CritChance")
 	local damage=power*(crit and Balance.Get("CritMult") or 1)
-	local fraction=math.min(s.ratio,damage/Balance.TreeHP(zone,tier,rebirth))
+	local fraction=math.min(s.ratio,damage/(Balance.TreeHP(zone,tier,rebirth)*health))
 	s.ratio=math.max(0,s.ratio-fraction)
 	local previous=s.contributors[player]
 	-- A manual finishing hit cannot erase AutoCut's reward reduction.
@@ -111,10 +127,10 @@ function Tree.Hit(player,model)
 		for other,extra in trees do
 			if other~=model and other.Parent and extra.ratio>0 and other:GetAttribute("Zone")==zone then
 				local op=position(other);local ot=other:GetAttribute("Tier")
-				if flatDistance(p,op)<=combat.area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth) then
+				if flatDistance(p,op)<=combat.area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth)*health then
 					local oa=op+Vector3.new(0,3,0);local block=workspace:Raycast(hr.Position,oa-hr.Position,params)
 					if not block or block.Instance:IsDescendantOf(other) then
-						extra.ratio=math.max(0,extra.ratio-damage/Balance.TreeHP(zone,ot,rebirth))
+						extra.ratio=math.max(0,extra.ratio-damage/(Balance.TreeHP(zone,ot,rebirth)*health))
 						local prev=extra.contributors[player]
 						local auto=Run.GetModes(player).AutoCut or (prev and prev.run==r and now-prev.at<=Config.ContributionWindow and prev.autoCut) or false
 						extra.contributors[player]={at=now,autoCut=auto,run=r};other:SetAttribute("HealthRatio",extra.ratio)
@@ -148,7 +164,7 @@ function Tree.Nearest(player,maxDistance,autoCut)
 		if model.Parent and s.ratio>0 and model:GetAttribute("Zone")==zone then
 			local p=position(model)
 			local d=flatDistance(hr.Position,p)
-			if d<dist and Run.Power(player)>=Balance.TreeRequiredPower(zone,model:GetAttribute("Tier"),Data.Get(player,"Progress.Rebirth")) and (not autoCut or not avoidDanger(p,zone)) then best,dist=model,d end
+			if d<dist and Run.Power(player)>=Balance.TreeRequiredPower(zone,model:GetAttribute("Tier"),Data.Get(player,"Progress.Rebirth"))*Weather.Def().hp and (not autoCut or not avoidDanger(p,zone)) then best,dist=model,d end
 		end
 	end
 	return best
@@ -207,6 +223,15 @@ function Tree.Init()
 end
 
 function Tree.Start()
+	task.spawn(function()
+		while true do
+			task.wait(WeatherConfig.LightningSeconds)
+			if Weather.State().id=="Storm" then
+				local pool={};for m,s in trees do if m.Parent and s.ratio>0 then table.insert(pool,m) end end
+				if #pool>0 then Tree.Strike(pool[rng:NextInteger(1,#pool)]) end
+			end
+		end
+	end)
 	task.spawn(function()
 		while true do
 			if Features.IsEnabled("Forest") then

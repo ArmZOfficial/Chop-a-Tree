@@ -13,12 +13,16 @@ local EVENTS = {
 	"RunState",
 	"TreeHit",
 	"InventoryShow",
+	"GardenState",
+	"GardenShow",
+	"WeatherStrike",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
 	"AdminRun", -- admin client → server: ขอรันคำสั่ง
 	"RunRequest",
 	"InventoryAction",
+	"GardenAction",
 }
 
 local Net = {}

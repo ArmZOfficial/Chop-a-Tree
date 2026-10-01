@@ -17,7 +17,15 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 4. UI ที่อ้างไอเทมใหม่ต้องรองรับ DataPatch มาถึงหลัง RemoteFunction response. ตรวจปุ่ม modal ด้วย mouse จริง รวม ZIndex, การยืนยัน Fuse/Delete และการไม่ชน CoreGUI hotbar.
 5. แยกงานภาพสุดท้ายไว้ใน Phase 10 ตามแผน: โมเดล/แสง/เสียง/VFX และปรับปรุง UI ทุกหน้าบนคอมพิวเตอร์/มือถือ. บันทึกข้อจำกัดของภาพปัจจุบันและสิ่งที่ยังไม่ได้ทดสอบให้ตรงกับ handoff.
 
-## แนวทางที่ ArmZ อนุญาต
+## แนวทางต่อสวน อากาศ และ Phase 5
+
+1. Phase 4 core ผ่าน 55 checks; อ่าน `docs/phase4_validation.md` ก่อนต่อไข่/สัตว์/ฐาน. GardenService จัด OwnerUserId/BaseIndex ของ 7 ฐานและสร้าง GardenSlots runtime 30 ช่อง; ใช้ ownership นี้ต่อ ไม่สร้างเจ้าของฐานอีกชุด.
+2. สวนใช้ seed UID/source zone/Rot/admin และ timestamp ใน profile. รักษา offline growth แบบปกติ, ไม่มี mutation offline และไม่สะสม harvest หลายรอบย้อนหลัง. Inventory.Seeds/Fruits กับ Garden เพิ่มด้วย Reconcile v1 โดยไม่รีเซ็ตเซฟเดิม.
+3. WeatherSchedule เป็นฟังก์ชัน UTC day/seed; ตรวจ midnight และ nextAt ด้วยตารางจริงเมื่อแก้ schedule. local admin override ต้องกลับ UTC ได้. อากาศทั้งหมด/Live Event ทุกเซิร์ฟต่อ Phase 8; art/เสียง/VFX และ **ปรับปรุง UI รวมสวน/อากาศ** ต่อ Phase 10.
+4. สูตร mutation ยึดพิเศษสูงสุด × (1+ผลรวมค่าอื่น) ตาม plan 4.12.3; Apply รวม parent tags ก่อนคิดราคา. ห้ามเปลี่ยนสูตรจากคำบรรยาย ×2 โดยไม่ปรับ plan/report ให้ตรงกัน.
+5. ทดสอบ Phase 4 ด้วย Script ใน VM เกมจริง และคืน profile/flags/อากาศ/Balance/anchor หลังจบ. GUIHarness ต้องสั่ง Finish ก่อน Stop. Regression Phase 2/3 ใช้ Clear เพื่อแยก weather จากสูตรที่กำลังตรวจ. อย่า overwrite ProfileStore ของ Studio.
+
+## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง
 

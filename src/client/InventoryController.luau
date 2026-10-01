@@ -143,6 +143,7 @@ function Inventory.Start()
 		local s=result:FindFirstChildOfClass("UIScale") or Instance.new("UIScale");s.Scale=math.min(1,(size.X-20)/380,(size.Y-30)/365);s.Parent=result
 	end
 	local function show()
+		local garden=player.PlayerGui:FindFirstChild("GardenHUD");if garden and garden:FindFirstChild("Panel") then garden.Panel.Visible=false end
 		panel.Visible=true;result.Visible=false;pendingFuse=nil;pendingDelete=nil;message.Text="เปิดหีบและหลอมที่แท่นในหมู่บ้าน";resize();render()
 		task.spawn(function() request("Sync") end)
 	end

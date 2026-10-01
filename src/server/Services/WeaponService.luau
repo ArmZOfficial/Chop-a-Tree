@@ -80,6 +80,7 @@ function Weapon.Open(player,uid)
 	chest.count-=1;if chest.count==0 then table.remove(chests,index) end
 	inventory[weaponUid]=item
 	Data.Set(player,"Inventory.Chests",chests);Data.Set(player,"Inventory.Weapons",inventory)
+	require(script.Parent.GardenService).ChestDrop(player,chest)
 	if Data.Get(player,"Inventory.Equipped")=="" then Data.Set(player,"Inventory.Equipped",weaponUid);Weapon.RefreshTool(player) end
 	if item.giant then Net.Event("Notify"):FireAllClients({text=player.DisplayName.." ได้ GIANT "..Weapons.ById[item.id].name.."!",color="Accent"}) end
 	return true,"เปิดหีบแล้ว",{uid=weaponUid,item=table.clone(item)}
