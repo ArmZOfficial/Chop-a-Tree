@@ -152,6 +152,7 @@
 1. **Phase 3 หีบ+อาวุธ**: ต่อจาก Inventory.Chests และ Run.Chests ที่มีแล้ว; ใส่ Config.Weapons จาก repo, ทำ rarity/drop/open/equip/roll และแทน starter Power ใน Run.Power. ใช้ Balance เดิม.
 2. ตรวจข้อจำกัด/ผลทดสอบ Phase 2 ใน `docs/phase2_validation.md`; friend boost หลายบัญชีและ mobile/gamepad ต้องทดสอบจริง. AFK ยาวยังไม่เสร็จเพราะ Roblox idle disconnect. Phase 4 สวน+อากาศ; Phase 5 ไข่/สัตว์/ขโมย/ฐาน/Mount และโล่ AFK.
 3. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
+4. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, ร้านค้า, เควส และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
 
 ## 11. Skill ที่ใช้
 
