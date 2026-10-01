@@ -141,9 +141,9 @@ function Run.Award(player,zone,tier,autoCut,rewardMult)
 	local boost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1
 	local weather=Weather.Def()
 	local indexOn=Features.IsEnabled("IndexBonuses")
-	local woodBoost=math.min(4,boost*weather.wood*Pet.Mult(player,"Wood")*CollectionMath.Permanent(d,"Wood",skillsOn,indexOn)*Reward.Mult(player,"Wood"))
-	local coinBoost=math.min(4,boost*CollectionMath.Permanent(d,"Coins",skillsOn,indexOn)*Reward.Mult(player,"Coins"));local scale=rewardMult or 1
-	r.Wood+=reward.wood*woodBoost*scale; r.Coins+=reward.coins*coinBoost*scale; r.Exp+=reward.exp*boost*scale*weather.exp*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
+	local woodBoost=math.min(4,boost*weather.wood*(weather.reward or 1)*Pet.Mult(player,"Wood")*CollectionMath.Permanent(d,"Wood",skillsOn,indexOn)*Reward.Mult(player,"Wood"))
+	local coinBoost=math.min(4,boost*(weather.coins or 1)*(weather.reward or 1)*CollectionMath.Permanent(d,"Coins",skillsOn,indexOn)*Reward.Mult(player,"Coins"));local scale=rewardMult or 1
+	r.Wood+=reward.wood*woodBoost*scale; r.Coins+=reward.coins*coinBoost*scale; r.Exp+=reward.exp*boost*scale*weather.exp*(weather.reward or 1)*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
 	Garden.TreeDrop(player,zone,tier,autoCut)
 	while r.Exp>=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")) do
 		r.Exp-=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")); r.Level+=1

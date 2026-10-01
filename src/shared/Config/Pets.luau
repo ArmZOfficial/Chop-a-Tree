@@ -56,6 +56,6 @@ return table.freeze({
 	ZoneBonus=1.2,TierIncome=.5,TierBuff=.25,MaxTier=5,
 	MaxBuff=4,MaxSpeed=1.5,SpeedScale=.5, -- plan 17.1.6 caps combined boosts at ×4
 	-- Hatch mutations raise pen income only; one mutation per pet.
-	Mutations={Shocked={mult=3,weather="Storm"},Frozen={mult=4,weather="Snow"},Golden={mult=5,weather="Golden"}},
+	Mutations={Shocked={mult=3,weather="Storm"},Frozen={mult=4,weather="Snow"},Golden={mult=5,weather="Golden"},Sakura={mult=3,weather="Sakura"},Celestial={mult=8,weather="Meteor"},Rainbow={mult=10,weather="Rainbow"}},
 	HatchMutationChance=.35,
 })

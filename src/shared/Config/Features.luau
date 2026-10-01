@@ -19,6 +19,7 @@ return table.freeze({
 	Leaderboard = true,
 	IndexBonuses = true, -- Phase 8c
 	Achievements = true,
+	LiveEvents = true, -- Phase 8d core
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9
 })

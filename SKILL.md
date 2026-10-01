@@ -70,7 +70,15 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. Run.Power/Award และ Weapon.Open เป็นจุดใช้บัฟ. Wood/Coins รวม Index กับ Rebirth แบบบวก cap ×2 ถาวร ก่อนบัฟรวม ×4; Power รวม pet/Index cap ×4. Luck เพิ่มโอกาส Epic+ แบบสัมพัทธ์ cap +25%, probability ≤100%, Giant เดิม. Luck=0 ต้องคง baseline แบบตรงตัว; UI หีบใช้สูตรเดียวกัน.
 3. Achievements.claimed/equipped อยู่ profile เดียวกับ Gems. ตรวจเกณฑ์ที่ server และบันทึก marker/เงินโดยไม่ yield; public remote รับ Sync/Claim/Equip เท่านั้น. ชื่อ title มาจาก Config, เลือกเฉพาะที่ claim แล้ว; RefreshTitle หลัง snapshot/CharacterAdded/flag change. Admin unlock/reset marksTarget; unlock ไม่จ่าย Gems.
 4. Phase 8c ผ่าน 55 checks และ GUI เมาส์จริง; regression 36/51/41/45. VM scenario/GUIHarness ต้อง snapshot/restore และ Finish ก่อน Stop. พัก Leaderboard ระหว่างจำลอง profile; แยกเควสหลักเมื่อวัด Gems จาก achievement. Sync source ทีละไฟล์แล้วตรวจ UTF-8/LF length/hash เพื่อจับ output truncation ก่อน Play.
-5. ต่อ Phase 8d อากาศครบทุกแบบ/Live Event ผ่าน WeatherSchedule/Garden/Pet seams เดิมตาม plan 4.12/5.7. บอสโลก/เทศกาล/ร้าน/Season Pass/Emote-Photo ยังแยกเป็นงานค้าง Phase 8; อย่าประกาศจบทั้ง Phase. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
+5. Phase 8d1 อากาศ/Live Event core ทำแล้วตามแนวทางด้านล่าง; ของพิเศษจากอากาศ/บอสโลกต่อ Phase 8d2. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังแยกเป็นงานค้าง Phase 8; อย่าประกาศจบทั้ง Phase. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
+
+## แนวทางอากาศ/Live Event หลัง Phase 8d1
+
+1. อ่าน `docs/phase8_weather_validation.md` ก่อนต่อ weather encounters. WeatherSchedule เป็น UTC deterministic; rare forecast ซ่อน, night-only ใช้ UTC 18–06, Rainbow ต่อ Rain, weekend ใช้ UTC. RotInvasion ยัง manual-only จนมี world boss; อย่าเปิด weight/รอบ 2 ชม. ก่อน encounter และรางวัลพร้อม.
+2. WeatherService เป็นจุด resolve: feature Weather → Live Event → local override → UTC. LiveEventService owns MemoryStore current record/revision และ MessagingService reread + polling; late join อ่านขั้นตามเวลาเดิม. Studio แยก topic/store. Owner global start/stop confirm 2 ชั้นผ่าน AdminService; public remote ไม่มี Force และข้อความเป็น preset ที่เชื่อถือได้.
+3. Wood/Coins อากาศรวม cap ×4 ผ่าน Run.Award; Area/crit/HP ผ่าน Tree.Hit, Fog chest ใช้ Run.CollectChest/provenance เดิม. Mutation สวนผ่าน GardenMath/Config.Mutations, hatch ผ่าน Pet.Advance online เท่านั้น; Index ใช้ union IDs ของผล/สัตว์และคง earned completion marker เมื่อขยาย catalog.
+4. Phase 8d1 ผ่าน 38 checks, regression 55/81/51/36/55 และ mouse preview. API global transaction/missed-message ทดสอบ fake store; Studio read ready ไม่ใช่ proof broadcast หลายเซิร์ฟ. ก่อนสรุป global ready ต้องตรวจจริงหลายเซิร์ฟพร้อม API outage/cancel. Scenario/GUIHarness snapshot/restore, Finish ก่อน Stop, source checksum 16 ไฟล์ตรง Edit.
+5. ต่อ Phase 8d2 Meteor Stardust/ไข่พิเศษ/Fog rare nests และ Rot world boss; หลังจากนั้น merchant/เทศกาล/rare fruit daily sale cap. เสียง/ภาพ/VFX สุดท้ายและอุปกรณ์จริงรอ Phase 10. ปรับ plan, SKILL, handoff พร้อมกันตามกฎเดิม.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

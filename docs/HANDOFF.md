@@ -1,9 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 8c Index buffs/Achievements core ทดสอบแล้ว; Phase 8 ส่วนอื่นยังค้าง
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 12) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d1 อากาศ/Live Event core ทดสอบแล้ว; encounters/ของพิเศษต่อ Phase 8d2
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 13) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8d1 อากาศ/Live Event core** แล้ว. Config อากาศ 13 แบบ, ผล mutation 15 แบบ/Index union 16 IDs, Wind Area ×1.5/Sakura crit ×15/Aurora Wood-Coins ×1.5/Bloodmoon HP ×2 รางวัล ×4 (Wood/Coins cap ×4), Fog chest เพิ่ม 1 จุดโซน 1. ตาราง UTC + rare weekend weights ×2, night gates, Rainbow 10% ต่อ Rain; RotInvasion manual-only. อ่าน `docs/phase8_weather_validation.md` ก่อนต่อ **Phase 8d2 Stardust/ไข่พิเศษ/บอสโลก**; ยังไม่ถือว่า weather table ทุกช่องหรือทั้ง Phase 8 เสร็จ.
+2. LiveEventService ใช้ MemoryStore UpdateAsync revision + MessagingService reread/poll 30 วิ; UTC sequence + start delay 5 วิ/late join/expiry/failed API. Owner-only start/stop ทุกเซิร์ฟ confirm 2, preview/stop preview เฉพาะเซิร์ฟ 2 คำสั่ง. Preset Sakura→Golden→Aurora 2 นาที/ขั้น (preview 20 วิ), Studio topic/store แยก `_Studio`. Global delivery เป็น best effort; ขณะ API ขัดข้องไม่รับประกันเปลี่ยนพร้อมกันทันที. ไม่มี public Force หรือข้อความผู้เล่น broadcast.
+3. ผ่าน **38/38**, regression สวน/สัตว์/เนื้อเรื่อง/หีบ/Collections **55/81/51/36/55**. Mouse preview เห็น Sakura→Golden→Aurora, LIVE forecast/particles/ClockTime=0; global request ไม่ confirm ถูกปฏิเสธ. MemoryStore Studio read ready; transaction/notification failure ใช้ fake store ไม่ได้ publish global จริงหรือทดสอบหลายเซิร์ฟ. หลักฐาน `phase8_weather_{test_results,regression_results,gui_results,source_checksums}.json`; source 16/16 ตรง Studio. รอบแรก fixture คาดจำนวน union Mutation ผิดเป็น 18 แล้วแก้เป็น 16 ตามข้อมูลจริง.
+4. คืน profile/flags/weather/preview/anchor/ตำแหน่ง/Balance หลัง scenario/GUI Finish แล้ว; snapshot GUI ตรวจข้อมูลเศรษฐกิจและ collection ไม่ต่าง. Startup smoke ใหม่ไม่มี error, Studio กลับ Edit ไม่มี test Script ค้าง. balance_sim.py baseline/diff --check ผ่าน; ไม่ overwrite ProfileStore และไม่ได้ Publish. Plan/skill/handoff อัปเดตพร้อมกัน. ค้าง Meteor pickups/การใช้ Stardust, Fog rare nests, Aurora shop eggs/Bloodmoon Secret eggs, Rot boss ทุก 2 ชม., zone ambient mutations, merchant/เทศกาล/rare fruit sale cap. Multi-serverจริง/สิทธิ์บัญชีอื่น/mobile/gamepad/เสียง-VFX/balance ยังต้องตรวจ.
+
+### บันทึก Phase 8c (ประวัติ)
 
 1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8c Index buffs/Achievements/ฉายา** แล้ว: อาวุธครบ Power +10%, สัตว์ครบ Coins +25%, เมล็ดครบ Wood +25%, Mutation ครบ Luck +25%. Wood/Coins รวมทักษะ Rebirth แบบบวก cap ×2 ถาวร, บัฟรวม cap ×4. เพิ่ม Luck 2 ขั้นใน Rebirth (2/4 Tokens), +12.5% ต่อขั้น รวม Index cap +25%; สูตร Epic+ แบบสัมพัทธ์/ Giant เดิม. อ่าน `docs/phase8_collections_validation.md` ก่อนต่อ Phase 8d อากาศครบทุกแบบ/Live Event ตาม plan 4.12/5.7.
 2. AchievementService ตรวจ Stats/Progress/Index, claim Gems ครั้งเดียวและเลือก/ถอด title ที่รับแล้ว. มี 9 achievements, server BillboardGui บนหัว, StoryHUD แท็บใหม่, Index แสดงโบนัส, Inventory odds ใช้ CollectionMath เดียวกับ server. Schema v1 เพิ่ม Achievements โดยไม่เปลี่ยน store. Quest.ScanIndex นับ catalog จริงและซ่อม completion marker เก่าที่ขาด; marker ที่ได้แล้วคงเมื่อเพิ่มของใหม่. Admin แท็บโซน & เนื้อเรื่อง unlockall/reset 2 คำสั่ง marksTarget; unlock ไม่จ่าย Gems. Feature IndexBonuses/Achievements เปิด.
@@ -85,7 +92,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth 41/41; Daily/Codes/Leaderboard 45/45; Index buffs/Achievements 55/55 + GUI; อากาศ/Live Event และระบบอื่นยังค้าง |
+| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; อากาศ/Live Event core 38/38 + GUI; encounters/ของพิเศษและระบบอื่นยังค้าง |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)

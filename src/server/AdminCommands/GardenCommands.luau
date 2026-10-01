@@ -1,6 +1,7 @@
 local S=game.ReplicatedStorage.Shared
 local Seeds=require(S.Config.Seeds)
 local Mutations=require(S.Config.Mutations)
+local WeatherConfig=require(S.Config.Weather)
 return function(Admin,Garden,Weather)
 	Admin.Register({id="seeds.demo",tab="garden",label="ให้เมล็ดทุกชนิด ×3",color="Green",usesTarget=true,marksTarget=true,run=function(ctx)
 		for _,p in ctx.targets do for _,s in Seeds.List do Garden.GrantSeed(p,s.id,1,0,3,true) end;Garden.Send(p) end
@@ -14,7 +15,7 @@ return function(Admin,Garden,Weather)
 			for _,p in ctx.targets do Garden.MutateAll(p,mutation) end;return true,"เพิ่ม "..mutation.." แล้ว"
 		end})
 	end
-	for _,id in {"Clear","Rain","Storm","Snow","Golden"} do local weather=id
+	for _,def in WeatherConfig.List do local weather=def.id
 		Admin.Register({id="weather."..weather,tab="weather",label=weather.." (เซิร์ฟนี้ 5 นาที)",color="Blue",run=function()
 			Weather.Force(weather,300);return true,"เปลี่ยนอากาศเฉพาะเซิร์ฟนี้: "..weather
 		end})

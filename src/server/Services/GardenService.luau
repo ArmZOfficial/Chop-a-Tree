@@ -160,7 +160,7 @@ local function actor(p,index,plot,part)
 	local trunk=piece("Trunk",Vector3.new(.45,3.4,.45),Vector3.new(0,1.7,0),Color3.fromRGB(117,80,49))
 	piece("Leaves",Vector3.new(3,2.2,3),Vector3.new(0,3.5,0),Color3.fromRGB(99,187,94),true)
 	if plot.mature and plot.nextFruitAt<=os.time() then
-		local color=def.color;for id in plot.mutations do color=Mutations.Colors[id] or color end
+		local color=def.color;for id in plot.mutations do color=Mutations.Colors[id] or Mutations.ExtraColors[id] or color end
 		for i=1,3 do piece("Fruit",Vector3.new(.7,.7,.7),Vector3.new(math.cos(i*2)*1.2,3,math.sin(i*2)*1.2),color,true) end
 	end
 	m.PrimaryPart=trunk

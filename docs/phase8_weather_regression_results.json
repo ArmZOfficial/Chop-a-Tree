@@ -1,0 +1,1142 @@
+{
+  "passed": true,
+  "cases": {
+    "Phase8Collections": {
+      "passed": true,
+      "checks": [
+        {
+          "name": "Additive schema preserves old progress and inventory",
+          "passed": true
+        },
+        {
+          "name": "Unknown Index IDs cannot complete a category or award Gems",
+          "passed": true
+        },
+        {
+          "name": "Admin-spawned items do not enter Index",
+          "passed": true
+        },
+        {
+          "name": "Legitimate collection discovery awards one Gem",
+          "passed": true
+        },
+        {
+          "name": "Repeated discovery pays nothing",
+          "passed": true
+        },
+        {
+          "name": "Existing complete Index repairs missing completion marker without a new item",
+          "passed": true
+        },
+        {
+          "name": "Completion Gems are paid once",
+          "passed": true
+        },
+        {
+          "name": "Complete seeds grant permanent Wood plus 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Index adds to Rebirth rather than multiplying permanent rewards",
+          "passed": true
+        },
+        {
+          "name": "Combined permanent sources stop at x2",
+          "passed": true
+        },
+        {
+          "name": "Feature switches disable each permanent source independently",
+          "passed": true
+        },
+        {
+          "name": "Actual Run power applies complete weapon Index",
+          "passed": true
+        },
+        {
+          "name": "Index feature off removes actual power bonus",
+          "passed": true
+        },
+        {
+          "name": "Pet plus Index power respects aggregate x4 cap",
+          "passed": true
+        },
+        {
+          "name": "Run starts for reward validation",
+          "passed": true
+        },
+        {
+          "name": "Actual Wood and Coins awards apply Index x1.25",
+          "passed": true
+        },
+        {
+          "name": "Actual awards combine skill and Index at x1.75",
+          "passed": true
+        },
+        {
+          "name": "Timed boosts with permanent rewards stop at x4",
+          "passed": true
+        },
+        {
+          "name": "Luck rank one costs two Tokens",
+          "passed": true
+        },
+        {
+          "name": "Stale skill purchase is rejected without charging",
+          "passed": true
+        },
+        {
+          "name": "Luck rank two costs four Tokens and reaches 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Luck cannot exceed two ranks",
+          "passed": true
+        },
+        {
+          "name": "Index and Rebirth Luck share a 25 percent ceiling",
+          "passed": true
+        },
+        {
+          "name": "Default chest odds remain exactly 70 25 5 percent",
+          "passed": true
+        },
+        {
+          "name": "Lucky increases combined Epic plus probability relatively by 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Luck preserves lower-rarity ratios and Giant odds",
+          "passed": true
+        },
+        {
+          "name": "Luck input clamps to zero through 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Rare chests reach combined Epic plus chance 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Common boosted probabilities remain normalized",
+          "passed": true
+        },
+        {
+          "name": "Rare boosted probabilities remain normalized",
+          "passed": true
+        },
+        {
+          "name": "Epic boosted probabilities remain normalized",
+          "passed": true
+        },
+        {
+          "name": "Legendary boosted probabilities remain normalized",
+          "passed": true
+        },
+        {
+          "name": "Mythic boosted probabilities remain normalized",
+          "passed": true
+        },
+        {
+          "name": "Seeded 20000 real rolls agree with Lucky distribution",
+          "passed": true
+        },
+        {
+          "name": "Actual chest opening uses server-derived Luck",
+          "passed": true
+        },
+        {
+          "name": "Unknown and malformed achievement IDs are rejected",
+          "passed": true
+        },
+        {
+          "name": "Incomplete achievement cannot pay Gems",
+          "passed": true
+        },
+        {
+          "name": "Exact threshold pays Gems and auto-equips first title",
+          "passed": true
+        },
+        {
+          "name": "Claim creates a server-owned visible title",
+          "passed": true
+        },
+        {
+          "name": "Duplicate claims cannot pay twice",
+          "passed": true
+        },
+        {
+          "name": "Unearned titles cannot be equipped",
+          "passed": true
+        },
+        {
+          "name": "Clearing title removes its BillboardGui",
+          "passed": true
+        },
+        {
+          "name": "Earned title can be equipped again",
+          "passed": true
+        },
+        {
+          "name": "Later claim preserves selected title",
+          "passed": true
+        },
+        {
+          "name": "Switching to another earned title works",
+          "passed": true
+        },
+        {
+          "name": "Feature off hides title and blocks claims and equip",
+          "passed": true
+        },
+        {
+          "name": "Feature on restores saved title",
+          "passed": true
+        },
+        {
+          "name": "Profile import preserves marker and selection without duplicate rewards",
+          "passed": true
+        },
+        {
+          "name": "Refresh rebuilds title for a missing character BillboardGui",
+          "passed": true
+        },
+        {
+          "name": "Admin unlock helper grants titles without economic rewards",
+          "passed": true
+        },
+        {
+          "name": "Admin reset clears claimed titles without subtracting Gems",
+          "passed": true
+        },
+        {
+          "name": "Rebirth keeps Index buffs claimed achievements selected title and Luck",
+          "passed": true
+        },
+        {
+          "name": "Rebirth milestone reads persistent Rebirth count",
+          "passed": true
+        },
+        {
+          "name": "All four completed Index categories unlock collector achievement",
+          "passed": true
+        },
+        {
+          "name": "Balance SelfTest passes",
+          "passed": true
+        }
+      ]
+    },
+    "Phase6": {
+      "passed": true,
+      "checks": [
+        {
+          "name": "Reconcile adds quests, index, bosses and shrines",
+          "passed": true
+        },
+        {
+          "name": "Boss HP is tier 6 x200 and power gate matches tier 6",
+          "passed": true
+        },
+        {
+          "name": "Eight chapters with valid steps",
+          "passed": true
+        },
+        {
+          "name": "Guardians exist exactly for built zones",
+          "passed": true
+        },
+        {
+          "name": "Talking far from Bram is rejected",
+          "passed": true
+        },
+        {
+          "name": "Talking to Bram completes the first step once",
+          "passed": true
+        },
+        {
+          "name": "Tree step counts only since it began",
+          "passed": true
+        },
+        {
+          "name": "Tenth tree completes the tree step",
+          "passed": true
+        },
+        {
+          "name": "Opening a chest counts through WeaponService",
+          "passed": true
+        },
+        {
+          "name": "Planting counts through GardenService",
+          "passed": true
+        },
+        {
+          "name": "Hatching counts through PetService",
+          "passed": true
+        },
+        {
+          "name": "Boss cannot be hit outside a Run",
+          "passed": true
+        },
+        {
+          "name": "Boss hit out of range is rejected",
+          "passed": true
+        },
+        {
+          "name": "Boss needs tier 6 power",
+          "passed": true
+        },
+        {
+          "name": "Boss hit removes the right health share",
+          "passed": true
+        },
+        {
+          "name": "Boss swing respects weapon cooldown",
+          "passed": true
+        },
+        {
+          "name": "Killing the boss marks it defeated (7000000; position=-43.2978515625, 7.9892578125, 223.8427734375)",
+          "passed": true
+        },
+        {
+          "name": "First defeat grants Gems and an Epic run chest",
+          "passed": true
+        },
+        {
+          "name": "Dead boss cannot be hit",
+          "passed": true
+        },
+        {
+          "name": "Boss step completes",
+          "passed": true
+        },
+        {
+          "name": "Repeat defeat gives a Rare chest without first-kill Gems",
+          "passed": true
+        },
+        {
+          "name": "Lighting far from the shrine is rejected",
+          "passed": true
+        },
+        {
+          "name": "Shrine of an undefeated boss is rejected",
+          "passed": true
+        },
+        {
+          "name": "Mount stays locked in chapter 1",
+          "passed": true
+        },
+        {
+          "name": "Lighting the shrine unlocks zone 2 and finishes chapter 1",
+          "passed": true
+        },
+        {
+          "name": "Chapter completion pays step and chapter Gems",
+          "passed": true
+        },
+        {
+          "name": "A lit shrine cannot be lit twice",
+          "passed": true
+        },
+        {
+          "name": "Mount unlocks in chapter 2",
+          "passed": true
+        },
+        {
+          "name": "Chapter 2 opens with Bram",
+          "passed": true
+        },
+        {
+          "name": "Warp needs a warp stone",
+          "passed": true
+        },
+        {
+          "name": "Locked or unbuilt zones cannot be warped to",
+          "passed": true
+        },
+        {
+          "name": "Carrying an egg blocks warping",
+          "passed": true
+        },
+        {
+          "name": "Warping to an unlocked zone starts a Run there",
+          "passed": true
+        },
+        {
+          "name": "Standing in zone 2 completes the zone step",
+          "passed": true
+        },
+        {
+          "name": "Warping home ends the Run",
+          "passed": true
+        },
+        {
+          "name": "Chapter 3 zone step follows the zone build flag",
+          "passed": true
+        },
+        {
+          "name": "Zone step does not advance away from the zone",
+          "passed": true
+        },
+        {
+          "name": "Daily quests are three distinct UTC-seeded picks",
+          "passed": true
+        },
+        {
+          "name": "Re-rolling the same day gives the same quests",
+          "passed": true
+        },
+        {
+          "name": "Unfinished daily cannot be claimed",
+          "passed": true
+        },
+        {
+          "name": "Finished daily pays once",
+          "passed": true
+        },
+        {
+          "name": "Weekly needs six times the daily count",
+          "passed": true
+        },
+        {
+          "name": "Weekly claim pays weekly Gems",
+          "passed": true
+        },
+        {
+          "name": "Unknown quest kinds are rejected",
+          "passed": true
+        },
+        {
+          "name": "Index records non-admin pets and pet mutations only",
+          "passed": true
+        },
+        {
+          "name": "Admin-granted weapons do not count",
+          "passed": true
+        },
+        {
+          "name": "Each new Index entry pays one Gem",
+          "passed": true
+        },
+        {
+          "name": "Rescanning pays nothing",
+          "passed": true
+        },
+        {
+          "name": "Completing a category pays the completion bonus",
+          "passed": true
+        },
+        {
+          "name": "Story feature off disables bosses and talking",
+          "passed": true
+        },
+        {
+          "name": "Balance self-test includes boss HP",
+          "passed": true
+        }
+      ]
+    },
+    "Phase3": {
+      "passed": true,
+      "checks": [
+        {
+          "name": "100 weapon definitions with unique IDs",
+          "passed": true
+        },
+        {
+          "name": "Registry IDs unique and indexed",
+          "passed": true
+        },
+        {
+          "name": "Common level 1 odds 70/25/5",
+          "passed": true
+        },
+        {
+          "name": "Level raises rarity and Giant odds",
+          "passed": true
+        },
+        {
+          "name": "20K seeded rolls fit probabilities",
+          "passed": true
+        },
+        {
+          "name": "Giant, Item Level, Rot power",
+          "passed": true
+        },
+        {
+          "name": "Chest UID assigned",
+          "passed": true
+        },
+        {
+          "name": "Open away from altar rejected",
+          "passed": true
+        },
+        {
+          "name": "Altar access validated",
+          "passed": true
+        },
+        {
+          "name": "One chest creates one owned weapon",
+          "passed": true
+        },
+        {
+          "name": "First weapon auto equipped",
+          "passed": true
+        },
+        {
+          "name": "Unknown owned ID rejected",
+          "passed": true
+        },
+        {
+          "name": "Remaining chest opens",
+          "passed": true
+        },
+        {
+          "name": "Duplicate exhausted chest rejected",
+          "passed": true
+        },
+        {
+          "name": "Chest zone and admin provenance inherited",
+          "passed": true
+        },
+        {
+          "name": "Feature flag rejects opening without consuming",
+          "passed": true
+        },
+        {
+          "name": "Duplicate Fuse input rejected",
+          "passed": true
+        },
+        {
+          "name": "Insufficient Wood leaves items intact",
+          "passed": true
+        },
+        {
+          "name": "Fuse succeeds",
+          "passed": true
+        },
+        {
+          "name": "Fuse consumes 3 into 1, charges once, preserves equip",
+          "passed": true
+        },
+        {
+          "name": "Repeated Fuse cannot double consume",
+          "passed": true
+        },
+        {
+          "name": "Max stars rejected",
+          "passed": true
+        },
+        {
+          "name": "Different definitions rejected",
+          "passed": true
+        },
+        {
+          "name": "Giant model x3 and combat area x2",
+          "passed": true
+        },
+        {
+          "name": "Equipped weapon drives Run Power",
+          "passed": true
+        },
+        {
+          "name": "Disabled weapons fall back to starter",
+          "passed": true
+        },
+        {
+          "name": "Weapon hit accepted",
+          "passed": true
+        },
+        {
+          "name": "Area damages adjacent tree, leaves far one",
+          "passed": true
+        },
+        {
+          "name": "Weapon speed cooldown enforced",
+          "passed": true
+        },
+        {
+          "name": "Weapon speed permits next swing",
+          "passed": true
+        },
+        {
+          "name": "Giant swing accepted",
+          "passed": true
+        },
+        {
+          "name": "Giant doubled area reaches extra tree",
+          "passed": true
+        },
+        {
+          "name": "Deleting equipped weapon clears slot and restores starter",
+          "passed": true
+        },
+        {
+          "name": "Repeated delete rejected",
+          "passed": true
+        },
+        {
+          "name": "Run chest captures Rot at pickup",
+          "passed": true
+        },
+        {
+          "name": "Balance formulas pass",
+          "passed": true
+        }
+      ]
+    },
+    "Phase5": {
+      "passed": true,
+      "checks": [
+        {
+          "name": "Reconcile adds egg/pet data and keeps weapons",
+          "passed": true
+        },
+        {
+          "name": "Every egg drop table and pet rarity resolves",
+          "passed": true
+        },
+        {
+          "name": "Base pen income is 2 Coins/s for a zone 1 Common",
+          "passed": true
+        },
+        {
+          "name": "Tier and mutation scale income",
+          "passed": true
+        },
+        {
+          "name": "Source zone scales income x100 and buff x1.2",
+          "passed": true
+        },
+        {
+          "name": "Pet Power buff caps at x4",
+          "passed": true
+        },
+        {
+          "name": "Pet Speed buff caps at x1.5",
+          "passed": true
+        },
+        {
+          "name": "Conveyor belt is deterministic with three visible eggs",
+          "passed": true
+        },
+        {
+          "name": "Egg inventory caps at 60",
+          "passed": true
+        },
+        {
+          "name": "Placing an egg away from the incubator is rejected",
+          "passed": true
+        },
+        {
+          "name": "Invalid incubator slots are rejected",
+          "passed": true
+        },
+        {
+          "name": "Placing consumes the egg into the slot",
+          "passed": true
+        },
+        {
+          "name": "Occupied slot rejects another egg",
+          "passed": true
+        },
+        {
+          "name": "Incubator progresses by real time",
+          "passed": true
+        },
+        {
+          "name": "Unfinished eggs cannot hatch",
+          "passed": true
+        },
+        {
+          "name": "Offline completion never rolls a weather mutation",
+          "passed": true
+        },
+        {
+          "name": "Online completion during Golden can roll Golden",
+          "passed": true
+        },
+        {
+          "name": "Hatch turns a finished egg into one penned pet",
+          "passed": true
+        },
+        {
+          "name": "Hatched pet goes to the pen automatically",
+          "passed": true
+        },
+        {
+          "name": "Repeated hatch is rejected",
+          "passed": true
+        },
+        {
+          "name": "Pen income accrues per second online",
+          "passed": true
+        },
+        {
+          "name": "Offline pen income caps at 8 hours",
+          "passed": true
+        },
+        {
+          "name": "Collecting away from the pen is rejected",
+          "passed": true
+        },
+        {
+          "name": "Collect pays the bank exactly once",
+          "passed": true
+        },
+        {
+          "name": "Pen holds 8 pets before upgrades",
+          "passed": true
+        },
+        {
+          "name": "Only three pets can follow",
+          "passed": true
+        },
+        {
+          "name": "Following pets replicate for client visuals",
+          "passed": true
+        },
+        {
+          "name": "Following Power pet raises Cut Power",
+          "passed": true
+        },
+        {
+          "name": "Following Wood pet multiplies forest Wood",
+          "passed": true
+        },
+        {
+          "name": "Fusing mismatched pets is rejected",
+          "passed": true
+        },
+        {
+          "name": "Fusing three identical pets gives one higher tier and keeps the best mutation",
+          "passed": true
+        },
+        {
+          "name": "Release removes the pet",
+          "passed": true
+        },
+        {
+          "name": "Non-rideable pets cannot be mounted",
+          "passed": true
+        },
+        {
+          "name": "Mounting a rideable pet multiplies WalkSpeed",
+          "passed": true
+        },
+        {
+          "name": "Dismount restores WalkSpeed",
+          "passed": true
+        },
+        {
+          "name": "Pen upgrade costs Wood and adds four slots",
+          "passed": true
+        },
+        {
+          "name": "Incubator upgrade speeds hatching",
+          "passed": true
+        },
+        {
+          "name": "Lock upgrade caps at level 3 (120 seconds)",
+          "passed": true
+        },
+        {
+          "name": "Unknown upgrade rejected",
+          "passed": true
+        },
+        {
+          "name": "Buying away from the conveyor is rejected",
+          "passed": true
+        },
+        {
+          "name": "Conveyor purchase charges zone price once",
+          "passed": true
+        },
+        {
+          "name": "Old or future belt epochs are rejected",
+          "passed": true
+        },
+        {
+          "name": "Zone 2 eggs need zone 2 unlocked",
+          "passed": true
+        },
+        {
+          "name": "Chest egg drop keeps zone, Rot and admin provenance",
+          "passed": true
+        },
+        {
+          "name": "Zone 1 nests expose six egg spots",
+          "passed": true
+        },
+        {
+          "name": "Nest eggs need an active Run",
+          "passed": true
+        },
+        {
+          "name": "Taking a nest egg starts a slowed carry",
+          "passed": true
+        },
+        {
+          "name": "Only one egg can be carried",
+          "passed": true
+        },
+        {
+          "name": "Carrying blocks mounting",
+          "passed": true
+        },
+        {
+          "name": "Secure moves the egg into Run.Eggs",
+          "passed": true
+        },
+        {
+          "name": "Taken nest spot waits for refill",
+          "passed": true
+        },
+        {
+          "name": "End Run settles secured nest eggs",
+          "passed": true
+        },
+        {
+          "name": "Dying/leaving (End without button) returns the carried egg",
+          "passed": true
+        },
+        {
+          "name": "End Run button secures the carried egg",
+          "passed": true
+        },
+        {
+          "name": "Guardian catches a carrier who stands still and returns the egg",
+          "passed": true
+        },
+        {
+          "name": "Reaching the zone WarpStone secures the egg",
+          "passed": true
+        },
+        {
+          "name": "Bot base takes a free base without changing ours",
+          "passed": true
+        },
+        {
+          "name": "Eggs hatched past 75% are not stealable",
+          "passed": true
+        },
+        {
+          "name": "Stealing far from the incubator is rejected",
+          "passed": true
+        },
+        {
+          "name": "Stealing during a Run is rejected",
+          "passed": true
+        },
+        {
+          "name": "Steal starts a slowed carry with a reclaim prompt",
+          "passed": true
+        },
+        {
+          "name": "Thief carries only one egg",
+          "passed": true
+        },
+        {
+          "name": "Thief cannot start a Run",
+          "passed": true
+        },
+        {
+          "name": "Delivering home transfers the egg once",
+          "passed": true
+        },
+        {
+          "name": "Successful steal pays a bonus and counts",
+          "passed": true
+        },
+        {
+          "name": "Same base is on thief cooldown",
+          "passed": true
+        },
+        {
+          "name": "Cooldown reset allows the next egg",
+          "passed": true
+        },
+        {
+          "name": "Cancel returns the egg untouched",
+          "passed": true
+        },
+        {
+          "name": "Removing the bot frees its base",
+          "passed": true
+        },
+        {
+          "name": "New players are shielded for 30 minutes",
+          "passed": true
+        },
+        {
+          "name": "AFK over 10 minutes grants a shield",
+          "passed": true
+        },
+        {
+          "name": "Acting clears the AFK shield",
+          "passed": true
+        },
+        {
+          "name": "Locking the base raises the barrier",
+          "passed": true
+        },
+        {
+          "name": "A locked base cannot be locked again",
+          "passed": true
+        },
+        {
+          "name": "Reset lock drops the barrier",
+          "passed": true
+        },
+        {
+          "name": "Test thief takes our egg",
+          "passed": true
+        },
+        {
+          "name": "A carried egg does not progress",
+          "passed": true
+        },
+        {
+          "name": "Reclaim needs to be close",
+          "passed": true
+        },
+        {
+          "name": "Owner reclaim returns the egg",
+          "passed": true
+        },
+        {
+          "name": "Eggs feature off disables actions and buffs",
+          "passed": true
+        },
+        {
+          "name": "Balance self-test still passes",
+          "passed": true
+        }
+      ]
+    },
+    "Phase4": {
+      "passed": true,
+      "checks": [
+        {
+          "name": "Eight seed definitions span 5 minutes to 24 hours",
+          "passed": true
+        },
+        {
+          "name": "Additive schema preserves existing weapon inventory",
+          "passed": true
+        },
+        {
+          "name": "Reconcile adds Garden and Seeds to old version one data",
+          "passed": true
+        },
+        {
+          "name": "Base allocated and owned",
+          "passed": true
+        },
+        {
+          "name": "30 runtime slots exist, six unlocked",
+          "passed": true
+        },
+        {
+          "name": "Unmutated fruit price",
+          "passed": true
+        },
+        {
+          "name": "Explicit Golden/Shocked/Wet formula gives 360",
+          "passed": true
+        },
+        {
+          "name": "Wet plus Chilled becomes Frozen",
+          "passed": true
+        },
+        {
+          "name": "Wet plus Shocked becomes Electrified",
+          "passed": true
+        },
+        {
+          "name": "Source zone and rebirth scale sale value",
+          "passed": true
+        },
+        {
+          "name": "Rain and watering stack growth",
+          "passed": true
+        },
+        {
+          "name": "Offline progress uses normal growth",
+          "passed": true
+        },
+        {
+          "name": "Offline maturity gives one ready harvest",
+          "passed": true
+        },
+        {
+          "name": "UTC repeated query deterministic",
+          "passed": true
+        },
+        {
+          "name": "UTC schedules survive midnight boundaries",
+          "passed": true
+        },
+        {
+          "name": "UTC forecasts reference actual future events",
+          "passed": true
+        },
+        {
+          "name": "Shop restock deterministic in 5 minute epoch",
+          "passed": true
+        },
+        {
+          "name": "Plant away from own base rejected",
+          "passed": true
+        },
+        {
+          "name": "Locked or fractional slots rejected",
+          "passed": true
+        },
+        {
+          "name": "Plant consumes one seed",
+          "passed": true
+        },
+        {
+          "name": "Occupied slot cannot consume another seed",
+          "passed": true
+        },
+        {
+          "name": "Owner waters exactly once",
+          "passed": true
+        },
+        {
+          "name": "Other base proximity cannot harvest or water own plot",
+          "passed": true
+        },
+        {
+          "name": "Garden matured from offline timestamp",
+          "passed": true
+        },
+        {
+          "name": "Offline interval never creates mutation",
+          "passed": true
+        },
+        {
+          "name": "Online ready fruit receives weather mutation",
+          "passed": true
+        },
+        {
+          "name": "Weather event rolls only once",
+          "passed": true
+        },
+        {
+          "name": "Harvest creates three fruit and keeps tree",
+          "passed": true
+        },
+        {
+          "name": "Immediate repeated harvest rejected",
+          "passed": true
+        },
+        {
+          "name": "Same tree gives a second harvest",
+          "passed": true
+        },
+        {
+          "name": "Fruit cannot sell far from shop",
+          "passed": true
+        },
+        {
+          "name": "Selling credits exactly once and empties inventory",
+          "passed": true
+        },
+        {
+          "name": "Repeated selling cannot duplicate money",
+          "passed": true
+        },
+        {
+          "name": "Seed purchase consumes correct coins",
+          "passed": true
+        },
+        {
+          "name": "Saved per-player stock blocks repeat/server-hop purchase",
+          "passed": true
+        },
+        {
+          "name": "Mature cut clears plot and adds source-scaled wood",
+          "passed": true
+        },
+        {
+          "name": "Repeated cut cannot duplicate Wood",
+          "passed": true
+        },
+        {
+          "name": "Upgrade buys six slots for Wood",
+          "passed": true
+        },
+        {
+          "name": "Garden upgrade caps at 30",
+          "passed": true
+        },
+        {
+          "name": "Disabled garden rejects planting",
+          "passed": true
+        },
+        {
+          "name": "Garden operations forbidden during Run",
+          "passed": true
+        },
+        {
+          "name": "Planted Lumora grants shared EXP buff",
+          "passed": true
+        },
+        {
+          "name": "Server EXP buff caps at 25 percent",
+          "passed": true
+        },
+        {
+          "name": "Wild-tree seed settles once at End Run",
+          "passed": true
+        },
+        {
+          "name": "Chest seed drop retains provenance",
+          "passed": true
+        },
+        {
+          "name": "Rain multiplies forest Wood by 1.25",
+          "passed": true
+        },
+        {
+          "name": "Snow multiplies forest EXP by 1.5",
+          "passed": true
+        },
+        {
+          "name": "Golden chest receives level plus five",
+          "passed": true
+        },
+        {
+          "name": "Lightning fells tree and grants triple nearby reward",
+          "passed": true
+        },
+        {
+          "name": "Repeated lightning on dead tree rejected",
+          "passed": true
+        },
+        {
+          "name": "Snow raises required power on server",
+          "passed": true
+        },
+        {
+          "name": "Same power can hit in Clear weather",
+          "passed": true
+        },
+        {
+          "name": "Snow hit respects 1.25 health multiplier (487.5, 0.13/0.12999999999999995, position=-442, 8.5, 250, tree=-437, 8.5, 250)",
+          "passed": true
+        },
+        {
+          "name": "Weather feature off restores Clear and normal health",
+          "passed": true
+        },
+        {
+          "name": "Balance self-test still passes",
+          "passed": true
+        }
+      ]
+    }
+  }
+}

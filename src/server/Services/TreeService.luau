@@ -15,6 +15,7 @@ local Pet=require(script.Parent.PetService)
 local WeatherConfig=require(Shared.Config.Weather)
 local Tree={}
 local trees, cooldowns, navigating, chestStates, collected={},{},{},{},{}
+local fogChest
 local rng=Random.new()
 local function root(player)
 	local c=player.Character
@@ -110,7 +111,7 @@ function Tree.Hit(player,model)
 	cooldowns[player]=now+Config.AttackInterval/combat.speed
 	Pet.Dismount(player) -- riders hop off to chop (plan 9.3)
 	local crit=rng:NextNumber()<Balance.Get("CritChance")
-	local damage=power*(crit and Balance.Get("CritMult") or 1)
+	local damage=power*(crit and (Weather.Def().crit or Balance.Get("CritMult")) or 1)
 	local fraction=math.min(s.ratio,damage/(Balance.TreeHP(zone,tier,rebirth)*health))
 	s.ratio=math.max(0,s.ratio-fraction)
 	local previous=s.contributors[player]
@@ -125,11 +126,12 @@ function Tree.Hit(player,model)
 	end
 	-- Area is centered on the accepted primary tree; every extra tree still
 	-- needs the same zone, vertical reach, power requirement and clear sight.
-	if combat.area>0 then
+	local area=combat.area*(Weather.Def().area or 1)
+	if area>0 then
 		for other,extra in trees do
 			if other~=model and other.Parent and extra.ratio>0 and other:GetAttribute("Zone")==zone then
 				local op=position(other);local ot=other:GetAttribute("Tier")
-				if flatDistance(p,op)<=combat.area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth)*health then
+				if flatDistance(p,op)<=area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth)*health then
 					local oa=op+Vector3.new(0,3,0);local block=workspace:Raycast(hr.Position,oa-hr.Position,params)
 					if not block or block.Instance:IsDescendantOf(other) then
 						extra.ratio=math.max(0,extra.ratio-damage/(Balance.TreeHP(zone,ot,rebirth)*health))
@@ -217,7 +219,10 @@ function Tree.Init()
 	for _,m in Collection:GetTagged("Tree") do register(m) end
 	Collection:GetInstanceAddedSignal("Tree"):Connect(register)
 	Collection:GetInstanceRemovedSignal("Tree"):Connect(function(m) trees[m]=nil end)
-	for _,spot in Collection:GetTagged("ChestSpot") do if spot:IsA("BasePart") and spot:IsDescendantOf(workspace) then chestStates[spot]={ready=false,generation=0} end end
+	local function registerChest(spot) if spot:IsA("BasePart") and spot:IsDescendantOf(workspace) then chestStates[spot]={ready=false,generation=0} end end
+	for _,spot in Collection:GetTagged("ChestSpot") do registerChest(spot) end
+	Collection:GetInstanceAddedSignal("ChestSpot"):Connect(registerChest)
+	Collection:GetInstanceRemovedSignal("ChestSpot"):Connect(function(spot) chestStates[spot]=nil end)
 	Net.Event("ForestAction").OnServerEvent:Connect(function(player,action,model)
 		if action=="Hit" and typeof(model)=="Instance" and trees[model] then Tree.Hit(player,model) end
 	end)
@@ -255,12 +260,20 @@ function Tree.Start()
 	task.spawn(function()
 		while true do
 			for spot,s in chestStates do
+				if spot:GetAttribute("WeatherBonus")=="Fog" then
+					local ready=Weather.State().id=="Fog";if ready and not s.ready then s.generation+=1 end;s.ready=ready;spot:SetAttribute("ChestReady",ready);continue
+				end
 				local nearby,alive=0,false
 				for model,state in trees do if model.Parent and model:GetAttribute("Zone")==spot:GetAttribute("Zone") and flatDistance(position(model),spot.Position)<=Config.ChestClearRadius then nearby+=1; if state.ratio>0 then alive=true end end end
 				local ready=nearby>0 and not alive
 				if ready and not s.ready then s.generation+=1 end
 				s.ready=ready; spot:SetAttribute("ChestReady",ready)
 			end
+			if Weather.State().id=="Fog" and not fogChest then
+				for _,spot in Collection:GetTagged("ChestSpot") do if spot:IsA("BasePart") and spot:IsDescendantOf(workspace) and spot:GetAttribute("Zone")==1 and not spot:GetAttribute("WeatherBonus") then
+					fogChest=spot:Clone();fogChest.Name="FogChest";fogChest:SetAttribute("WeatherBonus","Fog");fogChest.Position+=Vector3.new(6,0,0);fogChest.Parent=workspace;break
+				end end
+			elseif Weather.State().id~="Fog" and fogChest then fogChest:Destroy();fogChest=nil end
 			task.wait(1)
 		end
 	end)
