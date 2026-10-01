@@ -1,6 +1,6 @@
 ---
 name: chop-a-tree-assets
-description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
+description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing, rebirth); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
 ---
 
 # Creator Store สำหรับ Chop a Tree
@@ -46,6 +46,14 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. ต้นไม้โซน 3–8 ใช้ `ServerStorage.MapAssets.Trees.<ZoneKey>` จาก `tools/map/AssetPrototypes.luau`; เก็บต้นแบบที่ตรวจแล้วใน place. ก่อนสร้างซ้ำจาก place ใหม่ ให้ใส่ asset ID ตาม `Prototypes.Sources` ใน `ServerStorage.AssetStaging`, เรียก Build/Report และยืนยัน scripts=0. ถ้าไม่มีต้นแบบ MapBuilder จะใช้ต้นไม้ Part เดิม.
 3. รักษา Trunk โปร่งใสเป็น PrimaryPart/collider และ Look เป็นภาพที่ไม่ชน; ตรวจซ่อน/เกิดใหม่ด้วย TreeService. `BossArena.GuardianOffset` เลื่อนบอส 26 studs ไปด้านที่ห่างจากแนวทางเดิน (โซน 8 ไปด้านข้าง Lumora); BossService ใช้ offset นี้. ตรวจเส้นทางทั้ง Edit และ Play เพราะบอสเกิดตอน Play และรากอาจขวางทางแม้ Edit ผ่าน.
 4. ZoneAmbience เป็น particle ฝั่ง client ตาม footprint เดียวกับ RunService.ZoneAt; ไม่แก้ Lighting หรือ mutation. รูปลักษณ์/เสียงเฉพาะโซนและอุปกรณ์จริงยังต้องตรวจใน Phase 10.
+
+## แนวทางต่อ Rebirth และ Phase 8b
+
+1. อ่าน `docs/phase8_rebirth_validation.md` ก่อนต่อ Phase 8. RebirthService เป็นเจ้าของธุรกรรมวัฏจักร/ซื้อทักษะ; สูตรและราคาอยู่ RebirthMath + Config.Rebirth. บอสต้องเป็นผลงานในวัฏจักรปัจจุบัน; รีเซ็ตเควสหลักผ่าน Quest.ResetStory โดยคง Stats/Index/รายวัน/สัปดาห์.
+2. ใช้ Prepare token ผูกผู้เล่น/R หมดอายุ 30 วิและใช้ครั้งเดียว; Confirm ตรวจเงื่อนไขซ้ำ. ซื้อทักษะส่ง expected rank ป้องกัน replay. Force ผ่าน AdminService เท่านั้น; ห้ามเพิ่ม yield ระหว่างเปลี่ยนเงิน/Token/ทักษะ/วัฏจักร.
+3. คง UID ของ inventory/crops เมื่อรีเซ็ตความจุ. Pet.Trim ย้ายสัตว์เกินความจุกลับกระเป๋า; GardenState แยก visible slots จาก unlockedSlots. ต้นปลูกเหนือความจุยังเก็บผลได้ แต่ server ห้ามปลูกใหม่จนซื้อช่องคืน.
+4. รวมบัฟ Wood friend/weather/pet/skill ไม่เกิน ×4 และ Coins friend/skill ไม่เกิน ×4; rewardMult ของบอสแยกจากเพดานบัฟ. AutoCut reward/ChestLevel ใช้ RunService เป็นจุดเดียว. ทักษะถาวรคงอยู่ทุกวัฏจักร; ราคาเป็นค่าตั้งต้นรอจูน Phase 10.
+5. เทสต์ผ่าน Script ใน VM เกมจริงและ snapshot/restore profile/flags/weather/anchor; GUIHarness ต้อง Finish ก่อน Stop. ตรวจ modal ZIndex ด้วยภาพและคลิกจริง. Phase 8a ผ่าน 41 checks; งานถัดไป Daily login/Codes/Leaderboard และส่วน Phase 8 ที่เหลือ ไม่ถือว่าจบทั้ง Phase 8.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

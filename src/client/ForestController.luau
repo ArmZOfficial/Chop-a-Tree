@@ -102,6 +102,7 @@ function Forest.Start()
 		panel.Visible=state.active; top.Visible=state.active; chop.Visible=state.active; hint.Visible=not state.active and not state.summary
 		buttonText(attack,"Auto Attack: "..(state.autoAttack and "ON" or "OFF"))
 		buttonText(cut,"Auto Cut: "..(state.autoCut and "ON" or "OFF"))
+		for _,label in cut:GetDescendants() do if label:IsA("TextLabel") and label.LayoutOrder==2 then label.Text="EXP / Wood / Coins −"..math.floor((1-(state.autoReward or .55))*100+.5).."%" end end
 		stats.Text="LEVEL "..state.level.."  •  ×"..string.format("%.2f",state.multiplier).."  •  Power "..NF.Short(state.power)
 		earnings.Text="Wood +"..NF.Short(state.wood).."  Coins +"..NF.Short(state.coins).."  Friends +"..math.floor((state.friendBoost-1)*100+0.5).."%"
 		expFill.Size=UDim2.fromScale(math.clamp(state.exp/state.nextExp,0,1),1)

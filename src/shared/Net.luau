@@ -31,6 +31,7 @@ local FUNCTIONS = {
 	"PetAction",
 	"BaseAction",
 	"StoryAction",
+	"RebirthAction",
 }
 
 local Net = {}

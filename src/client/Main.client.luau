@@ -1,7 +1,7 @@
 --!strict
 -- จุดเริ่มฝั่ง Client — เพิ่มโมดูลใหม่ใน MODULES
 
-local MODULES = { "ClientData", "HUD", "AdminEffects", "ForestController", "InventoryController", "WeatherController", "GardenController", "PetController", "StoryController", "ZoneAmbience" }
+local MODULES = { "ClientData", "HUD", "AdminEffects", "ForestController", "InventoryController", "WeatherController", "GardenController", "PetController", "StoryController", "ZoneAmbience", "RebirthController" }
 
 for _, name in MODULES do
 	local ok, err = pcall(function()

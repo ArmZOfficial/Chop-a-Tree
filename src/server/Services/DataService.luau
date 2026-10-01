@@ -38,6 +38,7 @@ DataService.Template = {
 		weekly = { key = -1, ids = {}, base = {}, claimed = {} },
 	},
 	Index = { weapons = {}, pets = {}, seeds = {}, mutations = {}, done = {} },
+	Rebirth = { skills = {} },
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {} },
 	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0 }, equipSlots = 3 },

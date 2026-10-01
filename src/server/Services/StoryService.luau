@@ -29,6 +29,9 @@ function StoryService.Talk(p,npc)
 	if not def or not near(p,model,Story.TalkRange) then return false,"เดินเข้าไปใกล้ NPC ก่อน" end
 	local step=Quest.Step(p);local chapter=Data.Get(p,"Progress.StoryChapter")
 	local lines=step and step.kind=="talk" and step.npc==npc and def.chapter[chapter] or {def.idle[rng:NextInteger(1,#def.idle)]}
+	if Data.Get(p,"Progress.Rebirth")>0 then
+		lines=table.clone(lines);table.insert(lines,1,"วัฏจักรที่ "..Data.Get(p,"Progress.Rebirth").." แล้วสินะ... ราเน่าแรงขึ้น แต่เจ้าก็แข็งแกร่งขึ้นด้วย!")
+	end
 	Net.Event("StoryShow"):FireClient(p,{kind="dialog",speaker=def.name,lines=lines})
 	Quest.OnTalk(p,npc)
 	return true,"คุยกับ "..def.name

@@ -66,9 +66,9 @@ end
 
 export type Reward = { exp: number, wood: number, coins: number }
 
-function Balance.TreeReward(zone: number, tier: number, rebirth: number?, autoCut: boolean?): Reward
+function Balance.TreeReward(zone: number, tier: number, rebirth: number?, autoCut: boolean?, autoReward: number?): Reward
 	local hp = Balance.TreeHP(zone, tier, rebirth)
-	local mult = if autoCut then G("AutoCutReward") else 1
+	local mult = if autoCut then math.clamp(autoReward or G("AutoCutReward"), G("AutoCutReward"), .75) else 1
 	return {
 		exp = hp * G("ExpRatio") * mult,
 		wood = hp * G("WoodRatio") * mult,

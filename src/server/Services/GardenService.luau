@@ -170,7 +170,7 @@ end
 function Garden.Render(p)
 	local data=Data.Get(p,"Garden");local id=owners[p];if not id or not data then return end
 	for index,part in slots[id] do
-		part.Transparency=index<=data.slots and 0 or .7
+		part.Transparency=(index<=data.slots or data.plots[tostring(index)]) and 0 or .7
 		local plot=data.plots[tostring(index)]
 		local sig=plot and (plot.id..math.floor(plot.progress/Seeds.ById[plot.id].grow*20)..tostring(plot.mature)..tostring(plot.nextFruitAt<=os.time())..Math.Key(plot.mutations)) or "empty"
 		if signatures[p][index]~=sig then signatures[p][index]=sig;actor(p,index,plot,part) end
@@ -182,7 +182,8 @@ function Garden.Send(p)
 	local stock,epoch,restock=Garden.Shop(os.time());local data=Data.Get(p,"Garden");local available={}
 	for id,n in stock do available[id]=math.max(0,n-(data.shopEpoch==epoch and (data.bought[id] or 0) or 0)) end
 	local plots={};for k,v in data.plots do plots[k]=table.clone(v);plots[k].mutations=table.clone(v.mutations) end
-	Net.Event("GardenState"):FireClient(p,{base=owners[p],slots=data.slots,plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
+	local visibleSlots=data.slots;for k in plots do visibleSlots=math.max(visibleSlots,tonumber(k) or 0) end
+	Net.Event("GardenState"):FireClient(p,{base=owners[p],slots=visibleSlots,unlockedSlots=data.slots,plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
 end
 
 function Garden.MatureAll(p)

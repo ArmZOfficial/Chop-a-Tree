@@ -14,6 +14,7 @@ local Weather = require(script.Parent.WeatherService)
 local Pet = require(script.Parent.PetService)
 local Nest = require(script.Parent.NestService)
 local Loot = require(Shared.Loot)
+local RebirthMath = require(Shared.RebirthMath)
 local Http = game:GetService("HttpService")
 local chestRng = Random.new()
 local Run = {}
@@ -59,6 +60,7 @@ function Run.Send(player,summary)
 		active=r.Active,level=r.Level,exp=r.Exp,nextExp=Balance.ExpToNext(r.Level,r.Zone,Data.Get(player,"Progress.Rebirth")),
 		zone=r.Zone,power=Run.Power(player),multiplier=Balance.RunMultiplier(r.Level),wood=r.Wood,coins=r.Coins,trees=r.Trees,
 		chests=r.Chests,autoAttack=m.AutoAttack,autoCut=m.AutoCut,friendBoost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1,summary=summary,
+		autoReward=RebirthMath.AutoReward(Data.GetData(player),Features.IsEnabled("Rebirth")),
 	})
 end
 
@@ -131,11 +133,13 @@ end
 function Run.Award(player,zone,tier,autoCut,rewardMult)
 	local r=Run.Get(player)
 	if not r or not r.Active then return end
-	local reward=Balance.TreeReward(zone,tier,Data.Get(player,"Progress.Rebirth"),autoCut)
+	local d=Data.GetData(player);local skillsOn=Features.IsEnabled("Rebirth")
+	local reward=Balance.TreeReward(zone,tier,d.Progress.Rebirth,autoCut,RebirthMath.AutoReward(d,skillsOn))
 	local boost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1
-	boost*=rewardMult or 1
 	local weather=Weather.Def()
-	r.Wood+=reward.wood*boost*weather.wood*Pet.Mult(player,"Wood"); r.Coins+=reward.coins*boost; r.Exp+=reward.exp*boost*weather.exp*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
+	local woodBoost=math.min(4,boost*weather.wood*Pet.Mult(player,"Wood")*RebirthMath.Mult(d,"Wood",skillsOn))
+	local coinBoost=math.min(4,boost*RebirthMath.Mult(d,"Coins",skillsOn));local scale=rewardMult or 1
+	r.Wood+=reward.wood*woodBoost*scale; r.Coins+=reward.coins*coinBoost*scale; r.Exp+=reward.exp*boost*scale*weather.exp*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
 	Garden.TreeDrop(player,zone,tier,autoCut)
 	while r.Exp>=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")) do
 		r.Exp-=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")); r.Level+=1
@@ -153,7 +157,7 @@ function Run.CollectChest(player,spot,generation,forcedRarity)
 	local rarity=forcedRarity or (spot and Loot.SpotRarity(spot:GetAttribute("Depth"),chestRng)) or "Common"
 	local rb=Data.Get(player,"Progress.Rebirth")
 	local admin=Data.Get(player,"Meta.AdminTouched")
-	local level=r.Level+(Weather.Def().chestLevel or 0)
+	local level=r.Level+(Weather.Def().chestLevel or 0)+RebirthMath.Rank(Data.GetData(player),"ChestLevel",Features.IsEnabled("Rebirth"))
 	for _,c in r.Chests do
 		if c.level==level and c.zone==r.Zone and c.rarity==rarity and c.rebirthDrop==rb and c.admin_spawned==admin then c.count+=1; Run.Send(player); return true end
 	end

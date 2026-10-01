@@ -10,6 +10,7 @@ local Eggs=require(Shared.Config.Eggs)
 local Config=require(Shared.Config.Base)
 local Math=require(Shared.PetMath)
 local Visual=require(Shared.PetVisual)
+local RebirthMath=require(Shared.RebirthMath)
 local Data=require(script.Parent.DataService)
 local Features=require(script.Parent.FeatureService)
 local Weather=require(script.Parent.WeatherService)
@@ -36,7 +37,16 @@ end
 function Pet.NearIncubator(p) local b=Garden.Base(p);return b~=nil and near(p,b:FindFirstChild("Incubator"),Config.IncubatorRange) end
 function Pet.NearPen(p) local b=Garden.Base(p);return b~=nil and near(p,b:FindFirstChild("PetPen"),Config.PenRange) end
 function Pet.PenCap(p) return Math.PenSlots(Data.Get(p,"Pets.upgrades").pen) end
-function Pet.EquipCap(p) return math.min(Config.MaxEquipSlots,Data.Get(p,"Pets.equipSlots")) end
+function Pet.EquipCap(p) return math.min(Config.MaxEquipSlots,Data.Get(p,"Pets.equipSlots")+RebirthMath.Rank(Data.GetData(p),"PetSlots",Features.IsEnabled("Rebirth"))) end
+-- Capacity resets move excess pets into the inventory without deleting any pet.
+function Pet.Trim(p)
+	local inv=Data.Get(p,"Inventory.Pets");local uids={};for uid in inv do table.insert(uids,uid) end;table.sort(uids)
+	local counts={pen=0,equip=0};local caps={pen=Pet.PenCap(p),equip=Pet.EquipCap(p)}
+	for _,uid in uids do local pet=inv[uid];local place=pet.place
+		if counts[place] then counts[place]+=1;if counts[place]>caps[place] then pet.place="" end end
+	end
+	Data.Set(p,"Inventory.Pets",inv)
+end
 function Pet.EggRoom(p) return Config.MaxEggs-count(Data.Get(p,"Inventory.Eggs"))-#(Data.Get(p,"Run.Eggs") or {}) end
 
 function Pet.GrantEgg(p,egg)

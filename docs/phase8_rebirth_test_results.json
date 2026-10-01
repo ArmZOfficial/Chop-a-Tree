@@ -1,0 +1,169 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "Reconcile adds skills and tokens without resetting old progress or weapons",
+      "passed": true
+    },
+    {
+      "name": "Required boss progresses 4/5/6/7/8 and stays at 8",
+      "passed": true
+    },
+    {
+      "name": "Coin cost includes required-zone scaling and Rot",
+      "passed": true
+    },
+    {
+      "name": "Token award grows with each cycle",
+      "passed": true
+    },
+    {
+      "name": "Unknown skills and negative ranks have no effects",
+      "passed": true
+    },
+    {
+      "name": "Rebirth requires the current-cycle guardian",
+      "passed": true
+    },
+    {
+      "name": "Rebirth rejects insufficient Coins",
+      "passed": true
+    },
+    {
+      "name": "Rebirth rejects an active Run even for admin force",
+      "passed": true
+    },
+    {
+      "name": "Rebirth rejects a carried egg",
+      "passed": true
+    },
+    {
+      "name": "Rebirth rejects an egg being stolen from its owner",
+      "passed": true
+    },
+    {
+      "name": "Arbitrary confirmation strings are rejected",
+      "passed": true
+    },
+    {
+      "name": "Prepare issues confirmation without resetting anything",
+      "passed": true
+    },
+    {
+      "name": "Confirm rechecks eligibility",
+      "passed": true
+    },
+    {
+      "name": "A crop can be planted in a purchased high slot before Rebirth",
+      "passed": true
+    },
+    {
+      "name": "Ready Rebirth can be confirmed",
+      "passed": true
+    },
+    {
+      "name": "Rebirth increments exactly once and grants exactly one first-cycle token",
+      "passed": true
+    },
+    {
+      "name": "Coins Wood and banked Coins are reset",
+      "passed": true
+    },
+    {
+      "name": "Gems weapons chests eggs and Index survive",
+      "passed": true
+    },
+    {
+      "name": "Story bosses shrines and unlocked zones start a fresh cycle",
+      "passed": true
+    },
+    {
+      "name": "All pets survive a pen capacity reset",
+      "passed": true
+    },
+    {
+      "name": "Excess penned pets move back to inventory",
+      "passed": true
+    },
+    {
+      "name": "Paid garden slots reset but crops above slot six survive",
+      "passed": true
+    },
+    {
+      "name": "Rebirth returns the character to the village",
+      "passed": true
+    },
+    {
+      "name": "A preserved crop above the reset capacity can still be harvested",
+      "passed": true
+    },
+    {
+      "name": "A reset high slot cannot be replanted without repurchasing capacity",
+      "passed": true
+    },
+    {
+      "name": "Unknown skill purchases cannot spend tokens",
+      "passed": true
+    },
+    {
+      "name": "A skill purchase spends the exact token cost",
+      "passed": true
+    },
+    {
+      "name": "A duplicate stale-rank purchase cannot buy the next rank",
+      "passed": true
+    },
+    {
+      "name": "Auto Cut caps at a 25 percent reduction",
+      "passed": true
+    },
+    {
+      "name": "Not enough tokens rejects a valid skill",
+      "passed": true
+    },
+    {
+      "name": "Permanent pet slots reach six",
+      "passed": true
+    },
+    {
+      "name": "Six pets can follow with the skill",
+      "passed": true
+    },
+    {
+      "name": "Skills affect actual Auto Cut Wood and Coin rewards",
+      "passed": true
+    },
+    {
+      "name": "Collected chests include permanent level bonus",
+      "passed": true
+    },
+    {
+      "name": "Resetting slots keeps pets but trims following to base capacity",
+      "passed": true
+    },
+    {
+      "name": "Permanent Wood and pet buffs together cap at four",
+      "passed": true
+    },
+    {
+      "name": "Feature off disables Rebirth purchases and skill effects",
+      "passed": true
+    },
+    {
+      "name": "The numeric cycle limit cannot be bypassed by force",
+      "passed": true
+    },
+    {
+      "name": "Next cycle cannot reuse the previous boss requirement",
+      "passed": true
+    },
+    {
+      "name": "Next cycle accepts its deeper boss",
+      "passed": true
+    },
+    {
+      "name": "Balance self-test still passes",
+      "passed": true
+    }
+  ]
+}
