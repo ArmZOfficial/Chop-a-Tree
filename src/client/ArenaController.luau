@@ -1,0 +1,40 @@
+local S=game.ReplicatedStorage.Shared
+local UI=require(S.UIKit);local Net=require(S.Net);local C=require(S.Config.Arena)
+local A={}
+function A.Start()
+	local gui=UI.New("ScreenGui",{Name="ArenaHUD",ResetOnSpawn=false,DisplayOrder=14,Parent=game.Players.LocalPlayer:WaitForChild("PlayerGui")})
+	local panel=UI.New("Frame",{Name="Panel",Size=UDim2.fromOffset(500,420),AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(16),UI.Padding(16)})
+	UI.Label("Chop Arena",24,{Parent=panel})
+	local info=UI.Label("",15,{Name="Info",Position=UDim2.fromOffset(0,36),Size=UDim2.new(1,0,0,48),Parent=panel})
+	local ranked=true;local busy=false;local lastStatus;local labels={}
+	local function button(name,text,y,color,fn)
+		local b=UI.Button({text=text,textSize=16,color=color,size=UDim2.new(1,0,0,42),onClick=fn});b.Name=name;b.Position=UDim2.fromOffset(0,y);b.Parent=panel;return b
+	end
+	local function render(s)
+		local status=s.transferring and "กำลังส่งเข้าสนาม…" or s.mode and ("อยู่ในคิว "..s.mode.." • รอผู้เล่น") or s.ready and "เลือกโหมดแล้วรอที่พอร์ทัล" or "สนามยังไม่เปิด"
+		if status~=lastStatus then info.Text=status;lastStatus=status end
+		for _,m in C.Modes do labels[m.id].Text=m.name.." • "..(s.counts[m.id] or 0).." คน" end
+	end
+	local function request(action,id)
+		if busy then return end;busy=true
+		task.spawn(function()
+			local ok,success,msg,s=pcall(function() return Net.Function("ArenaAction"):InvokeServer(action,id,ranked) end)
+			if s then render(s) end
+			if not ok or not success then info.Text=ok and msg or "ติดต่อเซิร์ฟเวอร์ไม่ได้" end
+			task.wait(.4);busy=false
+		end)
+	end
+	local toggle
+	toggle=button("Ranked","Ranked • ค่าสถานะเท่ากัน",92,UI.Colors.Purple,function()
+		ranked=not ranked;toggle:FindFirstChildWhichIsA("TextLabel",true).Text=ranked and "Ranked • ค่าสถานะเท่ากัน" or "Casual • มีเพดานพลัง"
+	end)
+	for i,m in C.Modes do local b=button("Join"..m.id,m.name,140+(i-1)*48,UI.Colors.Blue,function() request("Join",m.id) end);labels[m.id]=b:FindFirstChildWhichIsA("TextLabel",true) end
+	button("Leave","ออกคิว",336,UI.Colors.Red,function() request("Leave") end)
+	local close=UI.Button({text="×",color=UI.Colors.Slate,size=UDim2.fromOffset(40,36),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(1,-40,0,0);close.Parent=panel
+	Net.Event("ArenaShow").OnClientEvent:Connect(function() lastStatus=nil;panel.Visible=true;request("State") end)
+	Net.Event("ArenaState").OnClientEvent:Connect(render)
+	game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal("PvP"):Connect(function() if not game.ReplicatedStorage.FeatureFlags:GetAttribute("PvP") then panel.Visible=false end end)
+	local function resize() local v=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(500,v.X-24),420);local scale=panel:FindFirstChildOfClass("UIScale");scale.Scale=math.min(1,(v.Y-24)/420) end
+	UI.New("UIScale",{Parent=panel});workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize);resize()
+end
+return A

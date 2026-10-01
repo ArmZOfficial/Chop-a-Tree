@@ -23,6 +23,8 @@ local EVENTS = {
 	"BossEvent",
 	"LeaderboardShow",
 	"EmoteAction",
+	"ArenaState",
+	"ArenaShow",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
@@ -41,6 +43,7 @@ local FUNCTIONS = {
 	"EncounterAction",
 	"ShopAction",
 	"SeasonAction",
+	"ArenaAction",
 }
 
 local Net = {}

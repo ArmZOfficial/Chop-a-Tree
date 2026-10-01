@@ -89,3 +89,12 @@
 
 อ่าน [Phase 8g](phase8_shop_season_validation.md) ก่อนแก้ receipt/สิทธิ์/ซีซัน. Config/Products = IDsจริง/runtime, Config/Season = UTCwindows/XP/rewards.
 Asset listingอาจเก่า; ไม่ใช้READMEภาพเป็นสถานะระบบ. Shop34/Season29เป็นlatestfocusedchecks, olderregressionsยังต้องรันตามผลกระทบ.
+## Arena
+
+Phase 9a (2026-10-02): `ArenaService` owns local-server queues; `ArenaController` opens from the tagged ArenaPortal prompt. Config.Arena owns destination/mode player limits. Duel starts at 2; FFA 2–7 waits 15s unless full; team modes 4–6 use an even count. Ranked/Casual queues stay separate. Players must remain alive, loaded and near the portal, outside Run/carry/mount; leaving cancels. Remote spam is limited. No profile rewards are written.
+
+Transfer uses server-only TeleportAsync with ShouldReserveServer; synchronous errors, matching TeleportInitFailed and 60s timeout release the affected player for manual requeue. TeleportData carries only mode/ranked hints, never trusted rewards/stats. **Current destination 0 and PvP=false**: match server/combat/rank/token payout are pending. This is lobby code, not completion of Phase 9. Same-server matching is deliberate; cross-server matchmaking waits for real traffic.
+
+Proof: official Luau CLI 0.740 compiles 9 changed/new Luau files; `tools/tests/RunArenaLobby.ps1 -LuauPath <luau.exe>` runs production service against isolated platform stubs, 37 checks (gates, queue split/counts, wait/timeout, all four mode sizes, transfer failure, disconnect/rate limit). Studio startup/native clicks pass: unavailable join keeps its error through state refresh, Ranked/Casual toggles, disabling PvP closes the panel. GUIHarness restores flags/pivot/anchor and writes no profile data. Source checksums match all 7 shipped scripts; Edit has no test scripts. Actual teleport/multi-account match remain unverified. [Roblox teleport limitations](https://create.roblox.com/docs/projects/teleport).
+
+Place setup: main Place `93479990217075`, GameId `10768831527`. Arena `122495944523559` currently belongs to GameId `10768915988`; do not configure it. Create an additional place under the main experience via Publish to Roblox As / Add as a new place, then check both GameIds before configuring. Keep lobby disabled until the destination implements match entry and server-authoritative combat.

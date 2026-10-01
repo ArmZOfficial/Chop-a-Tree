@@ -4,6 +4,9 @@
 
 ## สถานะล่าสุด
 
+- **Phase 9a lobby ทำแล้ว**: พอร์ทัลเดิมเปิดหน้าคิว Duel/FFA/Timber Clash/Egg Heist; Ranked/Casual แยก, ตรวจ Run/ไข่/mount/ระยะ/ชีวิต, reserved-server transfer + failure/timeout recovery. Luau CLI 37 checks; Studio startup/คลิก GUI ผ่าน, source 7 ไฟล์ตรง repo; คืน flags/pivot/anchor แล้ว Studio Edit ไม่มี test scripts. Config Arena.PlaceId=0/PvP=false. Combat/สนาม/แรงก์/รางวัลยังไม่ทำ; ดู [Arena](systems.md#arena).
+- Chop Arena ที่ผู้ใช้สร้าง `122495944523559` อยู่ GameId `10768915988` แต่เกมหลัก GameId `10768831527` จึงยังใช้ส่งกลุ่มไม่ได้. แจ้งให้ Publish to Roblox As → เลือกเกมหลัก → Add as a new place; ไม่แก้ Place ที่ผิด Universe.
+
 - **Phase 8g ร้าน Robux + Season Pass ทำและทดสอบแล้ว; ยังไม่ Publish.** ไม่สรุปว่าเกม/ทุก Phase พร้อมเปิดจริง.
 - Shop: 10 Pass + 17 Developer Products ID จริงใน `src/shared/Config/Products.luau`; เปิด flag Shop/SeasonPass, PvP ปิด. ราคา UI อ่านสดจาก Roblox.
 - Shop **34/34**, Season **33/33** (รอบเพิ่มซีซัน 2). OpenTen คลิกจริง/Pass refresh/capacity ผ่าน. **Phase 4–7 และ 8a–f รันซ้ำหลังร้านครบ**; counts/ข้อจำกัด: [Phase 8g](phase8_shop_season_validation.md).
@@ -19,7 +22,7 @@
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.
 3. งานเดิมค้าง: NPC/บทพูด/คัตซีนบท 3–8, ตกแต่งฐาน/กับดัก/สัตว์เฝ้า, GardenController refresh ไม่สร้างปุ่มใหม่. ยืนยันกับโค้ดก่อนแก้.
 4. Multi-account ขโมย/บอสร่วม, multi-server Live Events/world boss, mobile/gamepad ยังไม่พิสูจน์ครบ. Balance/เสียง/VFX/UI polish Phase 10.
-5. Phase 9 PvP ยังไม่เริ่ม; คอสเมติกเมื่อ ArmZ สั่ง; Publish เมื่อผู้ใช้สั่ง.
+5. Phase 9 ถัดไป: Place Arena ใน Universe เดียวกัน, match server/combat 4 โหมด, Ranked/monthly ranks/tokens; คอสเมติกเมื่อ ArmZ สั่ง; Publish เมื่อผู้ใช้สั่ง.
 
 ## ข้อมูลต่อระบบที่ต้องรู้
 
