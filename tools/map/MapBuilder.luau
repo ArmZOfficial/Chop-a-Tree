@@ -11,21 +11,13 @@ local ChangeHistoryService = game:GetService("ChangeHistoryService")
 local Lighting = game:GetService("Lighting")
 local ServerStorage = game:GetService("ServerStorage")
 
-local Zones = require(game.ReplicatedStorage.Shared.Config.Zones)
+local Zones = require(game.ReplicatedStorage.Shared.Config.Zones:Clone())
 
 local MapBuilder = {}
 
 -- ========== ตัวช่วย ==========
 local function rad(d)
 	return math.rad(d)
-end
-
-local function mountainR(y)
-	return Zones.MountainBase - Zones.MountainSlope * y
-end
-
-local function polar(angle, R, y)
-	return Vector3.new(R * math.sin(angle), y, R * math.cos(angle))
 end
 
 local function flat(v)
@@ -166,222 +158,147 @@ local function fresh(parent, name)
 	return f
 end
 
--- ========== ผังเกลียวขึ้นเขา ==========
+-- ========== ทวีปตัว S + รากขึ้นเกาะลอย ==========
 function MapBuilder.Layout()
 	local L = { zones = {}, roads = {} }
+	local function center(col, row, y)
+		return Vector3.new((col - 1.5) * Zones.GridStep, y, (row - 0.5) * Zones.GridStep)
+	end
 	local V = Zones.Village
-	L.village = { center = polar(rad(V.angleDeg), V.distance, 0), radius = V.radius }
-	local slope = math.tan(rad(Zones.RoadMaxSlopeDeg))
-	local count = #Zones.List
-	local angle = rad(40)
+	L.village = { center = center(V.col, V.row, 0), radius = V.radius }
 	for i, z in Zones.List do
-		local isTop = i == count
-		local R = isTop and 0 or (mountainR(z.y) + z.radius * 0.35)
-		if i > 1 then
-			local prev = L.zones[i - 1]
-			local Rto = isTop and (mountainR(z.y) + 20) or R
-			local a0 = prev.angle + (prev.radius / prev.R) * 0.9
-			local arc = (z.y - prev.y) / slope
-			local a1 = a0 + arc / ((prev.R + Rto) / 2)
-			angle = isTop and a1 or (a1 + (z.radius / R) * 0.9)
-			table.insert(L.roads, { from = i - 1, to = i, a0 = a0, a1 = a1, y0 = prev.y, y1 = z.y, R0 = prev.R, R1 = Rto })
-		end
-		L.zones[i] = {
-			def = z,
-			angle = angle,
-			R = R,
-			y = z.y,
-			radius = z.radius,
-			center = isTop and Vector3.new(0, z.y, 0) or polar(angle, R, z.y),
-		}
+		L.zones[i] = { def = z, y = z.y, radius = z.halfSize, halfDepth = i == 8 and z.halfSize or Zones.GroundHalfDepth, center = center(z.col, z.row, z.y) }
 	end
-	-- จุดเข้า (E) / ออก (X) ของแต่ละโซน
-	for _, r in L.roads do
-		L.zones[r.from].exit = polar(r.a0, r.R0, r.y0)
-		local toZone = L.zones[r.to]
-		-- ใช้ใน RoadPoints: ไต่ระดับเฉพาะช่วงที่อยู่นอกที่ราบทั้งสองฝั่ง
-		r.c0, r.rad0 = L.zones[r.from].center, L.zones[r.from].radius
-		r.c1, r.rad1 = toZone.center, toZone.radius
-		if r.to == count then
-			local edge = polar(r.a1, toZone.radius - 6, r.y1)
-			toZone.entry = edge
-		else
-			toZone.entry = polar(r.a1, r.R1, r.y1)
-		end
+	local previous = L.village
+	for i = 1, 7 do
+		local z = L.zones[i]
+		local dir = flat(z.center - previous.center).Unit
+		local a = previous.center + dir * (math.abs(dir.Z) > 0.5 and previous.halfDepth or previous.radius)
+		local b = z.center - dir * (math.abs(dir.Z) > 0.5 and z.halfDepth or z.radius)
+		if i == 1 then a = Vector3.new(a.X - 4, 0.9, a.Z) end
+		previous.exit, z.entry = a, b
+		z.trailStart = b + dir * 36
+		local roadStart = i == 1 and a or (a - dir * 34)
+		if i > 1 then previous.trailEnd = roadStart end
+		table.insert(L.roads, { from = i - 1, to = i, points = { roadStart, b + dir * 34 }, bridge = i == 4 })
+		previous = z
 	end
-	local z1 = L.zones[1]
-	local dir = flat(L.village.center - z1.center).Unit
-	z1.entry = z1.center + dir * (z1.radius - 6)
+	local z7, z8 = L.zones[7], L.zones[8]
+	z7.exit = z7.center + Vector3.new(0, 0, z7.halfDepth)
+	z8.entry = z8.center + Vector3.new(0, 0, z8.radius - 6)
+	-- Spiral stays outside the island's solid rim until the final landing.
+	local axis = flat(z7.center) + Vector3.new(0, 0, 362)
+	local pts = { z7.exit }
+	for k = 0, 384 do
+		local t = k / 384
+		local a = math.pi + t * math.pi * 8
+		table.insert(pts, axis + Vector3.new(math.sin(a) * 96, z7.y + (z8.y - z7.y) * t, math.cos(a) * 96))
+	end
+	table.insert(pts, z8.entry)
+	table.insert(L.roads, { from = 7, to = 8, points = pts, sky = true, axis = axis })
 	return L
 end
 
 function MapBuilder.RoadPoints(r)
-	local pts = {}
-	local arcLen = math.abs(r.a1 - r.a0) * (r.R0 + r.R1) / 2
-	local n = math.max(2, math.ceil(arcLen / 28))
-	-- หาช่วง t ที่ถนนอยู่นอกที่ราบต้นทาง/ปลายทาง แล้วไต่ระดับเฉพาะช่วงนั้น
-	-- (เดิมไต่ตลอดทาง ทำให้ถนนชนขอบที่ราบปลายทางต่ำกว่าพื้น 6–12 studs)
-	local function horiz(t)
-		local R = r.R0 + (r.R1 - r.R0) * t
-		return polar(r.a0 + (r.a1 - r.a0) * t, R, 0), R
-	end
-	local tStart, tEnd = 0, 1
-	if r.c0 then
-		for s = 0, n * 4 do
-			local t = s / (n * 4)
-			local p = horiz(t)
-			if flat(p - r.c0).Magnitude <= r.rad0 + 2 then
-				tStart = t
-			end
-		end
-		for s = n * 4, 0, -1 do
-			local t = s / (n * 4)
-			local p = horiz(t)
-			if flat(p - r.c1).Magnitude <= r.rad1 + 2 then
-				tEnd = t
-			end
-		end
-		if tEnd <= tStart + 0.2 then
-			tStart, tEnd = 0, 1
-		end
-	end
-	for s = 0, n do
-		local t = s / n
-		local k = math.clamp((t - tStart) / (tEnd - tStart), 0, 1)
-		local y = r.y0 + (r.y1 - r.y0) * k
-		local R = r.R0 + (r.R1 - r.R0) * t
-		R = math.max(R, mountainR(y) + 16)
-		table.insert(pts, polar(r.a0 + (r.a1 - r.a0) * t, R, y))
-	end
-	return pts
+	return r.points
 end
 
--- ========== โลก: พื้น, ภูเขา, ถนน, แสง ==========
+local function roundedGround(parent, center, halfSize, bottom, top, color, material, name, entry, halfDepth)
+	local corner = 36
+	local h = top - bottom
+	local inward = flat(center - entry).Unit
+	local tangent = Vector3.new(inward.Z, 0, -inward.X)
+	local a = entry - center - inward * 5 - tangent * 20
+	local b = entry - center + inward * 34 + tangent * 20
+	local nx0, nx1 = math.min(a.X, b.X), math.max(a.X, b.X)
+	local nz0, nz1 = math.min(a.Z, b.Z), math.max(a.Z, b.Z)
+	local function rect(x0, x1, z0, z1)
+		if x1 - x0 < 0.01 or z1 - z0 < 0.01 then return end
+		P({ Name = name, Size = Vector3.new(x1-x0, h, z1-z0), CFrame = CFrame.new(center.X+(x0+x1)/2, bottom+h/2, center.Z+(z0+z1)/2), Color = color, Material = material, Parent = parent })
+	end
+	-- Leave an entrance notch in BOTH soil and grass so the approach ramp
+	-- reaches the higher floor without striking a hidden vertical step.
+	for _, bounds in { {-halfSize+corner, halfSize-corner, -halfDepth, halfDepth}, {-halfSize, halfSize, -halfDepth+corner, halfDepth-corner} } do
+		local x0,x1,z0,z1 = table.unpack(bounds)
+		local ix0,ix1 = math.max(x0,nx0), math.min(x1,nx1)
+		local iz0,iz1 = math.max(z0,nz0), math.min(z1,nz1)
+		if ix0 < ix1 and iz0 < iz1 then
+			rect(x0,ix0,z0,z1); rect(ix1,x1,z0,z1)
+			rect(ix0,ix1,z0,iz0); rect(ix0,ix1,iz1,z1)
+		else rect(x0,x1,z0,z1) end
+	end
+	for _, x in { -1, 1 } do
+		for _, z in { -1, 1 } do
+			disk(parent, center + Vector3.new(x * (halfSize - corner), 0, z * (halfDepth - corner)), corner, h, top, color, material, name)
+		end
+	end
+end
+
 function MapBuilder.BuildWorld()
-	withHistory("Chop a Tree: World", function()
+	withHistory("Chop a Tree: Continent", function()
 		local L = MapBuilder.Layout()
 		local root = mapRoot()
-
-		-- ย้ายของเทมเพลตเดิมออก (ไม่ลบ เก็บไว้ที่ ServerStorage.OldTemplate)
+		local obsoleteMountain = root:FindFirstChild("Mountain")
+		if obsoleteMountain then obsoleteMountain:Destroy() end
 		local old = F(ServerStorage, "OldTemplate")
 		for _, name in { "Baseplate", "SpawnLocation" } do
 			local inst = workspace:FindFirstChild(name)
-			if inst then
-				inst.Parent = old
-			end
+			if inst then inst.Parent = old end
 		end
-
 		local ground = fresh(root, "Ground")
-		for gx = -1, 0 do
-			for gz = -1, 0 do
-				P({
-					Name = "Grass",
-					Size = Vector3.new(1700, 8, 1700),
-					CFrame = CFrame.new(gx * 1700 + 850, -4, gz * 1700 + 850),
-					Color = Color3.fromRGB(98, 170, 70),
-					Material = Enum.Material.Grass,
-					Parent = ground,
-				})
-			end
+		local sx, sz = Zones.ContinentSize.X, Zones.ContinentSize.Y
+		local riverHalf = Zones.RiverWidth / 2
+		-- Two banks leave a real river channel; only the eastern bridge connects them.
+		for _, side in { -1, 1 } do
+			local depth = sz / 2 - riverHalf
+			P({ Name = "ContinentBank", Size = Vector3.new(sx, 16, depth), CFrame = CFrame.new(0, -8, side * (riverHalf + depth / 2)), Color = Color3.fromRGB(100, 155, 80), Material = Enum.Material.Grass, Parent = ground })
+			P({ Name = "RiverBank", Size = Vector3.new(sx, 12, 10), CFrame = CFrame.new(0, -6, side * (riverHalf + 5)), Color = Color3.fromRGB(115, 104, 83), Material = Enum.Material.Rock, Parent = ground })
 		end
-
-		-- ภูเขาขั้นบันได (low-poly) ไล่สีตามโซน: หน้าผา = ผสมสีพื้น+หน้าผาของโซน, ขอบขั้น = สีพื้นโซน
-		local mountain = fresh(root, "Mountain")
-		local top = Zones.List[#Zones.List].y - 12
-		local function zoneBlend(y)
-			local list = Zones.List
-			if y <= list[1].y then
-				return list[1], list[1], 0
-			end
-			for i = 1, #list - 1 do
-				local a, b = list[i], list[i + 1]
-				if y < b.y then
-					return a, b, (y - a.y) / (b.y - a.y)
-				end
-			end
-			return list[#list], list[#list], 0
-		end
-		local function capMaterial(z)
-			if z.id == 6 then
-				return Enum.Material.Snow
-			elseif z.id >= 7 then
-				return Enum.Material.Glacier
-			end
-			return Enum.Material.Grass
-		end
-		local y0 = 0
-		local idx = 0
-		while y0 < top do
-			idx += 1
-			local h = math.min(40, top - y0)
-			local a, b, t = zoneBlend(y0 + h / 2)
-			local cliffA = a.colors.ground:Lerp(a.colors.cliff, 0.5)
-			local cliffB = b.colors.ground:Lerp(b.colors.cliff, 0.5)
-			local c = cliffA:Lerp(cliffB, t)
-			local shade = (idx % 2 == 0) and 1 or 0.9
-			local R = mountainR(y0 + h / 2)
-			disk(mountain, Vector3.zero, R, h, y0 + h, Color3.new(c.R * shade, c.G * shade, c.B * shade), Enum.Material.Rock, "Tier" .. idx)
-			-- ขอบขั้นบันได (ส่วนที่โผล่พ้นขั้นถัดไป) สีพื้นของโซน
-			local capZone = t < 0.5 and a or b
-			disk(mountain, Vector3.zero, R + 0.3, 1.2, y0 + h + 0.1, a.colors.ground:Lerp(b.colors.ground, t), capMaterial(capZone), "Cap" .. idx)
-			y0 += h
-		end
-
-		-- ถนนเกลียว
+		local water = fresh(root, "Water")
+		P({ Name = "Sea", Size = Vector3.new(5000, 2, 3600), CFrame = CFrame.new(0, -7, 0), Color = Color3.fromRGB(55, 155, 195), Material = Enum.Material.Glass, Transparency = 0.25, CanCollide = false, CanQuery = false, Parent = water })
+		P({ Name = "RootRiver", Size = Vector3.new(sx, 2, Zones.RiverWidth), CFrame = CFrame.new(0, -4, 0), Color = Color3.fromRGB(65, 185, 205), Material = Enum.Material.Glass, Transparency = 0.2, CanCollide = false, CanQuery = false, Parent = water })
 		local roads = fresh(root, "Roads")
 		for _, r in L.roads do
 			local folder = F(roads, string.format("Road_%d_%d", r.from, r.to))
-			local pts = MapBuilder.RoadPoints(r)
-			if r.to == #Zones.List then
-				-- ยอดเขา: ถนนต้องเลี่ยงตัวภูเขา เลยต่อสะพานสั้นๆ จากปลายถนนเข้าที่ราบยอดเขา
-				table.insert(pts, L.zones[r.to].entry)
-			end
-			pathSegments(folder, pts, 26, 4, Color3.fromRGB(150, 120, 85), Enum.Material.Ground, "Road")
-			-- หินขอบทางเป็นระยะ
-			for i = 2, #pts - 1, 3 do
-				local p = pts[i]
-				local out = flat(p).Unit
-				P({
-					Name = "EdgeRock",
-					Size = Vector3.new(4, 3, 4),
-					CFrame = CFrame.new(p + out * 14 + Vector3.new(0, 1, 0)) * CFrame.Angles(0.3, i, 0.2),
-					Color = Color3.fromRGB(120, 115, 105),
-					Material = Enum.Material.Slate,
-					Parent = folder,
-				})
+			pathSegments(folder, r.points, 26, 3, r.sky and Color3.fromRGB(170, 120, 65) or Color3.fromRGB(155, 125, 90), r.sky and Enum.Material.Wood or (r.bridge and Enum.Material.WoodPlanks or Enum.Material.Ground), r.sky and "SkyRoot" or (r.bridge and "Bridge" or "Road"))
+			if r.bridge then
+				for _, offset in { -15, 15 } do
+					local rail = {}
+					for _, point in r.points do table.insert(rail, point + Vector3.new(offset, 4, 0)) end
+					pathSegments(folder, rail, 2, 2, Color3.fromRGB(110, 75, 45), Enum.Material.Wood, "BridgeRail")
+				end
+			elseif r.sky then
+				local h = L.zones[8].y - L.zones[7].y
+				P({ Name = "LightPillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 12, 12), CFrame = CFrame.new(r.axis.X, L.zones[7].y + h / 2, r.axis.Z) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(255, 225, 140), Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = false, Parent = folder })
+				for _, offset in { -14, 14 } do
+					local rail = {}
+					for i, point in r.points do
+						local nextPoint = r.points[math.min(i + 1, #r.points)]
+						local prevPoint = r.points[math.max(i - 1, 1)]
+						local dir = flat(nextPoint - prevPoint).Unit
+						table.insert(rail, point + Vector3.new(dir.Z, 0, -dir.X) * offset + Vector3.new(0, 3, 0))
+					end
+					pathSegments(folder, rail, 1.5, 1.5, Color3.fromRGB(105, 75, 50), Enum.Material.Wood, "RootRail")
+				end
 			end
 		end
-		-- ทางจากหมู่บ้านไปโซน 1
-		local v = L.village
-		local z1 = L.zones[1]
-		local gateDir = flat(z1.entry - v.center).Unit
-		local gatePos = v.center + gateDir * (v.radius - 4)
-		local villageRoad = {}
-		local n = 14
-		for s = 0, n do
-			local t = s / n
-			local p = gatePos:Lerp(z1.entry, t)
-			table.insert(villageRoad, Vector3.new(p.X, 0.9 + (z1.y - 0.9) * t * t, p.Z))
+		-- Low hills along the coast, clear of playable routes and trees.
+		local hills = fresh(root, "Hills")
+		for _, side in { -1, 1 } do
+			for x = -900, 900, 300 do
+				P({ Name = "CoastalHill", Shape = Enum.PartType.Ball, Size = Vector3.new(70, 16, 40), CFrame = CFrame.new(x, -3, side * 530), Color = Color3.fromRGB(104, 164, 80), Material = Enum.Material.Grass, Parent = hills })
+			end
 		end
-		pathSegments(F(roads, "Road_Village_1"), villageRoad, 26, 4, Color3.fromRGB(150, 120, 85), Enum.Material.Ground, "Road")
-
-		-- แสง/บรรยากาศ: low-poly + สมจริง
-		pcall(function()
-			Lighting.Technology = Enum.Technology.Future
-		end)
+		pcall(function() Lighting.Technology = Enum.Technology.Future end)
 		Lighting.ClockTime = 14
 		Lighting.Brightness = 2.5
 		Lighting.OutdoorAmbient = Color3.fromRGB(140, 140, 140)
 		Lighting.EnvironmentDiffuseScale = 0.6
 		Lighting.EnvironmentSpecularScale = 0.6
 		local atmo = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
-		-- แมพสูง 1,360 studs: หมอกบางเพื่อให้เห็นยอดเขาจากหมู่บ้าน
-		atmo.Density = 0.2
-		atmo.Offset = 0.3
+		atmo.Density, atmo.Offset, atmo.Haze, atmo.Glare = 0.2, 0.3, 0.3, 0.1
 		atmo.Color = Color3.fromRGB(205, 225, 245)
 		atmo.Decay = Color3.fromRGB(150, 170, 200)
-		atmo.Glare = 0.1
-		atmo.Haze = 0.3
 		atmo.Parent = Lighting
 		workspace.StreamingEnabled = true
 	end)
@@ -677,11 +594,11 @@ end
 local function gate(parent, pos, dir, fromZone, toZone, accent)
 	local m = M(parent, "ZoneGate")
 	local cf = CFrame.lookAt(Vector3.new(pos.X, pos.Y, pos.Z), Vector3.new(pos.X, pos.Y, pos.Z) + flat(dir).Unit)
-	for _, x in { -15, 15 } do
+	for _, x in { -18, 18 } do
 		P({ Name = "Pillar", Size = Vector3.new(5, 26, 5), CFrame = cf * CFrame.new(x, 13, 0), Color = Color3.fromRGB(70, 60, 80), Material = Enum.Material.Slate, Parent = m })
 	end
 	P({ Name = "Beam", Size = Vector3.new(40, 4, 5), CFrame = cf * CFrame.new(0, 27, 0), Color = Color3.fromRGB(60, 50, 70), Material = Enum.Material.Slate, Parent = m })
-	local barrier = P({ Name = "RotBarrier", Size = Vector3.new(25, 24, 1), CFrame = cf * CFrame.new(0, 12, 0), Color = Zones.RotColor, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = true, Parent = m })
+	local barrier = P({ Name = "RotBarrier", Size = Vector3.new(31, 24, 1), CFrame = cf * CFrame.new(0, 12, 0), Color = Zones.RotColor, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = true, Parent = m })
 	sign(m, (cf * CFrame.new(0, 31.5, 0)).Position, (cf * CFrame.new(0, 0, 30)).Position, "ประตูราเน่า · ล้มบอสเพื่อเปิด → โซน " .. toZone, 30, 3.5, Color3.fromRGB(30, 20, 40), Color3.fromRGB(216, 180, 254))
 	m.PrimaryPart = barrier
 	tag(m, "ZoneGate", { FromZone = fromZone, ToZone = toZone, Open = false })
@@ -702,13 +619,16 @@ local function shrine(parent, pos, zoneId, accent)
 	return m
 end
 
-local function bossArena(parent, pos, zone)
+local function bossArena(parent, pos, zone, trailStart, trailEnd)
 	local m = M(parent, "BossArena")
 	local c = zone.colors.ground
 	disk(m, pos, 40, 0.6, pos.Y + 0.3, Color3.new(c.R * 0.85, c.G * 0.85, c.B * 0.85), Enum.Material.Slate, "Floor")
 	for k = 0, 15 do
 		local a = k / 16 * math.pi * 2
-		P({ Name = "Stone", Size = Vector3.new(3, 5 + (k % 3) * 2, 3), CFrame = CFrame.new(pos + Vector3.new(math.sin(a) * 42, 3, math.cos(a) * 42)) * CFrame.Angles(0, a, 0.1), Color = Color3.fromRGB(110, 105, 100), Material = Enum.Material.Slate, Parent = m })
+		local stonePos = pos + Vector3.new(math.sin(a) * 42, 3, math.cos(a) * 42)
+		if distToSegment(stonePos, trailStart, trailEnd) > 18 then
+			P({ Name = "Stone", Size = Vector3.new(3, 5 + (k % 3) * 2, 3), CFrame = CFrame.new(stonePos) * CFrame.Angles(0, a, 0.1), Color = Color3.fromRGB(110, 105, 100), Material = Enum.Material.Slate, Parent = m })
+		end
 	end
 	m.PrimaryPart = m.Floor
 	tag(m, "BossArena", { Zone = zone.id, Boss = zone.boss })
@@ -790,7 +710,11 @@ function MapBuilder.BuildZone(index)
 		local Z = L.zones[index]
 		local zone = Z.def
 		local wilds = F(mapRoot(), "Wilds")
-		local root = fresh(wilds, string.format("Zone%d_%s", index, zone.key))
+		local zoneName = string.format("Zone%d_%s", index, zone.key)
+		for _, old in wilds:GetChildren() do
+			if old.Name ~= zoneName and tonumber(old.Name:match("^Zone(%d+)_")) == index then old:Destroy() end
+		end
+		local root = fresh(wilds, zoneName)
 		root:SetAttribute("Zone", index)
 		local C = Z.center
 		local E = Z.entry
@@ -803,42 +727,67 @@ function MapBuilder.BuildZone(index)
 
 		-- พื้น + หน้าผา
 		local groundMat = index == 6 and Enum.Material.Snow or (index == 8 and Enum.Material.Sand or Enum.Material.Grass)
-		disk(folders.Ground, C, Z.radius, 10, Z.y, zone.colors.ground, groundMat, "Plateau")
-		disk(folders.Ground, C, Z.radius * 0.9, 70, Z.y - 10, zone.colors.cliff, Enum.Material.Rock, "Cliff")
+		if index == 8 then
+			disk(folders.Ground, C, Z.radius, 10, Z.y, zone.colors.ground, groundMat, "SkyIsland")
+			disk(folders.Ground, C, Z.radius * 0.9, 70, Z.y - 10, zone.colors.cliff, Enum.Material.Rock, "FloatingCliff")
+		else
+			roundedGround(folders.Ground, C, Z.radius, -8, Z.y - 1, zone.colors.cliff, Enum.Material.Rock, "Soil", E, Z.halfDepth)
+			roundedGround(folders.Ground, C, Z.radius, Z.y - 1, Z.y, zone.colors.ground, groundMat, "Meadow", E, Z.halfDepth)
+		end
 
 		-- ทางเดินจากทางเข้าไปทางออก
 		local inward = flat(C - E).Unit
-		local trailEnd = X or (C + inward * Z.radius * 0.6)
+		local trailEnd = Z.trailEnd or X or (C + Vector3.new(inward.Z, 0, -inward.X) * 80)
 		local trail = {}
 		for s = 0, 8 do
-			local p = E:Lerp(trailEnd, s / 8)
+			local p = (Z.trailStart or E):Lerp(trailEnd, s / 8)
 			table.insert(trail, Vector3.new(p.X, Z.y + 0.25, p.Z))
 		end
 		local gc = zone.colors.ground
 		pathSegments(folders.Ground, trail, 14, 0.5, Color3.new(gc.R * 0.7, gc.G * 0.6, gc.B * 0.5), Enum.Material.Ground, "Trail")
 
 		-- จุดเกิดโซน + หินวาร์ป + ป้ายต้อนรับ
-		local spawnPos = E + inward * 22
+		local spawnPos = (Z.trailStart or E) + inward * 22
 		local sp = P({ Name = "ZoneSpawn", Size = Vector3.new(8, 1, 8), CFrame = CFrame.new(spawnPos.X, Z.y + 0.5, spawnPos.Z), Transparency = 1, CanCollide = false, Parent = folders.Spawn })
 		tag(sp, "ZoneSpawn", { Zone = index })
 		local side = Vector3.new(inward.Z, 0, -inward.X)
 		warpStone(folders.WarpStone, Vector3.new(spawnPos.X, Z.y, spawnPos.Z) + side * 18, index, zone.colors.accent)
-		local signPos = E + inward * 12 - side * 16 + Vector3.new(0, 0, 0)
+		local signPos = (Z.trailStart or E) + inward * 12 - side * 16
 		P({ Name = "SignPost", Size = Vector3.new(1, 10, 1), CFrame = CFrame.new(signPos.X, Z.y + 5, signPos.Z), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = folders.Decor })
 		local welcome = zone.built and string.format("โซน %d · %s\n%s", index, zone.thai, zone.name)
 			or string.format("โซน %d · %s\n(สร้างเต็มใน Phase 7)", index, zone.thai)
 		sign(folders.Decor, Vector3.new(signPos.X, Z.y + 12, signPos.Z), E - inward * 40, welcome, 16, 7)
 
-		-- ขอบเขต (กำแพงล่องหน เว้นทางเข้า/ออก)
-		local segs = 28
-		local segLen = 2 * math.pi * Z.radius / segs
-		local gap = segLen / 2 + 16 -- ครึ่งความยาวกำแพง + ครึ่งความกว้างถนน (26) + เผื่อ
-		for k = 0, segs - 1 do
-			local a = k / segs * math.pi * 2
-			local p = C + Vector3.new(math.sin(a), 0, math.cos(a)) * (Z.radius - 1)
-			local near = (flat(p - E).Magnitude < gap) or (X and flat(p - X).Magnitude < gap)
-			if not near then
-				P({ Name = "Wall", Size = Vector3.new(segLen + 2, 40, 2), CFrame = CFrame.lookAt(Vector3.new(p.X, Z.y + 20, p.Z), Vector3.new(C.X, Z.y + 20, C.Z)), Transparency = 1, CanQuery = false, Parent = folders.Boundary })
+		-- Visible rot hedges with exact openings aligned to the gate pillars.
+		if index < 8 then
+			for _, edge in { {1, 0}, {-1, 0}, {0, 1}, {0, -1} } do
+				local normal = Vector3.new(edge[1], 0, edge[2])
+				local tangent = Vector3.new(normal.Z, 0, -normal.X)
+				local edgeDepth = math.abs(normal.Z) > 0.5 and Z.halfDepth or Z.radius
+				local edgeLength = math.abs(normal.Z) > 0.5 and Z.radius or Z.halfDepth
+				local middle = C + normal * edgeDepth
+				local openings = {}
+				for _, point in { E, X } do
+					if math.abs(flat(point - middle):Dot(normal)) < 2 then
+						local t = flat(point - middle):Dot(tangent)
+						table.insert(openings, { t - 20, t + 20 })
+					end
+				end
+				table.sort(openings, function(a, b) return a[1] < b[1] end)
+				table.insert(openings, { edgeLength, edgeLength })
+				local cursor = -edgeLength
+				for _, hole in openings do
+					local length = hole[1] - cursor
+					if length > 0 then
+						local pos = middle + tangent * (cursor + length / 2) + Vector3.new(0, 6, 0)
+						P({ Name = "RotHedge", Size = Vector3.new(length, 12, 5), CFrame = CFrame.lookAt(pos, pos + normal), Color = Zones.RotColor:Lerp(zone.colors.cliff, 0.65), Material = Enum.Material.Wood, Parent = folders.Boundary })
+						for t = cursor + 8, hole[1] - 8, 24 do
+							local thorn = middle + tangent * t + Vector3.new(0, 12, 0)
+							P({ Name = "RotThorn", Size = Vector3.new(2, 5, 2), CFrame = CFrame.new(thorn) * CFrame.Angles(0.4, t, 0.3), Color = Zones.RotColor, Material = Enum.Material.Wood, CanCollide = false, Parent = folders.Boundary })
+						end
+					end
+					cursor = hole[2]
+				end
 			end
 		end
 
@@ -850,7 +799,7 @@ function MapBuilder.BuildZone(index)
 			arenaPos = X + flat(C - X).Unit * 58
 			arenaPos = Vector3.new(arenaPos.X, Z.y, arenaPos.Z)
 		end
-		bossArena(folders.BossArena, arenaPos, zone)
+		bossArena(folders.BossArena, arenaPos, zone, Z.trailStart or E, trailEnd)
 		local perp = Vector3.new(inward.Z, 0, -inward.X)
 		local shrinePos = arenaPos + perp * 55
 		if flat(shrinePos - C).Magnitude > Z.radius - 14 then
@@ -894,7 +843,7 @@ function MapBuilder.BuildZone(index)
 					return false
 				end
 			end
-			if distToSegment(p, E, trailEnd) < 12 + margin then
+			if distToSegment(p, Z.trailStart or E, trailEnd) < 12 + margin then
 				return false
 			end
 			for _, t in trees do
@@ -994,7 +943,11 @@ end
 function MapBuilder.Report()
 	local out = {}
 	for _, t in { "Tree", "PreviewTree", "ChestSpot", "Nest", "ZoneGate", "WarpStone", "ZoneSpawn", "BossArena", "Shrine", "PlayerBase", "GardenSlot", "Shop", "NPC", "ForestGate", "ArenaPortal", "RealmGate", "Lumora", "Leaderboard", "ChestAltar" } do
-		table.insert(out, t .. "=" .. #CollectionService:GetTagged(t))
+		local count = 0
+		for _, inst in CollectionService:GetTagged(t) do
+			if inst:IsDescendantOf(mapRoot()) then count += 1 end
+		end
+		table.insert(out, t .. "=" .. count)
 	end
 	local parts = 0
 	for _, d in mapRoot():GetDescendants() do

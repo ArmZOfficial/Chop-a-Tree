@@ -1,18 +1,17 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 17:05 (เวลาไทย) · เขียนโดย Claude ก่อนส่งต่องาน
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Codex สร้างทวีปใหม่และทดสอบแล้ว
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
 
-## 0. เริ่มตรงนี้ (สรุป 30 วินาที)
+## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
-1. Phase 0 (ระบบฐาน + Admin Panel) **เสร็จ ทดสอบแล้ว**
-2. Phase 1 (แมพโครง) **ต้องสร้างใหม่**: ArmZ เลิกแบบภูเขาเกลียว → อยากได้ **ทวีปกว้างแนวนอน** (plan.md หัวข้อ 3 ร่างที่ 9 แก้แล้ว, รายละเอียดหัวข้อ 6.0 ข้างล่าง)
-3. งานแรกของ AI ตัวถัดไป:
-   1. ถาม ArmZ ว่า **ลบแมพภูเขาเดิมใน Studio (`Workspace.Map`) ได้ไหม** — ถามไปแล้วแต่ยังไม่ได้คำตอบ
-   2. แก้ `src/shared/Config/Zones.luau` + เขียน `MapBuilder.Layout()/BuildWorld()/BuildZone()` ใหม่ตามผังตัว S (6.0)
-   3. ซิงก์เข้า Studio (หัวข้อ 8) → รัน → ตรวจ (raycast + Play เดินจริง) → ส่งภาพให้ ArmZ → commit/push → อัปเดตไฟล์นี้
-   4. ArmZ โอเคแล้วเริ่ม Phase 2 ได้เลย (เขาสั่งไว้แล้ว)
-4. ตอบเป็นภาษาไทย bullet มีตัวเลข, มีตัวเลือก (Recommended) ก่อนลงมือ, ใกล้ limit ให้อัปเดตไฟล์นี้
+1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
+2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
+3. อ่าน `docs/plan.md` ต่อ. งานถัดไป: **ให้ ArmZ ดูภาพและยืนยันผัง แล้วเริ่ม Phase 2 ฟันต้นไม้ + Run** ตามหัวข้อ 10. ArmZ ขอปรับให้โซนชิดรวมกัน แบบความกระชับของ Cut Trees; ปรับแล้วและทดสอบครบ กำลังส่งภาพฉบับกระชับให้ดู. ยังไม่เริ่ม Phase 2.
+4. ผลตรวจ: raycast 2,048 จุด ไม่มีพื้นขาด ขั้นสูง >3.5 studs หรือสิ่งกีดขวาง (ยกเว้นประตูที่ตั้งใจปิด). Play เดินจริงผ่านครบ **16 เส้นทาง**: ทางเชื่อม 8 เส้น + ทางในโซน 8 เส้น. ทางเชื่อมพื้นดินเดินที่ WalkSpeed 16, รากขึ้นฟ้า 80, ทางในโซน 40 เพื่อเร่งทดสอบ. ใช้ PreparePlayRoutes.luau (Server) แล้ว PlayRoutes.luau (Client).
+5. ภาพล่าสุด: `docs/screens/phase1_continent_overview.jpg`. รายงาน: `docs/map_validation.md`; ตัวตรวจรันซ้ำ: `tools/map/ValidateRoutes.luau`.
+6. โค้ด Zones/MapBuilder ตรง repo กับ Studio ตรวจ checksum แล้ว. Studio กลับ Edit; ประตูยังปิดตามปกติ (เปิดเฉพาะรอบ Play ทดสอบ).
+7. ยังไม่ได้ Publish การเปลี่ยนแมพขึ้นเกมจริง; ผู้ใช้ต้อง Save/Publish ใน Studio เพื่อเก็บ place. GitHub เก็บตัวสร้างแมพและโค้ด.
 
 ---
 
@@ -49,7 +48,7 @@
 |---|---|
 | วางแผน (plan.md ร่างที่ 8) | ✅ เสร็จ — คำถามทุกข้อตอบแล้ว |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
-| **Phase 1 แมพโครง** | 🟠 **เปลี่ยนผัง** — แมพภูเขาเกลียวสร้าง+ทดสอบแล้ว แต่ ArmZ ไม่เอาภูเขา อยากได้กว้างแนวนอน → plan.md ร่างที่ 9 แก้แล้ว, **ต้องเขียน Layout ใหม่ใน MapBuilder** (ดู 6.0) |
+| **Phase 1 แมพโครง** | ✅ ทวีปตัว S สร้างใหม่และทดสอบแล้ว รอ ArmZ ยืนยันผังเพื่อเริ่ม Phase 2 |
 | Phase 2–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -74,25 +73,18 @@
 
 **ยังไม่ได้ทำใน Studio**: `Config.Weapons` (อยู่ใน repo แต่ยังไม่ใส่ใน Studio — Phase 0 ไม่ใช้ จะเข้าเองตอนต่อ Rojo)
 
-## 6. Phase 1 — งานค้าง (ทำต่อตรงนี้)
+## 6. Phase 1 — ทวีปใหม่ (เสร็จ)
 
-### 6.0 ⚠️ เปลี่ยนผังแมพ (2026-10-01 16:53) — งานถัดไปจริงๆ อยู่ตรงนี้
-1. ArmZ: "ไม่เอาเป็นภูเขา อยากให้มันดูใหญ่ๆ กว้างๆ ออกแนวนอนมากกว่า" แล้วเลือก:
-   - ผัง: **ทางคดเคี้ยวผ่านทวีปกว้าง** (ตัว S: แถวล่าง หมู่บ้าน→1→2→3 ไปตะวันออก, ข้ามแม่น้ำที่โค้ง, แถวบน 4→5→6→7 กลับตะวันตก)
-   - ความสูง: **ราบ มีเนินเตี้ยๆ** (โซนละ +8–12 studs: y = 4/12/20/30/40/52/64)
-   - ขนาด: **โซนละ ~500×500 studs**, ช่องคั่น ~130 → ทวีป ~2,800 × 1,500
-   - โซน 8: **เกาะลอยเหนือจุดปลายทาง** (สูง ~300 เหนือโซน 7, ขึ้นด้วยบันไดรากเกลียวรอบเสาแสง + วาร์ป)
-   - ชื่อเปลี่ยน: โซน 5 "ป่าไผ่สายฟ้า", โซน 6 "ทุ่งน้ำแข็ง (Frostvale)", โซน 7 "ทุ่งคริสตัล" (key ใน Config.Zones ต้องเปลี่ยน Frostpeak → Frostvale)
-2. ArmZ ตอบไว้ก่อนเปลี่ยนผัง (ยังใช้): ต้นไม้ **160 ต้น/โซน** (แก้ใน MapBuilder แล้ว), ฐานผู้เล่นตกแต่งไว้ Phase 4–5, เสร็จแมพแล้วเริ่ม Phase 2 ได้เลย
-3. ต้องทำ:
-   - `Config.Zones`: เปลี่ยน y, radius → ขนาดสี่เหลี่ยม (half-size ~250), เพิ่มตำแหน่ง grid (col,row), ลบ MountainBase/MountainSlope/RoadMaxSlopeDeg, ย้าย Village ไปมุมตะวันตกเฉียงใต้
-   - `MapBuilder.Layout()` เขียนใหม่: ตำแหน่งโซนแบบ grid ตัว S, ทางเชื่อม (ทางลาดระหว่างโซนติดกัน), แม่น้ำคั่นแถว + สะพานเดียวระหว่างโซน 3→4, เกาะลอยโซน 8
-   - `BuildWorld()`: เลิกสร้าง Mountain/Roads เกลียว → สร้างพื้นทวีป, ทะเล, แม่น้ำ, เนินเตี้ย, กำแพงหนามราเน่าระหว่างโซน
-   - `BuildZone()`: ที่ราบเป็นสี่เหลี่ยมมุมมน (หรือ disk รัศมี ~250) ไม่ต้องมีหน้าผาสูง; โซน 8 เป็นเกาะลอย + บันไดราก
-   - ของเดิมในหมู่บ้าน/ในโซน (ฐาน, ร้าน, ต้นไม้, หีบ, รัง, ศาลเจ้า, ลานบอส, ประตู, หินวาร์ป, tags) ใช้ฟังก์ชันเดิมได้
-   - **ถาม ArmZ ก่อนลบแมพภูเขาเดิมใน Studio** (Workspace.Map ทั้งหมด) — ตอนส่งต่อ ยังไม่ได้ถาม
-   - ทดสอบ: Report(), raycast ตามเส้นทาง, Play เดินจริง (RequestStreamAroundAsync ก่อนวาร์ป)
-4. แมพภูเขาที่สร้างไว้ยังอยู่ใน Studio และโค้ดอยู่ใน commit `3522508` (ถ้าอยากดูวิธีแก้บั๊กกำแพง/ทางลาด)
+### 6.0 ผังปัจจุบัน
+
+1. ทวีป 2,100×1,100 studs; โซน 1–7 เป็นสี่เหลี่ยมมุมมน 500×480, grid 500, ไม่มีช่องคั่นในแถวเดียวกัน; แม่น้ำกว้าง 20. ArmZ ขอให้โซนชิดรวมกันหลังดูผังแรกแล้ว.
+2. หมู่บ้านตะวันตกเฉียงใต้ → 1→2→3 ไปตะวันออก → สะพานเดียวข้าม Root River → 4→5→6→7 กลับตะวันตก.
+3. พื้น Y 4/12/20/30/40/52/64; เชื่อมด้วยทางลาดสั้น โดยเจาะช่องรับทางลาดในชั้น Soil และ Meadow ลึก 34 studs เพื่อไม่ให้พื้นสูงขวางทางเข้า. Layout.trailStart/trailEnd แยกช่วงพื้นราบออกจากทางลาด. เนินเตี้ยริมชายฝั่ง. โซน 8 Y=364 (สูงกว่าโซน 7 300 studs), เกาะกลม 500 studs + รากเกลียว 4 รอบและเสาแสง.
+4. ชื่อใหม่: ป่าไผ่สายฟ้า, Frostvale/ทุ่งน้ำแข็ง, ทุ่งคริสตัล. `Config.Zones` ใช้ col,row,halfSize แทนค่าภูเขา.
+5. หมู่บ้าน 7 ฐาน, ต้นไม้ 160 ต้นต่อโซนในโซน 1–2, โซน 3–8 PreviewTree 14 ต้นต่อโซน. สวน/รัง/หีบ/ศาลเจ้า/บอส/ประตู/วาร์ปยังเป็นจุดรองรับระบบตาม Phase.
+6. แนวหนามราเน่าเป็นขอบโซน มีกำแพงสูง 12 studs และหนาม. ช่องทางผ่านตรงกับเสาประตู; ประตูปิดจนมีระบบปลดล็อกใน Phase 6.
+7. แก้หินวงลานบอสที่ขวางทางเดิน: `bossArena()` เว้นช่องตาม trail. ห้ามคืนหินที่ทับทางเดิน.
+8. ของภูเขาเก่าอยู่ใน Git history `3522508`; ไม่อยู่ใน Workspace แล้ว (ArmZ อนุญาตลบ).
 
 ### 6.1 คำตอบของ ArmZ ที่ยังใช้กับผังใหม่
 1. หมู่บ้าน: **วงกลมรอบลานกลาง** (แท่นหีบกลาง, ร้าน/NPC วงใน, ฐาน 7 ฐานวงนอก, เว้นช่องตรงประตูป่า) — ลานเป็นสนามหญ้า ลานกลางเป็นหิน
@@ -100,12 +92,14 @@
 3. ต้นไม้: **160 ต้น/โซน** ในโซนที่สร้างเต็ม (1–2), โซน 3–8 เป็นโครง (PreviewTree 14 ต้น + ป้าย "สร้างเต็มใน Phase 7")
 4. ~~ทางขึ้นเขาเกลียว~~ → ยกเลิก ใช้ทวีปตัว S แทน
 
-### 6.2 สถานะไฟล์ (repo ตรงกับ Studio)
-1. `src/shared/Config/Zones.luau` — **ยังเป็นค่าของภูเขา** (y 20…1360, radius, MountainBase 820, MountainSlope 0.5, RoadMaxSlopeDeg 18, Village angle 0 / distance 1180 / radius 190) → ต้องแก้ตาม 6.0; อยู่ใน Studio ที่ `ReplicatedStorage.Shared.Config.Zones`
-2. `tools/map/MapBuilder.luau` (edit-time, ไม่อยู่ใน Rojo tree) — อยู่ใน Studio ที่ `ServerStorage.MapTools.MapBuilder` **checksum ตรง repo: 44827 bytes, h=1243792539** (รวมการแก้ล่าสุด: ภูเขาไล่สีตามโซน + ต้นไม้ 160 — ส่วนภูเขาจะถูกทิ้ง)
-3. ฟังก์ชันใน MapBuilder: `Layout()`, `RoadPoints(r)`, `BuildWorld()`, `BuildVillage()`, `BuildZone(i)`, `BuildAllZones()`, `BuildAll()`, `Report()` + helper `P`, `F`, `M`, `tag`, `disk`, `sign`, `pathSegments`, `withHistory` (ChangeHistoryService), `fresh` (ลบโฟลเดอร์เดิมแล้วสร้างใหม่ → รันซ้ำได้)
-4. ของที่ใช้ต่อได้เลย: `BuildVillage()` ทั้งหมด, ใน `BuildZone()` ส่วนต้นไม้/หีบ/รัง/ศาลเจ้า/ลานบอส/ประตูราเน่า/หินวาร์ป/ป้าย/ZoneSpawn/Lumora/RealmGate และระบบ `free()` กันของวางทับกัน
-5. สิ่งที่อยู่ใน Studio ตอนนี้: `Workspace.Map.{Ground, Mountain, Roads, Village, Wilds.Zone1..8}` (แมพภูเขา), Baseplate/SpawnLocation เดิมอยู่ `ServerStorage.OldTemplate`, Lighting = Future + Atmosphere (Density 0.2, Offset 0.3, Haze 0.3), `StreamingEnabled = true`
+### 6.2 ไฟล์และ Studio (ตรงกันแล้ว)
+
+1. `src/shared/Config/Zones.luau` → `ReplicatedStorage.Shared.Config.Zones`: UTF-8 LF **4,100 bytes, hash=1795469735**.
+2. `tools/map/MapBuilder.luau` → `ServerStorage.MapTools.MapBuilder`: UTF-8 LF **45,794 bytes, hash=182475945**.
+3. `Workspace.Map.{Ground,Water,Hills,Roads,Village,Wilds.Zone1..8}`; 4,619 BaseParts. ไม่มี Mountain.
+4. `Layout()/RoadPoints()/BuildWorld()/BuildZone()` ใช้ผังใหม่; `BuildVillage()` เดิมยังใช้. MapBuilder require Zones ด้วย `:Clone()` กัน require cache เก่า.
+5. Lighting Future, Atmosphere Density 0.2/Offset 0.3/Haze 0.3, StreamingEnabled=true.
+6. Studio id ล่าสุด `c1163648-12f6-4336-9953-e3d19be9259a`; ชื่อหน้าต่างเป็น Place2 แต่ตรวจ PlaceId/GameId แล้วเป็นเกมถูกต้อง. **เรียก list_roblox_studios และตรวจ PlaceId ทุกครั้งก่อนเขียน** เพราะ id เปลี่ยนเมื่อเปิด Studio ใหม่.
 
 ### 6.3 บทเรียนจากแมพภูเขา (เอาไปใช้กับผังใหม่)
 1. **กำแพงล่องหนรอบโซนต้องเว้นช่องกว้างพอ**: ช่อง = ครึ่งความยาวกำแพง + 16 (ถนนกว้าง 26) ไม่งั้นบังทางเข้า
@@ -143,12 +137,12 @@
 2. Studio เข้าเว็บภายนอกไม่ได้ (HttpEnabled ปิด, repo private) → ดึงจาก GitHub ไม่ได้
 3. `require` จาก `execute_luau` มี cache → ใช้ `:Clone()` ก่อน require ถ้าแก้โมดูล
 4. คลิกเมาส์ทดสอบ: ใช้ `instance_path` ดีกว่าพิกัด (พิกัดมี GUI inset ~58px), หน้าต่างแชท Roblox ทับมุมซ้ายบนและบล็อกคลิก
-5. ProfileStore แจ้ง "API services unavailable" ใน Studio จนกว่า ArmZ จะเปิด Game Settings → Security → Enable Studio Access to API Services (place เผยแพร่แล้ว เปิดได้)
-6. เครื่องมือ Studio: `mcp__remote-devices__Roblox_Studio__*` — studio_id ปัจจุบัน **`f57cd27c-3efe-4efa-b2be-4d1dd00f875a`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
+5. รอบ Play ล่าสุด ProfileStore แจ้ง "Roblox API services available - data will be saved" (เปิด API services แล้ว)
+6. เครื่องมือ Studio: `mcp__remote-devices__Roblox_Studio__*` — studio_id ล่าสุด **`c1163648-12f6-4336-9953-e3d19be9259a`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
 
 ## 9. สิ่งที่ ArmZ ต้องทำเอง (แจ้งไว้แล้ว)
 
-1. เปิด Enable Studio Access to API Services
+1. Save/Publish place ใน Studio เมื่อพร้อม; รอบล่าสุด API services เปิดแล้ว
 2. ลง Rojo (plugin + CLI) แล้ว `rojo serve` ในโฟลเดอร์ repo
 3. (ทางเลือก) ใส่ UserId ทีมงาน/GroupId ใน `Config/Admins.luau`
 
