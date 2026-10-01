@@ -24,6 +24,9 @@ local function near(p,part,range)
 	local hr=root(p);return hr and part and (hr.Position-part.Position).Magnitude<=range and not Data.Get(p,"Run.Active")
 end
 function Garden.Base(p) return bases[owners[p]] end
+function Garden.BaseIndex(p) return owners[p] end
+function Garden.BaseById(id) return bases[id] end
+function Garden.OwnerOf(id) for p,b in owners do if b==id then return p end end end
 function Garden.NearBase(p) local b=Garden.Base(p);return b and near(p,b.PrimaryPart,Config.BaseRange) end
 function Garden.NearSlot(p,index)
 	return owners[p] and slots[owners[p]][index] and near(p,slots[owners[p]][index],Config.PlotRange)

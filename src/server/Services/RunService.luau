@@ -11,6 +11,8 @@ local Features = require(script.Parent.FeatureService)
 local Weapon = require(script.Parent.WeaponService)
 local Garden = require(script.Parent.GardenService)
 local Weather = require(script.Parent.WeatherService)
+local Pet = require(script.Parent.PetService)
+local Nest = require(script.Parent.NestService)
 local Loot = require(Shared.Loot)
 local Http = game:GetService("HttpService")
 local chestRng = Random.new()
@@ -46,7 +48,7 @@ function Run.Power(player)
 	if not d then return 0 end
 	local override=player:GetAttribute("AdminCutPower")
 	if type(override)=="number" then return override end
-	return Balance.CutPower(Weapon.Combat(player).power,d.Run.Active and d.Run.Level or 1,1,d.Progress.Rebirth)
+	return Balance.CutPower(Weapon.Combat(player).power,d.Run.Active and d.Run.Level or 1,Pet.Mult(player,"Power"),d.Progress.Rebirth)
 end
 
 function Run.Send(player,summary)
@@ -85,7 +87,8 @@ function Run.Begin(player)
 	if not Features.IsEnabled("Forest") or not Data.IsLoaded(player) then return false end
 	local current=Run.Get(player)
 	if current.Active then return true end
-	Data.Set(player,"Run",{Active=true,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},StartedAt=os.time()})
+	if player:GetAttribute("CarryingEgg") then return false end -- stolen eggs cannot leave through the forest
+	Data.Set(player,"Run",{Active=true,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},Eggs={},StartedAt=os.time()})
 	modes[player]={AutoAttack=false,AutoCut=false}
 	giveAxe(player); Run.Send(player)
 	return true
@@ -94,7 +97,9 @@ end
 function Run.End(player,teleport)
 	local r=Run.Get(player)
 	if not r or not r.Active then return false end
-	local summary={wood=r.Wood,coins=r.Coins,trees=r.Trees,level=r.Level,chests=r.Chests,seeds=r.Seeds or {},seconds=math.max(0,os.time()-r.StartedAt)}
+	-- Only the End Run button (teleport) secures a carried nest egg; death/leave returns it.
+	if teleport then Nest.Secure(player) else Nest.Drop(player) end
+	local summary={wood=r.Wood,coins=r.Coins,trees=r.Trees,level=r.Level,chests=r.Chests,seeds=r.Seeds or {},eggs=#(r.Eggs or {}),seconds=math.max(0,os.time()-r.StartedAt)}
 	-- No yields between transferring and marking settled; duplicate requests are harmless.
 	r.Active=false
 	Data.AddCurrency(player,"Wood",r.Wood); Data.AddCurrency(player,"Coins",r.Coins)
@@ -102,7 +107,8 @@ function Run.End(player,teleport)
 	for _, chest in r.Chests do table.insert(inventory,table.clone(chest)) end
 	Data.Set(player,"Inventory.Chests",inventory)
 	for _,seed in r.Seeds or {} do Garden.GrantSeed(player,seed.id,seed.zone,seed.rebirthDrop,seed.count,seed.admin_spawned==true) end
-	Data.Set(player,"Run",{Active=false,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},StartedAt=0})
+	for _,egg in r.Eggs or {} do Pet.GrantEgg(player,egg) end
+	Data.Set(player,"Run",{Active=false,Level=1,Exp=0,Zone=1,Wood=0,Coins=0,Trees=0,Chests={},Seeds={},Eggs={},StartedAt=0})
 	modes[player]={AutoAttack=false,AutoCut=false}
 	Data.Set(player,"Settings.AutoAttack",false); Data.Set(player,"Settings.AutoCut",false)
 	local char=player.Character
@@ -129,7 +135,7 @@ function Run.Award(player,zone,tier,autoCut,rewardMult)
 	local boost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1
 	boost*=rewardMult or 1
 	local weather=Weather.Def()
-	r.Wood+=reward.wood*boost*weather.wood; r.Coins+=reward.coins*boost; r.Exp+=reward.exp*boost*weather.exp*Garden.ExpBuff(); r.Trees+=1; r.Zone=zone
+	r.Wood+=reward.wood*boost*weather.wood*Pet.Mult(player,"Wood"); r.Coins+=reward.coins*boost; r.Exp+=reward.exp*boost*weather.exp*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
 	Garden.TreeDrop(player,zone,tier,autoCut)
 	while r.Exp>=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")) do
 		r.Exp-=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")); r.Level+=1

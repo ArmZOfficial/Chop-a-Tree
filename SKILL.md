@@ -1,6 +1,6 @@
 ---
 name: chop-a-tree-assets
-description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
+description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
 ---
 
 # Creator Store สำหรับ Chop a Tree
@@ -24,6 +24,14 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 3. WeatherSchedule เป็นฟังก์ชัน UTC day/seed; ตรวจ midnight และ nextAt ด้วยตารางจริงเมื่อแก้ schedule. local admin override ต้องกลับ UTC ได้. อากาศทั้งหมด/Live Event ทุกเซิร์ฟต่อ Phase 8; art/เสียง/VFX และ **ปรับปรุง UI รวมสวน/อากาศ** ต่อ Phase 10.
 4. สูตร mutation ยึดพิเศษสูงสุด × (1+ผลรวมค่าอื่น) ตาม plan 4.12.3; Apply รวม parent tags ก่อนคิดราคา. ห้ามเปลี่ยนสูตรจากคำบรรยาย ×2 โดยไม่ปรับ plan/report ให้ตรงกัน.
 5. ทดสอบ Phase 4 ด้วย Script ใน VM เกมจริง และคืน profile/flags/อากาศ/Balance/anchor หลังจบ. GUIHarness ต้องสั่ง Finish ก่อน Stop. Regression Phase 2/3 ใช้ Clear เพื่อแยก weather จากสูตรที่กำลังตรวจ. อย่า overwrite ProfileStore ของ Studio.
+
+## แนวทางต่อไข่ สัตว์ ฐาน และ Phase 6
+
+1. Phase 5 core ผ่าน 81 checks; อ่าน `docs/phase5_validation.md` ก่อนแก้ไข่/สัตว์/ขโมย. PetService เป็นเจ้าของไข่ ตู้ฟัก สัตว์ คอก บัฟ Mount และสายพาน; StealService เป็นเจ้าของขโมย ล็อกฐาน โล่ และบอททดสอบ; NestService เป็นเจ้าของรังป่าและผู้พิทักษ์. ใช้ ownership ฐานของ GardenService (`Garden.BaseIndex/BaseById/OwnerOf`) ไม่สร้างชุดใหม่.
+2. ไข่ที่ถูกขโมยต้องอยู่ใน profile เจ้าของ (`carriedBy`) จนส่งถึงฐานคนขโมย แล้วย้ายในเธรดเดียวไม่มี yield. ห้ามลบไข่ตอนเริ่มขโมย. ไข่ที่ถือจากรังจะได้ก็ต่อเมื่อถึงหินวาร์ปหรือกดปุ่ม End Run (`Run.End(player,true)`); ตาย/ออก/จบแบบอื่นคืนรัง.
+3. บัฟสัตว์ผ่าน `Pet.Mult` เท่านั้น (Power เข้า `Balance.CutPower` petMult, Wood/EXP เข้า `Run.Award`) และต้องเคารพเพดาน ×4/×1.5. ความเร็วเดินคำนวณที่ `Pet.ApplySpeed` จาก AdminSpeed × Mount × บัฟ × CarryMult — ระบบใหม่ที่เปลี่ยน WalkSpeed ต้องผ่านจุดนี้.
+4. UI ที่รีเฟรชจาก state packet ต้องอัปเดตปุ่มเดิมแทนการสร้างใหม่ (ดู `reuse` ใน PetController) ไม่งั้นคลิกหายระหว่างรีเฟรช. Humanoid.WalkSpeed เป็น float32 — เทียบในเทสต์ด้วย tolerance ≥1e-3.
+5. ทดสอบขโมยด้วยฐานบอท/บอทขโมยจาก PetCommands จนกว่าจะมีผู้เล่นจริงหลายบัญชี; บันทึกผลหลายบัญชีลง handoff เมื่อได้ทดสอบ. Phase 6 ใช้ `Progress.StoryChapter` เปิดการขี่บทที่ 2 (บังคับเมื่อ Feature `Story` เปิด) และเพิ่มสัตว์/ไข่โซน 3–8 ใน Phase 7 เป็นแถว Config.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

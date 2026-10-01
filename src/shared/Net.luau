@@ -16,6 +16,8 @@ local EVENTS = {
 	"GardenState",
 	"GardenShow",
 	"WeatherStrike",
+	"PetState",
+	"PetShow",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
@@ -23,6 +25,8 @@ local FUNCTIONS = {
 	"RunRequest",
 	"InventoryAction",
 	"GardenAction",
+	"PetAction",
+	"BaseAction",
 }
 
 local Net = {}

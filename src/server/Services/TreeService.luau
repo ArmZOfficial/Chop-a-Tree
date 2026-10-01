@@ -11,6 +11,7 @@ local Run=require(script.Parent.RunService)
 local Features=require(script.Parent.FeatureService)
 local Weapon=require(script.Parent.WeaponService)
 local Weather=require(script.Parent.WeatherService)
+local Pet=require(script.Parent.PetService)
 local WeatherConfig=require(Shared.Config.Weather)
 local Tree={}
 local trees, cooldowns, navigating, chestStates, collected={},{},{},{},{}
@@ -107,6 +108,7 @@ function Tree.Hit(player,model)
 	local obstacle=workspace:Raycast(hr.Position,aim-hr.Position,params)
 	if obstacle and not obstacle.Instance:IsDescendantOf(model) then return false,"Blocked" end
 	cooldowns[player]=now+Config.AttackInterval/combat.speed
+	Pet.Dismount(player) -- riders hop off to chop (plan 9.3)
 	local crit=rng:NextNumber()<Balance.Get("CritChance")
 	local damage=power*(crit and Balance.Get("CritMult") or 1)
 	local fraction=math.min(s.ratio,damage/(Balance.TreeHP(zone,tier,rebirth)*health))

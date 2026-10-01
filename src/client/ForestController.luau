@@ -110,7 +110,7 @@ function Forest.Start()
 		if state.summary then
 			local s=state.summary; local count=0; for _,c in s.chests do count+=c.count end
 			local seeds=0;for _,v in s.seeds or {} do seeds+=v.count end
-			summaryText.Text="LEVEL "..s.level.." • "..s.trees.." trees\nWood +"..NF.Short(s.wood).."\nCoins +"..NF.Short(s.coins).."\nChests: "..count.." • Seeds: "..seeds
+			summaryText.Text="LEVEL "..s.level.." • "..s.trees.." trees\nWood +"..NF.Short(s.wood).."\nCoins +"..NF.Short(s.coins).."\nChests: "..count.." • Seeds: "..seeds.." • Eggs: "..(s.eggs or 0)
 			summary.Visible=true
 		end
 	end)
