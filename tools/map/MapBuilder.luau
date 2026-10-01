@@ -199,6 +199,9 @@ function MapBuilder.Layout()
 	for _, r in L.roads do
 		L.zones[r.from].exit = polar(r.a0, r.R0, r.y0)
 		local toZone = L.zones[r.to]
+		-- ใช้ใน RoadPoints: ไต่ระดับเฉพาะช่วงที่อยู่นอกที่ราบทั้งสองฝั่ง
+		r.c0, r.rad0 = L.zones[r.from].center, L.zones[r.from].radius
+		r.c1, r.rad1 = toZone.center, toZone.radius
 		if r.to == count then
 			local edge = polar(r.a1, toZone.radius - 6, r.y1)
 			toZone.entry = edge
@@ -216,9 +219,36 @@ function MapBuilder.RoadPoints(r)
 	local pts = {}
 	local arcLen = math.abs(r.a1 - r.a0) * (r.R0 + r.R1) / 2
 	local n = math.max(2, math.ceil(arcLen / 28))
+	-- หาช่วง t ที่ถนนอยู่นอกที่ราบต้นทาง/ปลายทาง แล้วไต่ระดับเฉพาะช่วงนั้น
+	-- (เดิมไต่ตลอดทาง ทำให้ถนนชนขอบที่ราบปลายทางต่ำกว่าพื้น 6–12 studs)
+	local function horiz(t)
+		local R = r.R0 + (r.R1 - r.R0) * t
+		return polar(r.a0 + (r.a1 - r.a0) * t, R, 0), R
+	end
+	local tStart, tEnd = 0, 1
+	if r.c0 then
+		for s = 0, n * 4 do
+			local t = s / (n * 4)
+			local p = horiz(t)
+			if flat(p - r.c0).Magnitude <= r.rad0 + 2 then
+				tStart = t
+			end
+		end
+		for s = n * 4, 0, -1 do
+			local t = s / (n * 4)
+			local p = horiz(t)
+			if flat(p - r.c1).Magnitude <= r.rad1 + 2 then
+				tEnd = t
+			end
+		end
+		if tEnd <= tStart + 0.2 then
+			tStart, tEnd = 0, 1
+		end
+	end
 	for s = 0, n do
 		local t = s / n
-		local y = r.y0 + (r.y1 - r.y0) * t
+		local k = math.clamp((t - tStart) / (tEnd - tStart), 0, 1)
+		local y = r.y0 + (r.y1 - r.y0) * k
 		local R = r.R0 + (r.R1 - r.R0) * t
 		R = math.max(R, mountainR(y) + 16)
 		table.insert(pts, polar(r.a0 + (r.a1 - r.a0) * t, R, y))
@@ -280,6 +310,10 @@ function MapBuilder.BuildWorld()
 		for _, r in L.roads do
 			local folder = F(roads, string.format("Road_%d_%d", r.from, r.to))
 			local pts = MapBuilder.RoadPoints(r)
+			if r.to == #Zones.List then
+				-- ยอดเขา: ถนนต้องเลี่ยงตัวภูเขา เลยต่อสะพานสั้นๆ จากปลายถนนเข้าที่ราบยอดเขา
+				table.insert(pts, L.zones[r.to].entry)
+			end
 			pathSegments(folder, pts, 26, 4, Color3.fromRGB(150, 120, 85), Enum.Material.Ground, "Road")
 			-- หินขอบทางเป็นระยะ
 			for i = 2, #pts - 1, 3 do
@@ -315,16 +349,17 @@ function MapBuilder.BuildWorld()
 		end)
 		Lighting.ClockTime = 14
 		Lighting.Brightness = 2.5
-		Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 160)
+		Lighting.OutdoorAmbient = Color3.fromRGB(140, 140, 140)
 		Lighting.EnvironmentDiffuseScale = 0.6
 		Lighting.EnvironmentSpecularScale = 0.6
 		local atmo = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
-		atmo.Density = 0.28
-		atmo.Offset = 0.12
-		atmo.Color = Color3.fromRGB(200, 220, 255)
-		atmo.Decay = Color3.fromRGB(110, 140, 190)
-		atmo.Glare = 0.2
-		atmo.Haze = 1.2
+		-- แมพสูง 1,360 studs: หมอกบางเพื่อให้เห็นยอดเขาจากหมู่บ้าน
+		atmo.Density = 0.2
+		atmo.Offset = 0.3
+		atmo.Color = Color3.fromRGB(205, 225, 245)
+		atmo.Decay = Color3.fromRGB(150, 170, 200)
+		atmo.Glare = 0.1
+		atmo.Haze = 0.3
 		atmo.Parent = Lighting
 		workspace.StreamingEnabled = true
 	end)
@@ -417,7 +452,7 @@ function MapBuilder.BuildVillage()
 		local v = L.village
 		local V = v.center
 		local village = fresh(mapRoot(), "Village")
-		disk(village, V, v.radius, 1.2, 0.9, Color3.fromRGB(176, 168, 150), Enum.Material.Cobblestone, "Plaza")
+		disk(village, V, v.radius, 1.2, 0.9, Color3.fromRGB(120, 182, 82), Enum.Material.Grass, "Plaza")
 		disk(village, V, 70, 0.4, 1.1, Color3.fromRGB(200, 190, 170), Enum.Material.Slate, "InnerPlaza")
 
 		local z1 = L.zones[1]
@@ -774,12 +809,14 @@ function MapBuilder.BuildZone(index)
 
 		-- ขอบเขต (กำแพงล่องหน เว้นทางเข้า/ออก)
 		local segs = 28
+		local segLen = 2 * math.pi * Z.radius / segs
+		local gap = segLen / 2 + 16 -- ครึ่งความยาวกำแพง + ครึ่งความกว้างถนน (26) + เผื่อ
 		for k = 0, segs - 1 do
 			local a = k / segs * math.pi * 2
 			local p = C + Vector3.new(math.sin(a), 0, math.cos(a)) * (Z.radius - 1)
-			local near = (flat(p - E).Magnitude < 26) or (X and flat(p - X).Magnitude < 26)
+			local near = (flat(p - E).Magnitude < gap) or (X and flat(p - X).Magnitude < gap)
 			if not near then
-				P({ Name = "Wall", Size = Vector3.new(2 * math.pi * Z.radius / segs + 2, 40, 2), CFrame = CFrame.lookAt(Vector3.new(p.X, Z.y + 20, p.Z), Vector3.new(C.X, Z.y + 20, C.Z)), Transparency = 1, CanQuery = false, Parent = folders.Boundary })
+				P({ Name = "Wall", Size = Vector3.new(segLen + 2, 40, 2), CFrame = CFrame.lookAt(Vector3.new(p.X, Z.y + 20, p.Z), Vector3.new(C.X, Z.y + 20, C.Z)), Transparency = 1, CanQuery = false, Parent = folders.Boundary })
 			end
 		end
 
@@ -810,7 +847,7 @@ function MapBuilder.BuildZone(index)
 				P({ Name = "Crown", Size = Vector3.new(70 - k * 10, 18, 70 - k * 10), CFrame = CFrame.new(C + Vector3.new(0, 70 + k * 12, 0)) * CFrame.Angles(0, k * 0.4, 0), Color = zone.colors.leaves[1], Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = lum })
 			end
 			tag(lum, "Lumora")
-			local far = C - inward * (Z.radius - 20)
+			local far = C + inward * (Z.radius - 20) -- ฝั่งตรงข้ามทางเข้า
 			local rg = M(folders.Secrets, "RealmGate")
 			local rcf = CFrame.lookAt(Vector3.new(far.X, Z.y + 16, far.Z), Vector3.new(C.X, Z.y + 16, C.Z))
 			for k = 0, 19 do

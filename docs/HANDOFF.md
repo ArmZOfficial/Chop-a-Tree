@@ -1,6 +1,6 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 16:35 (เวลาไทย) · เขียนโดย Claude ก่อนส่งต่องาน
+> อัปเดตล่าสุด: 2026-10-01 18:20 (เวลาไทย) · เขียนโดย Claude ก่อนส่งต่องาน
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
 
 ---
@@ -30,7 +30,7 @@
 | Roblox Studio place | **"Chop a Trees"** PlaceId `93479990217075`, GameId `10768831527`, เจ้าของ UserId `7488194538` (ArmZ) |
 | Mockup Admin Panel | Artifact "Chop a Tree Admin Panel" (claude.ai) |
 
-> หมายเหตุ: เดิมทำใน "Place2" แล้ว ArmZ ย้ายไป place ใหม่ "Chop a Trees" (เผยแพร่แล้ว) — สคริปต์ Phase 0 ทั้งหมดและ `Config.Zones` ย้ายมาครบ ตรวจแล้ว (RS 11 สคริปต์, SSS 9, ServerStorage 2, StarterPlayer 4) ใน Workspace ยังมี Baseplate + SpawnLocation เดิม
+> หมายเหตุ: เดิมทำใน "Place2" แล้ว ArmZ ย้ายไป place ใหม่ "Chop a Trees" (เผยแพร่แล้ว) — สคริปต์ Phase 0 ทั้งหมดและ `Config.Zones` ย้ายมาครบ ตรวจแล้ว (RS 11 สคริปต์, SSS 9, ServerStorage 2, StarterPlayer 4) Baseplate + SpawnLocation เดิมถูกย้ายไป `ServerStorage.OldTemplate` แล้ว (ไม่ได้ลบ)
 
 ## 4. สถานะ Phase
 
@@ -38,7 +38,7 @@
 |---|---|
 | วางแผน (plan.md ร่างที่ 8) | ✅ เสร็จ — คำถามทุกข้อตอบแล้ว |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
-| **Phase 1 แมพโครง** | 🟡 **กำลังทำ** — โค้ดตัวสร้างแมพเขียนเสร็จ แต่ **ยังไม่ได้รันใน Studio** |
+| **Phase 1 แมพโครง** | 🟡 **สร้างใน Studio แล้ว + ทดสอบเดินผ่าน** — รอ ArmZ ดูภาพ (`docs/screens/phase1_*.jpg`) แล้วสั่งปรับ |
 | Phase 2–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -73,7 +73,7 @@
 
 ### 6.2 ไฟล์ที่เขียนแล้ว
 1. `src/shared/Config/Zones.luau` — 8 โซน (y, radius, สี, ไข่, บอส), MountainBase 820, MountainSlope 0.5, RoadMaxSlopeDeg 18, Village (angle 0, distance 1180, radius 190) — **อยู่ใน Studio แล้ว**
-2. `tools/map/MapBuilder.luau` — ตัวสร้างแมพ (edit-time, ไม่อยู่ใน Rojo tree) — **ยังไม่ได้ใส่ใน Studio** (การอัปโหลดล้มเพราะ ArmZ เปลี่ยน place กลางทาง)
+2. `tools/map/MapBuilder.luau` — ตัวสร้างแมพ (edit-time, ไม่อยู่ใน Rojo tree) — **อยู่ใน Studio ที่ `ServerStorage.MapTools.MapBuilder` แล้ว checksum ตรง repo** (43788 bytes, h=94128592)
 
 ### 6.3 ผังที่คำนวณแล้ว (ตรวจด้วย Python: ทุกถนนชัน 18°, ไม่ทับกัน, วนรอบเขา ~2 รอบ)
 | โซน | y | R จากกลางเขา | มุม |
@@ -88,21 +88,25 @@
 | 8 เกาะลอยฟ้า | 1360 | 0 (ยอดเขา) | — |
 หมู่บ้านอยู่ (0, 0, 1180)
 
-### 6.4 ขั้นตอนที่ต้องทำต่อ
-1. ใส่ `tools/map/MapBuilder.luau` ลง Studio เป็น ModuleScript ที่ `ServerStorage.MapTools.MapBuilder` (ใช้ `multi_edit` สร้างสคริปต์, className ModuleScript)
-2. รันทีละส่วนด้วย `execute_luau` (Edit mode) — require ผ่าน Clone เพื่อไม่ติด cache:
+### 6.4 ผลการรัน (2026-10-01) และขั้นตอนต่อ
+1. รันครบแล้ว: `BuildWorld`, `BuildVillage`, `BuildZone(1..8)` — `Report()` = Tree 240, PreviewTree 84, ChestSpot 20, Nest 4, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena 8, Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 1, ForestGate 1, ArenaPortal 1, RealmGate 1, Lumora 1, Leaderboard 2, ChestAltar 1, Parts ~2.8K
+2. บั๊กที่แก้แล้ว (ทั้ง repo + Studio):
+   - หมอกหนาเกิน (Atmosphere Density 0.28/Haze 1.2) มองไม่เห็นยอดเขา → Density 0.2, Haze 0.3, Offset 0.3
+   - ลานหมู่บ้านเป็นหินเทาทั้งวง → เปลี่ยนเป็นสนามหญ้า (ลานกลางยังเป็นหิน)
+   - กำแพงล่องหนรอบโซนบังทางเข้า (ช่องว่างแคบเกิน) → ช่อง = ครึ่งความยาวกำแพง + 16
+   - ถนนไปชนขอบที่ราบปลายทางต่ำกว่าพื้น 6–12 studs (กระโดดไม่ขึ้น) → `RoadPoints` ไต่ระดับเฉพาะช่วงที่อยู่นอกที่ราบทั้งสองฝั่ง (ชันสุด ~20°, ถนน 7→8 ~25°)
+   - ถนนขึ้นยอดเขาจบห่างที่ราบ 30 studs → ต่อสะพานถึงจุดเข้าโซน 8
+   - RealmGate วางขวางทางเข้าโซน 8 → ย้ายไปฝั่งตรงข้าม
+3. ทดสอบแล้ว: ตรวจพื้นด้วย raycast ตลอดเส้นทาง 1,816 จุด (หมู่บ้าน → ยอดเขา) เหลือแค่ RotBarrier ที่ตั้งใจให้กั้น, กด Play เดินจริง หมู่บ้าน→โซน 1, ถนน→โซน 2/3/4, ถนน→ยอดเขา ผ่านหมด, console ไม่มี error
+4. **ถัดไป**: รอ ArmZ ตอบว่าอยากปรับอะไร (คำถามที่ถามไว้: สีภูเขา, ลานหมู่บ้าน, ความหนาแน่นต้นไม้, ขนาดพื้นหญ้ารอบเขา) → แก้ → rebuild ด้วย:
    ```lua
    local B = require(game.ServerStorage.MapTools.MapBuilder:Clone())
-   B.BuildWorld()      -- พื้น, ภูเขาขั้นบันได, ถนนเกลียว, แสง Future, StreamingEnabled, ย้าย Baseplate/SpawnLocation ไป ServerStorage.OldTemplate
-   B.BuildVillage()    -- ลาน, ฐาน 7 ฐาน, แท่นหีบ, ร้าน, NPC ปู่ Bram, กระดานผู้นำ, พอร์ทัล Arena, หินวาร์ป, จุดเกิด, ประตูป่า
-   B.BuildZone(1) ; B.BuildZone(2)          -- สร้างเต็ม (ต้นไม้ 120, หีบ 10, รัง 2, ศาลเจ้า, ลานบอส, ประตู, ของตกแต่ง)
-   for i = 3, 8 do B.BuildZone(i) end       -- โครง (พื้น + ป้าย "สร้างเต็มใน Phase 7" + ต้นตัวอย่าง PreviewTree) โซน 8 มีต้น Lumora + RealmGate
+   B.BuildWorld() ; B.BuildVillage() ; for i = 1, 8 do B.BuildZone(i) end
    return B.Report()
    ```
-3. ถ้า error → แก้ทั้งใน repo และ Studio ให้ตรงกัน (โค้ดยังไม่เคยรันจริง อาจมีบั๊กเล็กๆ)
-4. ตรวจ: `B.Report()` นับ tag, `screen_capture` มุมกว้าง/หมู่บ้าน/โซน 1–2, กด Play เดินจากหมู่บ้านขึ้นโซน 1 ดูว่าเดินได้, เช็ค console
-5. ส่งภาพให้ ArmZ แล้ว **ถามว่าอยากเปลี่ยนอะไร** (สี, ขนาด, ตำแหน่ง, ความหนาแน่น, แสง)
-6. commit + push, อัปเดตสถานะใน `docs/plan.md` บรรทัดที่ 5 และไฟล์นี้
+   ทุกฟังก์ชันลบโฟลเดอร์ของตัวเองแล้วสร้างใหม่ (`fresh`) จึงรันซ้ำได้ ห่อด้วย ChangeHistoryService (Ctrl+Z ได้)
+5. หลัง ArmZ โอเค → ปิด Phase 1 แล้วเริ่ม Phase 2 (หัวข้อ 10)
+6. ข้อควรรู้ตอนทดสอบเดินด้วยสคริปต์: StreamingEnabled เปิดอยู่ ต้องเรียก `player:RequestStreamAroundAsync(pos)` ก่อนวาร์ป ไม่งั้นตัวละครตกทะลุพื้น; execute_luau timeout 60 วิ → ใช้ `task.spawn` แล้วอ่านผลจาก `_G` ทีหลัง
 
 ### 6.5 Tags / Attributes ที่แมพสร้าง (ระบบ Phase 2+ ใช้)
 `Tree` (Zone, Tier 1–6), `PreviewTree`, `ChestSpot` (Zone, Depth), `Nest` (Zone, EggType), `ZoneGate` (FromZone, ToZone, Open), `WarpStone` (Zone; 0 = หมู่บ้าน), `ZoneSpawn` (Zone), `BossArena` (Zone, Boss), `Shrine` (Zone, Lit), `PlayerBase` (BaseIndex, OwnerUserId), `GardenSlot` (BaseIndex, SlotIndex), `Incubator`, `PetPen`, `OwnerSign`, `BaseSpawn`, `Shop` (ShopType), `NPC` (NpcId), `Leaderboard` (Board), `ForestGate`, `ArenaPortal`, `RealmGate`, `Lumora`, `ChestAltar`
