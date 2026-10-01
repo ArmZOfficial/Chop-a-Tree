@@ -1,6 +1,6 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8f Emote/Photo ทดสอบแล้ว; ถัดไปร้านเติมเงิน + Season Pass (รอ ID จาก ArmZ)
+> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8g ร้าน Robux 34/34 + Season Pass 29/29 ทดสอบแล้ว (ยังไม่ Publish); ระบบคอสเมติก ArmZ ให้รอก่อน
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 17) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
@@ -15,7 +15,7 @@
 
 1. ผู้ใช้ตอบ **ต่อ** (เลือกทำ Emote/Photo ก่อนร้าน) → ทำ **Phase 8f** แล้ว: วงล้อท่าทาง 7 ท่า (G), โชว์อาวุธ + ออร่าสีธาตุจาก EmoteService (คูลดาวน์ 4 วิ), โหมดถ่ายรูป (P) ซ่อน UI/CoreGui, กรอบ CHOP A TREE, ฟิลเตอร์ 4 แบบ, กล้องอิสระบนคอม. Feature `Emotes`, remote `EmoteAction`, admin `emote.aura`.
 2. Server scenario **5/5** + input จริงครบ (เต้น/W ยกเลิก/โชว์อาวุธ/P/W-E ย้ายกล้อง ตัวละครนิ่ง/ฟิลเตอร์/คืน UI 14 ตัว). Source 7/7 ตรง Studio Edit, console ไม่มี error, ไม่ได้ Publish. อ่าน `docs/phase8_emote_validation.md`.
-3. ถัดไป: **ร้านเติมเงิน + Season Pass** (plan หัวข้อ 17) — ArmZ ต้องสร้าง Game Pass/Developer Product ใน Creator Dashboard แล้วส่ง ID; ห้ามซื้อ Robux เอง. ระบบปลดล็อกท่าทางให้ทำพร้อมร้าน/Season Pass.
+3. (ทำแล้วใน Phase 8g) ร้าน Robux + Season Pass — ดู `docs/phase8_shop_season_validation.md`. ระบบปลดล็อกท่าทางยังไม่ทำ (รอระบบคอสเมติก).
 
 ### บันทึก Phase 8e (ประวัติ)
 
