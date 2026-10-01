@@ -534,7 +534,7 @@ local function commandButtons(tab: string, order: number)
 				local args: { [string]: any } = {}
 				if cmd.id == "data.import" then
 					args.json = textBox.Text
-				elseif cmd.tab == "mod" then
+				elseif cmd.tab == "mod" or cmd.tab == "balance" then
 					args.text = textBox.Text
 				end
 				runCommand(cmd.id, args)

@@ -4,8 +4,9 @@
 return table.freeze({
 	AdminPanel = true,
 	AutoSave = true,
-	FriendBoost = false, -- Phase 2
-	AutoCut = false, -- Phase 2
+	Forest = true, -- Phase 2
+	FriendBoost = true,
+	AutoCut = true,
 	Chests = false, -- Phase 3
 	Garden = false, -- Phase 4
 	Weather = false, -- Phase 4

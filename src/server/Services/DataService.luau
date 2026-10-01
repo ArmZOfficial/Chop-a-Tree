@@ -32,7 +32,8 @@ DataService.Template = {
 	Currencies = currencyTemplate(),
 	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0 },
 	Progress = { Zone = 1, UnlockedZones = { 1 }, Rebirth = 0, StoryChapter = 1 },
-	Inventory = { Weapons = {}, Equipped = "" }, -- Weapons[uid] = { id, il, stars, giant, roll }
+	Inventory = { Weapons = {}, Equipped = "", Chests = {} }, -- Weapons[uid] = { id, il, stars, giant, roll }
+	Run = { Active = false, Level = 1, Exp = 0, Zone = 1, Wood = 0, Coins = 0, Trees = 0, Chests = {}, StartedAt = 0 },
 	Settings = { AutoAttack = false, AutoCut = false },
 	Meta = { AdminTouched = false, FirstJoin = 0, LastJoin = 0, Joins = 0 },
 }

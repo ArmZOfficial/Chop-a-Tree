@@ -39,4 +39,4 @@ python3 tools/gen_weapons.py                             # สร้างรา
 
 ## สถานะ
 
-Phase 0 เสร็จ · Phase 1 ทวีปตัว S สร้างและทดสอบแล้ว รอยืนยันผังเพื่อเริ่ม Phase 2 (ดู docs/HANDOFF.md)
+Phase 0–1 เสร็จ · Phase 2 core ฟันต้นไม้/Run/Auto Cut ผ่าน 23 checks และ GUI ใน Studio. AFK ไม่จำกัดเวลายังไม่รองรับ. ดู `docs/phase2_validation.md` และ `docs/HANDOFF.md`; ถัดไป Phase 3 หีบ+อาวุธ.

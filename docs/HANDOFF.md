@@ -1,16 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Codex สร้างทวีปใหม่และทดสอบแล้ว
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · ทวีปกระชับ + Phase 2 core ทดสอบแล้ว
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
 1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
 2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
-3. อ่าน `docs/plan.md` ต่อ. งานถัดไป: **ให้ ArmZ ดูภาพและยืนยันผัง แล้วเริ่ม Phase 2 ฟันต้นไม้ + Run** ตามหัวข้อ 10. ArmZ ขอปรับให้โซนชิดรวมกัน แบบความกระชับของ Cut Trees; ปรับแล้วและทดสอบครบ กำลังส่งภาพฉบับกระชับให้ดู. ยังไม่เริ่ม Phase 2.
+3. ArmZ สั่ง **ทำต่อได้เลย** หลังปรับโซนชิดรวมกัน. **Phase 2 core ทำแล้ว**: TreeService, RunService, Run HUD, Auto Attack/Cut, Friend Boost, หีบสะสม และ admin forest/balance. อ่าน `docs/phase2_validation.md` ก่อนต่อ Phase 3 หีบ+อาวุธ. AFK ไม่จำกัดเวลายังไม่รองรับ; โล่ AFK ต่อ Phase 5.
 4. ผลตรวจ: raycast 2,048 จุด ไม่มีพื้นขาด ขั้นสูง >3.5 studs หรือสิ่งกีดขวาง (ยกเว้นประตูที่ตั้งใจปิด). Play เดินจริงผ่านครบ **16 เส้นทาง**: ทางเชื่อม 8 เส้น + ทางในโซน 8 เส้น. ทางเชื่อมพื้นดินเดินที่ WalkSpeed 16, รากขึ้นฟ้า 80, ทางในโซน 40 เพื่อเร่งทดสอบ. ใช้ PreparePlayRoutes.luau (Server) แล้ว PlayRoutes.luau (Client).
-5. ภาพล่าสุด: `docs/screens/phase1_continent_overview.jpg`. รายงาน: `docs/map_validation.md`; ตัวตรวจรันซ้ำ: `tools/map/ValidateRoutes.luau`.
-6. โค้ด Zones/MapBuilder ตรง repo กับ Studio ตรวจ checksum แล้ว. Studio กลับ Edit; ประตูยังปิดตามปกติ (เปิดเฉพาะรอบ Play ทดสอบ).
+5. ภาพแมพ: `docs/screens/phase1_continent_overview.jpg`; ภาพ Run: `docs/screens/phase2_run_hud.jpg`. Phase 2 scenario ผ่าน 23/23, GUI toggles/End/CHOP/E ผ่าน. ชุดทดสอบ: `tools/tests/Phase2Scenario.server.luau`; คืนข้อมูลผู้เล่นแล้ว.
+6. โค้ด Zones/MapBuilder และ Phase 2 จำนวน 11 ไฟล์ตรง repo กับ Studio ตรวจ checksum แล้ว. Studio กลับ Edit; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
 7. ยังไม่ได้ Publish การเปลี่ยนแมพขึ้นเกมจริง; ผู้ใช้ต้อง Save/Publish ใน Studio เพื่อเก็บ place. GitHub เก็บตัวสร้างแมพและโค้ด.
 
 ---
@@ -48,8 +48,9 @@
 |---|---|
 | วางแผน (plan.md ร่างที่ 8) | ✅ เสร็จ — คำถามทุกข้อตอบแล้ว |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
-| **Phase 1 แมพโครง** | ✅ ทวีปตัว S สร้างใหม่และทดสอบแล้ว รอ ArmZ ยืนยันผังเพื่อเริ่ม Phase 2 |
-| Phase 2–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
+| **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
+| **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
+| Phase 3–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
 
@@ -135,7 +136,7 @@
    - Python: `h=(h*31+byte)%2147483647` ทุกไบต์ของไฟล์
    - Luau ใน Studio: วนเดียวกันบน `script.Source`
 2. Studio เข้าเว็บภายนอกไม่ได้ (HttpEnabled ปิด, repo private) → ดึงจาก GitHub ไม่ได้
-3. `require` จาก `execute_luau` มี cache → ใช้ `:Clone()` ก่อน require ถ้าแก้โมดูล
+3. `require` จาก `execute_luau` มี cache แยกจาก Script ในเกม. ใช้ `:Clone()` เมื่อตรวจโมดูล stateless ใน Edit; **ห้าม require DataService จาก MCP เพื่ออ่าน live profile**. ทดสอบ service ใน Play ด้วย Script ชั่วคราว แล้วอ่านผลจาก workspace attributes. Net reuse Remotes เดิมแล้ว.
 4. คลิกเมาส์ทดสอบ: ใช้ `instance_path` ดีกว่าพิกัด (พิกัดมี GUI inset ~58px), หน้าต่างแชท Roblox ทับมุมซ้ายบนและบล็อกคลิก
 5. รอบ Play ล่าสุด ProfileStore แจ้ง "Roblox API services available - data will be saved" (เปิด API services แล้ว)
 6. เครื่องมือ Studio: `mcp__remote-devices__Roblox_Studio__*` — studio_id ล่าสุด **`c1163648-12f6-4336-9953-e3d19be9259a`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
@@ -148,8 +149,8 @@
 
 ## 10. Phase ถัดไปหลังแมพเสร็จ
 
-1. **Phase 2 ฟันต้นไม้ + Run**: TreeService (HP ที่ Server, ฟันร่วมกันได้รางวัลเต็มถ้าฟันใน 10 วิก่อนล้ม, เกิดใหม่ 15 วิ), RunService (เริ่มเมื่อผ่าน ForestGate, End Run), RunPanel UI ตามรูปของ ArmZ (Auto Attack, Auto Cut, End Run, รายการหีบ LEVEL + x2), Auto Cut pathfinding −45%, Friend Boost, ตัวเลขดาเมจลอย + แท็บแอดมิน "ป่า & Run" + "Balance สด"
-2. Phase 3 หีบ+อาวุธ, Phase 4 สวน+อากาศ, Phase 5 ไข่/สัตว์/ขโมย/ฐาน/Mount … (plan.md หัวข้อ 7)
+1. **Phase 3 หีบ+อาวุธ**: ต่อจาก Inventory.Chests และ Run.Chests ที่มีแล้ว; ใส่ Config.Weapons จาก repo, ทำ rarity/drop/open/equip/roll และแทน starter Power ใน Run.Power. ใช้ Balance เดิม.
+2. ตรวจข้อจำกัด/ผลทดสอบ Phase 2 ใน `docs/phase2_validation.md`; friend boost หลายบัญชีและ mobile/gamepad ต้องทดสอบจริง. AFK ยาวยังไม่เสร็จเพราะ Roblox idle disconnect. Phase 4 สวน+อากาศ; Phase 5 ไข่/สัตว์/ขโมย/ฐาน/Mount และโล่ AFK.
 3. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
 
 ## 11. Skill ที่ใช้

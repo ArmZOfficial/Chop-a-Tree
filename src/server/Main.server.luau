@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 require(Shared.Net) -- สร้าง Remotes ก่อนทุกอย่าง
 
-local SERVICES = { "FeatureService", "DataService", "AdminService" }
+local SERVICES = { "FeatureService", "DataService", "AdminService", "RunService", "TreeService" }
 
 local loaded: { [string]: any } = {}
 for _, name in SERVICES do
@@ -27,6 +27,7 @@ local commandSets = {
 	{ "MoneyCommands", loaded.DataService },
 	{ "DataCommands", loaded.DataService },
 	{ "DebugCommands", loaded.DataService, loaded.FeatureService },
+	{ "ForestCommands", loaded.RunService, loaded.TreeService },
 }
 for _, set in commandSets do
 	local ok, err = pcall(function()
