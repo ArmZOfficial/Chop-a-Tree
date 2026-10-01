@@ -13,6 +13,10 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 ชุด 10 Pass ตาม plan 17.2 อยู่ที่ `assets/monetization/`: `icons/` เป็น PNG 512×512 วงกลม alpha โปร่งใส, `README.md`/`gallery.html` มีชื่อและคำอธิบายไทย/อังกฤษ, `passes.json` มีข้อมูลราคาในแผนและไฟล์ภาพ. สร้างภาพแยกหนึ่งภาพต่อ Pass ใช้เอกลักษณ์ป่า/สวน/ไข่/ขวานของ Chop a Tree; เก็บ prompt และตรวจขนาด/alpha ใน `prompts.json`/`validation.json`. ข้อความเป็นร่างสำหรับสิทธิ์ตามแผน: permanent bonus ชนิดเดียวกันใช้ค่าสูงสุด, Lucky เพิ่มจากโอกาสเดิมและไม่รับประกันดรอป, วาร์ปเคารพการปลดล็อก/ข้อจำกัดถือไข่. ก่อนใช้ขายต้องต่อและตรวจ entitlement จริง; ห้ามใส่ ID สมมติหรือถือว่าทำภาพแล้วระบบซื้อเสร็จ. งานชุดนี้ไม่ได้เปิด Shop/สร้าง Pass/เปิด Sales/Publish.
 
+## ภาพและข้อความ Developer Product
+
+เมื่อทำสินค้าแบบซื้อซ้ำตาม plan 17.3 ให้อ่าน `assets/monetization/developer-products/README.md` และ `products.json`: ชุด 17 รายการแยก Gems 4 แพ็ก, Wood/Coins/EXP/Luck 15/30 นาที 8 แบบ, server Luck 15 นาที, instant hatch/grow, key และ base lock. ใช้ `icons/` PNG 512×512 alpha และ prompt/validation ในโฟลเดอร์เดียวกัน. ราคา/ID เป็น null จนมีข้อมูลจริง; copy เป็นร่างที่ต้องตรวจผลและ receipt ก่อนขาย. จ่ายรางวัลจาก receipt ฝั่ง server แบบไม่ซ้ำ; ซื้อบูสต์ซ้ำต่อเวลาและเคารพเพดานเกม. เวลา server Luck 15 นาทีตามแผน; instant hatch/grow ใช้เป้าหมายที่รองรับ, key ต้องมีหีบ, base lock รีเซ็ตคูลดาวน์ของตัวเอง. งานภาพไม่ได้เปิด Shop หรือ Publish.
+
 ## แนวทางต่อระบบอาวุธและ UI
 
 1. อ่าน `docs/phase3_validation.md` ก่อนแก้ inventory/หีบ/อาวุธ. ให้ WeaponService เป็นเจ้าของการสุ่ม สวมใส่ หลอม และทิ้ง; ใช้ Loot + Balance คำนวณ Power และอัตราดรอปทั้ง UI/server จาก Config เดียวกัน.

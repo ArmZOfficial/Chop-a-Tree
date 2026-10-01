@@ -1,0 +1,228 @@
+{
+  "checked": "2026-10-02",
+  "count": 17,
+  "allPassed": true,
+  "icons": [
+    {
+      "id": "gems-100",
+      "file": "icons/01-gems-100.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "F019D9B11123036D1EF93BB18A592BBDE2E3E535E4EE6F46F6FA4D30DB9BF926"
+    },
+    {
+      "id": "gems-550",
+      "file": "icons/02-gems-550.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "DD1F659D2E57DAF6B817D85B51F3716EBBBD2E601470FB7AE7F15314A874DF54"
+    },
+    {
+      "id": "gems-1200",
+      "file": "icons/03-gems-1200.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "674A118A98055529AD4D0C19B07699C08187D5454E4AB7DA197DCDE0BF90FAC6"
+    },
+    {
+      "id": "gems-6500",
+      "file": "icons/04-gems-6500.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "A6A79843B909383E1453C75BB1FBAA0098C84844A0BB934BC2DEA192D74017E7"
+    },
+    {
+      "id": "wood-15",
+      "file": "icons/05-wood-15.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "50A360D0521F91B8D1617420D30AC5EB33E052E98C1719A189C30CC9B9CF6422"
+    },
+    {
+      "id": "wood-30",
+      "file": "icons/06-wood-30.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "76EB79D24D8CCE6BDDD605AE66845C544F8740A12D4472003D7C9AAAF2CF8DD6"
+    },
+    {
+      "id": "coins-15",
+      "file": "icons/07-coins-15.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "FF5FAF8EB1EC354A6AF3387A7362237C7357896F11E1DC098859CF17D066A2C6"
+    },
+    {
+      "id": "coins-30",
+      "file": "icons/08-coins-30.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "974F678163F9E125421D74189ED1F9F69A6B08BF0DE2FD78FFAC5E25089D5DD9"
+    },
+    {
+      "id": "exp-15",
+      "file": "icons/09-exp-15.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "C15B3432B9C8E71588405C21625CD024F526DFC799B8A2507AB8DF5D2E87166E"
+    },
+    {
+      "id": "exp-30",
+      "file": "icons/10-exp-30.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "63CF879C778B975D2A2346F9FBCE66765602EC79969521B136E597BD2C939767"
+    },
+    {
+      "id": "luck-15",
+      "file": "icons/11-luck-15.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "BBF43BA9DAC30952F4FFB4A28F8DE92B5A57FB2F1577D508669ECDCC60CFBC3F"
+    },
+    {
+      "id": "luck-30",
+      "file": "icons/12-luck-30.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "4256D447A5BEECEC8F31A917608687CF9AEDECA29ED0F22BDCF0C3C0423FE1FC"
+    },
+    {
+      "id": "server-luck",
+      "file": "icons/13-server-luck.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "726CC7931421DC0D2606CFB4750328C584E0898ED8F3876823D7166FB1A3E3EB"
+    },
+    {
+      "id": "instant-hatch",
+      "file": "icons/14-instant-hatch.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "82201B5E2F3D094D4744AA551612EB96AD29EA457E4A218C62CA3CDE9CC41A2A"
+    },
+    {
+      "id": "instant-grow",
+      "file": "icons/15-instant-grow.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "0964CCF70720B4D32F765209E7C57E3DE05912E3D28AD18797219F33D2EB3CDC"
+    },
+    {
+      "id": "chest-key",
+      "file": "icons/16-chest-key.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "15E1389120A865905AA73D5134DE4194535CBC75EA7D1B04495B113F7F8F02D3"
+    },
+    {
+      "id": "base-lock",
+      "file": "icons/17-base-lock.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "5966AD35858D9CF1F6F3A38BA573150C8260923BE2B044F10529E49E88147983"
+    }
+  ]
+}
