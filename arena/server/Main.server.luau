@@ -15,8 +15,11 @@ if not studio and (game.PrivateServerId=="" or game.PrivateServerOwnerId~=0) the
 	Players.PlayerAdded:Connect(function(p) task.wait(2);home({p},"เข้า Arena ผ่านพอร์ทัลในหมู่บ้าน") end)
 	return
 end
-local mode
-local function arrive(p) mode=mode or M.Mode(p:GetJoinData().TeleportData) or (studio and "FFA") or "";M.Say(p,"รอผู้เล่น…") end
+local mode,ranked
+local function arrive(p)
+	if not mode then local data=p:GetJoinData().TeleportData;mode=M.Mode(data) or (studio and "FFA") or "";ranked=type(data)=="table" and data.ranked==true end
+	M.Say(p,"รอผู้เล่น…")
+end
 Players.PlayerAdded:Connect(arrive);for _,p in Players:GetPlayers() do arrive(p) end
 repeat task.wait(.5) until #Players:GetPlayers()>0
 local rules=M.Modes[mode]
@@ -103,4 +106,5 @@ repeat
 	if rules.teams then result=teamResult(os.clock()>=deadline) else result=M.Outcome(alive) end
 until result~=nil or os.clock()>=deadline
 result=result or false
+M.Record(game.JobId~="" and game.JobId or "studio-"..os.time(),ranked,M.Results(fighters,teamOf,result,function(p) return p.Parent==Players end))
 home(Players:GetPlayers(),type(result)=="number" and M.Teams[result].name.." ชนะ!" or result and result.DisplayName.." ชนะ!" or "เสมอ")

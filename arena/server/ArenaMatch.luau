@@ -35,6 +35,28 @@ function M.Tree(i)
 	local h=Instance.new("Humanoid");h.RequiresNeck=false;h.BreakJointsOnDeath=false;h.MaxHealth=M.TreeHealth;h.Health=M.TreeHealth;h.Parent=m
 	m.PrimaryPart=root;m.Parent=workspace;return m
 end
+-- Per-player result for the lobby ledger: winner is a player, a team index, or false for a draw. Leavers always get "left".
+function M.Results(fighters,teamOf,winner,present)
+	local out={}
+	for _,p in fighters do
+		out[p.UserId]=not present(p) and "left" or winner==false and "draw" or (winner==p or (teamOf[p]~=nil and teamOf[p]==winner)) and "win" or "loss"
+	end
+	return out
+end
+local ledger
+pcall(function() ledger=game:GetService("DataStoreService"):GetDataStore("ArenaPending_v1"..(game:GetService("RunService"):IsStudio() and "_Studio" or "")) end)
+-- The lobby's ArenaRewardService pays each matchId once when the player is back; this server never touches profiles.
+function M.Record(matchId,ranked,results)
+	if not ledger then return end
+	for userId,result in results do
+		for _=1,3 do
+			local ok,err=pcall(ledger.UpdateAsync,ledger,tostring(userId),function(old)
+				old=type(old)=="table" and old or {};old[matchId]={result=result,ranked=ranked==true,at=os.time()};return old
+			end)
+			if ok then break end;warn("[Arena] Record failed: "..tostring(err));task.wait(1)
+		end
+	end
+end
 -- nil = keep fighting, false = draw, player = winner.
 function M.Outcome(alive) if #alive==1 then return alive[1] elseif #alive==0 then return false end;return nil end
 function M.Say(p,text)

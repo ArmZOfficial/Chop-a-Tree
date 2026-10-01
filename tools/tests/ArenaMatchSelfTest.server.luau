@@ -1,4 +1,4 @@
--- Phase 9b/9c arena rules. Add to the Chop Arena place ServerScriptService in Edit, press Play, read workspace ArenaMatchResults, then delete it.
+-- Phase 9b-9d arena rules. Add to the Chop Arena place ServerScriptService in Edit, press Play, read workspace ArenaMatchResults, then delete it.
 assert(game:GetService("RunService"):IsStudio())
 local M=require(game.ServerScriptService.Arena.ArenaMatch)
 local results={}
@@ -33,6 +33,10 @@ local ok,err=xpcall(function()
 	check("Tree falls at zero health",tree.Humanoid.Health==0 and died)
 	local p={}
 	check("Outcome: last fighter wins, none is a draw, two keep fighting",M.Outcome({p})==p and M.Outcome({})==false and M.Outcome({p,{}})==nil)
+	local w,l,g,t1,t2={UserId=1},{UserId=2},{UserId=3},{UserId=4},{UserId=5}
+	local here=function(x) return x~=g end
+	local ffa=M.Results({w,l,g},{},w,here);local team=M.Results({t1,t2,g},{[t1]=1,[t2]=2,[g]=1},1,here);local draw=M.Results({w,g},{},false,here)
+	check("Results: win/loss/left for players, teams and draws",ffa[1]=="win" and ffa[2]=="loss" and ffa[3]=="left" and team[4]=="win" and team[5]=="loss" and team[3]=="left" and draw[1]=="draw" and draw[3]=="left")
 	local me=game.Players:GetPlayers()[1] or game.Players.PlayerAdded:Wait()
 	local deadline=os.clock()+M.WaitSeconds+5
 	repeat task.wait(.5) until os.clock()>deadline or (me.PlayerGui:FindFirstChild("ArenaStatus") and me.PlayerGui.ArenaStatus.Text.Text~="รอผู้เล่น…")
