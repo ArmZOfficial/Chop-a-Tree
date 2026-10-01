@@ -10,7 +10,7 @@
 4. Pass ไม่ซ้อนกับทางฟรี: ×2 Wood/Coins = เพดานถาวรเดิม, Lucky +25% (ยา/Luck ทั้งเซิร์ฟเพิ่มชั่วคราวได้ถึง +50%), ช่องสัตว์ +2 (สูงสุด 6), ฟักไว ×2 = ตู้ฟักเลเวลสูงสุด, แปลง +10 (สูงสุด 30).
 5. Client `ShopController` ปุ่ม "ร้าน Robux" (200,365) แท็บ Game Pass/ไอเทม; เปิดหีบ 10 ใบใน InventoryController เมื่อมี OpenTen; VIP แท็กแชท/ฉายา/Daily +25 Gems.
 6. Admin แท็บ shop: สลับ Pass, ให้สินค้า, ยกเลิก Luck ทั้งเซิร์ฟ. Flag `Shop`.
-7. ผล `phase8_shop_test_results.json` 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt). ค้าง: ยังไม่ได้คลิกปุ่มเปิด 10 ใบจริง และยังไม่ได้รัน regression ชุดเก่าทั้งหมดหลังร้าน.
+7. ผล scenario ร้าน (raw report ใน Git 5d09e37) 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt). ค้าง: ยังไม่ได้คลิกปุ่มเปิด 10 ใบจริง และยังไม่ได้รัน regression ชุดเก่าทั้งหมดหลังร้าน.
 
 ## Season Pass (commit `4d3ba3e`)
 
@@ -20,7 +20,7 @@
 4. Premium (product `3715870274`, 499 R$): ซื้อผ่าน `ShopAction Prompt seasonPremium` → `CanBuy` (ต้องมีซีซัน, ยังไม่มี Premium) → บันทึก `pendingFor` = ซีซันที่ขาย → `ProcessReceipt` → `GrantPremium` ปลดเฉพาะซีซันนั้น. ถ้าปลดไม่ได้ (มีแล้ว/ซีซันที่ซื้อจบแล้ว) ได้ `PremiumFallbackGems` 4,500 Gems แทน. Receipt ซ้ำไม่จ่ายซ้ำ (ledger เดียวกับร้าน).
 5. Client `SeasonController` ปุ่มม่วง "Season Pass" (200,425): ชื่อซีซัน, เลเวล/XP/วันที่เหลือ, ปุ่มรับทั้งหมด, ปุ่มซื้อ Premium (ราคาสด), 30 แถวฟรี/Premium.
 6. Admin แท็บ shop: `season.xp` (+1 เลเวล), `season.premium` (สลับ), `season.reset`. Flag `SeasonPass`. Remote `SeasonAction` (Sync/Claim/ClaimAll). Schema เติม `Season` ผ่าน Reconcile ไม่ต้อง migrate.
-7. ผล `phase8_season_test_results.json` 29/29, regression ร้าน 34/34, GUI เปิดหน้าถูกต้อง, console ไม่มี error, source 11/11 ตรง Studio Edit. รอบแรกล้มข้อ 6 เพราะเทสอ่าน XP ก่อน handler deferred ทำงาน; แก้ที่เทส (`task.wait()`), service ไม่เปลี่ยน.
+7. ผล scenario ซีซัน (raw report ใน Git 5d09e37) 29/29, regression ร้าน 34/34, GUI เปิดหน้าถูกต้อง, console ไม่มี error, source 11/11 ตรง Studio Edit. รอบแรกล้มข้อ 6 เพราะเทสอ่าน XP ก่อน handler deferred ทำงาน; แก้ที่เทส (`task.wait()`), service ไม่เปลี่ยน.
 
 ## ข้อจำกัด / ต้องทำต่อ
 

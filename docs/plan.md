@@ -1,7 +1,7 @@
 # Chop a Tree — แผนหลักฉบับย่อ (ร่าง 18)
 
 อัปเดต 2026-10-02. สถานะ/ผลตรวจล่าสุดอยู่ [HANDOFF](HANDOFF.md); กฎอยู่ [SKILL](../SKILL.md).
-อ่านรายละเอียดเฉพาะงานจาก [INDEX](INDEX.md). Spec เต็มก่อนย่อ: [design reference](archive/design-reference-2026-10-02.md) — เลือกหัวข้อ ไม่อ่านทั้งไฟล์.
+อ่านรายละเอียดเฉพาะงานจาก [INDEX](INDEX.md). Spec รายละเอียด: [design reference](design.md) — เลือกหัวข้อ ไม่อ่านทั้งไฟล์.
 
 ## 0. เกมและขอบเขต
 
@@ -12,7 +12,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 ## 3. แมพ
 
 Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/shrine/boss/nests; ป่าและ HP ใช้ร่วมเซิร์ฟ. Rebirth ต่างกัน normalized damage.
-โซน 1–7 ต่อกันแนวนอน, โซน 8 เกาะลอย; **ไม่กลับไปภูเขาเกลียว**. ผัง/asset/tag constraints: design reference §3/§6 และ [map validation](map_validation.md).
+โซน 1–7 ต่อกันแนวนอน, โซน 8 เกาะลอย; **ไม่กลับไปภูเขาเกลียว**. ผัง/asset/tag constraints: design reference §3/§6 และ [map constraints](systems.md#map).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
@@ -72,4 +72,4 @@ Flag ใหม่มีปุ่มทดสอบ Admin; destructive/global liv
 ## การดูแลเอกสาร
 
 อัปเดต **plan/SKILL/HANDOFF พร้อมกัน**: plan เก็บ intent/backlog, SKILL เก็บกฎ, handoff เก็บ current state. ไม่เพิ่มประวัติซ้ำ; validation เก็บหลักฐาน.
-Archive เป็น snapshot วันที่ 2026-10-02; หากขัดกันใช้ไฟล์หลักล่าสุด/Config และตรวจ implementation.
+design.md เป็น spec snapshot; systems.md รวม seams. หากขัดกันใช้ไฟล์หลักล่าสุด/Config และตรวจ implementation. Raw reports/history เก็บใน Git 5d09e37; ลบสำเนา archive/JSON/screens จาก docs แล้ว.

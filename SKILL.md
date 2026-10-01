@@ -10,7 +10,7 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 1. อ่าน `docs/HANDOFF.md` (สถานะ), `docs/plan.md` (ขอบเขต); เลือกอ่านเอกสารเฉพาะงานจาก `docs/INDEX.md`.
 2. ทุกงานอัปเดต **plan + SKILL + handoff ในงานเดียวกัน** (ArmZ 2026-10-01): เปลี่ยนเฉพาะข้อที่เกี่ยวข้อง ไม่เติมประวัติซ้ำ. handoff เก็บสถานะล่าสุด/ผลตรวจ/งานถัดไป; รายละเอียดผลตรวจอยู่ validation.
 3. Commit/push งานที่จบตามสิทธิ์เดิม. **ไม่ซื้อ Robux/asset เสียเงิน และไม่ Publish โดยไม่มีคำสั่ง**. คอสเมติกให้รอ ArmZ สั่ง.
-4. อ่าน archive เฉพาะเมื่อรายละเอียดใน index/โค้ดไม่พอ; archive เป็น snapshot อาจมีสถานะเก่า. จบงานตรวจลิงก์และความสอดคล้องสามไฟล์.
+4. อ่าน systems เฉพาะ heading ของงาน; design เป็น spec snapshot ไม่ใช่สถานะล่าสุด. จบงานตรวจลิงก์และความสอดคล้องสามไฟล์.
 
 ## กฎที่ใช้ทุกระบบ
 
@@ -27,4 +27,4 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - ArmZ อนุญาตเลือกและใช้ asset ที่เข้าถึงได้ตามงาน (2026-10-01), ปรับให้เข้าธีม; ตรวจผู้สร้าง/ID/descendants/scripts ใน staging ก่อนใช้งาน.
 - คง tags/attributes/collider/ownership; เก็บ prototype ใน ServerStorage ให้ MapBuilder สร้างซ้ำได้. เปลี่ยนทางเดินตรวจ Edit+Play ด้วย `tools/map/ValidateRoutes.luau`.
 - ภาพสินค้าอยู่ `assets/monetization/`; PNG 512×512 alpha, หนึ่งภาพต่อสินค้า. โค้ด Config/Products เป็นแหล่ง ID/รายการจริง; JSON/gallery เป็น listing assets อาจเป็น snapshot. ไม่รับประกันผ่าน text filter.
-- แนวทางเฉพาะระบบเดิม: `docs/archive/skill-reference-2026-10-02.md` (เลือกหัวข้อด้วย rg; สถานะล่าสุดอ่าน handoff).
+- แนวทางเฉพาะระบบ: `docs/systems.md` (เลือก heading). Raw validation/history เรียก Git 5d09e37 เมื่อจำเป็น; docs คงเฉพาะ reference ที่ใช้งาน ไม่เพิ่ม archive ซ้ำ.

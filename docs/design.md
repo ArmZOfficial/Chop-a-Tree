@@ -1,3 +1,5 @@
+> Detailed design snapshot (2026-10-02); current state is HANDOFF.md and current scope is plan.md. Older validation references below are historical: use systems.md or Git commit 5d09e37. Do not read this entire file by default.
+
 # Chop a Tree — แผนเกม (Place2)
 
 > เกม Roblox ที่ผสม 3 แนว: **ฟันต้นไม้เก็บหีบ** (แรงบันดาลใจจาก Cut Trees) + **ปลูกสวน** (Grow a Garden) + **ขโมยไข่/เลี้ยงสัตว์** (Steal an Egg)

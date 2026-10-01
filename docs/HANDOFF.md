@@ -10,7 +10,7 @@
 - Premium ID **3715870274**, ราคาฐาน **499 Robux**. ผู้ใช้รายงานซื้อจริงผ่าน; automation ตรวจ ProcessReceipt โดยตรง ไม่ได้คลิกยืนยันจ่าย Robux.
 - ซีซัน `s1_2026_10`: 2026-10-01 ถึง 2026-11-01 UTC, 30 เลเวล × 1,000 XP. Pending purchase ผูกซีซัน; มี Premium แล้ว/ซีซันจบ → fallback 4,500 Gems. ค่า XP/รางวัล/fallback ยังเป็น Beta.
 - **คอสเมติก: ArmZ ให้รอก่อน.** Premium ปัจจุบันเป็น Gems/บูสต์/หีบ ไม่ใช่ระบบสกินที่เสร็จแล้ว.
-- รอบนี้ย่อสามไฟล์หลัก + ทำ INDEX; สำรองต้นฉบับไว้ archive. ไม่เปลี่ยนโค้ดหรือรัน Roblox ใหม่.
+- รอบนี้ลบ raw JSON/screens/validation เก่าและ archive ซ้ำ; รวม seams ใน systems.md, คง spec ใน design.md. docs เหลือ 8 ไฟล์; ประวัติก่อน cleanup อยู่ Git 5d09e37. ไม่เปลี่ยนโค้ด/ไม่รัน Roblox ใหม่.
 
 ## งานถัดไป / ค้าง
 
@@ -37,4 +37,4 @@ Phase 2/3/4/5/6/7: **23/36/55/81/51/23**. Phase 8a/b/c/d1/d2/d3/e/f: **41/45/55/
 
 - [plan](plan.md): design ย่อ/backlog. [INDEX](INDEX.md): validation/สูตร/spec ที่ต้องอ่านตามงาน.
 - `assets/monetization/`: Pass 10, Developer Product 17, Season Premium; PNG 512×512 + EN/TH copy + ZIP. ID ที่ใช้จริงดู Config/Products; asset JSON เก่าอาจยังไม่มี ID.
-- Snapshot ก่อนย่อ: `docs/archive/handoff-history-2026-10-02.md`. อ่านเฉพาะเมื่อสืบประวัติ; ไม่ใช้สถานะเก่าแทนด้านบน.
+- [systems](systems.md) รวมข้อควรรู้; [design](design.md) spec รายละเอียด. Snapshot/หลักฐานเก่าเรียก Git 5d09e37 เฉพาะสืบประวัติ.

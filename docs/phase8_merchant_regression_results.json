@@ -1,8 +1,0 @@
-{
-  "date": "2026-10-02",
-  "Phase4Scenario": {
-    "passed": true,
-    "total": 55
-  },
-  "note": "Only the garden/weather regression was rerun; other suites untouched by this change were not rerun."
-}
