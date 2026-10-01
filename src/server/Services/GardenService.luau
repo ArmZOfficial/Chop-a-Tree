@@ -85,7 +85,7 @@ function Garden.Plant(p,index,uid)
 	if data.plots[key] or not seed or seed.count<1 then return false,"ช่องไม่ว่างหรือไม่มีเมล็ด" end
 	data.plots[key]={id=seed.id,zone=seed.zone,rebirthDrop=seed.rebirthDrop,progress=0,updatedAt=os.time(),mature=false,watered=false,nextFruitAt=0,mutations={},admin_spawned=seed.admin_spawned}
 	seed.count-=1;if seed.count==0 then inv[uid]=nil end
-	Data.Set(p,"Inventory.Seeds",inv);Data.Set(p,"Garden",data);return true,"ปลูกแล้ว"
+	Data.Set(p,"Inventory.Seeds",inv);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.SeedsPlanted",1);return true,"ปลูกแล้ว"
 end
 function Garden.Advance(p,now,online)
 	local data=Data.Get(p,"Garden");if not data then return end
@@ -116,7 +116,7 @@ function Garden.Harvest(p,index)
 	local def=Seeds.ById[plot.id]
 	if match then fruits[match].count+=def.yield else fruits[Http:GenerateGUID(false)]={id=plot.id,zone=plot.zone,rebirthDrop=plot.rebirthDrop,mutations=table.clone(plot.mutations),count=def.yield,admin_spawned=plot.admin_spawned} end
 	plot.nextFruitAt=os.time()+def.fruitTime;plot.mutations={}
-	Data.Set(p,"Inventory.Fruits",fruits);Data.Set(p,"Garden",data);return true,"เก็บผลแล้ว ต้นเดิมจะออกผลใหม่"
+	Data.Set(p,"Inventory.Fruits",fruits);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.Harvests",1);return true,"เก็บผลแล้ว ต้นเดิมจะออกผลใหม่"
 end
 function Garden.Sell(p)
 	if not enabled(p) or not near(p,shopPart(),Config.ShopRange) then return false,"ขายผลที่ร้านเมล็ดในหมู่บ้าน" end

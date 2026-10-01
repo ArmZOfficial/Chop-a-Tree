@@ -22,6 +22,8 @@ CONFIG = dict(
     AUTO_CUT_REWARD=0.55,                   # Auto Cut: EXP / Wood / Coins ×0.55 (−45%)
     AUTO_CUT_PACE=1.0,                      # Auto Cut เดินหาต้นไม้เองได้ไวเท่าคนเล่น (ไม่มีโทษแอบแฝง)
     REBIRTH_ROT=10,                         # Rebirth ครั้งที่ R: HP/รางวัล/Item Level ×10^R ("ราเน่าแรงขึ้น")
+    BOSS_HP_MULT=200,                       # บอสโซน HP = ต้นระดับ 6 ของโซน × 200 (plan 14.4)
+    BOSS_REWARD_MULT=20,                    # รางวัลบอส = รางวัลต้นระดับ 6 × 20
     REBIRTH_POWER=1.5,                      # Rebirth ครั้งที่ R: Cut Power ถาวร ×1.5^R                  # จำกัดตามความหนาแน่นต้นไม้ + เวลาเดิน
 )
 C = CONFIG
@@ -132,6 +134,16 @@ def compare():
         print(f"Rebirth {r}: HP ×{C['REBIRTH_ROT'] ** r:<6} | ของเก่า: {f(old)} | ดรอปใหม่ของวัฏจักรนี้: {f(new)}")
 
 
+def bosses():
+    print()
+    print("=== บอสโซน (ตีคนเดียว, อาวุธ Epic ★1 ของโซน, เลเวลรอบ 30) ===")
+    for z in range(1, C["ZONES"] + 1):
+        hp = tree(z, 5)[0] * C["BOSS_HP_MULT"]
+        dps = weapon("Epic", z) * C["RUN_MULT"] ** 30 * C["CRIT_AVG"] * C["SPEED"]
+        print(f"โซน {z}: HP {fmt(hp)} | Power ขั้นต่ำ {fmt(tree(z, 5)[2])} | ใช้เวลา ~{hp / dps:.0f} วินาที")
+
+
 if __name__ == "__main__":
     main()
     compare()
+    bosses()

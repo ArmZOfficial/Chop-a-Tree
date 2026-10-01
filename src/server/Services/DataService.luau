@@ -30,8 +30,14 @@ end
 DataService.Template = {
 	DataVersion = DataService.DATA_VERSION,
 	Currencies = currencyTemplate(),
-	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0, EggsHatched = 0, EggsStolen = 0 },
-	Progress = { Zone = 1, UnlockedZones = { 1 }, Rebirth = 0, StoryChapter = 1 },
+	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0, EggsHatched = 0, EggsStolen = 0, ChestsOpened = 0, SeedsPlanted = 0, Harvests = 0, BossKills = 0 },
+	Progress = { Zone = 1, UnlockedZones = { 1 }, Rebirth = 0, StoryChapter = 1, Bosses = {}, Shrines = {} },
+	Quests = {
+		main = { step = 1, base = 0 },
+		daily = { key = -1, ids = {}, base = {}, claimed = {} },
+		weekly = { key = -1, ids = {}, base = {}, claimed = {} },
+	},
+	Index = { weapons = {}, pets = {}, seeds = {}, mutations = {}, done = {} },
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {} },
 	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0 }, equipSlots = 3 },

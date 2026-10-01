@@ -55,6 +55,15 @@ function Balance.TreeRequiredPower(zone: number, tier: number, rebirth: number?)
 	return Balance.TreeHP(zone, tier, rebirth) / G("ReqHits")
 end
 
+-- บอสโซน (plan 14.4): HP = ต้นระดับ 6 × BossHPMult, Power ขั้นต่ำเท่าต้นระดับ 6
+function Balance.BossHP(zone: number, rebirth: number?): number
+	return Balance.TreeHP(zone, 6, rebirth) * G("BossHPMult")
+end
+
+function Balance.BossRequiredPower(zone: number, rebirth: number?): number
+	return Balance.TreeRequiredPower(zone, 6, rebirth)
+end
+
 export type Reward = { exp: number, wood: number, coins: number }
 
 function Balance.TreeReward(zone: number, tier: number, rebirth: number?, autoCut: boolean?): Reward
@@ -108,6 +117,7 @@ function Balance.SelfTest(): (boolean, string)
 		{ "WeaponPower Mythic base IL8", Balance.WeaponPower({ basePower = 12500, itemLevel = 8 }), 12500 * 1e14 },
 		{ "WeaponPower Rare★2", Balance.WeaponPower({ basePower = 375, itemLevel = 1, stars = 2 }), 562.5 },
 		{ "Rot R3", Balance.Rot(3), 1000 },
+		{ "BossHP z1", Balance.BossHP(1), 6e6 },
 	}
 	local bad = {}
 	for _, c in checks do

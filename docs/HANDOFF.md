@@ -1,16 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 5 ไข่/สัตว์/ขโมย/ฐาน core ทดสอบแล้ว
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 6 เนื้อเรื่อง/เควส/บอส core ทดสอบแล้ว
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 10) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
 1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
 2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
-3. ArmZ สั่ง **ทำต่อเลย** จาก handoff. **Phase 5 core ทำแล้ว**: ไข่ 4 ชนิด/สัตว์ 12 ตัว (โซน 1–2), ตู้ฟัก 3 ช่อง, คอกรายได้ (สูงสุด 8 ชม.), พกติดตัว 3 ตัว+บัฟ, หลอมขั้น, Mount, สายพานไข่ UTC, รังป่า+ผู้พิทักษ์, ไข่จากหีบ, ขโมยไข่/ทวงคืน, ล็อกฐาน, โล่ผู้เล่นใหม่/AFK, อัปเกรดฐานด้วย Wood, UI และ admin แท็บไข่ & สัตว์. อ่าน `docs/phase5_validation.md` ก่อนต่อ **Phase 6 เนื้อเรื่อง/เควส/บอส**. ค้างจาก Phase 5: ตกแต่งฐาน, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมยกับผู้เล่นจริงหลายบัญชี.
+3. ArmZ สั่ง **ทำต่อเลย** อีกครั้งหลัง Phase 5 → **Phase 6 core ทำแล้ว**: บอสผู้พิทักษ์โซน 1–2, ศาลเจ้า/ปลดโซน, ประตูราเน่ารายคน, หินวาร์ป, ปู่ Bram บทพูด, เควสหลัก 8 บท (3–8 รอ Phase 7), รายวัน/สัปดาห์, Index, UI เควส/นำทาง/แถบบอส, admin แท็บโซน & เนื้อเรื่อง; อ่าน `docs/phase6_validation.md` ก่อนต่อ **Phase 7 โซน 3–8 แบบเต็ม** (ต้องถามรายละเอียดก่อนสร้างแมพ — skill `roblox-map-builder`). ก่อนหน้านั้น **Phase 5 core ทำแล้ว**: ไข่ 4 ชนิด/สัตว์ 12 ตัว (โซน 1–2), ตู้ฟัก 3 ช่อง, คอกรายได้ (สูงสุด 8 ชม.), พกติดตัว 3 ตัว+บัฟ, หลอมขั้น, Mount, สายพานไข่ UTC, รังป่า+ผู้พิทักษ์, ไข่จากหีบ, ขโมยไข่/ทวงคืน, ล็อกฐาน, โล่ผู้เล่นใหม่/AFK, อัปเกรดฐานด้วย Wood, UI และ admin แท็บไข่ & สัตว์. อ่าน `docs/phase5_validation.md` ก่อนต่อ **Phase 6 เนื้อเรื่อง/เควส/บอส**. ค้างจาก Phase 5: ตกแต่งฐาน, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมยกับผู้เล่นจริงหลายบัญชี.
 4. ผลตรวจ: raycast 2,048 จุด ไม่มีพื้นขาด ขั้นสูง >3.5 studs หรือสิ่งกีดขวาง (ยกเว้นประตูที่ตั้งใจปิด). Play เดินจริงผ่านครบ **16 เส้นทาง**: ทางเชื่อม 8 เส้น + ทางในโซน 8 เส้น. ทางเชื่อมพื้นดินเดินที่ WalkSpeed 16, รากขึ้นฟ้า 80, ทางในโซน 40 เพื่อเร่งทดสอบ. ใช้ PreparePlayRoutes.luau (Server) แล้ว PlayRoutes.luau (Client).
-5. Phase 5 ผ่าน **81/81** (`docs/phase5_test_results.json`) + mouse GUI วางไข่/ฟัก/พกสัตว์/ล็อกฐาน/อัปเกรดคอก. Regression Phase 2/3/4 ผ่าน **23/36/55**. ภาพ `docs/screens/phase5_pets_base.jpg`, `phase5_follow_lock.jpg`. ชุดทดสอบ `tools/tests/Phase5Scenario.server.luau` และ `Phase5GUIHarness.server.luau` (ใส่เป็น Script ชั่วคราวตอน Play ผ่าน execute_luau ตั้ง `Source`); คืน profile จริงแล้ว. ขโมยทดสอบกับฐานบอท/บอทขโมย ยังไม่ได้ทดสอบสองบัญชีจริง.
-6. โค้ด Phase 5 ที่เพิ่ม/แก้ **20 ไฟล์**ตรง Studio Edit ตาม `docs/phase5_source_checksums.json` (checksum Phase 3/4 เป็นบันทึกรอบก่อน). Zones/MapBuilder ไม่แก้; ใช้ Incubator/PetPen/LockBarrier/Nest/EggConveyor ที่แมพสร้างไว้. Studio กลับ Edit ไม่มี test Script ค้าง; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
+5. Phase 6 ผ่าน **51/51** (`docs/phase6_test_results.json`) + input จริง (กด E คุย Bram, ต่อไป/ข้าม, รับรางวัลรายวัน, วาร์ปโซน 1, แถบบอส); regression Phase 2/3/4/5 ผ่าน **23/36/55/81**; ภาพ `docs/screens/phase6_dialog.jpg`, `phase6_guardian.jpg`. Phase 5 ผ่าน **81/81** (`docs/phase5_test_results.json`) + mouse GUI วางไข่/ฟัก/พกสัตว์/ล็อกฐาน/อัปเกรดคอก. Regression Phase 2/3/4 ผ่าน **23/36/55**. ภาพ `docs/screens/phase5_pets_base.jpg`, `phase5_follow_lock.jpg`. ชุดทดสอบ `tools/tests/Phase5Scenario.server.luau` และ `Phase5GUIHarness.server.luau` (ใส่เป็น Script ชั่วคราวตอน Play ผ่าน execute_luau ตั้ง `Source`); คืน profile จริงแล้ว. ขโมยทดสอบกับฐานบอท/บอทขโมย ยังไม่ได้ทดสอบสองบัญชีจริง.
+6. โค้ด Phase 6 ที่เพิ่ม/แก้ **17 ไฟล์**ตรง Studio Edit ตาม `docs/phase6_source_checksums.json` (checksum Phase 3/4/5 เป็นบันทึกรอบก่อน; ไฟล์ที่แก้ซ้ำใช้ค่าของ Phase ล่าสุด). Zones/MapBuilder ไม่แก้; ใช้ Incubator/PetPen/LockBarrier/Nest/EggConveyor ที่แมพสร้างไว้. Studio กลับ Edit ไม่มี test Script ค้าง; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
 7. ยังไม่ได้ Publish การเปลี่ยนแมพขึ้นเกมจริง; ผู้ใช้ต้อง Save/Publish ใน Studio เพื่อเก็บ place. GitHub เก็บตัวสร้างแมพและโค้ด.
 
 ---
@@ -47,14 +47,15 @@
 
 | Phase | สถานะ |
 |---|---|
-| วางแผน (plan.md ร่างที่ 10) | ✅ อัปเดตสถานะ Phase 5 และงาน UI แล้ว |
+| วางแผน (plan.md ร่างที่ 10) | ✅ อัปเดตสถานะ Phase 6 และงาน UI แล้ว |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
 | **Phase 3 หีบ + อาวุธ** | ✅ core ผ่าน 36 checks + GUI; ภาพโมเดล procedural รอขัดเกลา Phase 10 |
 | **Phase 4 สวน + อากาศพื้นฐาน** | ✅ core ผ่าน 55 checks + GUI; ทดสอบเซิร์ฟจริงหลายเครื่อง/มือถือและภาพ/เสียง/UI สุดท้ายยังค้าง |
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
-| Phase 6–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
+| **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
+| Phase 7–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
 
@@ -77,6 +78,8 @@
 **ผลทดสอบ Phase 0**: คำสั่งผ่านหมด, ยืนยัน 2 ชั้นบล็อกถูก, rate limit ทำงาน, HUD อัปเดตสด, Balance SelfTest 8/8, กดปุ่ม UI จริงได้ (ซ่อนหน้าต่างแชทตอนเปิดแผงเพราะแชทของ Roblox ทับฝั่งซ้าย)
 
 **อัปเดต Phase 3**: `Config.Weapons` 100 ชิ้นใส่ใน Studio แล้ว. ดู `docs/phase3_validation.md` สำหรับ WeaponService, Loot, WeaponVisual และ InventoryController.
+
+**อัปเดต Phase 6**: BossService (ผู้พิทักษ์ tag `Boss`), QuestService (เควสหลัก/รายวัน/สัปดาห์/Index), StoryService (NPC/ศาลเจ้า/ปลดโซน/วาร์ป), Config.Story, StoryController และ AdminCommands.StoryCommands ใส่ใน Studio แล้ว; Feature `Story` เปิด. Service order ต่อท้าย: … TreeService → BossService → QuestService → StoryService. Remotes ใหม่ QuestState/StoryShow/BossEvent/StoryAction. อ่าน `docs/phase6_validation.md`.
 
 **อัปเดต Phase 5**: PetService (ไข่/ตู้ฟัก/สัตว์/คอก/บัฟ/Mount/สายพาน), StealService (ขโมย/ล็อกฐาน/โล่/บอททดสอบ), NestService (รังป่า/ผู้พิทักษ์), Config.Eggs/Pets/Base + PetMath/PetVisual, PetController และ AdminCommands.PetCommands ใส่ใน Studio แล้ว. Service order: … WeaponService → PetService → StealService → NestService → RunService → TreeService. Remotes ใหม่ PetState/PetShow/PetAction/BaseAction. อ่าน `docs/phase5_validation.md`.
 
@@ -157,11 +160,11 @@
 
 ## 10. Phase ถัดไป
 
-1. **Phase 6 เนื้อเรื่อง + เควส + บอส**: NPC, ศาลเจ้า, บอสโซน (HP = ต้นระดับ 6 × 200), ประตูโซนปลดล็อก (`ZoneGate` Open), ลูกศรนำทาง, Index ตาม plan 1, 4.11, 14.4. ใช้ `Progress.StoryChapter` (Mount บทที่ 2 บังคับเมื่อเปิด Feature `Story`) และ `Progress.UnlockedZones` ที่ระบบเดิมใช้อยู่.
-2. ค้างจาก Phase 5 (ทำก่อนหรือพร้อม Phase 6 ตามที่ ArmZ เลือก): **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ทวงคืน/ล็อกกับผู้เล่นจริง 2+ บัญชีและ reconnect, แก้ GardenController ให้ไม่สร้างปุ่มใหม่ทุก 2 วิ (คลิกหายได้ — รูปแบบ `reuse` ใน PetController).
-3. อ่าน `docs/phase5_validation.md`, `phase4_validation.md`, `phase3_validation.md` สำหรับ state/economy seams. ยังต้องทดสอบ multi-account/multi-server จริง มือถือ/gamepad และ friend boost หลายบัญชี. อากาศชุดที่เหลือ/Live Event/ไข่ Robux/Secret ต่อ Phase 8; art/เสียง/โมเดลสัตว์/แอนิเมชันขี่และ UI polish ต่อ Phase 10.
+1. **Phase 7 โซน 3–8 แบบเต็ม**: ตาม skill `roblox-map-builder` **ต้องถามรายละเอียดหน้าตาแต่ละโซนกับ ArmZ ก่อนสร้าง** (ธีม/ต้นไม้/ของตกแต่ง/asset Creator Store ตาม `SKILL.md`). หลังสร้างให้ตั้ง `Config.Zones[n].built=true` — บอส บทเควส วาร์ป และประตูจะทำงานเอง; ต้องเพิ่มไข่/สัตว์ของโซน (Config.Eggs/Pets ตาม EggType ของรัง) และตรวจเส้นทางด้วย `tools/map/ValidateRoutes.luau`.
+2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย), บัฟถาวร Index + Achievements (Phase 8).
+3. อ่าน `docs/phase6_validation.md`, `phase5_validation.md`, `phase4_validation.md`, `phase3_validation.md` สำหรับ seams. ยังต้องทดสอบ multi-account/multi-server มือถือ/gamepad. อากาศชุดที่เหลือ/Live Event/ไข่ Robux/Secret/Rebirth ต่อ Phase 8; art/เสียง/โมเดลบอส-สัตว์/คัตซีน/UI polish ต่อ Phase 10.
 4. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
-5. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, สวน/เมล็ด, ไข่/สัตว์, พยากรณ์อากาศ, ร้านค้า, เควส และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
+5. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, สวน/เมล็ด, ไข่/สัตว์, เควส/Index, พยากรณ์อากาศ, ร้านค้า และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
 
 ## 11. Skill ที่ใช้
 

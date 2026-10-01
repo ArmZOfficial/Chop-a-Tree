@@ -22,7 +22,7 @@ local base=G.Base(p);local incubator=base.Incubator:GetPivot();local pen=base.Pe
 local function atIncubator() at(incubator*CFrame.new(5,3,0)) end
 local ok,err=xpcall(function()
 	R.End(p,false);F.Set("Eggs",true);F.Set("Stealing",true);W.Force("Clear",3600);p:SetAttribute("ShieldOverride","off");St.ResetLock(p)
-	freshPets();D.Set(p,"Progress.UnlockedZones",{1});D.Set(p,"Progress.Rebirth",0);D.SetCurrency(p,"Coins",1e9);D.SetCurrency(p,"Wood",1e9)
+	freshPets();D.Set(p,"Progress.UnlockedZones",{1});D.Set(p,"Progress.Rebirth",0);D.Set(p,"Progress.StoryChapter",2);D.SetCurrency(p,"Coins",1e9);D.SetCurrency(p,"Wood",1e9)
 	local migrated=D.Migrate({DataVersion=1,Inventory={Weapons={keep={id="existing"}},Equipped="keep",Chests={}}})
 	check("Reconcile adds egg/pet data and keeps weapons",migrated.Inventory.Weapons.keep.id=="existing" and type(migrated.Inventory.Eggs)=="table" and type(migrated.Inventory.Pets)=="table" and migrated.Pets.equipSlots==3 and type(migrated.Run.Eggs)=="table" and migrated.Settings.FriendSteal==false)
 	local valid=true;for _,e in Eggs.List do for _,row in e.pets do if not Pets.ById[row[1]] or row[2]<=0 then valid=false end end end

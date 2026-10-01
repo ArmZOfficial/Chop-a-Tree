@@ -144,13 +144,13 @@ function Run.Award(player,zone,tier,autoCut,rewardMult)
 	Run.Send(player)
 end
 
-function Run.CollectChest(player,spot,generation)
+function Run.CollectChest(player,spot,generation,forcedRarity)
 	local r=Run.Get(player)
 	if not r or not r.Active then return false end
 	local count=0
 	for _,c in r.Chests do count+=c.count end
 	if count>=Config.MaxRunChests then return false end
-	local rarity=spot and Loot.SpotRarity(spot:GetAttribute("Depth"),chestRng) or "Common"
+	local rarity=forcedRarity or (spot and Loot.SpotRarity(spot:GetAttribute("Depth"),chestRng)) or "Common"
 	local rb=Data.Get(player,"Progress.Rebirth")
 	local admin=Data.Get(player,"Meta.AdminTouched")
 	local level=r.Level+(Weather.Def().chestLevel or 0)

@@ -33,6 +33,13 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 4. UI ที่รีเฟรชจาก state packet ต้องอัปเดตปุ่มเดิมแทนการสร้างใหม่ (ดู `reuse` ใน PetController) ไม่งั้นคลิกหายระหว่างรีเฟรช. Humanoid.WalkSpeed เป็น float32 — เทียบในเทสต์ด้วย tolerance ≥1e-3.
 5. ทดสอบขโมยด้วยฐานบอท/บอทขโมยจาก PetCommands จนกว่าจะมีผู้เล่นจริงหลายบัญชี; บันทึกผลหลายบัญชีลง handoff เมื่อได้ทดสอบ. Phase 6 ใช้ `Progress.StoryChapter` เปิดการขี่บทที่ 2 (บังคับเมื่อ Feature `Story` เปิด) และเพิ่มสัตว์/ไข่โซน 3–8 ใน Phase 7 เป็นแถว Config.
 
+## แนวทางต่อเนื้อเรื่อง เควส บอส และ Phase 7
+
+1. Phase 6 core ผ่าน 51 checks; อ่าน `docs/phase6_validation.md` ก่อนแก้เนื้อเรื่อง/เควส/บอส. QuestService เป็นเจ้าของเควสหลัก/รายวัน/สัปดาห์/Index, StoryService เป็นเจ้าของ NPC/ศาลเจ้า/ปลดโซน/วาร์ป, BossService เป็นเจ้าของผู้พิทักษ์. Progress ใช้คีย์สตริง (`Progress.Bosses["1"]`, `Progress.Shrines["1"]`).
+2. ขั้นเควสแบบนับต้องอ่านส่วนต่างของ `Stats.*` — ระบบใหม่ที่อยากให้เควสนับ ให้เพิ่ม Stats ด้วย `Data.Increment` แล้วเพิ่มแถวใน Config.Story ไม่ต้องเรียก QuestService ตรง. เควสรายวัน/สัปดาห์สุ่มจาก UTC key เท่านั้น.
+3. สูตรบอสอยู่ที่ `Balance.BossHP/BossRequiredPower` (BalanceConfig `BossHPMult/BossRewardMult` ตรงกับ `balance_sim.py`). บอสถูกสร้างเฉพาะโซน `built=true` — Phase 7 แค่เปลี่ยน `built` และสร้างโซน บอส/บท/วาร์ปจะทำงานเอง แต่ต้องเพิ่มไข่/สัตว์/บทพูดของโซนนั้น.
+4. ประตูโซนเปิดที่ client จาก `Progress.UnlockedZones`; รางวัลทุกอย่างต้องตรวจ `Run.CanAccess` ที่ server เสมอ. UI ใหม่ที่ฝั่งขวาต้องไม่ชนพยากรณ์อากาศ (y 120–180) และ Run panel; ตัวติดตามเควสอยู่ซ้าย (y 475).
+
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง

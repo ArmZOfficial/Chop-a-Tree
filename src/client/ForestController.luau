@@ -43,13 +43,14 @@ function Forest.Start()
 		local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		if not hr then return end
 		local best,dist=nil,Config.AttackRange
-		for _,m in Collection:GetTagged("Tree") do
+		for _,tag in {"Tree","Boss"} do for _,m in Collection:GetTagged(tag) do
 			if m:IsA("Model") and m.PrimaryPart and m:GetAttribute("Alive")~=false then
 				local p=m.PrimaryPart.Position
-				local d=Vector3.new(p.X-hr.Position.X,0,p.Z-hr.Position.Z).Magnitude
+				-- Guardians are wide; measure to their bark instead of their centre.
+				local d=Vector3.new(p.X-hr.Position.X,0,p.Z-hr.Position.Z).Magnitude-(tag=="Boss" and 12 or 0)
 				if d<dist then best,dist=m,d end
 			end
-		end
+		end end
 		if best then Net.Event("ForestAction"):FireServer("Hit",best) end
 	end
 	local chop=UI.Button({text="CHOP 🪓",color=UI.Colors.Orange,size=UDim2.fromOffset(150,52),onClick=hitNearest})

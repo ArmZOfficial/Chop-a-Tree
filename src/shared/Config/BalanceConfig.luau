@@ -20,6 +20,8 @@ return table.freeze({
 	AutoCutReward = 0.55, -- −45%
 	RebirthRot = 10, -- HP/รางวัล/Item Level ×10^Rebirth
 	RebirthPower = 1.5, -- พลังถาวร ×1.5^Rebirth
+	BossHPMult = 200, -- บอสโซน HP = ต้นระดับ 6 × 200 (plan 14.4)
+	BossRewardMult = 20, -- รางวัลบอส = รางวัลต้นระดับ 6 × 20
 	FriendBoostPer = 0.1,
 	FriendBoostMax = 0.5,
 })

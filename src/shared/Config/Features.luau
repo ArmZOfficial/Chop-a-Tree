@@ -12,7 +12,7 @@ return table.freeze({
 	Weather = true, -- Phase 4
 	Eggs = true, -- Phase 5
 	Stealing = true, -- Phase 5
-	Story = false, -- Phase 6
+	Story = true, -- Phase 6
 	Rebirth = false, -- Phase 8
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9

@@ -1,0 +1,212 @@
+{
+ "date": "2026-10-01",
+ "placeId": 93479990217075,
+ "passed": true,
+ "count": 51,
+ "checks": [
+  {
+   "name": "Reconcile adds quests, index, bosses and shrines",
+   "passed": true
+  },
+  {
+   "name": "Boss HP is tier 6 x200 and power gate matches tier 6",
+   "passed": true
+  },
+  {
+   "name": "Eight chapters with valid steps",
+   "passed": true
+  },
+  {
+   "name": "Guardians exist only for built zones",
+   "passed": true
+  },
+  {
+   "name": "Talking far from Bram is rejected",
+   "passed": true
+  },
+  {
+   "name": "Talking to Bram completes the first step once",
+   "passed": true
+  },
+  {
+   "name": "Tree step counts only since it began",
+   "passed": true
+  },
+  {
+   "name": "Tenth tree completes the tree step",
+   "passed": true
+  },
+  {
+   "name": "Opening a chest counts through WeaponService",
+   "passed": true
+  },
+  {
+   "name": "Planting counts through GardenService",
+   "passed": true
+  },
+  {
+   "name": "Hatching counts through PetService",
+   "passed": true
+  },
+  {
+   "name": "Boss cannot be hit outside a Run",
+   "passed": true
+  },
+  {
+   "name": "Boss hit out of range is rejected",
+   "passed": true
+  },
+  {
+   "name": "Boss needs tier 6 power",
+   "passed": true
+  },
+  {
+   "name": "Boss hit removes the right health share",
+   "passed": true
+  },
+  {
+   "name": "Boss swing respects weapon cooldown",
+   "passed": true
+  },
+  {
+   "name": "Killing the boss marks it defeated",
+   "passed": true
+  },
+  {
+   "name": "First defeat grants Gems and an Epic run chest",
+   "passed": true
+  },
+  {
+   "name": "Dead boss cannot be hit",
+   "passed": true
+  },
+  {
+   "name": "Boss step completes",
+   "passed": true
+  },
+  {
+   "name": "Repeat defeat gives a Rare chest without first-kill Gems",
+   "passed": true
+  },
+  {
+   "name": "Lighting far from the shrine is rejected",
+   "passed": true
+  },
+  {
+   "name": "Shrine of an undefeated boss is rejected",
+   "passed": true
+  },
+  {
+   "name": "Mount stays locked in chapter 1",
+   "passed": true
+  },
+  {
+   "name": "Lighting the shrine unlocks zone 2 and finishes chapter 1",
+   "passed": true
+  },
+  {
+   "name": "Chapter completion pays step and chapter Gems",
+   "passed": true
+  },
+  {
+   "name": "A lit shrine cannot be lit twice",
+   "passed": true
+  },
+  {
+   "name": "Mount unlocks in chapter 2",
+   "passed": true
+  },
+  {
+   "name": "Chapter 2 opens with Bram",
+   "passed": true
+  },
+  {
+   "name": "Warp needs a warp stone",
+   "passed": true
+  },
+  {
+   "name": "Locked or unbuilt zones cannot be warped to",
+   "passed": true
+  },
+  {
+   "name": "Carrying an egg blocks warping",
+   "passed": true
+  },
+  {
+   "name": "Warping to an unlocked zone starts a Run there",
+   "passed": true
+  },
+  {
+   "name": "Standing in zone 2 completes the zone step",
+   "passed": true
+  },
+  {
+   "name": "Warping home ends the Run",
+   "passed": true
+  },
+  {
+   "name": "Chapter 3 zone step is blocked until Phase 7",
+   "passed": true
+  },
+  {
+   "name": "Blocked step does not advance",
+   "passed": true
+  },
+  {
+   "name": "Daily quests are three distinct UTC-seeded picks",
+   "passed": true
+  },
+  {
+   "name": "Re-rolling the same day gives the same quests",
+   "passed": true
+  },
+  {
+   "name": "Unfinished daily cannot be claimed",
+   "passed": true
+  },
+  {
+   "name": "Finished daily pays once",
+   "passed": true
+  },
+  {
+   "name": "Weekly needs six times the daily count",
+   "passed": true
+  },
+  {
+   "name": "Weekly claim pays weekly Gems",
+   "passed": true
+  },
+  {
+   "name": "Unknown quest kinds are rejected",
+   "passed": true
+  },
+  {
+   "name": "Index records non-admin pets and pet mutations only",
+   "passed": true
+  },
+  {
+   "name": "Admin-granted weapons do not count",
+   "passed": true
+  },
+  {
+   "name": "Each new Index entry pays one Gem",
+   "passed": true
+  },
+  {
+   "name": "Rescanning pays nothing",
+   "passed": true
+  },
+  {
+   "name": "Completing a category pays the completion bonus",
+   "passed": true
+  },
+  {
+   "name": "Story feature off disables bosses and talking",
+   "passed": true
+  },
+  {
+   "name": "Balance self-test includes boss HP",
+   "passed": true
+  }
+ ]
+}

@@ -79,7 +79,7 @@ function Weapon.Open(player,uid)
 	-- No yields: consume exactly one chest and create exactly one weapon.
 	chest.count-=1;if chest.count==0 then table.remove(chests,index) end
 	inventory[weaponUid]=item
-	Data.Set(player,"Inventory.Chests",chests);Data.Set(player,"Inventory.Weapons",inventory)
+	Data.Set(player,"Inventory.Chests",chests);Data.Set(player,"Inventory.Weapons",inventory);Data.Increment(player,"Stats.ChestsOpened",1)
 	require(script.Parent.GardenService).ChestDrop(player,chest)
 	require(script.Parent.PetService).ChestDrop(player,chest)
 	if Data.Get(player,"Inventory.Equipped")=="" then Data.Set(player,"Inventory.Equipped",weaponUid);Weapon.RefreshTool(player) end
