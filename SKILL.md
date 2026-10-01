@@ -11,7 +11,7 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 2. ทุกงานอัปเดต **plan + SKILL + handoff ในงานเดียวกัน** (ArmZ 2026-10-01): เปลี่ยนเฉพาะข้อที่เกี่ยวข้อง ไม่เติมประวัติซ้ำ. handoff เก็บสถานะล่าสุด/ผลตรวจ/งานถัดไป; รายละเอียดผลตรวจอยู่ validation.
 3. Commit/push งานที่จบตามสิทธิ์เดิม. **ไม่ซื้อ Robux/asset เสียเงิน และไม่ Publish โดยไม่มีคำสั่ง**. คอสเมติกให้รอ ArmZ สั่ง.
 4. อ่าน systems เฉพาะ heading ของงาน; design เป็น spec snapshot ไม่ใช่สถานะล่าสุด. จบงานตรวจลิงก์และความสอดคล้องสามไฟล์.
-5. ArmZ เปิด ponytail full + caveman full (2026-10-02): ใช้ของเดิม/stdlib, diff เล็ก, รายงานไทยสั้น; เอกสาร/โค้ดเขียนปกติ. ซีซันใหม่ใช้ ID ใหม่และช่วง UTC ต่อเนื่อง; ทดสอบ rollover, pending receipt ข้ามซีซัน และวันหมดซีซันสุดท้ายด้วย scenario เดิม.
+5. ArmZ เปิด ponytail full + caveman full (2026-10-02): ใช้ของเดิม/stdlib, diff เล็ก, รายงานไทยสั้น; เอกสาร/โค้ดเขียนปกติ. ซีซันใหม่ใช้ ID ใหม่และช่วง UTC ต่อเนื่อง (มีถึง s3 จบ 2027-01-01 UTC); ทดสอบ rollover, pending receipt ข้ามซีซัน และวันหมดซีซันสุดท้ายด้วย scenario เดิม.
 
 ## กฎที่ใช้ทุกระบบ
 

@@ -25,7 +25,7 @@
 ## ข้อจำกัด / ต้องทำต่อ
 
 1. Receipt ทดสอบผ่าน `ProcessReceipt` โดยตรง; ArmZ รายงานซื้อเองผ่าน. Native UI ควบคุมได้แล้ว แต่ automation ยังไม่ได้ยืนยัน paid purchase ใน Roblox Player.
-2. ซีซัน 2 `s2_2026_11` "ป่าแสงจันทร์" พร้อมช่วง 2026-11-01→12-01 UTC, ใช้ XP/รางวัลเดิม. เพิ่มซีซัน 3 ก่อน 2026-12-01 UTC เพื่อให้มีซีซันต่อไป.
+2. ซีซัน 2 `s2_2026_11` "ป่าแสงจันทร์" พร้อมช่วง 2026-11-01→12-01 UTC, ใช้ XP/รางวัลเดิม. ซีซัน 3 `s3_2026_12` "ป่าหิมะเงิน" 2026-12-01→2027-01-01 UTC พร้อมแล้ว; เพิ่มซีซัน 4 ก่อน 2027-01-01 UTC.
 3. ค่า XP/รางวัล/ชื่อซีซัน/4,500 Gems เป็นค่าเริ่มต้น Beta ยังไม่ผ่านข้อมูลผู้เล่นจริง.
 4. ปุ่ม Season Pass ชิดกล่องเควสด้านล่าง; จัด HUD ใหม่ใน Phase 10.
 5. ยังไม่ได้ Publish.
@@ -33,6 +33,10 @@
 ## ตรวจเพิ่มซีซัน 2 — 2026-10-02
 
 Phase8SeasonScenario เดิมปรับ boundary ให้รองรับหลายซีซัน เพิ่ม 4 checks: ไม่มี gap, rollover reset XP/Premium/claims แต่คง pendingFor, ใบเสร็จซีซัน 1 มาช้าจ่าย fallback ไม่ปลดซีซัน 2, Premium/claim สองแถวซีซัน 2. ผ่าน **33/33** ใน Script VM; harness คืน profile/flags/ตำแหน่ง. ไม่เปลี่ยน service/สูตร/รางวัล. Balance simulator ผ่าน (`python -X utf8`; รอบแรก console cp1252 พิมพ์ไทยไม่ได้). Config/Season ตรง Studio Edit 2257 bytes/hash31 522002800, ไม่มี error/test script ค้าง; ไม่ Publish. Shop/GUI/regression อื่นยังเป็นผลรอบเดิม.
+
+## ตรวจเพิ่มซีซัน 3 — 2026-10-02
+
+เพิ่ม check ห่วงโซ่ซีซัน (ทุกแถวเริ่มที่ endsAt ของแถวก่อน, ID ไม่ซ้ำ, ≥3 ซีซัน); "Season end" ใช้แถวสุดท้าย (s3) อัตโนมัติ. ผ่าน **34/34** ใน Script VM, console ไม่มี error, harness คืน profile/flags/ตำแหน่ง แล้วลบ Script ก่อน Stop. ไม่เปลี่ยน service/รางวัล. Config/Season ตรง Studio Edit 2412 bytes/hash31 466514145; ไม่ Publish.
 
 ## OpenTen / สิทธิ์ Pass — 2026-10-02
 

@@ -22,6 +22,7 @@ local ok,err=xpcall(function()
  local s2=C.Seasons[2];local last=C.Seasons[#C.Seasons]
  check("Active season matches its UTC window",Season.Active(s1.startsAt)==s1 and Season.Active(s1.endsAt-1)==s1 and Season.Active(s1.startsAt-1)==nil)
  check("Season 2 starts at Season 1 end without a gap",s2.id~=s1.id and s2.startsAt==s1.endsAt and Season.Active(s2.startsAt)==s2 and Season.Active(s2.endsAt-1)==s2)
+ check("Every later season starts where the previous ends",(function() for i=2,#C.Seasons do local a,b=C.Seasons[i-1],C.Seasons[i];if b.id==a.id or b.startsAt~=a.endsAt or Season.Active(b.startsAt)~=b then return false end end;return #C.Seasons>=3 end)())
  local now=s1.startsAt+3600
  Season.Touch(p,now);check("Touch binds the profile to the active season",D.Get(p,"Season.id")==s1.id)
  -- XP from Stats (DataService.Changed is deferred, so yield before reading)
