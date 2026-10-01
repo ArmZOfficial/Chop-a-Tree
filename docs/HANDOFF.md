@@ -1,11 +1,11 @@
 # Chop a Tree — HANDOFF
 
-อัปเดต 2026-10-02 (ไทย). ล่าสุด: เพิ่มซีซัน 3, Season 34/34; Arena Place ยังอยู่ GameId `10768915988` (ตรวจซ้ำ). เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
+อัปเดต 2026-10-02 (ไทย). ล่าสุด: เพิ่มซีซัน 3, Season 34/34; Arena Place ใหม่ `135249057761883` อยู่ Universe หลักแล้ว. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
 
 ## สถานะล่าสุด
 
 - **Phase 9a lobby ทำแล้ว**: พอร์ทัลเดิมเปิดหน้าคิว Duel/FFA/Timber Clash/Egg Heist; Ranked/Casual แยก, ตรวจ Run/ไข่/mount/ระยะ/ชีวิต, reserved-server transfer + failure/timeout recovery. Luau CLI 37 checks; Studio startup/คลิก GUI ผ่าน, source 7 ไฟล์ตรง repo; คืน flags/pivot/anchor แล้ว Studio Edit ไม่มี test scripts. Config Arena.PlaceId=0/PvP=false. Combat/สนาม/แรงก์/รางวัลยังไม่ทำ; ดู [Arena](systems.md#arena).
-- Chop Arena ที่ผู้ใช้สร้าง `122495944523559` อยู่ GameId `10768915988` แต่เกมหลัก GameId `10768831527` จึงยังใช้ส่งกลุ่มไม่ได้. แจ้งให้ Publish to Roblox As → เลือกเกมหลัก → Add as a new place; ไม่แก้ Place ที่ผิด Universe.
+- Arena Place ใหม่ `135249057761883` อยู่ Universe เกมหลักแล้ว (ตรวจ GetGamePlacesAsync). Place เก่า `122495944523559` ผิด Universe ไม่ใช้. ต้องเปิด Place ใหม่ใน Studio เพื่อสร้าง match server ก่อนตั้ง Config.Arena.PlaceId.
 
 - **Phase 8g ร้าน Robux + Season Pass ทำและทดสอบแล้ว; ยังไม่ Publish.** ไม่สรุปว่าเกม/ทุก Phase พร้อมเปิดจริง.
 - Shop: 10 Pass + 17 Developer Products ID จริงใน `src/shared/Config/Products.luau`; เปิด flag Shop/SeasonPass, PvP ปิด. ราคา UI อ่านสดจาก Roblox.
