@@ -1,6 +1,6 @@
--- Phase 9 lobby. Set the real sub-place ID only after its match server is ready.
+-- Phase 9 lobby. Arena sub-place in the main universe; PvP flag gates the portal.
 return {
-	PlaceId = 0,
+	PlaceId = 135249057761883,
 	PortalRange = 24,
 	FillSeconds = 15,
 	TransferTimeout = 60,

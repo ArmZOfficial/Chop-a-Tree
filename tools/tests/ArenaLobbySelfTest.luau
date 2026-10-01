@@ -1,7 +1,7 @@
 -- Official Luau CLI: call returned function with ArenaService and Config.Arena source.
 -- Isolated platform stubs exercise production queue code; no account/store writes.
 return function(serviceSource,configSource)
-	local C=assert(loadstring(configSource))();local checks=0
+	local C=assert(loadstring(configSource))();C.PlaceId=0;local checks=0 -- start unconfigured
 	local function check(name,ok) assert(ok,name);checks+=1 end
 	local function signal() local s={};function s:Connect(fn) self.callback=fn end;return s end
 	local Players={PlayerRemoving=signal()};local players={}
