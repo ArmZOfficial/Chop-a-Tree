@@ -55,7 +55,7 @@ function Weather.Start()
 		local id=state:GetAttribute("id");local seconds=math.max(0,(state:GetAttribute("endsAt") or os.time())-os.time());local nextId=state:GetAttribute("nextId") or "???";local nextName=Config.ById[nextId] and Config.ById[nextId].name or (nextId=="UTC" and "ตารางปกติ" or nextId)
 		local note=({Rain="Wood ×1.25 • สวนโต ×1.5",Storm="ฟ้าผ่าให้รางวัล ×3",Snow="EXP ×1.5 • ต้นไม้แข็งขึ้น",Golden="หีบ Level +5",Clear="สวนโตได้แม้ออฟไลน์"})[id]
 		local nextIn=math.max(0,(state:GetAttribute("nextAt") or os.time())-os.time())
-		badge.Text=(state:GetAttribute("live") and "LIVE • " or "")..Config.ById[id].name.." • "..string.format("%d:%02d",seconds//60,seconds%60).."\n"..(note or Config.ById[id].note or "").."\nถัดไป: "..nextName.." • "..math.ceil(nextIn/60).." นาที"
+		local fest=state:GetAttribute("Festival") or "";badge.Text=(fest~="" and "เทศกาล "..fest.." • " or "")..(state:GetAttribute("live") and "LIVE • " or "")..Config.ById[id].name.." • "..string.format("%d:%02d",seconds//60,seconds%60).."\n"..(note or Config.ById[id].note or "").."\nถัดไป: "..nextName.." • "..math.ceil(nextIn/60).." นาที"
 		task.wait(1)
 	end end)
 end

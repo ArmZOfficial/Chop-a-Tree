@@ -96,6 +96,12 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 4. ราคาขายผลต้องผ่าน `GardenMath.SellQuote` เท่านั้น (เพดานต่อวัน UTC ตาม mutation ที่ค่าสูงสุดใน `Config.Garden.SellCaps`, เกินได้ `OverCapMult`); `Garden.sellDay/sold` รีเซ็ตเมื่อวันเปลี่ยน. ห้ามเพิ่มทางขายผลที่ข้าม quote นี้.
 5. ทดสอบด้วย Script ใน VM เกม + snapshot/restore; อย่า require service จาก MCP (cache แยก, เคยพลาดในรอบนี้). ค่าราคา/โอกาส/cap เป็นค่าเริ่มต้นรอ Phase 10.
 
+## แนวทางเทศกาล (Phase 8e)
+
+1. อ่าน `docs/phase8_festival_validation.md`. เทศกาลเป็นแถวใน `Config.Events` (UTC startsAt/endsAt, weather, nightOnly, mutation/chance); เพิ่มปีใหม่ด้วยแถวใหม่ ห้ามแก้วันย้อนหลัง. ลอยกระทงต้องตรวจวันตามจันทรคติ.
+2. WeatherService เป็นจุดเดียวที่แปลงอากาศ (`festive` ใน `Weather.AtTime`): เปลี่ยนเฉพาะ Clear/อากาศธรรมดา, คงอากาศหายากและ RotInvasion, eventKey ขึ้นต้น `fest:`. Live Event และ override เซิร์ฟมาก่อนเทศกาล. ระบบใหม่ที่อ่าน mutation อากาศต้องใช้ `Weather.Def()` ไม่อ่าน Config.Weather ตรง.
+3. Mutation ใหม่ของเทศกาลขยาย catalog Index; ปรับ fixture จำนวนในเทสต์เดิมให้ตรงข้อมูลจริงและคง completion marker. ของตกแต่ง/ของสะสมเทศกาลยังค้าง.
+
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง

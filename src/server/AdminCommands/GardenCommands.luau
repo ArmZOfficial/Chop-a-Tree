@@ -20,5 +20,11 @@ return function(Admin,Garden,Weather)
 			Weather.Force(weather,300);return true,"เปลี่ยนอากาศเฉพาะเซิร์ฟนี้: "..weather
 		end})
 	end
+	for _,e in require(game.ReplicatedStorage.Shared.Config.Events).List do local event=e
+		Admin.Register({id="festival."..event.id,tab="weather",label="เทศกาล "..event.name.." (เซิร์ฟนี้ 10 นาที)",color="Purple",run=function()
+			Weather.PreviewFestival(event.id,600);return true,"ทดลองเทศกาล "..event.name.." เฉพาะเซิร์ฟนี้"
+		end})
+	end
+	Admin.Register({id="festival.clear",tab="weather",label="ปิดทดลองเทศกาล",color="Green",run=function() Weather.PreviewFestival(nil);return true,"กลับวันที่จริงแล้ว" end})
 	Admin.Register({id="weather.utc",tab="weather",label="กลับตาราง UTC",color="Green",run=function() Weather.Force(nil);return true,"กลับตารางอากาศร่วมทุกเซิร์ฟแล้ว" end})
 end

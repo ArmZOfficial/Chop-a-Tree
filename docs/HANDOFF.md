@@ -1,9 +1,15 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d3 พ่อค้าเร่/ambient mutation/เพดานขายผลทดสอบแล้ว; ถัดไปส่วน Phase 8 ที่เหลือ
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 15) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8e เทศกาลทดสอบแล้ว; ถัดไปร้านเติมเงิน + Season Pass, Emote/Photo
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 16) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ทำต่อได้เลย** → ทำ **Phase 8e อีเวนต์เทศกาล** แล้ว: `Config.Events` 4 เทศกาล (ฮาโลวีน Bloodmoon ทุกคืน, ลอยกระทง Aurora กลางคืน, คริสต์มาส/ปีใหม่ หิมะ, สงกรานต์ ฝน + Splash ×6) ซ้อนบนตาราง UTC ใน WeatherService; อากาศหายาก/Rot คงเดิม. Feature `Festivals`, admin `festival.<id>` (เฉพาะเซิร์ฟ 10 นาที) และ `festival.clear`, badge พยากรณ์ขึ้นชื่อเทศกาล.
+2. ผ่าน **15/15** (`phase8_festival_test_results.json`) + GUI AdminRun→badge, regression Weather **38/38** (fixture mutation 15→16 / union 16→17 เพราะ Splash). Source 6/6 ตรง Studio Edit, startup ไม่มี error, ไม่มี test Script ค้าง, ไม่ได้ Publish. อ่าน `docs/phase8_festival_validation.md`.
+3. ถัดไป: **ร้านเติมเงิน + Season Pass** (plan หัวข้อ 17 — ต้องใช้ Game Pass/Dev Product ID จริงจาก ArmZ; ห้ามซื้อด้วย Robux เอง) และ **Emote/Photo** (plan 9.4). ของตกแต่งเทศกาลยังค้าง.
+
+### บันทึก Phase 8d3 (ประวัติ)
 
 1. ผู้ใช้สั่ง **อ่าน plan/skill/handoff แล้วทำต่อ** → ทำ **Phase 8d3** แล้ว: ambient zone mutation (สวนจากเมล็ดโซน 3/5/6 สุ่ม Misty/Wet/Chilled 5% ต่อรอบผล ออนไลน์เท่านั้น), พ่อค้าเร่กระรอก (UTC ทุกชั่วโมง นาที 30–40, ของ 4 ชิ้น deterministic, limit ต่อ visit, NPC placeholder ข้างร้านเมล็ด, แท็บ "พ่อค้าเร่" ใน Garden panel, admin `merchant.summon/dismiss`) และเพดานขายผลต่อวัน UTC (Cosmic 5/Celestial 10/Rainbow 10/Aurora 15/Electrified 15 ราคาเต็ม เกิน ×0.1). Schema v1 เติม Garden.sellDay/sold + Merchant.bought; Feature Merchant เปิด.
 2. ผ่าน **30/30** (`phase8_merchant_test_results.json`), regression Phase4 **55/55**. GUI จริง: summon ผ่าน client AdminRun, กด E เปิดร้าน, ซื้อ Sunburst 2 ใบแล้วใบที่ 3 ถูกปฏิเสธ, ขาย Cosmic 7 ลูก +78,520 และโควตา 5/5→0/5; harness คืน profile ไม่ต่าง. Source 11/11 ตรง Studio Edit, startup smoke ไม่มี error, ไม่มี test Script ค้าง; ไม่ได้ Publish; ไม่แตะสูตร Balance. อ่าน `docs/phase8_merchant_validation.md`.
@@ -98,7 +104,7 @@
 
 | Phase | สถานะ |
 |---|---|
-| วางแผน (plan.md ร่างที่ 15) | ✅ plan/SKILL/handoff ตรง Phase 8d3 และงาน Phase 8 ที่เหลือ |
+| วางแผน (plan.md ร่างที่ 16) | ✅ plan/SKILL/handoff ตรง Phase 8e และงาน Phase 8 ที่เหลือ |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
@@ -107,7 +113,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 แม่แบบใช้ได้แล้ว, NPC/บทพูดเฉพาะ/คัตซีนยังค้าง |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59; merchant/ambient/sell cap 30/30 + GUI; ถัดไปเทศกาล/ร้าน/Season Pass/Emote |
+| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59; merchant/ambient/sell cap 30/30; festivals 15/15 + GUI; ถัดไปร้าน/Season Pass/Emote |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -213,7 +219,7 @@
 
 ## 10. Phase ถัดไป
 
-**Phase 8d3 core ทำแล้ว; ถัดไปคืออีเวนต์เทศกาล/ร้านเติมเงิน + Season Pass/Emote-Photo**. อ่าน `phase8_merchant_validation.md`, `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+**Phase 8e เทศกาลทำแล้ว; ถัดไปคือร้านเติมเงิน + Season Pass/Emote-Photo**. อ่าน `phase8_festival_validation.md`, `phase8_merchant_validation.md`, `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
 
 1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
 2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย). Index buffs/Achievements ทำแล้วใน Phase 8c.

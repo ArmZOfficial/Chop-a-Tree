@@ -2,7 +2,7 @@
 
 > เกม Roblox ที่ผสม 3 แนว: **ฟันต้นไม้เก็บหีบ** (แรงบันดาลใจจาก Cut Trees) + **ปลูกสวน** (Grow a Garden) + **ขโมยไข่/เลี้ยงสัตว์** (Steal an Egg)
 > ทุกอย่าง (โมเดล ชื่อ ไอเทม UI) ออกแบบเองทั้งหมด ไม่ก๊อปจากเกมต้นฉบับ
-> สถานะ: **Phase 0–1 เสร็จ · Phase 2–7 core ทดสอบแล้ว · Phase 8a Rebirth 41/41 · Phase 8b Rewards 45/45 · Phase 8c Collections 55/55 · Phase 8d1 Weather 38/38 · Phase 8d2 encounters 59/59 · Phase 8d3 merchant/ambient/sell cap 30/30** — ถัดไปส่วน Phase 8 ที่เหลือ: อีเวนต์เทศกาล, ร้านเติมเงิน + Season Pass, Emote/Photo (ร่างที่ 15). บท 3–8/NPC/คัตซีนและส่วน Phase 8 ที่เหลือยังค้าง · ผลตรวจ/ข้อจำกัดดู `docs/HANDOFF.md` และ `docs/phase8_merchant_validation.md`
+> สถานะ: **Phase 0–1 เสร็จ · Phase 2–7 core ทดสอบแล้ว · Phase 8a Rebirth 41/41 · Phase 8b Rewards 45/45 · Phase 8c Collections 55/55 · Phase 8d1 Weather 38/38 · Phase 8d2 encounters 59/59 · Phase 8d3 merchant/ambient/sell cap 30/30 · Phase 8e festivals 15/15** — ถัดไปส่วน Phase 8 ที่เหลือ: ร้านเติมเงิน + Season Pass, Emote/Photo (ร่างที่ 16). บท 3–8/NPC/คัตซีนและส่วน Phase 8 ที่เหลือยังค้าง · ผลตรวจ/ข้อจำกัดดู `docs/HANDOFF.md` และ `docs/phase8_festival_validation.md`
 
 > การอัปเดตงาน: ปรับแผนนี้, `SKILL.md` และ `docs/HANDOFF.md` ให้สอดคล้องกันทุกครั้ง ตามกฎใน `SKILL.md` (ArmZ สั่งเมื่อ 2026-10-01).
 
@@ -364,6 +364,7 @@
 2. Mutation เป็นแถวใน `Config.Mutations` (ค่าคูณ, คอมโบ, ไอคอน, สี)
 3. เพิ่มอากาศใหม่ = เพิ่มแถว + ทำ VFX → `WeatherService` สุ่มเข้าตารางเอง
 4. อีเวนต์เทศกาลตั้งวันเริ่ม/จบล่วงหน้าใน `Config.Events`
+5. **Phase 8e ทำแล้ว 2026-10-02:** ฮาโลวีน (Bloodmoon ทุกคืน), ลอยกระทง (Aurora กลางคืน), คริสต์มาส/ปีใหม่ (หิมะ), สงกรานต์ (ฝน + Splash ×6) เปลี่ยนเฉพาะ Clear/อากาศธรรมดาบนตาราง UTC; อากาศหายาก/Rot คงเดิม. ของตกแต่งเทศกาล (ปืนฉีดน้ำ/ฟักทอง/ต้นสน/โคม) ยังไม่ทำ. ผล 15/15 ใน `phase8_festival_validation.md`.
 
 ### 4.13 Leaderboard, Daily, Codes
 
@@ -460,7 +461,8 @@ StarterGui
 7. **Phase 7 — โซน 3–8 แบบเต็ม**
    - **สถานะ 2026-10-01:** core ครบ 8 โซน, 160 ต้น/โซน, ต้นแบบ Creator Store ที่ตัด script ออก 8 แบบสำหรับโซน 3–8, ไข่รวม 10 ชนิด/สัตว์ 42 ตัว, รัง 16 แห่ง/48 จุดไข่, บอส 8 ตัวและ ambience ฝั่ง client. Phase 7 ผ่าน 23/23; regression Phase 6/5 ผ่าน 51/81 (Phase 5 จากรอบก่อนแก้ตำแหน่งบอส). แก้รากและลำต้นบอสขวางทางเดินด้วย GuardianOffset; raycast ใน Play ผ่าน 2,048 จุด และเดินจริง 16/16 เส้นทางผ่าน. รายละเอียด/ความไม่สม่ำเสมอของเทสต์บอส/ข้อจำกัดใน `phase7_validation.md`. บท 3–8 ใช้แม่แบบเดิม; NPC อื่น/บทพูดเฉพาะบท/คัตซีนและบอสโจมตีกลับยังค้าง Phase 8–10. เก็บ MapAssets ใน place เพื่อสร้างภาพจากต้นแบบซ้ำ.
 8. **Phase 8 — Rebirth, Daily, Codes, Leaderboard, อากาศครบทุกแบบ + บอสโลก + อีเวนต์เทศกาล + Live Event แอดมิน, Emote/Photo, ร้านเติมเงิน + Season Pass**
-   - **สถานะล่าสุด 2026-10-02 — Phase 8d3 core:** ambient zone mutation/พ่อค้าเร่กระรอก/เพดานขายผลหายากต่อวันผ่าน 30/30 + GUI (E เปิดร้าน, ซื้อไข่ถึง limit, ขาย Cosmic ตามเพดาน), regression Phase4 55/55, source 11/11 ตรง Studio, ยังไม่ Publish. Schema v1 เติม Garden.sellDay/sold และ Merchant.bought; Feature Merchant เปิด; admin merchant.summon/dismiss. ถัดไปส่วน Phase 8 ที่เหลือ: เทศกาล, ร้านเติมเงิน + Season Pass, Emote/Photo. รายละเอียด `phase8_merchant_validation.md`.
+   - **สถานะล่าสุด 2026-10-02 — Phase 8e เทศกาล:** Config.Events 4 เทศกาลตามวันที่ UTC ซ้อนบนตารางอากาศ, Splash mutation, admin festival.<id>/clear, badge แสดงชื่อเทศกาล. ผ่าน 15/15 + GUI, regression Weather 38/38 (fixture mutation 16/union 17), source 6/6 ตรง Studio, ยังไม่ Publish. ถัดไป ร้านเติมเงิน + Season Pass และ Emote/Photo. รายละเอียด `phase8_festival_validation.md`.
+   - **ประวัติ 2026-10-02 — Phase 8d3 core:** ambient zone mutation/พ่อค้าเร่กระรอก/เพดานขายผลหายากต่อวันผ่าน 30/30 + GUI (E เปิดร้าน, ซื้อไข่ถึง limit, ขาย Cosmic ตามเพดาน), regression Phase4 55/55, source 11/11 ตรง Studio, ยังไม่ Publish. Schema v1 เติม Garden.sellDay/sold และ Merchant.bought; Feature Merchant เปิด; admin merchant.summon/dismiss. ถัดไปส่วน Phase 8 ที่เหลือ: เทศกาล, ร้านเติมเงิน + Season Pass, Emote/Photo. รายละเอียด `phase8_merchant_validation.md`.
    - **ประวัติ 2026-10-02 — Phase 8d2 core:** Stardust/ไข่พิเศษ/บอสโลกผ่าน 59/59; regression หีบ/สัตว์/เนื้อเรื่อง/โซน/Collections/Weather = 36/81/51/23/55/38. GUI แลกหีบ/ซื้อ Aurora/ซื้อซ้ำถูกปฏิเสธ/E เก็บดาว/CHOP บอสโลก และ admin grant ผ่าน; profile restore ไม่ต่าง. Schema v1 เติม Pets.weatherBought/Stats.WorldBossKills, สัตว์รวม 43 ตัว. Source 18/18 ตรง Studio Edit, ไม่มี test Script ค้าง และยังไม่ Publish. Phase 8d3 ทำแล้วตามบรรทัดด้านบน. รายละเอียด `phase8_encounters_validation.md`.
    - **ประวัติ 2026-10-02 — Phase 8d1 core:** อากาศ/Live Event ผ่าน 38/38 + mouse preview. Live start/stop ทุกเซิร์ฟ Owner/confirm 2; Studioแยก store/topic, fake API failure/revision/late join ผ่านและ read จริง ready แต่ยังไม่ได้ publish/ทดสอบหลายเซิร์ฟจริง. รายละเอียด `phase8_weather_validation.md`.
    - **สถานะล่าสุด 2026-10-01 — Phase 8c core:** Index buffs/Achievements/ฉายา + ทักษะ Luck ผ่าน 55/55, GUI เมาส์จริงรับ 20 Gems/เลือกและถอดฉายา/ซื้อ Luck/อัตราหีบตรงสูตร. Regression หีบ/เนื้อเรื่อง/Rebirth/รางวัล = 36/51/41/45; source 15 ไฟล์ตรง Studio/repo. เพิ่ม admin 2 คำสั่งและ Feature IndexBonuses/Achievements. อ่าน `phase8_collections_validation.md`; ถัดไป Phase 8d อากาศครบทุกแบบ/Live Event. บอสโลก/เทศกาล/ร้าน/Season Pass/Emote ยังไม่ทำ; reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ economy รอตรวจ. ยังไม่ได้ Publish.
