@@ -1,0 +1,9 @@
+{
+  "name": "Season Pass Premium",
+  "priceRobux": 499,
+  "productId": null,
+  "icon": "icons/season-pass-premium.png",
+  "descriptionEn": "Unlock the Premium reward track for the current season. Earn season levels through play to claim rewards. Valid for this season only.",
+  "descriptionTh": "ปลดล็อกแถวรางวัล Premium ของซีซันปัจจุบัน เล่นเพื่อเก็บเลเวลซีซันและรับรางวัล ใช้ได้เฉพาะซีซันนี้",
+  "status": "Listing draft. Season entitlement and receipt processing still need implementation and verification."
+}

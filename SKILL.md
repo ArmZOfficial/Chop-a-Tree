@@ -17,6 +17,10 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 เมื่อทำสินค้าแบบซื้อซ้ำตาม plan 17.3 ให้อ่าน `assets/monetization/developer-products/README.md` และ `products.json`: ชุด 17 รายการแยก Gems 4 แพ็ก, Wood/Coins/EXP/Luck 15/30 นาที 8 แบบ, server Luck 15 นาที, instant hatch/grow, key และ base lock. ใช้ `icons/` PNG 512×512 alpha และ prompt/validation ในโฟลเดอร์เดียวกัน. ราคา Beta กำหนดแล้วใน products.json/plan 17.3.1; ID เป็น null จนมีข้อมูลจริง; copy เป็นร่างที่ต้องตรวจผลและ receipt ก่อนขาย. จ่ายรางวัลจาก receipt ฝั่ง server แบบไม่ซ้ำ; ซื้อบูสต์ซ้ำต่อเวลาและเคารพเพดานเกม. เวลา server Luck 15 นาทีตามแผน; instant hatch/grow ใช้เป้าหมายที่รองรับ, key ต้องมีหีบ, base lock รีเซ็ตคูลดาวน์ของตัวเอง. งานภาพไม่ได้เปิด Shop หรือ Publish. ราคาในไฟล์เป็นราคาฐาน; ร้านเกมอ่านราคาจริงจาก MarketplaceService ฝั่ง client เมื่อรองรับ Managed Pricing ตามเอกสาร Roblox. ตรวจและปรับราคาเมื่อมีข้อมูล balance/ยอดซื้อจริง.
 
+## Season Pass Premium
+
+เมื่อสร้างหรือแก้ listing ซีซัน อ่าน `assets/monetization/season-premium/product.json`/README ตาม plan 17.4: ภาพ PREMIUM PNG 512×512 alpha, ราคา 499 Robux, copy ไทย-อังกฤษระบุสิทธิ์เฉพาะซีซันและเล่นเก็บเลเวล. ID ยัง null จนสร้างจริง. ก่อนเปิดขายตรวจ season-bound entitlement, receipt ไม่จ่ายซ้ำ และป้องกันซื้อซีซันเดียวกันซ้ำ; ข้อความไม่ได้รับประกันผ่านตัวกรอง Roblox.
+
 ## แนวทางต่อระบบอาวุธและ UI
 
 1. อ่าน `docs/phase3_validation.md` ก่อนแก้ inventory/หีบ/อาวุธ. ให้ WeaponService เป็นเจ้าของการสุ่ม สวมใส่ หลอม และทิ้ง; ใช้ Loot + Balance คำนวณ Power และอัตราดรอปทั้ง UI/server จาก Config เดียวกัน.
