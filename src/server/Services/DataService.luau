@@ -42,7 +42,8 @@ DataService.Template = {
 	Achievements = { claimed = {}, equipped = "" },
 	Daily = { lastDay = -1, streak = 0, claimedDay = -1 },
 	Codes = { redeemed = {} },
-	Boosts = { Wood = 0, Coins = 0 },
+	Boosts = { Wood = 0, Coins = 0, Exp = 0, Luck = 0 },
+	Purchases = { passes = {}, receipts = {} },
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {}, sellDay = -1, sold = {} },
 	Merchant = { bought = {} },
@@ -228,6 +229,26 @@ function DataService.SaveNow(player: Player): boolean
 	end
 	profile:Save()
 	return true
+end
+
+-- Save and wait until the stored copy satisfies `check` (Robux receipts).
+function DataService.SaveAndWait(player: Player, check: (any) -> boolean, timeout: number): boolean
+	local profile = profiles[player]
+	if not profile then
+		return false
+	end
+	if check(profile.LastSavedData) then
+		return true
+	end
+	profile:Save()
+	local deadline = os.clock() + timeout
+	while os.clock() < deadline and profile:IsActive() do
+		task.wait(0.5)
+		if check(profile.LastSavedData) then
+			return true
+		end
+	end
+	return false
 end
 
 function DataService.ExportJSON(player: Player): string

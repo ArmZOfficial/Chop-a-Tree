@@ -57,7 +57,7 @@ function StoryService.Warp(p,zone)
 	if not Features.IsEnabled("Story") or not Data.IsLoaded(p) then return false,"ระบบวาร์ปยังไม่เปิด" end
 	if type(zone)~="number" or zone%1~=0 then return false,"ปลายทางไม่ถูกต้อง" end
 	local atStone=false;for _,w in Collection:GetTagged("WarpStone") do if w:IsDescendantOf(workspace) and near(p,w,Story.WarpRange) then atStone=true end end
-	if not atStone then return false,"ใช้ได้ที่หินวาร์ปเท่านั้น" end
+	if not atStone and not (Data.Get(p,"Purchases.passes") or {}).Teleport then return false,"ใช้ได้ที่หินวาร์ปเท่านั้น" end
 	if p:GetAttribute("CarryingEgg") then return false,"วาร์ปไม่ได้ขณะถือไข่" end
 	if zone==0 then
 		if Data.Get(p,"Run.Active") then Run.End(p,true);return true,"จบ Run และกลับหมู่บ้าน" end

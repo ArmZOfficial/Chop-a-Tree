@@ -76,7 +76,7 @@ function Weapon.Open(player,uid)
 	local index,chest
 	for i,s in chests do if s.uid==uid and s.count>0 then index,chest=i,s;break end end
 	if not chest then return false,"หีบนี้ไม่มีแล้ว" end
-	local luck=CollectionMath.Luck(Data.GetData(player),Features.IsEnabled("Rebirth"),Features.IsEnabled("IndexBonuses"))
+	local luck=CollectionMath.Luck(Data.GetData(player),Features.IsEnabled("Rebirth"),Features.IsEnabled("IndexBonuses"),os.time(),game.ReplicatedStorage:GetAttribute("ServerLuckUntil"))
 	local item=Loot.Roll(chest,rng,luck);local weaponUid=Http:GenerateGUID(false)
 	-- No yields: consume exactly one chest and create exactly one weapon.
 	chest.count-=1;if chest.count==0 then table.remove(chests,index) end
@@ -152,6 +152,12 @@ function Weapon.Init()
 		if not Data.IsLoaded(player) then return false,"กำลังโหลดข้อมูล" end
 		local now=os.clock();if now-(lastRequest[player] or -math.huge)<.35 then return false,"รอสักครู่" end;lastRequest[player]=now
 		if action=="Open" then return Weapon.Open(player,arg)
+		elseif action=="OpenTen" then
+			if not (Data.Get(player,"Purchases.passes") or {}).OpenTen then return false,"ต้องมี Game Pass เปิดหีบรัว" end
+			local n,ok,msg,last=0,true
+			for _=1,10 do local r;ok,msg,r=Weapon.Open(player,arg);if not ok then break end;n+=1;last=r end
+			if n==0 then return false,msg end
+			return true,"เปิดหีบ "..n.." ใบ",last
 		elseif action=="Equip" then return Weapon.Equip(player,arg)
 		elseif action=="Fuse" then return Weapon.Fuse(player,arg)
 		elseif action=="Delete" then return Weapon.Delete(player,arg)

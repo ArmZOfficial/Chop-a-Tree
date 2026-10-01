@@ -20,6 +20,7 @@ function Daily.Claim(p,now)
 	if d.claimedDay>=day then return false,"รับวันนี้แล้ว กลับมาวันถัดไป (UTC)" end
 	local reward=Config.Rewards[(d.streak-1)%7+1]
 	d.claimedDay=day;Data.Set(p,"Daily",d);Reward.Grant(p,reward,now,Data.Get(p,"Meta.AdminTouched"))
+	if (Data.Get(p,"Purchases.passes") or {}).VIP then Data.AddCurrency(p,"Gems",Config.VipGems);return true,"รับ Daily แล้ว: "..reward.label.." + VIP "..Config.VipGems.." Gems" end
 	return true,"รับ Daily แล้ว: "..reward.label
 end
 function Daily.Reset(p) Data.Set(p,"Daily",{lastDay=-1,streak=0,claimedDay=-1}) end

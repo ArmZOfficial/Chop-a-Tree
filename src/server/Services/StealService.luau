@@ -156,6 +156,12 @@ function Steal.Lock(p)
 	barrier(id,true);eject(id,p)
 	return true,"ล็อกฐาน "..seconds.." วินาที"
 end
+-- Robux "lock now": skips the cooldown but keeps the normal lock length.
+function Steal.ForceLock(p)
+	local id=Garden.BaseIndex(p);if not id or not Data.IsLoaded(p) then return false end
+	local now=os.time();local seconds=Math.LockSeconds(Data.Get(p,"Pets.upgrades").lock)
+	locks[id]={untilAt=now+seconds,ready=now+seconds+Config.LockCooldown,owner=p};barrier(id,true);eject(id,p);return true
+end
 function Steal.ResetLock(p) local id=Garden.BaseIndex(p);cooldowns[p]=nil;if id then locks[id]=nil;barrier(id,false) end end
 
 function Steal.CreateBot()

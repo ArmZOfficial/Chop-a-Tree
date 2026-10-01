@@ -11,6 +11,7 @@ function Achievement.RefreshTitle(p)
 	if not Data.IsLoaded(p) then return end
 	local a=Data.Get(p,"Achievements");local def=Config.ById[a.equipped]
 	local title=Features.IsEnabled("Achievements") and def and a.claimed[def.id]==true and def.title or ""
+	if (Data.Get(p,"Purchases.passes") or {}).VIP then title=title=="" and "VIP" or "VIP • "..title end
 	p:SetAttribute("AchievementTitle",title)
 	local head=p.Character and p.Character:FindFirstChild("Head");if not head then return end
 	local gui=head:FindFirstChild("AchievementTitle")

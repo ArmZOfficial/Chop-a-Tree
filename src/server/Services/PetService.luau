@@ -37,7 +37,10 @@ end
 function Pet.NearIncubator(p) local b=Garden.Base(p);return b~=nil and near(p,b:FindFirstChild("Incubator"),Config.IncubatorRange) end
 function Pet.NearPen(p) local b=Garden.Base(p);return b~=nil and near(p,b:FindFirstChild("PetPen"),Config.PenRange) end
 function Pet.PenCap(p) return Math.PenSlots(Data.Get(p,"Pets.upgrades").pen) end
-function Pet.EquipCap(p) return math.min(Config.MaxEquipSlots,Data.Get(p,"Pets.equipSlots")+RebirthMath.Rank(Data.GetData(p),"PetSlots",Features.IsEnabled("Rebirth"))) end
+local function pass(p,name) return (Data.Get(p,"Purchases.passes") or {})[name]==true end
+function Pet.EquipCap(p) return math.min(Config.MaxEquipSlots,Data.Get(p,"Pets.equipSlots")+RebirthMath.Rank(Data.GetData(p),"PetSlots",Features.IsEnabled("Rebirth"))+(pass(p,"PetSlots") and 2 or 0)) end
+-- The hatch pass equals the max incubator upgrade (×2); best value wins.
+function Pet.HatchSpeed(p) local s=Math.HatchSpeed(Data.Get(p,"Pets.upgrades").incubator);return pass(p,"HatchSpeed") and math.max(s,2) or s end
 -- Capacity resets move excess pets into the inventory without deleting any pet.
 function Pet.Trim(p)
 	local inv=Data.Get(p,"Inventory.Pets");local uids={};for uid in inv do table.insert(uids,uid) end;table.sort(uids)
@@ -77,7 +80,7 @@ function Pet.Mult(p,kind)
 end
 function Pet.Advance(p,now,online)
 	local d=Data.Get(p,"Pets");if not d then return end
-	local speed=Math.HatchSpeed(d.upgrades.incubator);local weather=Weather.State().id
+	local speed=Pet.HatchSpeed(p);local weather=Weather.State().id
 	for _,egg in d.incubator do
 		if not egg.done and not egg.carriedBy then
 			local hatch=Eggs.ById[egg.id].hatch
@@ -305,7 +308,7 @@ function Pet.Send(p)
 	Net.Event("PetState"):FireClient(p,{
 		base=Garden.BaseIndex(p),incubator=inc,eggs=Data.Get(p,"Inventory.Eggs"),pets=Data.Get(p,"Inventory.Pets"),
 		bank=d.bank,income=Pet.Income(p),penCap=Pet.PenCap(p),equipCap=Pet.EquipCap(p),upgrades=table.clone(d.upgrades),
-		hatchSpeed=Math.HatchSpeed(d.upgrades.incubator),mount=mounts[p],beltBought=table.clone(d.beltBought),now=os.time(),
+		hatchSpeed=Pet.HatchSpeed(p),mount=mounts[p],beltBought=table.clone(d.beltBought),now=os.time(),
 		mults={Power=Pet.Mult(p,"Power"),Wood=Pet.Mult(p,"Wood"),Exp=Pet.Mult(p,"Exp"),Speed=Pet.Mult(p,"Speed")},
 		friendSteal=Data.Get(p,"Settings.FriendSteal")==true,
 		weatherOffer=Pet.WeatherOffer(p),

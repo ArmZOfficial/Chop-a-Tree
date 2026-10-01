@@ -24,6 +24,6 @@ return table.freeze({
 	Merchant = true, -- Phase 8d3
 	Festivals = true, -- Phase 8e
 	Emotes = true, -- Phase 8f emotes + photo mode
-	Shop = false, -- Phase 8
+	Shop = true, -- Phase 8g Robux shop
 	PvP = false, -- Phase 9
 })

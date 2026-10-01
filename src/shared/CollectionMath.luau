@@ -20,11 +20,20 @@ function M.Bonus(data,kind,enabled)
 	for cat,def in Config.Index do if def.kind==kind and done[cat]==true then return def.bonus end end
 	return 0
 end
+local function passes(data) return data.Purchases and data.Purchases.passes or {} end
+-- Game Passes match the free ceiling instead of stacking on it (plan 17.1 rule 8).
 function M.Permanent(data,kind,rebirthOn,indexOn)
-	return math.min(Config.PermanentCap,Rebirth.Mult(data,kind,rebirthOn)+M.Bonus(data,kind,indexOn))
+	local free=Rebirth.Mult(data,kind,rebirthOn)+M.Bonus(data,kind,indexOn)
+	if passes(data)[kind.."2x"] then free=Config.PermanentCap end
+	return math.min(Config.PermanentCap,free)
 end
-function M.Luck(data,rebirthOn,indexOn)
-	return math.min(Config.LuckCap,.125*Rebirth.Rank(data,"Luck",rebirthOn)+M.Bonus(data,"Luck",indexOn))
+-- Permanent luck (skills/Index or the Lucky pass) plus a temporary potion or server boost.
+function M.Luck(data,rebirthOn,indexOn,now,serverUntil)
+	local permanent=math.min(Config.LuckCap,.125*Rebirth.Rank(data,"Luck",rebirthOn)+M.Bonus(data,"Luck",indexOn))
+	if passes(data).Lucky then permanent=Config.LuckCap end
+	now=now or os.time()
+	local temp=(((data.Boosts and data.Boosts.Luck) or 0)>now or (serverUntil or 0)>now) and Config.TempLuck or 0
+	return math.min(Config.LuckMax,permanent+temp)
 end
 function M.AchievementProgress(data,def)
 	local value=0

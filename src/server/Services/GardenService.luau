@@ -26,6 +26,8 @@ local function near(p,part,range)
 	local hr=root(p);return hr and part and (hr.Position-part.Position).Magnitude<=range and not Data.Get(p,"Run.Active")
 end
 function Garden.Base(p) return bases[owners[p]] end
+-- Unlocked plots; the +10 pass adds on top of Wood upgrades but never past MaxSlots.
+function Garden.Slots(p) return math.min(Config.MaxSlots,Data.Get(p,"Garden.slots")+((Data.Get(p,"Purchases.passes") or {}).GardenPlots and 10 or 0)) end
 function Garden.BaseIndex(p) return owners[p] end
 function Garden.BaseById(id) return bases[id] end
 function Garden.OwnerOf(id) for p,b in owners do if b==id then return p end end end
@@ -83,7 +85,7 @@ function Garden.Buy(p,id)
 	return true,"ซื้อเมล็ดแล้ว"
 end
 function Garden.Plant(p,index,uid)
-	if not enabled(p) or type(index)~="number" or index%1~=0 or index<1 or index>Data.Get(p,"Garden.slots") or not Garden.NearSlot(p,index) then return false,"ไปที่ช่องสวนของตัวเองก่อน" end
+	if not enabled(p) or type(index)~="number" or index%1~=0 or index<1 or index>Garden.Slots(p) or not Garden.NearSlot(p,index) then return false,"ไปที่ช่องสวนของตัวเองก่อน" end
 	local data=Data.Get(p,"Garden");local key=tostring(index);local inv=Data.Get(p,"Inventory.Seeds");local seed=type(uid)=="string" and inv[uid]
 	if data.plots[key] or not seed or seed.count<1 then return false,"ช่องไม่ว่างหรือไม่มีเมล็ด" end
 	data.plots[key]={id=seed.id,zone=seed.zone,rebirthDrop=seed.rebirthDrop,progress=0,updatedAt=os.time(),mature=false,watered=false,nextFruitAt=0,mutations={},admin_spawned=seed.admin_spawned}
@@ -124,10 +126,12 @@ function Garden.Harvest(p,index)
 	local def=Seeds.ById[plot.id]
 	if match then fruits[match].count+=def.yield else fruits[Http:GenerateGUID(false)]={id=plot.id,zone=plot.zone,rebirthDrop=plot.rebirthDrop,mutations=table.clone(plot.mutations),count=def.yield,admin_spawned=plot.admin_spawned} end
 	plot.nextFruitAt=os.time()+def.fruitTime;plot.mutations={}
-	Data.Set(p,"Inventory.Fruits",fruits);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.Harvests",1);return true,"เก็บผลแล้ว ต้นเดิมจะออกผลใหม่"
+	Data.Set(p,"Inventory.Fruits",fruits);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.Harvests",1)
+	if (Data.Get(p,"Purchases.passes") or {}).AutoSell then local _,msg=Garden.Sell(p,true);return true,"เก็บผลแล้ว • "..msg end
+	return true,"เก็บผลแล้ว ต้นเดิมจะออกผลใหม่"
 end
-function Garden.Sell(p)
-	if not enabled(p) or not near(p,shopPart(),Config.ShopRange) then return false,"ขายผลที่ร้านเมล็ดในหมู่บ้าน" end
+function Garden.Sell(p,anywhere)
+	if not enabled(p) or not (anywhere or near(p,shopPart(),Config.ShopRange)) then return false,"ขายผลที่ร้านเมล็ดในหมู่บ้าน" end
 	local fruits=Data.Get(p,"Inventory.Fruits");local data=Data.Get(p,"Garden");local day=os.time()//86400
 	if data.sellDay~=day then data.sellDay=day;data.sold={} end
 	local total,sold=Math.SellQuote(fruits,data.sold)
@@ -146,7 +150,7 @@ end
 function Garden.Upgrade(p)
 	if not enabled(p) or not Garden.NearBase(p) then return false,"อัปเกรดที่ฐานตัวเอง" end
 	local data=Data.Get(p,"Garden");local price=Math.UpgradeCost(data.slots)
-	if data.slots>=Config.MaxSlots then return false,"สูงสุด 30 ช่องแล้ว" end
+	if Garden.Slots(p)>=Config.MaxSlots then return false,"สูงสุด 30 ช่องแล้ว" end
 	if Data.GetCurrency(p,"Wood")<price then return false,"Wood ไม่พอ" end
 	Data.AddCurrency(p,"Wood",-price);data.slots=math.min(Config.MaxSlots,data.slots+Config.UpgradeStep);Data.Set(p,"Garden",data);return true,"เพิ่มช่องสวนแล้ว"
 end
@@ -179,7 +183,7 @@ end
 function Garden.Render(p)
 	local data=Data.Get(p,"Garden");local id=owners[p];if not id or not data then return end
 	for index,part in slots[id] do
-		part.Transparency=(index<=data.slots or data.plots[tostring(index)]) and 0 or .7
+		part.Transparency=(index<=Garden.Slots(p) or data.plots[tostring(index)]) and 0 or .7
 		local plot=data.plots[tostring(index)]
 		local sig=plot and (plot.id..math.floor(plot.progress/Seeds.ById[plot.id].grow*20)..tostring(plot.mature)..tostring(plot.nextFruitAt<=os.time())..Math.Key(plot.mutations)) or "empty"
 		if signatures[p][index]~=sig then signatures[p][index]=sig;actor(p,index,plot,part) end
@@ -191,9 +195,9 @@ function Garden.Send(p)
 	local stock,epoch,restock=Garden.Shop(os.time());local data=Data.Get(p,"Garden");local available={}
 	for id,n in stock do available[id]=math.max(0,n-(data.shopEpoch==epoch and (data.bought[id] or 0) or 0)) end
 	local plots={};for k,v in data.plots do plots[k]=table.clone(v);plots[k].mutations=table.clone(v.mutations) end
-	local visibleSlots=data.slots;for k in plots do visibleSlots=math.max(visibleSlots,tonumber(k) or 0) end
+	local visibleSlots=Garden.Slots(p);for k in plots do visibleSlots=math.max(visibleSlots,tonumber(k) or 0) end
 	local sold=data.sellDay==os.time()//86400 and data.sold or {}
-	Net.Event("GardenState"):FireClient(p,{merchant=merchant and merchant.State(p),sold=sold,base=owners[p],slots=visibleSlots,unlockedSlots=data.slots,plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
+	Net.Event("GardenState"):FireClient(p,{merchant=merchant and merchant.State(p),sold=sold,base=owners[p],slots=visibleSlots,unlockedSlots=Garden.Slots(p),plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
 end
 
 function Garden.MatureAll(p)

@@ -131,13 +131,19 @@ function Inventory.Start()
 			local row=UI.New("Frame",{Name="Chest_"..tostring(c.uid),BackgroundColor3=UI.Colors.PanelDark,Size=UDim2.new(1,-8,0,124),LayoutOrder=i,Parent=chestList},{UI.Corner(10),UI.Padding(8)})
 			UI.Label(c.rarity.." • LEVEL "..c.level.." ×"..c.count,16,{Size=UDim2.new(1,0,0,24),Parent=row})
 			local flags=game.ReplicatedStorage.FeatureFlags
-			local luck=CollectionMath.Luck(Data.Get(),flags:GetAttribute("Rebirth")==true,flags:GetAttribute("IndexBonuses")==true)
+			local luck=CollectionMath.Luck(Data.Get(),flags:GetAttribute("Rebirth")==true,flags:GetAttribute("IndexBonuses")==true,os.time(),game.ReplicatedStorage:GetAttribute("ServerLuckUntil"))
 			local odds,giant=Loot.Odds(c.rarity,c.level,luck);local out={}
 			for j,v in odds do if v>0 then table.insert(out,Rarities.Order[j].." "..string.format("%.1f%%",v*100)) end end
 			UI.Label("IL "..c.zone.." • Giant "..string.format("%.1f%%",giant*100).."\n"..table.concat(out," / "),12,{Position=UDim2.fromOffset(0,25),Size=UDim2.new(1,0,0,43),Parent=row})
 			local open=UI.Button({text="เปิด 1 ใบ",color=UI.Colors.Orange,size=UDim2.new(1,0,0,46),onClick=function()
 				local ok,reward=request("Open",c.uid);if ok then showReward(reward) end
 			end});open.Name="Open";open.Position=UDim2.fromOffset(0,70);open.Parent=row
+			if (Data.Get("Purchases.passes") or {}).OpenTen and c.count>1 then
+				open.Size=UDim2.new(.5,-4,0,46)
+				local ten=UI.Button({text="เปิด 10 ใบ",color=UI.Colors.Purple,size=UDim2.new(.5,-4,0,46),onClick=function()
+					local ok,reward=request("OpenTen",c.uid);if ok then showReward(reward) end
+				end});ten.Name="OpenTen";ten.Position=UDim2.new(.5,4,0,70);ten.Parent=row
+			end
 		end
 		if #chests==0 then UI.Label("ยังไม่มีหีบ — เคลียร์ต้นไม้รอบจุดหีบแล้ว End Run",16,{Size=UDim2.new(1,-10,0,80),Parent=chestList}) end
 		local item=inv[selected];local def=item and Weapons.ById[item.id]

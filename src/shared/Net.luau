@@ -39,6 +39,7 @@ local FUNCTIONS = {
 	"LeaderboardRequest",
 	"AchievementAction",
 	"EncounterAction",
+	"ShopAction",
 }
 
 local Net = {}

@@ -16,4 +16,4 @@ return table.freeze({Index={
 	pets={kind="Coins",bonus=.25,text="Coins ถาวร +25% (รวม Rebirth สูงสุด ×2)"},
 	seeds={kind="Wood",bonus=.25,text="Wood ถาวร +25% (รวม Rebirth สูงสุด ×2)"},
 	mutations={kind="Luck",bonus=.25,text="โอกาส Epic+ ในหีบ +25% (สูงสุด 100%)"},
-},PermanentCap=2,LuckCap=.25,Achievements=achievements,ById=byId})
+},PermanentCap=2,LuckCap=.25,TempLuck=.25,LuckMax=.5,Achievements=achievements,ById=byId})

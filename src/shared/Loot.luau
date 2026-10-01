@@ -22,7 +22,7 @@ function Loot.Odds(rarity,level,luck)
 	for i,v in weights do weights[i]=v/total end
 	-- Increase the combined Epic+ probability, retaining ratios within each group.
 	local high=weights[3]+weights[4]+weights[5]
-	local bonus=math.clamp(luck or 0,0,.25)
+	local bonus=math.clamp(luck or 0,0,.5) -- permanent +25% plus a temporary +25% (CollectionMath.Luck)
 	if bonus>0 and high>0 and high<1 then
 		local nextHigh=math.min(1,high*(1+bonus))
 		for i,v in weights do weights[i]=i>=3 and v*nextHigh/high or v*(1-nextHigh)/(1-high) end

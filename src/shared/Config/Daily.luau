@@ -7,4 +7,4 @@ return table.freeze({Rewards={
 	{boost={kind="Wood",seconds=900},label="Wood ×2 • 15 นาที"},
 	{gems=75,label="75 Gems"},
 	{gems=100,chest={rarity="Epic",level=20,count=1},label="100 Gems + หีบ Epic Lv.20"},
-}})
+},VipGems=25}) -- VIP pass: extra Gems on every claim
