@@ -1,0 +1,13 @@
+--!strict
+-- จุดเริ่มฝั่ง Client — เพิ่มโมดูลใหม่ใน MODULES
+
+local MODULES = { "ClientData", "HUD", "AdminEffects" }
+
+for _, name in MODULES do
+	local ok, err = pcall(function()
+		require(script.Parent[name]).Start()
+	end)
+	if not ok then
+		warn("[Client] " .. name .. " failed: " .. tostring(err))
+	end
+end
