@@ -3,6 +3,7 @@ local Players=game:GetService("Players");local Teleport=game:GetService("Telepor
 local M=require(script.Parent.ArenaMatch)
 local studio=game:GetService("RunService"):IsStudio()
 Players.CharacterAutoLoads=false
+local action=Instance.new("RemoteEvent");action.Name="ArenaAction";action.Parent=game.ReplicatedStorage
 local function home(list,text)
 	for _,p in list do M.Say(p,text) end
 	if studio or #list==0 then return end
@@ -79,15 +80,21 @@ local function spawn(i,p)
 	end)
 	local tool=Instance.new("Tool");tool.Name="ขวาน";tool.CanBeDropped=false
 	local handle=Instance.new("Part");handle.Name="Handle";handle.Size=Vector3.new(.4,3,.4);handle.Parent=tool
-	tool.Activated:Connect(function() -- Activated replicates; the server decides the hit
+	local pressed
+	tool.Activated:Connect(function() pressed=os.clock() end) -- Activated/Deactivated replicate; the server times the charge and decides the hit
+	tool.Deactivated:Connect(function()
+		local heavy=pressed~=nil and os.clock()-pressed>=M.Heavy.charge;pressed=nil
 		local targets={};if team and trees[team] then table.insert(targets,trees[team]) end -- each team fells its own tree
 		for _,q in alive do table.insert(targets,characters[q]) end
-		if tool.Parent==c then M.Attack(c,targets,os.clock(),charTeam) end
+		if tool.Parent==c then M.Attack(c,targets,os.clock(),charTeam,heavy) end
 	end)
 	tool.Parent=p.Backpack
 end
 for i,p in fighters do spawn(i,p) end
-for _,p in fighters do M.Say(p,"สู้!") end
+action.OnServerEvent:Connect(function(p,kind,on)
+	if kind=="Block" and type(on)=="boolean" and characters[p] and characters[p]==p.Character then M.SetBlock(p.Character,on) end
+end)
+for _,p in fighters do M.Say(p,"สู้! คลิกฟัน • กดค้างฟันหนัก • Q Dash • F บล็อก") end
 -- Team result: a side with nobody left loses; otherwise the first to finish its goal wins, and at time-out the side further along wins.
 local function teamResult(final)
 	local present={0,0};for _,p in alive do present[teamOf[p]]+=1 end

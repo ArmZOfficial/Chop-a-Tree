@@ -2,6 +2,8 @@
 local M={LobbyPlaceId=93479990217075,Damage=10,Range=8,Cooldown=.5,Health=100,Speed=16,WaitSeconds=20,MatchSeconds=180,EndSeconds=8}
 M.Modes={Duel={min=2,max=2},FFA={min=2,max=7},TimberClash={min=4,max=6,teams=true},EggHeist={min=4,max=6,teams=true}}
 M.Respawn=5;M.TreeHealth=300;M.EggGoal=3
+-- Hold the swing to charge a heavy hit; it breaks blocks. Blocking from the front cuts light hits and slows the blocker.
+M.Heavy={damage=25,range=9,cooldown=1.5,charge=.8};M.BlockFactor=.3;M.BlockSpeed=8
 M.Teams={{name="ทีมแดง",color=BrickColor.new("Bright red"),x=-60},{name="ทีมน้ำเงิน",color=BrickColor.new("Bright blue"),x=60}}
 local ready={}
 function M.Mode(data) return type(data)=="table" and type(data.mode)=="string" and M.Modes[data.mode] and data.mode or nil end
@@ -11,20 +13,30 @@ function M.Equip(character)
 	local h=character:FindFirstChildOfClass("Humanoid")
 	h.MaxHealth=M.Health;h.Health=M.Health;h.WalkSpeed=M.Speed;h.UseJumpPower=true;h.JumpPower=50
 end
--- Server-side swing: nearest living target in front of the attacker within Range; teamOf (model -> team) blocks friendly hits.
-function M.Attack(attacker,targets,now,teamOf)
+function M.SetBlock(character,on)
+	local h=character:FindFirstChildOfClass("Humanoid");if not h or h.Health<=0 then return end
+	character:SetAttribute("Blocking",on or nil);h.WalkSpeed=on and M.BlockSpeed or M.Speed
+end
+-- Server-side swing: nearest living target in front of the attacker within range; teamOf (model -> team) blocks friendly hits.
+function M.Attack(attacker,targets,now,teamOf,heavy)
 	local root=attacker:FindFirstChild("HumanoidRootPart");local h=attacker:FindFirstChildOfClass("Humanoid")
-	if not root or not h or h.Health<=0 or (ready[attacker] or 0)>now then return nil end
-	ready[attacker]=now+M.Cooldown
+	if not root or not h or h.Health<=0 or attacker:GetAttribute("Blocking") or (ready[attacker] or 0)>now then return nil end
+	ready[attacker]=now+(heavy and M.Heavy.cooldown or M.Cooldown)
+	local range=heavy and M.Heavy.range or M.Range
 	local best,dist
 	for _,t in targets do
 		local tr=t:FindFirstChild("HumanoidRootPart");local th=t:FindFirstChildOfClass("Humanoid")
 		if t~=attacker and tr and th and th.Health>0 and not (teamOf and teamOf[t] and teamOf[t]==teamOf[attacker]) then
 			local off=tr.Position-root.Position;local d=off.Magnitude
-			if d<=M.Range and (d<.1 or root.CFrame.LookVector:Dot(off.Unit)>.3) and (not dist or d<dist) then best,dist=t,d end
+			if d<=range and (d<.1 or root.CFrame.LookVector:Dot(off.Unit)>.3) and (not dist or d<dist) then best,dist=t,d end
 		end
 	end
-	if best then best:FindFirstChildOfClass("Humanoid"):TakeDamage(M.Damage) end
+	if best then
+		local damage=heavy and M.Heavy.damage or M.Damage
+		local br=best:FindFirstChild("HumanoidRootPart")
+		if not heavy and best:GetAttribute("Blocking") and br.CFrame.LookVector:Dot((root.Position-br.Position).Unit)>.3 then damage*=M.BlockFactor end
+		best:FindFirstChildOfClass("Humanoid"):TakeDamage(damage)
+	end
 	return best
 end
 -- Timber Clash tree: a Humanoid model so swings reuse Attack; the low root keeps it in melee range.
