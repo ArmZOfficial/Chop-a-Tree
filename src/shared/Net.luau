@@ -12,11 +12,13 @@ local EVENTS = {
 	"ForestAction", -- client requests; server owns damage, rewards and modes
 	"RunState",
 	"TreeHit",
+	"InventoryShow",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
 	"AdminRun", -- admin client → server: ขอรันคำสั่ง
 	"RunRequest",
+	"InventoryAction",
 }
 
 local Net = {}

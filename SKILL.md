@@ -9,6 +9,14 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 ทุกครั้งที่อัปเดตงาน ให้ปรับทั้ง `docs/plan.md`, `SKILL.md` และ `docs/HANDOFF.md` ในงานเดียวกันให้สอดคล้องกับข้อมูลล่าสุด: plan บันทึกแผนและสถานะ, skill บันทึกแนวทางทำงานและข้อกำหนด, handoff บันทึกงานที่ทำแล้ว ผลตรวจ และงานถัดไป ตรวจทั้งสามไฟล์ให้ตรงกันก่อนสรุปว่างานเสร็จ (ArmZ สั่งเมื่อ 2026-10-01).
 
+## แนวทางต่อระบบอาวุธและ UI
+
+1. อ่าน `docs/phase3_validation.md` ก่อนแก้ inventory/หีบ/อาวุธ. ให้ WeaponService เป็นเจ้าของการสุ่ม สวมใส่ หลอม และทิ้ง; ใช้ Loot + Balance คำนวณ Power และอัตราดรอปทั้ง UI/server จาก Config เดียวกัน.
+2. เมื่อนำโมเดลอาวุธใหม่มาแทน procedural visuals ให้รองรับทั้ง Tool และ viewport preview; เก็บ Handle, WeaponId และ ForestAxe attributes, ขนาด Giant ×3 และไม่เปลี่ยน UID/definition ID ของของที่เซฟไว้.
+3. ทดสอบเศรษฐกิจจาก Script ใน Play ที่ใช้ require cache เดียวกับเกม; snapshot/restore profile ทุกครั้ง เพราะ Studio เปิด DataStore จริง. อย่า require DataService ผ่าน MCP เพื่ออ่าน live state.
+4. UI ที่อ้างไอเทมใหม่ต้องรองรับ DataPatch มาถึงหลัง RemoteFunction response. ตรวจปุ่ม modal ด้วย mouse จริง รวม ZIndex, การยืนยัน Fuse/Delete และการไม่ชน CoreGUI hotbar.
+5. แยกงานภาพสุดท้ายไว้ใน Phase 10 ตามแผน: โมเดล/แสง/เสียง/VFX และปรับปรุง UI ทุกหน้าบนคอมพิวเตอร์/มือถือ. บันทึกข้อจำกัดของภาพปัจจุบันและสิ่งที่ยังไม่ได้ทดสอบให้ตรงกับ handoff.
+
 ## แนวทางที่ ArmZ อนุญาต
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง

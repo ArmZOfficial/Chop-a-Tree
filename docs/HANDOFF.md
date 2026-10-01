@@ -1,16 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · ทวีปกระชับ + Phase 2 core ทดสอบแล้ว
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 3 หีบ + อาวุธ core ทดสอบแล้ว
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 8) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
 1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
 2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
-3. ArmZ สั่ง **ทำต่อได้เลย** หลังปรับโซนชิดรวมกัน. **Phase 2 core ทำแล้ว**: TreeService, RunService, Run HUD, Auto Attack/Cut, Friend Boost, หีบสะสม และ admin forest/balance. อ่าน `docs/phase2_validation.md` ก่อนต่อ Phase 3 หีบ+อาวุธ. AFK ไม่จำกัดเวลายังไม่รองรับ; โล่ AFK ต่อ Phase 5.
+3. ArmZ สั่ง **ทำต่อได้เลย** หลังเพิ่มงาน UI ใน Phase 10. **Phase 3 core ทำแล้ว**: เปิดหีบ 5 rarity, inventory, equip, Fuse, Giant, Power/Speed/Area และ admin chests/weapons. อ่าน `docs/phase3_validation.md` ก่อนต่อ **Phase 4 สวน + อากาศ**. Phase 2 AFK ไม่จำกัดเวลายังไม่รองรับ; โล่ AFK ต่อ Phase 5.
 4. ผลตรวจ: raycast 2,048 จุด ไม่มีพื้นขาด ขั้นสูง >3.5 studs หรือสิ่งกีดขวาง (ยกเว้นประตูที่ตั้งใจปิด). Play เดินจริงผ่านครบ **16 เส้นทาง**: ทางเชื่อม 8 เส้น + ทางในโซน 8 เส้น. ทางเชื่อมพื้นดินเดินที่ WalkSpeed 16, รากขึ้นฟ้า 80, ทางในโซน 40 เพื่อเร่งทดสอบ. ใช้ PreparePlayRoutes.luau (Server) แล้ว PlayRoutes.luau (Client).
-5. ภาพแมพ: `docs/screens/phase1_continent_overview.jpg`; ภาพ Run: `docs/screens/phase2_run_hud.jpg`. Phase 2 scenario ผ่าน 23/23, GUI toggles/End/CHOP/E ผ่าน. ชุดทดสอบ: `tools/tests/Phase2Scenario.server.luau`; คืนข้อมูลผู้เล่นแล้ว.
-6. โค้ด Zones/MapBuilder และ Phase 2 จำนวน 11 ไฟล์ตรง repo กับ Studio ตรวจ checksum แล้ว. Studio กลับ Edit; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
+5. ภาพแมพ/Run เดิมและภาพใหม่ `docs/screens/phase3_inventory.jpg`, `phase3_chest_open.jpg`. Phase 3 ผ่าน 36 checks + GUI เปิด/หลอม/สวมใส่/ทิ้ง; Phase 2 regression ผ่าน 23/23. ชุดทดสอบ `tools/tests/Phase3Scenario.server.luau`; คืนข้อมูลผู้เล่นแล้ว.
+6. โค้ด Zones/MapBuilder และ Phase 3 จำนวน 14 ไฟล์ตรง repo กับ Studio ตรวจ checksum แล้ว (`docs/phase3_source_checksums.json`). Studio กลับ Edit; ประตูโซนยังปิดตามปกติ. ห้าม overwrite ProfileStore ใน Studio ด้วยไฟล์จาก repo.
 7. ยังไม่ได้ Publish การเปลี่ยนแมพขึ้นเกมจริง; ผู้ใช้ต้อง Save/Publish ใน Studio เพื่อเก็บ place. GitHub เก็บตัวสร้างแมพและโค้ด.
 
 ---
@@ -51,7 +51,8 @@
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
-| Phase 3–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
+| **Phase 3 หีบ + อาวุธ** | ✅ core ผ่าน 36 checks + GUI; ภาพโมเดล procedural รอขัดเกลา Phase 10 |
+| Phase 4–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
 
@@ -73,7 +74,7 @@
 
 **ผลทดสอบ Phase 0**: คำสั่งผ่านหมด, ยืนยัน 2 ชั้นบล็อกถูก, rate limit ทำงาน, HUD อัปเดตสด, Balance SelfTest 8/8, กดปุ่ม UI จริงได้ (ซ่อนหน้าต่างแชทตอนเปิดแผงเพราะแชทของ Roblox ทับฝั่งซ้าย)
 
-**ยังไม่ได้ทำใน Studio**: `Config.Weapons` (อยู่ใน repo แต่ยังไม่ใส่ใน Studio — Phase 0 ไม่ใช้ จะเข้าเองตอนต่อ Rojo)
+**อัปเดต Phase 3**: `Config.Weapons` 100 ชิ้นใส่ใน Studio แล้ว. ดู `docs/phase3_validation.md` สำหรับ WeaponService, Loot, WeaponVisual และ InventoryController.
 
 ## 6. Phase 1 — ทวีปใหม่ (เสร็จ)
 
@@ -150,8 +151,8 @@
 
 ## 10. Phase ถัดไปหลังแมพเสร็จ
 
-1. **Phase 3 หีบ+อาวุธ**: ต่อจาก Inventory.Chests และ Run.Chests ที่มีแล้ว; ใส่ Config.Weapons จาก repo, ทำ rarity/drop/open/equip/roll และแทน starter Power ใน Run.Power. ใช้ Balance เดิม.
-2. ตรวจข้อจำกัด/ผลทดสอบ Phase 2 ใน `docs/phase2_validation.md`; friend boost หลายบัญชีและ mobile/gamepad ต้องทดสอบจริง. AFK ยาวยังไม่เสร็จเพราะ Roblox idle disconnect. Phase 4 สวน+อากาศ; Phase 5 ไข่/สัตว์/ขโมย/ฐาน/Mount และโล่ AFK.
+1. **Phase 4 สวน + อากาศพื้นฐาน**: GardenService, Seeds Config, แปลง/เมล็ด/ปลูก/โต/เก็บ/ขาย, WeatherService แบบซิงก์ทุกเซิร์ฟ, ฝน/พายุฟ้าผ่า/หิมะ/แสงทอง และ Mutation ซ้อน (plan.md หัวข้อ 7).
+2. อ่าน `docs/phase3_validation.md` สำหรับค่าตั้งต้น odds/Fuse และโครง inventory; seed/egg drops ต่อ Phase 4–5. mobile/gamepad และ friend boost หลายบัญชียังต้องทดสอบจริง. AFK ยาวยังไม่รองรับ; โล่ AFK Phase 5. โมเดลอาวุธปัจจุบันเป็น procedural silhouettes; งานภาพสุดท้าย/element trails/ท่าและ UI polish ต่อ Phase 10.
 3. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
 4. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, ร้านค้า, เควส และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
 

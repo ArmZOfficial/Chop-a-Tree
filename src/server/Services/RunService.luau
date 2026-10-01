@@ -8,6 +8,10 @@ local Config = require(Shared.Config.Forest)
 local Zones = require(Shared.Config.Zones)
 local Data = require(script.Parent.DataService)
 local Features = require(script.Parent.FeatureService)
+local Weapon = require(script.Parent.WeaponService)
+local Loot = require(Shared.Loot)
+local Http = game:GetService("HttpService")
+local chestRng = Random.new()
 local Run = {}
 local modes, boosts = {}, {}
 
@@ -40,8 +44,7 @@ function Run.Power(player)
 	if not d then return 0 end
 	local override=player:GetAttribute("AdminCutPower")
 	if type(override)=="number" then return override end
-	-- Phase 3 replaces the starter with the equipped weapon roll.
-	return Balance.CutPower(Config.StarterPower,d.Run.Active and d.Run.Level or 1,1,d.Progress.Rebirth)
+	return Balance.CutPower(Weapon.Combat(player).power,d.Run.Active and d.Run.Level or 1,1,d.Progress.Rebirth)
 end
 
 function Run.Send(player,summary)
@@ -73,20 +76,7 @@ function Run.SetMode(player,name,on)
 end
 
 local function giveAxe(player)
-	local char=player.Character
-	local bag=player:FindFirstChildOfClass("Backpack")
-	if not char or not bag then return end
-	local hum=char:FindFirstChildOfClass("Humanoid")
-	local tool=char:FindFirstChild("StarterAxe") or bag:FindFirstChild("StarterAxe")
-	if not tool then
-		tool=Instance.new("Tool"); tool.Name="StarterAxe"; tool.CanBeDropped=false; tool.ToolTip="ฟันต้นไม้ • Power 125"
-		local handle=Instance.new("Part"); handle.Name="Handle"; handle.Size=Config.StarterVisual.Size
-		handle.CanCollide=false; handle.Massless=true; handle.Parent=tool
-		local mesh=Instance.new("SpecialMesh"); mesh.MeshType=Enum.MeshType.FileMesh
-		mesh.MeshId=Config.StarterVisual.MeshId; mesh.TextureId=Config.StarterVisual.TextureId; mesh.Scale=Config.StarterVisual.Scale; mesh.Parent=handle
-		tool:SetAttribute("ForestAxe",true); tool.Parent=bag
-	end
-	if hum then hum:EquipTool(tool) end
+	Weapon.RefreshTool(player)
 end
 
 function Run.Begin(player)
@@ -148,15 +138,19 @@ function Run.CollectChest(player,spot,generation)
 	local count=0
 	for _,c in r.Chests do count+=c.count end
 	if count>=Config.MaxRunChests then return false end
+	local rarity=spot and Loot.SpotRarity(spot:GetAttribute("Depth"),chestRng) or "Common"
+	local rb=Data.Get(player,"Progress.Rebirth")
+	local admin=Data.Get(player,"Meta.AdminTouched")
 	for _,c in r.Chests do
-		if c.level==r.Level and c.zone==r.Zone and c.rarity=="Common" then c.count+=1; Run.Send(player); return true end
+		if c.level==r.Level and c.zone==r.Zone and c.rarity==rarity and c.rebirthDrop==rb and c.admin_spawned==admin then c.count+=1; Run.Send(player); return true end
 	end
-	table.insert(r.Chests,{level=r.Level,zone=r.Zone,rarity="Common",count=1,admin_spawned=Data.Get(player,"Meta.AdminTouched")})
+	table.insert(r.Chests,{uid=Http:GenerateGUID(false),level=r.Level,zone=r.Zone,rarity=rarity,count=1,rebirthDrop=rb,admin_spawned=admin})
 	Run.Send(player)
 	return true
 end
 
 function Run.Init()
+	Weapon.SetRunNotifier(Run.Send)
 	-- Init runs before DataService.Start, so settlement executes before session release.
 	Players.PlayerRemoving:Connect(function(player) Run.End(player,false); modes[player]=nil; boosts[player]=nil end)
 	Data.PlayerLoaded:Connect(function(player)

@@ -130,7 +130,7 @@ function Forest.Start()
 		local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		if not hr or (hr.Position-hit.position).Magnitude>100 then return end
 		if hit.player==player.UserId and player.Character then
-			local tool=player.Character:FindFirstChild("StarterAxe")
+			local tool=player.Character:FindFirstChildOfClass("Tool")
 			if tool then
 				local original=tool.Grip
 				Tween:Create(tool,TweenInfo.new(0.12),{Grip=original*CFrame.Angles(math.rad(-65),0,0)}):Play()

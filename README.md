@@ -39,4 +39,4 @@ python3 tools/gen_weapons.py                             # สร้างรา
 
 ## สถานะ
 
-Phase 0–1 เสร็จ · Phase 2 core ฟันต้นไม้/Run/Auto Cut ผ่าน 23 checks และ GUI ใน Studio. AFK ไม่จำกัดเวลายังไม่รองรับ. ดู `docs/phase2_validation.md` และ `docs/HANDOFF.md`; ถัดไป Phase 3 หีบ+อาวุธ.
+Phase 0–1 เสร็จ · Phase 2 core ผ่าน 23 checks · Phase 3 หีบ/อาวุธ/Inventory/Equip/Fuse/Giant ผ่าน 36 checks และ GUI ใน Studio. AFK ไม่จำกัดเวลายังไม่รองรับ; งานภาพ/ปรับ UI เต็มใน Phase 10. ดู `docs/phase3_validation.md` และ `docs/HANDOFF.md`; ถัดไป Phase 4 สวน+อากาศ.

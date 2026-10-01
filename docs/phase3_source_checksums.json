@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-01",
+  "placeId": 93479990217075,
+  "encoding": "UTF-8 LF",
+  "algorithm": "h=(h*31+byte)%2147483647",
+  "files": [
+    {
+      "file": "src/shared/Config/Weapons.luau",
+      "bytes": 23394,
+      "hash": 853021802
+    },
+    {
+      "file": "src/shared/Config/Chests.luau",
+      "bytes": 457,
+      "hash": 1389299359
+    },
+    {
+      "file": "src/shared/Loot.luau",
+      "bytes": 2218,
+      "hash": 1137712236
+    },
+    {
+      "file": "src/shared/WeaponVisual.luau",
+      "bytes": 2667,
+      "hash": 1502172057
+    },
+    {
+      "file": "src/shared/Net.luau",
+      "bytes": 2167,
+      "hash": 1068485833
+    },
+    {
+      "file": "src/shared/Config/Features.luau",
+      "bytes": 704,
+      "hash": 68786571
+    },
+    {
+      "file": "src/server/Services/WeaponService.luau",
+      "bytes": 11001,
+      "hash": 1488093963
+    },
+    {
+      "file": "src/server/Services/RunService.luau",
+      "bytes": 8763,
+      "hash": 595526645
+    },
+    {
+      "file": "src/server/Services/TreeService.luau",
+      "bytes": 11583,
+      "hash": 423352525
+    },
+    {
+      "file": "src/server/AdminCommands/WeaponCommands.luau",
+      "bytes": 1317,
+      "hash": 315545295
+    },
+    {
+      "file": "src/server/Main.server.luau",
+      "bytes": 2053,
+      "hash": 1449187343
+    },
+    {
+      "file": "src/client/InventoryController.luau",
+      "bytes": 12938,
+      "hash": 275754354
+    },
+    {
+      "file": "src/client/ForestController.luau",
+      "bytes": 13131,
+      "hash": 1754401337
+    },
+    {
+      "file": "src/client/Main.client.luau",
+      "bytes": 409,
+      "hash": 898539933
+    }
+  ]
+}

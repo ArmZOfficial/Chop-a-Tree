@@ -7,7 +7,7 @@ return table.freeze({
 	Forest = true, -- Phase 2
 	FriendBoost = true,
 	AutoCut = true,
-	Chests = false, -- Phase 3
+	Chests = true, -- Phase 3
 	Garden = false, -- Phase 4
 	Weather = false, -- Phase 4
 	Eggs = false, -- Phase 5

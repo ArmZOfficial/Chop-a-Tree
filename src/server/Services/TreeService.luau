@@ -9,6 +9,7 @@ local Config=require(Shared.Config.Forest)
 local Data=require(script.Parent.DataService)
 local Run=require(script.Parent.RunService)
 local Features=require(script.Parent.FeatureService)
+local Weapon=require(script.Parent.WeaponService)
 local Tree={}
 local trees, cooldowns, navigating, chestStates, collected={},{},{},{},{}
 local rng=Random.new()
@@ -82,13 +83,14 @@ function Tree.Hit(player,model)
 	local power=Run.Power(player)
 	if power<Balance.TreeRequiredPower(zone,tier,rebirth) then return false,"Power too low" end
 	local now=os.clock()
-	if now-(cooldowns[player] or -math.huge)<Config.AttackInterval then return false,"Cooldown" end
+	if now<(cooldowns[player] or 0) then return false,"Cooldown" end
+	local combat=Weapon.Combat(player)
 	local params=RaycastParams.new(); params.FilterType=Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances={player.Character}; params.RespectCanCollide=true
 	local aim=p+Vector3.new(0,3,0)
 	local obstacle=workspace:Raycast(hr.Position,aim-hr.Position,params)
 	if obstacle and not obstacle.Instance:IsDescendantOf(model) then return false,"Blocked" end
-	cooldowns[player]=now
+	cooldowns[player]=now+Config.AttackInterval/combat.speed
 	local crit=rng:NextNumber()<Balance.Get("CritChance")
 	local damage=power*(crit and Balance.Get("CritMult") or 1)
 	local fraction=math.min(s.ratio,damage/Balance.TreeHP(zone,tier,rebirth))
@@ -102,6 +104,26 @@ function Tree.Hit(player,model)
 	Net.Event("TreeHit"):FireAllClients({tree=model,position=aim,damage=damage,crit=crit,player=player.UserId,dead=s.ratio==0,tier=tier})
 	if s.ratio==0 then
 		fell(model,s,now)
+	end
+	-- Area is centered on the accepted primary tree; every extra tree still
+	-- needs the same zone, vertical reach, power requirement and clear sight.
+	if combat.area>0 then
+		for other,extra in trees do
+			if other~=model and other.Parent and extra.ratio>0 and other:GetAttribute("Zone")==zone then
+				local op=position(other);local ot=other:GetAttribute("Tier")
+				if flatDistance(p,op)<=combat.area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth) then
+					local oa=op+Vector3.new(0,3,0);local block=workspace:Raycast(hr.Position,oa-hr.Position,params)
+					if not block or block.Instance:IsDescendantOf(other) then
+						extra.ratio=math.max(0,extra.ratio-damage/Balance.TreeHP(zone,ot,rebirth))
+						local prev=extra.contributors[player]
+						local auto=Run.GetModes(player).AutoCut or (prev and prev.run==r and now-prev.at<=Config.ContributionWindow and prev.autoCut) or false
+						extra.contributors[player]={at=now,autoCut=auto,run=r};other:SetAttribute("HealthRatio",extra.ratio)
+						Net.Event("TreeHit"):FireAllClients({tree=other,position=oa,damage=damage,crit=crit,player=player.UserId,dead=extra.ratio==0,tier=ot})
+						if extra.ratio==0 then fell(other,extra,now) end
+					end
+				end
+			end
+		end
 	end
 	return true,damage
 end
