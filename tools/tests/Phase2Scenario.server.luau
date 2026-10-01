@@ -7,6 +7,7 @@ local D=require(game.ServerScriptService.Server.Services.DataService)
 local R=require(game.ServerScriptService.Server.Services.RunService)
 local T=require(game.ServerScriptService.Server.Services.TreeService)
 local B=require(game.ReplicatedStorage.Shared.Balance)
+local F=require(game.ServerScriptService.Server.Services.FeatureService)
 local p=game.Players:GetPlayers()[1]
 workspace:SetAttribute("Phase2TestStatus","running")
 assert(D.WaitForData(p,30),"Player data not ready")
@@ -16,6 +17,8 @@ local oldWeather=Weather.GetOverride();Weather.Force("Clear",3600)
 script:SetAttribute("OriginalData",original) -- server-only recovery if a test is interrupted
 local savedPosition=p.Character:GetPivot()
 local oldOverride=p:GetAttribute("AdminCutPower")
+local oldBalance=B.Overrides();local flags={}
+for _,id in {"AutoSave","Leaderboard","Eggs","Garden","SeasonPass","Rebirth","IndexBonuses","FriendBoost","Story","Daily"} do flags[id]=F.IsEnabled(id);F.Set(id,false) end
 local results={}
 local originals={get=R.Get,can=R.CanAccess,power=R.Power,award=R.Award,dataGet=D.Get,dataSet=D.Set}
 local fakeChar
@@ -29,6 +32,7 @@ local function near(model)
 	task.wait(0.2)
 end
 local ok,err=xpcall(function()
+	D.Set(p,"Meta.AdminTouched",true);D.Set(p,"Purchases.passes",{});D.Set(p,"Boosts",{Wood=0,Coins=0,Exp=0,Luck=0})
 	D.Set(p,"Progress.Rebirth",0); D.Set(p,"Progress.UnlockedZones",{1,2})
 	D.SetCurrency(p,"Wood",0); D.SetCurrency(p,"Coins",0); D.Set(p,"Inventory.Chests",{})
 	R.End(p,false); R.Begin(p)
@@ -109,11 +113,26 @@ R.Get=originals.get; R.CanAccess=originals.can; R.Power=originals.power; R.Award
 if fakeChar then fakeChar:Destroy() end
 R.SetMode(p,"AutoCut",false); R.SetMode(p,"AutoAttack",false)
 B.ClearOverrides()
+for k,v in oldBalance do B.SetOverride(k,v) end
 D.ImportJSON(p,original)
 p:SetAttribute("AdminCutPower",oldOverride)
 p.Character:PivotTo(savedPosition)
 R.Send(p)
 if oldWeather then Weather.Force(oldWeather.id,math.max(1,oldWeather.endsAt-os.time())) else Weather.Force(nil) end
+task.wait(.2)
+local before=Http:JSONDecode(original)
+-- Import's deferred pet handler advances clocks even with Eggs disabled.
+D.Set(p,"Pets",before.Pets)
+local after=D.GetData(p);local changes={}
+local function same(a,b,path)
+	if type(a)~=type(b) then table.insert(changes,path);return end
+	if type(a)=="table" then for k,v in a do same(v,b[k],path.."."..tostring(k)) end;for k in b do if a[k]==nil then table.insert(changes,path.."."..tostring(k)) end end
+	elseif a~=b then table.insert(changes,path) end
+end
+for _,key in {"Currencies","Inventory","Purchases","Boosts","Pets","Garden","Stats","Season","Progress"} do same(before[key],after[key],key) end
+script:SetAttribute("Restored",#changes==0);script:SetAttribute("RestoreChanges",table.concat(changes,","))
+for id,v in flags do F.Set(id,v) end
+D.SaveNow(p)
 workspace:SetAttribute("Phase2TestResults",Http:JSONEncode({passed=ok,checks=results,error=not ok and err or nil}))
 workspace:SetAttribute("Phase2TestStatus",ok and "passed" or "failed")
 print("[Phase2Scenario]",ok and "passed" or err,#results)

@@ -10,12 +10,12 @@
 - Premium ID **3715870274**, ราคาฐาน **499 Robux**. ผู้ใช้รายงานซื้อจริงผ่าน; automation ตรวจ ProcessReceipt โดยตรง ไม่ได้คลิกยืนยันจ่าย Robux.
 - ซีซัน `s1_2026_10`: 2026-10-01 ถึง 11-01 UTC; `s2_2026_11` ป่าแสงจันทร์: 11-01 ถึง 12-01 UTC ต่อกันอัตโนมัติ. ใช้รางวัลเดิม 30 เลเวล × 1,000 XP. Pending purchase ผูกซีซัน; มี Premium แล้ว/ซีซันจบ → fallback 4,500 Gems. ค่า XP/รางวัล/fallback ยังเป็น Beta.
 - **คอสเมติก: ArmZ ให้รอก่อน.** Premium ปัจจุบันเป็น Gems/บูสต์/หีบ ไม่ใช่ระบบสกินที่เสร็จแล้ว.
-- ล่าสุด OpenTen คลิกจริงเมื่อเหลือ 0/1/3 ช่องผ่าน: ไม่เสียหีบเมื่อเต็ม, เปิดตามช่องว่างจนถึง 300, กดซ้ำไม่หักเพิ่ม. ขยาย ShopGUIHarness เดิม; restore ผ่านรวม Stats/Season. เกมไม่แก้เพิ่ม; InventoryController checksum รอบก่อน 14778 bytes/hash31 593705462. Console ไม่มี error, Edit ไม่มี test script ค้าง. ไม่ Publish. ponytail full + caveman full; docs ยัง 8 ไฟล์.
+- OpenTen capacity 0/1/3 ช่องผ่าน: ไม่เสียหีบเมื่อเต็ม, เปิดตามช่องจนถึง 300, กดซ้ำไม่หักเพิ่ม. ล่าสุด regression Run **23/23**, อาวุธ/หีบ **36/36** หลังร้านผ่าน; baseline/restore proof เพิ่มใน scenario เดิม. แก้เฉพาะ harness ไม่เปลี่ยนเกม; InventoryController checksum รอบก่อน 14778 bytes/hash31 593705462. Console ไม่มี error, Edit ไม่มี test script ค้าง. ไม่ Publish. ponytail full + caveman full; docs ยัง 8 ไฟล์.
 
 ## งานถัดไป / ค้าง
 
 1. ซีซัน 2 พร้อมแล้ว; เพิ่มแถวซีซัน 3 ID ใหม่ **ก่อน 2026-12-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
-2. ตรวจร้านหลังรวมระบบ: regression ชุดเก่าที่เหลือ, ซื้อ/receipt/reconnect/failed-save กับบัญชีและอุปกรณ์จริง; OpenTen capacity ผ่านแล้ว.
+2. ตรวจร้านหลังรวมระบบ: regression Phase 4–7/8a–f ที่เหลือ, ซื้อ/receipt/reconnect/failed-save กับบัญชีและอุปกรณ์จริง; Run/อาวุธ/OpenTen ผ่านแล้ว.
 3. งานเดิมค้าง: NPC/บทพูด/คัตซีนบท 3–8, ตกแต่งฐาน/กับดัก/สัตว์เฝ้า, GardenController refresh ไม่สร้างปุ่มใหม่. ยืนยันกับโค้ดก่อนแก้.
 4. Multi-account ขโมย/บอสร่วม, multi-server Live Events/world boss, mobile/gamepad ยังไม่พิสูจน์ครบ. Balance/เสียง/VFX/UI polish Phase 10.
 5. Phase 9 PvP ยังไม่เริ่ม; คอสเมติกเมื่อ ArmZ สั่ง; Publish เมื่อผู้ใช้สั่ง.
@@ -31,7 +31,7 @@
 ## ผลตรวจเดิม (อ่านรายละเอียดเมื่อแก้ระบบนั้น)
 
 Phase 2/3/4/5/6/7: **23/36/55/81/51/23**. Phase 8a/b/c/d1/d2/d3/e/f: **41/45/55/38/59/30/15/5**.
-เป็นผลเฉพาะรอบเดิม ไม่ใช่ regression ล่าสุดหลังร้าน. ลิงก์ใน [INDEX](INDEX.md).
+Phase 2/3 รันซ้ำหลังร้านผ่าน 23/36; Phase อื่นเป็นผลรอบเดิม. ลิงก์ใน [INDEX](INDEX.md).
 
 ## เอกสารและ asset
 

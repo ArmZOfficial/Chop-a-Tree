@@ -56,3 +56,9 @@ ShopGUIHarness.SetFreeSlots เตรียมอาวุธตาม MaxWeapon
 กดซ้ำหลังรอบเหลือ 1 ช่อง: อาวุธ/หีบ/Stats คงเดิม. Restore ผ่านทุกหมวดที่ harness ตรวจ; startup Balance 9 checks, console ไม่มี error, ลบ script ก่อน Stop กลับ Edit. ไม่แก้ gameplay/สูตร และไม่ Publish.
 
 ยังไม่พิสูจน์ regression ชุดเก่าทั้งหมด, receipt/reconnect/failed-save ในบัญชีจริง และ mobile/gamepad.
+
+## Regression Run / อาวุธ — 2026-10-02
+
+Phase2Scenario **23/23**: manual/Auto Cut 55%, สลับโหมดไม่เพิ่มรางวัล, cap หีบ 50, End ไม่จ่ายซ้ำ, contributor อายุ 10 วินาที, respawn 15 วินาที, Auto Cut pathfinding เดิน 19 studs และฟันจริง. Phase3Scenario **36/36**: 20K seeded loot, ownership/altar/flag, fuse/delete, Giant/IL/Rot, พลัง/พื้นที่/cooldown. ทั้งสองรันใน Script VM หลังร้าน; gameplay ไม่เปลี่ยน.
+
+ปรับ scenario เดิมให้ปิด autosave/leaderboard และระบบ tick ที่ไม่เกี่ยวข้อง; Run ใช้ baseline ไม่มี Pass/boost แล้วคืน flags/Balance/profile. รอบแรกตรวจ restore พบเฉพาะ Pets.bankAt: Import เรียก Pet.Advance deferred แม้ปิด Eggs. Harness รอ handler แล้วคืน Pets snapshot; รันซ้ำผ่านและ restore Currencies/Inventory/Purchases/Boosts/Pets/Garden/Stats/Season/Progress ตรง snapshot ทั้งสองชุดก่อนเซฟ. Console ไม่มี error; ลบ test scripts แล้วกลับ Edit. Phase 4–7/8a–f และการซื้อ/เซฟ/reconnect บนบัญชี/อุปกรณ์จริงยังค้าง; ไม่ Publish.

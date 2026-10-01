@@ -16,11 +16,14 @@ local original=D.ExportJSON(p);script:SetAttribute("OriginalData",original)
 local Weather=require(game.ServerScriptService.Server.Services.WeatherService)
 local oldWeather=Weather.GetOverride();Weather.Force("Clear",3600)
 local pos=p.Character:GetPivot();local override=p:GetAttribute("AdminCutPower");local oldBalance=B.Overrides()
+local flags={Chests=F.IsEnabled("Chests")};F.Set("Chests",true)
+for _,id in {"AutoSave","Leaderboard","Eggs","Garden","SeasonPass"} do flags[id]=F.IsEnabled(id);F.Set(id,false) end
 local results,temporary={},{}
 local function check(name,condition) assert(condition,name);table.insert(results,{name=name,passed=true}) end
 local function nearAltar() p.Character:PivotTo(workspace.Map.Village.ChestAltar.PrimaryPart.CFrame+Vector3.new(0,6,0));task.wait(.2) end
 local function countWeapons() local n=0;for _ in D.Get(p,"Inventory.Weapons") do n+=1 end;return n end
 local ok,err=xpcall(function()
+	D.Set(p,"Meta.AdminTouched",true)
 	R.End(p,false);D.Set(p,"Inventory.Weapons",{});D.Set(p,"Inventory.Equipped","");D.Set(p,"Inventory.Chests",{})
 	D.Set(p,"Progress.Rebirth",0);D.Set(p,"Progress.UnlockedZones",{1});p:SetAttribute("AdminCutPower",nil)
 	check("100 weapon definitions with unique IDs",#Defs.List==100)
@@ -102,6 +105,20 @@ F.Set("Chests",true);B.ClearOverrides();for k,v in oldBalance do B.SetOverride(k
 R.SetMode(p,"AutoCut",false);R.SetMode(p,"AutoAttack",false)
 D.ImportJSON(p,original);p:SetAttribute("AdminCutPower",override);p.Character:PivotTo(pos);W.RefreshTool(p);R.Send(p)
 if oldWeather then Weather.Force(oldWeather.id,math.max(1,oldWeather.endsAt-os.time())) else Weather.Force(nil) end
+task.wait(.2)
+local before=Http:JSONDecode(original)
+-- Import's deferred pet handler advances clocks even with Eggs disabled.
+D.Set(p,"Pets",before.Pets)
+local after=D.GetData(p);local changes={}
+local function same(a,b,path)
+	if type(a)~=type(b) then table.insert(changes,path);return end
+	if type(a)=="table" then for k,v in a do same(v,b[k],path.."."..tostring(k)) end;for k in b do if a[k]==nil then table.insert(changes,path.."."..tostring(k)) end end
+	elseif a~=b then table.insert(changes,path) end
+end
+for _,key in {"Currencies","Inventory","Purchases","Boosts","Pets","Garden","Stats","Season","Progress"} do same(before[key],after[key],key) end
+script:SetAttribute("Restored",#changes==0);script:SetAttribute("RestoreChanges",table.concat(changes,","))
+for id,v in flags do F.Set(id,v) end
+D.SaveNow(p)
 workspace:SetAttribute("Phase3TestResults",Http:JSONEncode({passed=ok,checks=results,error=not ok and err or nil}))
 workspace:SetAttribute("Phase3TestStatus",ok and "passed" or "failed")
 print("[Phase3Scenario]",ok and "passed" or err,#results)
