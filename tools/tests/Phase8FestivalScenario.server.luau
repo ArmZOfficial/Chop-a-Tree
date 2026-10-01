@@ -40,6 +40,8 @@ local ok,err=xpcall(function()
  -- preview / flag
  WX.PreviewFestival("winter",Ev.PreviewSeconds)
  check("Admin preview activates a festival on this server",WX.Festival()==Ev.ById.winter and game.ReplicatedStorage.WeatherState:GetAttribute("Festival")==Ev.ById.winter.name)
+ WX.AtTime(os.time()+Ev.PreviewSeconds+1)
+ check("Future forecasts never clear an active preview",WX.Festival()==Ev.ById.winter)
  local now=os.time();local cur=WX.AtTime(now);local base=Schedule.At(now)
  check("Preview applies the festival weather now",(base.id=="RotInvasion" or WC.ById[base.id].rare) and cur.id==base.id or cur.id=="Snow")
  F.Set("Festivals",false);check("Feature off disables festivals and previews",WX.Festival()==nil and WX.AtTime(now).id==base.id);F.Set("Festivals",true)

@@ -7,8 +7,10 @@ local Weather={}
 local forced,folder,eventProvider,festivalPreview
 local function festivalAt(now)
 	if not Features.IsEnabled("Festivals") then return nil end
-	if festivalPreview and festivalPreview.endsAt>now then return Events.ById[festivalPreview.id] end
-	festivalPreview=nil
+	if festivalPreview then
+		if festivalPreview.endsAt<=os.time() then festivalPreview=nil
+		elseif festivalPreview.endsAt>now then return Events.ById[festivalPreview.id] end
+	end
 	for _,e in Events.List do if now>=e.startsAt and now<e.endsAt then return e end end
 end
 -- Festival layer over the UTC schedule; changes the key so mutations roll again.

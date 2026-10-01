@@ -62,7 +62,7 @@ local ok,err=xpcall(function()
  check("Lucky increases combined Epic plus probability relatively by 25 percent",near(lucky[3]+lucky[4]+lucky[5],.0625))
  check("Luck preserves lower-rarity ratios and Giant odds",near(lucky[1]/lucky[2],plain[1]/plain[2]) and giant==luckyGiant)
  local capped=Loot.Odds("Common",1,100);local negative=Loot.Odds("Common",1,-1)
- check("Luck input clamps to zero through 25 percent",near(capped[3],lucky[3]) and near(negative[3],plain[3]))
+ check("Luck input clamps to zero through 50 percent including temporary boosts",near(capped[3],.075) and near(negative[3],plain[3]))
  local rare=Loot.Odds("Rare",1,.25);check("Rare chests reach combined Epic plus chance 25 percent",near(rare[3]+rare[4]+rare[5],.25))
  for _,rarity in {"Common","Rare","Epic","Legendary","Mythic"} do local weights=Loot.Odds(rarity,10000,.25);local sum=0;for _,v in weights do assert(v>=0 and v<=1);sum+=v end;check(rarity.." boosted probabilities remain normalized",near(sum,1)) end
  local random=Random.new(831);local high=0;local defs=require(S.Config.Weapons)

@@ -35,9 +35,9 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 9 | PvP แยก Place | ยังไม่ทำ |
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | รอปรับและตรวจ |
 
-Regression หลังร้าน: Run 23/23 และอาวุธ/หีบ 36/36 ผ่าน พร้อมตรวจ restore; Phase 4–7/8a–f ยังเป็นผลรอบเดิม.
+Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.
 ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) พร้อม 2026-11-01 ถึง 12-01 UTC; ใช้ XP/รางวัลเดิม. Rollover/late receipt/สองแถวรางวัลผ่าน scenario 33/33.
-ถัดไป: ปิดช่องว่าง receipt/reconnect/failed-save, regression ที่เหลือ และหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 3 ก่อน **2026-12-01 UTC**.
+ถัดไป: ซื้อผ่าน Roblox Player จริงแล้ว reconnect และตรวจหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 3 ก่อน **2026-12-01 UTC**.
 ค้าง: ตกแต่งฐาน/กับดัก/สัตว์เฝ้า, NPC/คัตซีนบท 3–8, Garden UI refresh, ของตกแต่งเทศกาล.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 

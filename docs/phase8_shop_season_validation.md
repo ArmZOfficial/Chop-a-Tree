@@ -10,7 +10,7 @@
 4. Pass ไม่ซ้อนกับทางฟรี: ×2 Wood/Coins = เพดานถาวรเดิม, Lucky +25% (ยา/Luck ทั้งเซิร์ฟเพิ่มชั่วคราวได้ถึง +50%), ช่องสัตว์ +2 (สูงสุด 6), ฟักไว ×2 = ตู้ฟักเลเวลสูงสุด, แปลง +10 (สูงสุด 30).
 5. Client `ShopController` ปุ่ม "ร้าน Robux" (200,365) แท็บ Game Pass/ไอเทม; เปิดหีบ 10 ใบใน InventoryController เมื่อมี OpenTen; VIP แท็กแชท/ฉายา/Daily +25 Gems.
 6. Admin แท็บ shop: สลับ Pass, ให้สินค้า, ยกเลิก Luck ทั้งเซิร์ฟ. Flag `Shop`.
-7. ผล scenario ร้าน (raw report ใน Git 5d09e37) 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt); รันซ้ำ 34/34 ล่าสุด. OpenTen ตรวจเพิ่มด้านล่าง; regression ชุดเก่าทั้งหมดยังไม่ได้รันหลังร้าน.
+7. ผล scenario ร้าน (raw report ใน Git 5d09e37) 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt); รันซ้ำ 34/34 ล่าสุด. OpenTen และ regression ชุดเก่าตรวจเพิ่มด้านล่าง.
 
 ## Season Pass (commit `4d3ba3e`)
 
@@ -24,7 +24,7 @@
 
 ## ข้อจำกัด / ต้องทำต่อ
 
-1. หน้าซื้อ Robux จริงเป็น CoreGui คลิกด้วยเครื่องมือไม่ได้ → receipt ทดสอบผ่าน `ProcessReceipt` โดยตรง. ArmZ ทดสอบเองในเกมแล้วว่าผ่าน.
+1. Receipt ทดสอบผ่าน `ProcessReceipt` โดยตรง; ArmZ รายงานซื้อเองผ่าน. Native UI ควบคุมได้แล้ว แต่ automation ยังไม่ได้ยืนยัน paid purchase ใน Roblox Player.
 2. ซีซัน 2 `s2_2026_11` "ป่าแสงจันทร์" พร้อมช่วง 2026-11-01→12-01 UTC, ใช้ XP/รางวัลเดิม. เพิ่มซีซัน 3 ก่อน 2026-12-01 UTC เพื่อให้มีซีซันต่อไป.
 3. ค่า XP/รางวัล/ชื่อซีซัน/4,500 Gems เป็นค่าเริ่มต้น Beta ยังไม่ผ่านข้อมูลผู้เล่นจริง.
 4. ปุ่ม Season Pass ชิดกล่องเควสด้านล่าง; จัด HUD ใหม่ใน Phase 10.
@@ -55,10 +55,41 @@ ShopGUIHarness.SetFreeSlots เตรียมอาวุธตาม MaxWeapon
 
 กดซ้ำหลังรอบเหลือ 1 ช่อง: อาวุธ/หีบ/Stats คงเดิม. Restore ผ่านทุกหมวดที่ harness ตรวจ; startup Balance 9 checks, console ไม่มี error, ลบ script ก่อน Stop กลับ Edit. ไม่แก้ gameplay/สูตร และไม่ Publish.
 
-ยังไม่พิสูจน์ regression ชุดเก่าทั้งหมด, receipt/reconnect/failed-save ในบัญชีจริง และ mobile/gamepad.
+ยังไม่พิสูจน์ mobile/gamepad และหลายบัญชีจริง; regression/persistence ตรวจเพิ่มด้านล่าง.
 
 ## Regression Run / อาวุธ — 2026-10-02
 
 Phase2Scenario **23/23**: manual/Auto Cut 55%, สลับโหมดไม่เพิ่มรางวัล, cap หีบ 50, End ไม่จ่ายซ้ำ, contributor อายุ 10 วินาที, respawn 15 วินาที, Auto Cut pathfinding เดิน 19 studs และฟันจริง. Phase3Scenario **36/36**: 20K seeded loot, ownership/altar/flag, fuse/delete, Giant/IL/Rot, พลัง/พื้นที่/cooldown. ทั้งสองรันใน Script VM หลังร้าน; gameplay ไม่เปลี่ยน.
 
-ปรับ scenario เดิมให้ปิด autosave/leaderboard และระบบ tick ที่ไม่เกี่ยวข้อง; Run ใช้ baseline ไม่มี Pass/boost แล้วคืน flags/Balance/profile. รอบแรกตรวจ restore พบเฉพาะ Pets.bankAt: Import เรียก Pet.Advance deferred แม้ปิด Eggs. Harness รอ handler แล้วคืน Pets snapshot; รันซ้ำผ่านและ restore Currencies/Inventory/Purchases/Boosts/Pets/Garden/Stats/Season/Progress ตรง snapshot ทั้งสองชุดก่อนเซฟ. Console ไม่มี error; ลบ test scripts แล้วกลับ Edit. Phase 4–7/8a–f และการซื้อ/เซฟ/reconnect บนบัญชี/อุปกรณ์จริงยังค้าง; ไม่ Publish.
+ปรับ scenario เดิมให้ปิด autosave/leaderboard และระบบ tick ที่ไม่เกี่ยวข้อง; Run ใช้ baseline ไม่มี Pass/boost แล้วคืน flags/Balance/profile. รอบแรกตรวจ restore พบเฉพาะ Pets.bankAt: Import เรียก Pet.Advance deferred แม้ปิด Eggs. Harness รอ handler แล้วคืน Pets snapshot; รันซ้ำผ่านและ restore Currencies/Inventory/Purchases/Boosts/Pets/Garden/Stats/Season/Progress ตรง snapshot ทั้งสองชุดก่อนเซฟ. Console ไม่มี error; ลบ test scripts แล้วกลับ Edit. งานที่ค้างตรวจเพิ่มด้านล่าง; ไม่ Publish.
+
+## Regression 4–7 / 8a–f — 2026-10-02
+
+ใช้ scenario เดิมครอบด้วย RegressionHarness.Prepare/Finish: แยก Pass/boost/Index/skills จากบัญชีจริง, ปิด autosave/leaderboard/SeasonPass/FriendBoost, คืน profile/flags/weather/Balance/pivot/anchor/server Luck ทุกชุด แม้ fail. Restore 9 หมวดเดียวกับชุด Run ผ่านทุกครั้ง.
+
+| ชุด | Checks ผ่าน |
+|---|---:|
+| 4 Garden | 55 |
+| 5 Pets/Stealing | 80 |
+| 6 Story | 51 |
+| 7 Zones | 23 |
+| 8a Rebirth | 41 |
+| 8b Rewards | 45 |
+| 8c Collections | 55 |
+| 8d1 Weather/Live Events | 38 |
+| 8d2 Encounters | 59 |
+| 8d3 Merchant | 30 |
+| 8e Festivals | 15 |
+| 8f Emote | 5 |
+
+Phase 5 มี conditional checks ตามไข่ในหน้าต่างสายพาน จึงไม่ยึด count เดิม 81. 8c รอบแรก fail ข้อ Luck clamp เดิม 25%; แก้ assertion เป็น Epic+ .075 ที่ cap รวม 50% ตามร้าน (เพดานถาวรยัง 25%) ไม่แก้ Loot.
+
+8e พบ bug จริง: festivalAt(future) ล้าง preview ปัจจุบันเมื่อตรวจ forecast เกิน endsAt. Probe Before=true/After=false พิสูจน์ก่อนแก้; WeatherService เปลี่ยนให้ expire ตาม os.time() จริง และใช้เวลาที่ query เฉพาะเลือกผล. เพิ่ม check future forecast ไม่ล้าง preview; 8e ผ่านและ 8d1/d2 รันซ้ำผ่าน 38/59. Source ตรง Studio 3549 bytes/hash31 1672120537. MCP Start ค้างหลัง Stop; เริ่ม Play ด้วยปุ่ม native Studio แล้วทดสอบต่อ ไม่มี Publish.
+
+## Receipt / save / reconnect บัญชีจริง — 2026-10-02
+
+ArmZKubfu (`7488194538`), Studio ใช้ PlayerData_v1 / Player_7488194538, ProfileStore state **Access**. Synthetic receipt `codex-reconnect-*` สำหรับ product 100 Gems `3715863360`: seam SaveAndWait คืน false สองครั้ง ทำให้ NotProcessedYet ทั้งคู่ แต่ยอดเพิ่มเพียง 100 ครั้งเดียว. คืน seam แล้ว retry เป็น Granted หลัง LastSavedData มี marker.
+
+Stop/Play ใหม่เป็น session จริง: โหลด Gems 321 จากเดิม 221 และ marker เดิม; ProcessReceipt replay เป็น Granted โดยไม่เพิ่มยอด. Import snapshot เดิมและลบเฉพาะผล synthetic ด้วย snapshot; SaveAndWait ยืนยัน Gems 221 และไม่มี marker ก่อนจบ. ไม่ overwrite ProfileStore และไม่จ่าย Robux. การซื้อผ่าน UI จริง/production-server reconnect ยังต้องตรวจ; Roblox Player เดิมเปิดเกมอื่น รอจัด session โดยผู้ใช้. [Roblox developer product docs](https://create.roblox.com/docs/production/monetization/developer-products) แยกการซื้อผ่าน Roblox ออกจากการเรียก receipt ใน harness.
+
+ยืนยันซ้ำด้วย `tools/tests/ReceiptPersistenceScenario.server.luau`: Save/Replay ผ่านบน Access ทั้งคู่; คืน snapshot และยืนยันเซฟ Gems 221/ไม่มี synthetic markers. Studio กลับ Edit ไม่มี Codex test scripts; WeatherService checksum ตรง repo.
