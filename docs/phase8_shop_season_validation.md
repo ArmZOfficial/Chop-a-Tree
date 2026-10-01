@@ -43,4 +43,16 @@ Phase8SeasonScenario เดิมปรับ boundary ให้รองรั�
 - Client InvokeServer OpenTen โดยไม่มี Pass ถูกปฏิเสธ; หีบ/อาวุธ/Stats เท่าเดิม. Shop scenario รันซ้ำผ่าน 34/34; startup Balance 9 checks ผ่าน, console ไม่มี error.
 - Finish ตรวจคืนข้อมูลผ่านทั้งสองรอบ; ลบ Script ชั่วคราวก่อน Stop. InventoryController ตรง Studio Edit 14778 bytes/hash31 593705462. Docs คง 8 ไฟล์; ไม่ Publish.
 
-ยังไม่พิสูจน์ OpenTen เมื่อ inventory เต็ม/เหลือช่องน้อย, regression ชุดเก่าทั้งหมด, receipt/reconnect/failed-save ในบัญชีจริง และ mobile/gamepad.
+### Capacity — 2026-10-02
+
+ShopGUIHarness.SetFreeSlots เตรียมอาวุธตาม MaxWeapons จริง/หีบ 12 ใบ; คลิก OpenTen ใน Play:
+
+| ช่องว่าง | อาวุธหลังคลิก | หีบเหลือ | Stats.ChestsOpened | ผล |
+|---|---:|---:|---:|---|
+| 0 | 300 | 12 | 0 | ปฏิเสธพร้อมข้อความกระเป๋าเต็ม; Result ไม่เปิด |
+| 1 | 300 | 11 | 1 | ได้ 1 ชิ้น; Result แสดงรางวัล |
+| 3 | 300 | 9 | 3 | ได้ 3 ชิ้น; ไม่เกินเพดาน |
+
+กดซ้ำหลังรอบเหลือ 1 ช่อง: อาวุธ/หีบ/Stats คงเดิม. Restore ผ่านทุกหมวดที่ harness ตรวจ; startup Balance 9 checks, console ไม่มี error, ลบ script ก่อน Stop กลับ Edit. ไม่แก้ gameplay/สูตร และไม่ Publish.
+
+ยังไม่พิสูจน์ regression ชุดเก่าทั้งหมด, receipt/reconnect/failed-save ในบัญชีจริง และ mobile/gamepad.

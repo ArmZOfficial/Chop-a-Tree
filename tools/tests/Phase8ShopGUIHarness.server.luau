@@ -16,6 +16,18 @@ pass.OnInvoke=function(enabled,nested)
  if nested then D.Set(p,"Purchases.passes.OpenTen",enabled) else D.Set(p,"Purchases.passes",enabled and {OpenTen=true} or {}) end
  M.Refresh(p)
 end
+local capacity=Instance.new("BindableFunction");capacity.Name="SetFreeSlots";capacity.Parent=script
+capacity.OnInvoke=function(slots)
+ local max=require(game.ReplicatedStorage.Shared.Config.Chests).MaxWeapons
+ assert(type(slots)=="number" and slots%1==0 and slots>=0 and slots<=max)
+ local id=require(game.ReplicatedStorage.Shared.Config.Weapons).List[1].id
+ local inv={};for _=1,max-slots do
+  inv[game.HttpService:GenerateGUID(false)]={id=id,il=1,stars=1,giant=false,rebirthDrop=0,roll=1,admin_spawned=true}
+ end
+ D.Set(p,"Inventory.Equipped","");D.Set(p,"Inventory.Weapons",inv)
+ D.Set(p,"Inventory.Chests",{});W.GrantChest(p,"Rare",1,1,12,true);D.Set(p,"Stats.ChestsOpened",0)
+ W.RefreshTool(p)
+end
 script:SetAttribute("Ready",true)
 while not script:GetAttribute("Finish") do
  local n=0;for _,c in D.Get(p,"Inventory.Chests") do n+=c.count end

@@ -19,7 +19,7 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - คง schema/UID/stable ID; เติมเซฟผ่าน Reconcile. ธุรกรรมย้ายของ/จ่ายรางวัลไม่ yield; receipt ตอบ Granted หลังยืนยันเซฟ และป้องกันจ่ายซ้ำ.
 - ทดสอบ service ใน Script ของ VM เกม; **อย่า require DataService ผ่าน MCP** (cache แยก). Snapshot/restore profile, flags, weather, Balance, anchor/ตำแหน่ง; GUIHarness Finish ก่อน Stop; ลบ test scripts. **อย่า overwrite ProfileStore**.
 - Studio API บันทึกข้อมูลจริง. ก่อนเขียน list Studios/ตรวจ PlaceId `93479990217075`; ID Studio เปลี่ยนได้. Sync ผ่าน MCP multi_edit แล้วเทียบ source checksum; Rojo ยังไม่ได้ใช้.
-- GUI ตรวจคลิกจริง/ZIndex/DataPatch มาช้า; state refresh ใช้ปุ่มเดิม. Inventory ต้องรับทั้ง `Purchases.passes` และ path ลูกเพื่ออัปเดต OpenTen ขณะเปิดอยู่. DataService.Changed deferred: รอ handler ก่อน assert.
+- GUI ตรวจคลิกจริง/ZIndex/DataPatch มาช้า; state refresh ใช้ปุ่มเดิม. Inventory ต้องรับทั้ง `Purchases.passes` และ path ลูกเพื่ออัปเดต OpenTen ขณะเปิดอยู่. ตรวจ capacity ด้วย ShopGUIHarness.SetFreeSlots: หีบ/อาวุธ/Stats ต้องเปลี่ยนเท่าจำนวนที่เปิดได้จริง. DataService.Changed deferred: รอ handler ก่อน assert.
 - เปลี่ยนสูตร/ตัวเลขรัน `tools/balance_sim.py`; ทดสอบส่วนที่กระทบและบันทึกสิ่งที่ยังไม่พิสูจน์. ระบบใหม่เพิ่ม AdminService.Register และ Feature Flag.
 - Auto Cut ฟรี; permanent bonus ชนิดเดียวกันใช้ค่าสูงสุด/เพดานร่วมกับทางฟรี. ใช้ seam Run.Award/Pet.Mult/Balance; รายละเอียด cap อ่าน validation ของระบบ.
 
