@@ -144,4 +144,3 @@ Open up to ten chests at once! Clear your adventure haul faster in Chop a Tree. 
 สร้างด้วย imagegen built-in แยกหนึ่งภาพต่อหนึ่ง Pass. ธีม 3D low-poly แฟนตาซีป่า กรอบทอง/พื้นเขียว ขวาน/สวน/ไข่/สัตว์ ตามเอกลักษณ์ Chop a Tree; ไม่ใช้โลโก้ของเกมอ้างอิง. Prompt ครบใน `prompts.json`. Native Windows System.Drawing ส่งออกไฟล์ 512×512 ด้วย bicubic และคง alpha; ตรวจขนาด/ชนิดไฟล์/มุมโปร่งใสใน `validation.json`. ต้นฉบับที่ tool สร้างยังคงอยู่ใน Codex generated_images.
 
 เมื่อสร้าง Pass ด้วย Creator Dashboard แล้ว ส่ง Asset ID ของแต่ละ Pass กลับมาเพื่อต่อ entitlement ฝั่ง server และตรวจ receipt/ownership. Shop ยังไม่ได้เปิดด้วยงานภาพชุดนี้.
-
