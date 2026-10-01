@@ -6,6 +6,7 @@
 
 | ที่อยู่ | คืออะไร |
 |---|---|
+| `docs/HANDOFF.md` | **สรุปส่งต่องาน (อ่านก่อน)** |
 | `docs/plan.md` | แผนเกมหลัก (ทุกระบบ, แมพ, เนื้อเรื่อง, Balance, เติมเงิน, Milestone) |
 | `docs/weapons.md` | รายชื่ออาวุธ 100 ชิ้น |
 | `docs/balance_report.txt` | ผลจำลองตัวเลขล่าสุด |
@@ -37,4 +38,4 @@ python3 tools/gen_weapons.py                             # สร้างรา
 
 ## สถานะ
 
-Phase 0 (ฐานราก) เสร็จ — ถัดไป Phase 1: แมพโครง
+Phase 0 เสร็จ · Phase 1 แมพโครงกำลังทำ (ดู docs/HANDOFF.md)
