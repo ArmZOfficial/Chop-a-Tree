@@ -18,6 +18,22 @@ end
 function Math.Value(fruit)
 	return Seeds.ById[fruit.id].value*B.ZoneScale(fruit.zone)*B.Rot(fruit.rebirthDrop or 0)*Math.Multiplier(fruit.mutations)
 end
+-- Capped mutation that decides a fruit's daily full-price quota (highest value wins).
+function Math.CapKey(tags)
+	local best;for id,on in tags or {} do if on and Config.SellCaps[id] and (not best or Mutations.Values[id]>Mutations.Values[best]) then best=id end end
+	return best
+end
+-- Sale total with daily caps; returns total and the updated sold counts (input untouched).
+function Math.SellQuote(fruits,sold)
+	local total,after=0,table.clone(sold or {})
+	for _,f in fruits do
+		local value,key=Math.Value(f),Math.CapKey(f.mutations)
+		local full=key and math.clamp(Config.SellCaps[key]-(after[key] or 0),0,f.count) or f.count
+		if key then after[key]=(after[key] or 0)+f.count end
+		total+=value*full+value*Config.OverCapMult*(f.count-full)
+	end
+	return total,after
+end
 function Math.SeedPrice(id,zone) return Seeds.ById[id].price*B.ZoneScale(zone) end
 function Math.UpgradeCost(slots) return Config.UpgradeWood*(slots/Config.InitialSlots)^2 end
 function Math.Key(tags)

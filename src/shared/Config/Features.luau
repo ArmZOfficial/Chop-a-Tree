@@ -21,6 +21,7 @@ return table.freeze({
 	Achievements = true,
 	LiveEvents = true, -- Phase 8d core
 	WeatherEncounters = true, -- Stardust, rare eggs, world boss
+	Merchant = true, -- Phase 8d3
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9
 })

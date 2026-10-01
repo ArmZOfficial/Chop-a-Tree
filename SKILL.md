@@ -70,7 +70,7 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. Run.Power/Award และ Weapon.Open เป็นจุดใช้บัฟ. Wood/Coins รวม Index กับ Rebirth แบบบวก cap ×2 ถาวร ก่อนบัฟรวม ×4; Power รวม pet/Index cap ×4. Luck เพิ่มโอกาส Epic+ แบบสัมพัทธ์ cap +25%, probability ≤100%, Giant เดิม. Luck=0 ต้องคง baseline แบบตรงตัว; UI หีบใช้สูตรเดียวกัน.
 3. Achievements.claimed/equipped อยู่ profile เดียวกับ Gems. ตรวจเกณฑ์ที่ server และบันทึก marker/เงินโดยไม่ yield; public remote รับ Sync/Claim/Equip เท่านั้น. ชื่อ title มาจาก Config, เลือกเฉพาะที่ claim แล้ว; RefreshTitle หลัง snapshot/CharacterAdded/flag change. Admin unlock/reset marksTarget; unlock ไม่จ่าย Gems.
 4. Phase 8c ผ่าน 55 checks และ GUI เมาส์จริง; regression 36/51/41/45. VM scenario/GUIHarness ต้อง snapshot/restore และ Finish ก่อน Stop. พัก Leaderboard ระหว่างจำลอง profile; แยกเควสหลักเมื่อวัด Gems จาก achievement. Sync source ทีละไฟล์แล้วตรวจ UTF-8/LF length/hash เพื่อจับ output truncation ก่อน Play.
-5. Phase 8d1 อากาศ/Live Event และ Phase 8d2 Stardust/ไข่พิเศษ/บอสโลกทำแล้วตามแนวทางด้านล่าง. Ambient mutation/merchant/rare fruit daily cap ต่อ Phase 8d3; เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงานค้าง Phase 8. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
+5. Phase 8d1 อากาศ/Live Event และ Phase 8d2 Stardust/ไข่พิเศษ/บอสโลกทำแล้วตามแนวทางด้านล่าง. Phase 8d3 ambient mutation/merchant/rare fruit daily cap ทำแล้ว; เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงานค้าง Phase 8. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
 
 ## แนวทางอากาศ/Live Event หลัง Phase 8d1
 
@@ -78,7 +78,7 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. WeatherService เป็นจุด resolve: feature Weather → Live Event → local override → UTC. LiveEventService owns MemoryStore current record/revision และ MessagingService reread + polling; late join อ่านขั้นตามเวลาเดิม. Studio แยก topic/store. Owner global start/stop confirm 2 ชั้นผ่าน AdminService; public remote ไม่มี Force และข้อความเป็น preset ที่เชื่อถือได้.
 3. Wood/Coins อากาศรวม cap ×4 ผ่าน Run.Award; Area/crit/HP ผ่าน Tree.Hit, Fog chest ใช้ Run.CollectChest/provenance เดิม. Mutation สวนผ่าน GardenMath/Config.Mutations, hatch ผ่าน Pet.Advance online เท่านั้น; Index ใช้ union IDs ของผล/สัตว์และคง earned completion marker เมื่อขยาย catalog.
 4. Phase 8d1 ผ่าน 38 checks, regression 55/81/51/36/55 และ mouse preview. API global transaction/missed-message ทดสอบ fake store; Studio read ready ไม่ใช่ proof broadcast หลายเซิร์ฟ. ก่อนสรุป global ready ต้องตรวจจริงหลายเซิร์ฟพร้อม API outage/cancel. Scenario/GUIHarness snapshot/restore, Finish ก่อน Stop, source checksum 16 ไฟล์ตรง Edit.
-5. Phase 8d2 ผ่าน 59 checks และ GUI จริง; regression 36/81/51/23/55/38. ต่อ Phase 8d3 ambient zone mutation/merchant/rare fruit daily cap ตาม plan; เทศกาล/ร้าน/Season Pass/Emote และเสียง/ภาพ/VFX ยังแยกงานค้าง. ปรับ plan, SKILL, handoff พร้อมกันตามกฎเดิม.
+5. Phase 8d2 ผ่าน 59 checks และ GUI จริง; regression 36/81/51/23/55/38. Phase 8d3 ทำแล้วตามแนวทางด้านล่าง; เทศกาล/ร้าน/Season Pass/Emote และเสียง/ภาพ/VFX ยังแยกงานค้าง. ปรับ plan, SKILL, handoff พร้อมกันตามกฎเดิม.
 
 ## แนวทาง Stardust, ไข่พิเศษ และบอสโลก (Phase 8d2)
 
@@ -87,6 +87,14 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 3. Nest.AddSpot/RemoveSpot ใช้ guardian เดิม. Take จับ definition ไว้กับ carrier และตรวจ WeatherKey ที่ server. เมื่ออากาศจบ retire spot; held egg ยัง Secure ด้วย ID เดิมได้, Drop ลบ spot. Callback refill ต้องตรวจ generation/registration/retired เพื่อไม่สร้างไข่หมดอายุคืนมา.
 4. World boss ใช้ลานโซน 1 และ suppress guardian เดิมชั่วคราว; restore เมื่อจบ/ปิด flag. Boss.CreateWorld แยกจาก Boss.Get/Progress.Bosses. รางวัลตาม share ที่ clip ถึง HP เหลือ, paid marker ก่อนจ่าย, เฉพาะผู้เล่น loaded ที่ยังอยู่ Run เดิม; บันทึก Stats.WorldBossKills แยกจาก BossKills. บอสเกิดครั้งเดียวต่อ event key แม้ toggle flag; HP แยกตาม Rebirth ผ่าน Balance.BossHP.
 5. ทดสอบ RemoteFunction ผ่าน InvokeServer จาก client จริง: Roblox อ่าน OnServerInvoke callback กลับไม่ได้. เทสต์ profile ใน Script VM พร้อม snapshot/restore และพัก AutoSave/Leaderboard; GUIHarness Finish ก่อน Stop. Source checksum 18 ไฟล์ตรง Edit; หลายบัญชี/reconnect จริง/แชร์ดาเมจต่าง Rebirth/มือถือ/ภาพสุดท้ายยังต้องตรวจตาม validation.
+
+## แนวทางพ่อค้าเร่, ambient mutation และเพดานขายผล (Phase 8d3)
+
+1. อ่าน `docs/phase8_merchant_validation.md` ก่อนแก้. MerchantService เป็นเจ้าของ visit/stock/ราคา/limit; MerchantMath + Config.Merchant ใช้ร่วม UI/server และเป็น UTC deterministic (นาที 30–40 ทุกชั่วโมง เพื่อไม่ชน RotInvasion). เพิ่มสินค้าด้วย offer id ใหม่ ห้าม reuse id. Summon ของแอดมินเป็น local ต่อเซิร์ฟ.
+2. UI พ่อค้าอยู่ในแท็บของ Garden panel; GardenService รับ provider ผ่าน `Garden.SetMerchant` (Merchant โหลดหลัง Pet/Weapon เพื่อเลี่ยง require วน) และ forward `GardenAction("MerchantBuy")`. Buy ตรวจครบก่อนแล้ว marker+debit+grant ไม่ yield; ledger `Merchant.bought[visitKey]` prune เกิน 2 วัน.
+3. Ambient roll อยู่ใน `Garden.Advance` ใช้ `plot.ambientSeen=nextFruitAt` ให้สุ่มครั้งเดียวต่อรอบผล ออนไลน์เท่านั้น และใช้ Mutation ID เดิม (เพิ่ม ID ใหม่ต้องดู catalog Index/completion marker).
+4. ราคาขายผลต้องผ่าน `GardenMath.SellQuote` เท่านั้น (เพดานต่อวัน UTC ตาม mutation ที่ค่าสูงสุดใน `Config.Garden.SellCaps`, เกินได้ `OverCapMult`); `Garden.sellDay/sold` รีเซ็ตเมื่อวันเปลี่ยน. ห้ามเพิ่มทางขายผลที่ข้าม quote นี้.
+5. ทดสอบด้วย Script ใน VM เกม + snapshot/restore; อย่า require service จาก MCP (cache แยก, เคยพลาดในรอบนี้). ค่าราคา/โอกาส/cap เป็นค่าเริ่มต้นรอ Phase 10.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

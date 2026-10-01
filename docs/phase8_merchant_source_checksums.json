@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-02",
+  "hash": "h=(h*31+byte)%2147483647 over UTF-8 LF",
+  "files": [
+    {
+      "file": "src/shared/Config/Garden.luau",
+      "studio": "ReplicatedStorage.Shared.Config.Garden",
+      "bytes": 713,
+      "hash": 125391945,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/shared/GardenMath.luau",
+      "studio": "ReplicatedStorage.Shared.GardenMath",
+      "bytes": 2422,
+      "hash": 966235600,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/shared/Config/Features.luau",
+      "studio": "ReplicatedStorage.Shared.Config.Features",
+      "bytes": 953,
+      "hash": 505433689,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/shared/Config/Merchant.luau",
+      "studio": "ReplicatedStorage.Shared.Config.Merchant",
+      "bytes": 1320,
+      "hash": 1783336500,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/shared/MerchantMath.luau",
+      "studio": "ReplicatedStorage.Shared.MerchantMath",
+      "bytes": 1531,
+      "hash": 1418951471,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/server/Services/GardenService.luau",
+      "studio": "ServerScriptService.Server.Services.GardenService",
+      "bytes": 20148,
+      "hash": 35913378,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/server/Services/DataService.luau",
+      "studio": "ServerScriptService.Server.Services.DataService",
+      "bytes": 12263,
+      "hash": 1792380557,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/server/Services/MerchantService.luau",
+      "studio": "ServerScriptService.Server.Services.MerchantService",
+      "bytes": 5401,
+      "hash": 598410097,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/server/AdminCommands/MerchantCommands.luau",
+      "studio": "ServerScriptService.Server.AdminCommands.MerchantCommands",
+      "bytes": 761,
+      "hash": 1865510387,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/server/Main.server.luau",
+      "studio": "ServerScriptService.Server.Main",
+      "bytes": 2872,
+      "hash": 530475732,
+      "matchesStudioEdit": true
+    },
+    {
+      "file": "src/client/GardenController.luau",
+      "studio": "StarterPlayer.StarterPlayerScripts.Client.GardenController",
+      "bytes": 9796,
+      "hash": 1040385295,
+      "matchesStudioEdit": true
+    }
+  ]
+}

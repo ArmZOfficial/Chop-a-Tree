@@ -14,6 +14,8 @@ local Weather=require(script.Parent.WeatherService)
 local Garden={}
 local bases,owners,slots,visuals,signatures,lastAction={},{},{},{},{},{}
 local rng=Random.new()
+local merchant -- MerchantService registers {State,Buy}; it loads after Pet/Weapon
+function Garden.SetMerchant(m) merchant=m end
 
 local function enabled(p) return Data.IsLoaded(p) and Features.IsEnabled("Garden") end
 local function root(p)
@@ -68,6 +70,7 @@ end
 local function shopZone(p)
 	local zone=1;for _,z in Data.Get(p,"Progress.UnlockedZones") do zone=math.max(zone,z) end;return zone
 end
+Garden.ShopZone=shopZone
 function Garden.Buy(p,id)
 	if not enabled(p) or not Seeds.ById[id] or not near(p,shopPart(),Config.ShopRange) then return false,"ซื้อเมล็ดที่ร้านในหมู่บ้าน" end
 	local stock,epoch=Garden.Shop(os.time());local data=Data.Get(p,"Garden")
@@ -96,6 +99,11 @@ function Garden.Advance(p,now,online)
 			plot.weatherSeen=state.eventKey
 			if rng:NextNumber()<weather.chance then Math.Apply(plot.mutations,weather.mutation) end
 		end
+		local ambient=Config.Ambient[plot.zone]
+		if online and ambient and plot.mature and plot.nextFruitAt<=now and plot.ambientSeen~=plot.nextFruitAt then
+			plot.ambientSeen=plot.nextFruitAt
+			if rng:NextNumber()<ambient.chance then Math.Apply(plot.mutations,ambient.mutation) end
+		end
 	end
 end
 function Garden.Water(p,index)
@@ -120,10 +128,11 @@ function Garden.Harvest(p,index)
 end
 function Garden.Sell(p)
 	if not enabled(p) or not near(p,shopPart(),Config.ShopRange) then return false,"ขายผลที่ร้านเมล็ดในหมู่บ้าน" end
-	local fruits=Data.Get(p,"Inventory.Fruits");local total=0
-	for _,f in fruits do total+=Math.Value(f)*f.count end
+	local fruits=Data.Get(p,"Inventory.Fruits");local data=Data.Get(p,"Garden");local day=os.time()//86400
+	if data.sellDay~=day then data.sellDay=day;data.sold={} end
+	local total,sold=Math.SellQuote(fruits,data.sold)
 	if total<=0 then return false,"ยังไม่มีผลให้ขาย" end
-	Data.Set(p,"Inventory.Fruits",{});Data.AddCurrency(p,"Coins",total);return true,"ขายผลแล้ว +"..total.." Coins"
+	data.sold=sold;Data.Set(p,"Garden",data);Data.Set(p,"Inventory.Fruits",{});Data.AddCurrency(p,"Coins",total);return true,"ขายผลแล้ว +"..total.." Coins"
 end
 function Garden.Cut(p,index)
 	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"อยู่ใกล้สวนตัวเองก่อน" end
@@ -183,7 +192,8 @@ function Garden.Send(p)
 	for id,n in stock do available[id]=math.max(0,n-(data.shopEpoch==epoch and (data.bought[id] or 0) or 0)) end
 	local plots={};for k,v in data.plots do plots[k]=table.clone(v);plots[k].mutations=table.clone(v.mutations) end
 	local visibleSlots=data.slots;for k in plots do visibleSlots=math.max(visibleSlots,tonumber(k) or 0) end
-	Net.Event("GardenState"):FireClient(p,{base=owners[p],slots=visibleSlots,unlockedSlots=data.slots,plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
+	local sold=data.sellDay==os.time()//86400 and data.sold or {}
+	Net.Event("GardenState"):FireClient(p,{merchant=merchant and merchant.State(p),sold=sold,base=owners[p],slots=visibleSlots,unlockedSlots=data.slots,plots=plots,seeds=Data.Get(p,"Inventory.Seeds"),fruits=Data.Get(p,"Inventory.Fruits"),stock=available,shopZone=shopZone(p),restockAt=restock,now=os.time(),upgrade=Math.UpgradeCost(data.slots)})
 end
 
 function Garden.MatureAll(p)
@@ -251,7 +261,8 @@ function Garden.Init()
 		elseif action=="Harvest" and type(arg)=="number" then ok,msg=Garden.Harvest(p,arg)
 		elseif action=="Cut" and type(arg)=="number" then ok,msg=Garden.Cut(p,arg)
 		elseif action=="Sell" then ok,msg=Garden.Sell(p)
-		elseif action=="Upgrade" then ok,msg=Garden.Upgrade(p) end
+		elseif action=="Upgrade" then ok,msg=Garden.Upgrade(p)
+		elseif action=="MerchantBuy" and type(arg)=="string" and merchant then ok,msg=merchant.Buy(p,arg) end
 		Garden.Send(p);return ok,msg
 	end
 end

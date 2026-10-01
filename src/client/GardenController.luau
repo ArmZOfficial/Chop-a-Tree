@@ -2,7 +2,7 @@ local Players=game:GetService("Players")
 local Collection=game:GetService("CollectionService")
 local S=game.ReplicatedStorage.Shared
 local Net=require(S.Net);local UI=require(S.UIKit);local NF=require(S.NumberFormat)
-local Seeds=require(S.Config.Seeds);local Math=require(S.GardenMath)
+local Seeds=require(S.Config.Seeds);local Math=require(S.GardenMath);local GardenConfig=require(S.Config.Garden)
 local Garden={}
 function Garden.Start()
 	local player=Players.LocalPlayer
@@ -34,7 +34,7 @@ function Garden.Start()
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") then v:Destroy() end end
 		if seedUid and not state.seeds[seedUid] then seedUid=nil end
 		local seed=seedUid and state.seeds[seedUid];local chosen=seed and Seeds.ById[seed.id].name or "ยังไม่เลือก (แท็บเมล็ด)"
-		local count,value=0,0;for _,f in state.fruits do count+=f.count;value+=Math.Value(f)*f.count end
+		local count=0;for _,f in state.fruits do count+=f.count end;local value=Math.SellQuote(state.fruits,state.sold)
 		detail.Text="ช่อง "..slot.." • เมล็ด: "..chosen.."\nผล "..count.." ลูก • ขายรวม "..NF.Short(value).." Coins • เพิ่มช่อง "..NF.Short(state.upgrade).." Wood"
 		if tab=="Garden" then
 			if not state.base then row("NoBase","ฐานเต็ม — สวนจะพร้อมเมื่อมีฐานว่าง",UI.Colors.Slate,function() end) end
@@ -51,14 +51,23 @@ function Garden.Start()
 			for _,uid in keys do local key=uid;local seed=state.seeds[uid];local def=Seeds.ById[seed.id]
 				row("Seed_"..uid,def.name.." ×"..seed.count.." • "..def.rarity.." • Zone "..seed.zone.."\nโต "..math.floor(def.grow/60).." นาที • เก็บซ้ำได้",seedUid==uid and UI.Colors.Teal or UI.Colors.Green,function() seedUid=key;tab="Garden";cutPending=nil;render() end)
 			end
+		elseif tab=="Merchant" then
+			local m=state.merchant
+			if not m then row("NoMerchant","พ่อค้าเร่กระรอกยังไม่มา — มาทุกชั่วโมง (นาทีที่ 30 UTC) อยู่ 10 นาที",UI.Colors.Slate,function() end) else
+				for _,o in m.offers do local id=o.id
+					row("Merchant_"..id,o.name.." • "..NF.Short(o.price).." "..o.currency.." • เหลือ "..o.left.."\nพ่อค้าไปอีก "..math.max(0,m.endsAt-state.now).." วิ",o.left>0 and UI.Colors.Purple or UI.Colors.Disabled,function() request("MerchantBuy",id) end)
+				end
+			end
 		else
+			local caps={};for id,n in GardenConfig.SellCaps do table.insert(caps,id.." "..math.max(0,n-(state.sold[id] or 0)).."/"..n) end;table.sort(caps)
+			row("SellCaps","ขายราคาเต็มวันนี้ (UTC): "..table.concat(caps," • ").."\nเกินเพดานได้ ×"..GardenConfig.OverCapMult,UI.Colors.Slate,function() end)
 			for _,def in Seeds.List do local id=def.id
 				row("Buy_"..id,def.name.." • "..NF.Short(Math.SeedPrice(id,state.shopZone)).." Coins • เหลือ "..state.stock[id].."\n"..def.rarity.." • รีสต็อกอีก "..math.max(0,state.restockAt-state.now).." วิ",state.stock[id]>0 and UI.Colors.Orange or UI.Colors.Disabled,function() request("Buy",id) end)
 			end
 		end
 	end
-	for i,name in {"Garden","Seeds","Shop"} do local target=name
-		button("Tab"..name,({Garden="สวน",Seeds="เมล็ด",Shop="ร้าน / ขายผล"})[name],UI.Colors.Teal,panel,UDim2.new((i-1)/3,0,0,64),UDim2.new(1/3,-8,0,42),function() tab=target;cutPending=nil;render() end)
+	for i,name in {"Garden","Seeds","Shop","Merchant"} do local target=name
+		button("Tab"..name,({Garden="สวน",Seeds="เมล็ด",Shop="ร้าน / ขายผล",Merchant="พ่อค้าเร่"})[name],UI.Colors.Teal,panel,UDim2.new((i-1)/4,0,0,64),UDim2.new(1/4,-8,0,42),function() tab=target;cutPending=nil;render() end)
 	end
 	local actions={{"Plant","ปลูก",UI.Colors.Green,function() if seedUid then request("Plant",{slot=slot,seed=seedUid}) else tab="Seeds";render();message.Text="เลือกเมล็ดที่จะปลูกก่อน" end end},
 		{"Water","รดน้ำ",UI.Colors.Blue,function() request("Water",slot) end},

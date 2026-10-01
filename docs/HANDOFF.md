@@ -1,9 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d2 Stardust/ไข่พิเศษ/บอสโลกทดสอบแล้ว; ถัดไป Phase 8d3
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 14) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d3 พ่อค้าเร่/ambient mutation/เพดานขายผลทดสอบแล้ว; ถัดไปส่วน Phase 8 ที่เหลือ
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 15) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **อ่าน plan/skill/handoff แล้วทำต่อ** → ทำ **Phase 8d3** แล้ว: ambient zone mutation (สวนจากเมล็ดโซน 3/5/6 สุ่ม Misty/Wet/Chilled 5% ต่อรอบผล ออนไลน์เท่านั้น), พ่อค้าเร่กระรอก (UTC ทุกชั่วโมง นาที 30–40, ของ 4 ชิ้น deterministic, limit ต่อ visit, NPC placeholder ข้างร้านเมล็ด, แท็บ "พ่อค้าเร่" ใน Garden panel, admin `merchant.summon/dismiss`) และเพดานขายผลต่อวัน UTC (Cosmic 5/Celestial 10/Rainbow 10/Aurora 15/Electrified 15 ราคาเต็ม เกิน ×0.1). Schema v1 เติม Garden.sellDay/sold + Merchant.bought; Feature Merchant เปิด.
+2. ผ่าน **30/30** (`phase8_merchant_test_results.json`), regression Phase4 **55/55**. GUI จริง: summon ผ่าน client AdminRun, กด E เปิดร้าน, ซื้อ Sunburst 2 ใบแล้วใบที่ 3 ถูกปฏิเสธ, ขาย Cosmic 7 ลูก +78,520 และโควตา 5/5→0/5; harness คืน profile ไม่ต่าง. Source 11/11 ตรง Studio Edit, startup smoke ไม่มี error, ไม่มี test Script ค้าง; ไม่ได้ Publish; ไม่แตะสูตร Balance. อ่าน `docs/phase8_merchant_validation.md`.
+3. ข้อควรระวัง: รอบนี้เผลอ require MerchantService จาก MCP แล้ว error (cache แยก) — ไม่กระทบข้อมูล แต่ให้ใช้ Script ใน VM เท่านั้น. ไม่ได้รัน regression ชุดอื่นนอกจาก Phase4 เพราะไม่แตะโค้ดส่วนนั้น.
+4. ถัดไป: งาน Phase 8 ที่เหลือ — อีเวนต์เทศกาล (Config.Events), ร้านเติมเงิน + Season Pass, Emote/Photo. ยังห้ามประกาศจบ Phase 8; หลายบัญชี/มือถือ/gamepad/reconnect และราคา/อัตรา Phase 10 ยังค้าง.
+
+### บันทึก Phase 8d2 (ประวัติ)
 
 1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8d2 encounters core** แล้ว: Meteor Stardust โซน 1 ทุก 20 วิ (+5, TTL 90 วิ, cap 12), ใช้ server Run/access/distance/eventKey และเก็บธนาคารทันที; แลก 20 = Rare LEVEL 1 IL 1 ที่แท่นหีบ. Fog rare/Bloodmoon Secret-only spot ใช้ Nest carry/guardian/End Run เดิม. Aurora Egg 100K Coins ที่สายพานซื้อได้ครั้งเดียวต่อ event key; schema v1 เพิ่ม Pets.weatherBought/Stats.WorldBossKills โดยคงเซฟและ Rebirth. Catalog pets = 43 (เพิ่ม Blood Raven).
 2. RotInvasion ทุก UTC 2 ชม. นาน 10 นาที (weight=0, rare forecast ???) ใช้ลานบอสโซน 1 ชั่วคราว, HP ×8 จาก Balance.BossHP(1,R). แบ่ง pool 1,000 Gems/100 Stardust ตาม normalized damage ≥0.1%/ปัดลง; จ่ายครั้งเดียว เฉพาะ loaded player ที่ยังอยู่ Run เดิม. แยก Stats.WorldBossKills และไม่เพิ่ม Progress.Bosses/ศาลเจ้า/เควส guardian; ปิด flag/อากาศจบคืนบอสปกติ, event key เดิมไม่เกิดซ้ำ.
@@ -91,7 +98,7 @@
 
 | Phase | สถานะ |
 |---|---|
-| วางแผน (plan.md ร่างที่ 14) | ✅ plan/SKILL/handoff ตรง Phase 8d2 และงานถัดไป 8d3 |
+| วางแผน (plan.md ร่างที่ 15) | ✅ plan/SKILL/handoff ตรง Phase 8d3 และงาน Phase 8 ที่เหลือ |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
@@ -100,7 +107,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 แม่แบบใช้ได้แล้ว, NPC/บทพูดเฉพาะ/คัตซีนยังค้าง |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59 + GUI; ถัดไป 8d3 และระบบ Phase 8 ที่เหลือ |
+| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59; merchant/ambient/sell cap 30/30 + GUI; ถัดไปเทศกาล/ร้าน/Season Pass/Emote |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -206,7 +213,7 @@
 
 ## 10. Phase ถัดไป
 
-**ถัดจาก Phase 8d2 core คือ Phase 8d3 ambient zone mutations/พ่อค้าเร่/เพดานขายผลหายากต่อวัน**. อ่าน `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+**Phase 8d3 core ทำแล้ว; ถัดไปคืออีเวนต์เทศกาล/ร้านเติมเงิน + Season Pass/Emote-Photo**. อ่าน `phase8_merchant_validation.md`, `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
 
 1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
 2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย). Index buffs/Achievements ทำแล้วใน Phase 8c.
