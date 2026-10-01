@@ -28,4 +28,5 @@ local passByKey,passById,productByKey,productById={},{},{},{}
 for _,v in passes do passByKey[v.key]=v;passById[v.id]=v end
 for _,v in products do productByKey[v.key]=v;productById[v.id]=v end
 return table.freeze({Passes=passes,Products=products,PassByKey=passByKey,PassById=passById,ProductByKey=productByKey,ProductById=productById,
-	ServerLuckSeconds=900,ReceiptKeepSeconds=90*86400})
+	-- Season Pass Premium (plan 17.4): kept out of Products so the shop cannot sell it before season entitlement exists.
+	SeasonPremiumId=3715870274,ServerLuckSeconds=900,ReceiptKeepSeconds=90*86400})

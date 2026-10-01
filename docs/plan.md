@@ -799,7 +799,7 @@ StarterGui
 
 ### 17.4 Season Pass (รายเดือน)
 
-**ภาพ/listing พร้อมแล้ว 2026-10-02:** `assets/monetization/season-premium/` มีไอคอนวงกลม PREMIUM PNG 512×512 alpha, `product.json`/README คำอธิบายไทย-อังกฤษสั้น, ราคาฐาน 499 Robux และ prompt. สิทธิ์เฉพาะซีซันที่ซื้อ ต้องเล่นเก็บเลเวลเพื่อ claim; ไม่ปลดทุกเลเวลทันที. Product ID ยัง null และไม่ได้สร้างสินค้า/ต่อระบบ season entitlement/receipt/ตั้งขาย/Publish. ก่อนเปิดขายผูก receipt กับ season ID ที่ประกาศขายและป้องกันซื้อ Premium ซีซันเดิมซ้ำ.
+**ภาพ/listing พร้อมแล้ว 2026-10-02:** `assets/monetization/season-premium/` มีไอคอนวงกลม PREMIUM PNG 512×512 alpha, `product.json`/README คำอธิบายไทย-อังกฤษสั้น, ราคาฐาน 499 Robux และ prompt. สิทธิ์เฉพาะซีซันที่ซื้อ ต้องเล่นเก็บเลเวลเพื่อ claim; ไม่ปลดทุกเลเวลทันที. Product ID 3715870274 (สร้างแล้ว ตรวจ GetProductInfo 499 Robux) แต่ยังไม่ได้ต่อระบบ season entitlement/receipt/ตั้งขาย/Publish. ก่อนเปิดขายผูก receipt กับ season ID ที่ประกาศขายและป้องกันซื้อ Premium ซีซันเดิมซ้ำ.
 
 1. **สายฟรี**: ได้รางวัลทุกเลเวล (Gems, ยาบูสต์, ไข่, หีบ, อาวุธ, ท่าทาง)
 2. **สาย Premium** (ประมาณ 499 R$): รางวัลเพิ่มอีกแถว เน้น **คอสเมติก Exclusive** (สกินอาวุธ, ออร่า, ชุดตกแต่งฐาน, สัตว์หน้าตาพิเศษที่ค่าพลังเท่าตัวปกติ) + ยาบูสต์/Gems
