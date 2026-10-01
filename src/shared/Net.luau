@@ -36,6 +36,7 @@ local FUNCTIONS = {
 	"DailyAction",
 	"CodeAction",
 	"LeaderboardRequest",
+	"AchievementAction",
 }
 
 local Net = {}

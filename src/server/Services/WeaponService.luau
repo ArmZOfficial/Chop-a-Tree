@@ -10,6 +10,7 @@ local Visual=require(Shared.WeaponVisual)
 local ForestConfig=require(Shared.Config.Forest)
 local Data=require(script.Parent.DataService)
 local Features=require(script.Parent.FeatureService)
+local CollectionMath=require(Shared.CollectionMath)
 local Weapon={}
 local rng=Random.new()
 local lastRequest,freeTimers={},{}
@@ -75,7 +76,8 @@ function Weapon.Open(player,uid)
 	local index,chest
 	for i,s in chests do if s.uid==uid and s.count>0 then index,chest=i,s;break end end
 	if not chest then return false,"หีบนี้ไม่มีแล้ว" end
-	local item=Loot.Roll(chest,rng);local weaponUid=Http:GenerateGUID(false)
+	local luck=CollectionMath.Luck(Data.GetData(player),Features.IsEnabled("Rebirth"),Features.IsEnabled("IndexBonuses"))
+	local item=Loot.Roll(chest,rng,luck);local weaponUid=Http:GenerateGUID(false)
 	-- No yields: consume exactly one chest and create exactly one weapon.
 	chest.count-=1;if chest.count==0 then table.remove(chests,index) end
 	inventory[weaponUid]=item

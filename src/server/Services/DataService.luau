@@ -39,6 +39,7 @@ DataService.Template = {
 	},
 	Index = { weapons = {}, pets = {}, seeds = {}, mutations = {}, done = {} },
 	Rebirth = { skills = {} },
+	Achievements = { claimed = {}, equipped = "" },
 	Daily = { lastDay = -1, streak = 0, claimedDay = -1 },
 	Codes = { redeemed = {} },
 	Boosts = { Wood = 0, Coins = 0 },

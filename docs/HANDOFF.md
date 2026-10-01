@@ -1,9 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 8b Daily/Codes/Leaderboard core ทดสอบแล้ว; Phase 8 ส่วนอื่นยังค้าง
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 11) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 8c Index buffs/Achievements core ทดสอบแล้ว; Phase 8 ส่วนอื่นยังค้าง
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 12) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8c Index buffs/Achievements/ฉายา** แล้ว: อาวุธครบ Power +10%, สัตว์ครบ Coins +25%, เมล็ดครบ Wood +25%, Mutation ครบ Luck +25%. Wood/Coins รวมทักษะ Rebirth แบบบวก cap ×2 ถาวร, บัฟรวม cap ×4. เพิ่ม Luck 2 ขั้นใน Rebirth (2/4 Tokens), +12.5% ต่อขั้น รวม Index cap +25%; สูตร Epic+ แบบสัมพัทธ์/ Giant เดิม. อ่าน `docs/phase8_collections_validation.md` ก่อนต่อ Phase 8d อากาศครบทุกแบบ/Live Event ตาม plan 4.12/5.7.
+2. AchievementService ตรวจ Stats/Progress/Index, claim Gems ครั้งเดียวและเลือก/ถอด title ที่รับแล้ว. มี 9 achievements, server BillboardGui บนหัว, StoryHUD แท็บใหม่, Index แสดงโบนัส, Inventory odds ใช้ CollectionMath เดียวกับ server. Schema v1 เพิ่ม Achievements โดยไม่เปลี่ยน store. Quest.ScanIndex นับ catalog จริงและซ่อม completion marker เก่าที่ขาด; marker ที่ได้แล้วคงเมื่อเพิ่มของใหม่. Admin แท็บโซน & เนื้อเรื่อง unlockall/reset 2 คำสั่ง marksTarget; unlock ไม่จ่าย Gems. Feature IndexBonuses/Achievements เปิด.
+3. ผล **55/55**, regression หีบ/เนื้อเรื่อง/Rebirth/Daily-Codes-Leaderboard **36/51/41/45**; GUI เมาส์จริงรับ 20 Gems, ถอด/เลือกฉายาไม่จ่ายซ้ำ, ภาพ title บนหัว, Index เมล็ด 8/8 + Wood 25%, ซื้อ Luck rank1 และ preview Epic 5.6%. Remote Force ถูกปฏิเสธ, metadata admin มี 2 คำสั่ง. หลักฐาน `phase8_collections_{test_results,regression_results,gui_results,source_checksums}.json`; source 15/15 ตรง Edit. Zero-Luck เคยเปลี่ยน floating-point baseline แล้วแก้ให้ข้าม reweight; original regression ผ่านโดยไม่ลด assertion.
+4. คืน profile หลัง GUI Finish เทียบ Currencies/Inventory/Progress/Index/Achievements/Rebirth/Boosts/Codes/Garden/Quests ไม่ต่าง; flags/weather/anchor/ตำแหน่งคืนแล้ว. Studio กลับ Edit ไม่มี test Script ค้าง; startup smoke ใหม่ไม่มี error. balance_sim.py baseline และ diff --check ผ่าน. ห้าม overwrite ProfileStore; ยังไม่ได้ Publish. Plan/SKILL/handoff อัปเดตพร้อมกัน. ยังไม่ได้ reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad; บอสโลก/เทศกาล/ร้าน/Season Pass/Emote-Photo เป็นส่วนค้าง Phase 8 และ UI/balance ผู้เล่นจริงรอ Phase 10.
+
+### บันทึก Phase 8b (ประวัติ)
 
 1. ผู้ใช้สั่ง **ต่อเลย** หลัง Phase 8a → ทำ **Phase 8b Daily login/Codes/Leaderboard** แล้ว. Daily 7 วัน UTC, Codes stable ID/expiry server-owned, timed Wood/Coins boosts, Top 10 Server/Global และกระดานหมู่บ้าน 2 แผ่นพร้อม prompt. Main โหลด Reward/Daily/Code/LeaderboardService และ RewardsController; schema v1 เติม Daily/Codes/Boosts. อ่าน `docs/phase8_rewards_validation.md` ก่อนต่อ Phase 8c บัฟ Index/Achievements.
 2. ผล **45/45** + GUI เมาส์/คีย์บอร์ดจริง: Daily 20 Gems, RELEASE 100 Gems + Rare 1 ใบ, ทั้งคู่รับซ้ำไม่ได้; snapshot profile จริงได้ 120 Gems. Global API Studio `ready` และภาพกระดาน/เมนูแสดงอันดับจริง; Studio ใช้ store แยกจากเกมจริง. ผล regression/AutoCut และข้อจำกัดอ่าน validation; ห้ามอ้างว่าเป็นทดสอบ production หลายเซิร์ฟ.
@@ -78,7 +85,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth/ทักษะผ่าน 41/41; Daily/Codes/Leaderboard ผ่าน 45/45 + GUI/API Studio; ระบบอื่นยังค้าง |
+| **Phase 8** | 🟨 Rebirth 41/41; Daily/Codes/Leaderboard 45/45; Index buffs/Achievements 55/55 + GUI; อากาศ/Live Event และระบบอื่นยังค้าง |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)

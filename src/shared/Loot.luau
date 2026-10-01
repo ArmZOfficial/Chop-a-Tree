@@ -14,17 +14,24 @@ local function choose(weights,rng)
 	return #weights
 end
 
-function Loot.Odds(rarity,level)
+function Loot.Odds(rarity,level,luck)
 	local base=assert(Config.Weights[rarity],"Unknown chest rarity")
 	local boost=math.clamp(1+(level-1)/Config.LevelStep,1,Config.MaxLevelBoost)
 	local weights,total={},0
 	for i,v in base do weights[i]=v*boost^(i-1); total+=weights[i] end
 	for i,v in weights do weights[i]=v/total end
+	-- Increase the combined Epic+ probability, retaining ratios within each group.
+	local high=weights[3]+weights[4]+weights[5]
+	local bonus=math.clamp(luck or 0,0,.25)
+	if bonus>0 and high>0 and high<1 then
+		local nextHigh=math.min(1,high*(1+bonus))
+		for i,v in weights do weights[i]=i>=3 and v*nextHigh/high or v*(1-nextHigh)/(1-high) end
+	end
 	return weights,math.min(Config.MaxGiantChance,Rarities.GiantChance[rarity]*(1+Config.GiantLevelBonus*(level-1)))
 end
 
-function Loot.Roll(chest,rng)
-	local weights,giantChance=Loot.Odds(chest.rarity,chest.level)
+function Loot.Roll(chest,rng,luck)
+	local weights,giantChance=Loot.Odds(chest.rarity,chest.level,luck)
 	local rarity=Rarities.Order[choose(weights,rng)]
 	local pool=pools[rarity]
 	local weapon=pool[rng:NextInteger(1,#pool)]

@@ -8,8 +8,9 @@ local Net=require(S.Net);local UI=require(S.UIKit);local NF=require(S.NumberForm
 local Zones=require(S.Config.Zones);local Weapons=require(S.Config.Weapons);local Pets=require(S.Config.Pets);local Seeds=require(S.Config.Seeds)
 local Mutations=require(S.Config.Mutations)
 local Data=require(script.Parent.ClientData)
+local Progression=require(S.Config.Progression);local CollectionMath=require(S.CollectionMath)
 local Controller={}
-local TABS={{"Main","เควสหลัก"},{"Daily","รายวัน"},{"Weekly","รายสัปดาห์"},{"Index","Index"},{"Warp","วาร์ป"}}
+local TABS={{"Main","เควสหลัก"},{"Daily","รายวัน"},{"Weekly","รายสัปดาห์"},{"Index","Index"},{"Achievements","ความสำเร็จ"},{"Warp","วาร์ป"}}
 local CATS={{"weapons","อาวุธ"},{"pets","สัตว์เลี้ยง"},{"seeds","ต้นไม้/เมล็ด"},{"mutations","Mutation"}}
 
 local function tagged(tag,attr,value)
@@ -97,10 +98,10 @@ function Controller.Start()
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
 	local tab="Main";local busy=false;local render
-	local function call(action,arg)
+	local function call(action,arg,remote)
 		if busy then return end;busy=true
 		task.spawn(function()
-			local ok,success,msg=pcall(function() return Net.Function("StoryAction"):InvokeServer(action,arg) end)
+			local ok,success,msg=pcall(function() return Net.Function(remote or "StoryAction"):InvokeServer(action,arg) end)
 			message.Text=ok and (msg or "") or "ติดต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่"
 			message.TextColor3=ok and success and UI.Colors.Text or UI.Colors.Accent
 			if ok and success and action=="Warp" then panel.Visible=false end
@@ -136,8 +137,10 @@ function Controller.Start()
 		elseif tab=="Index" then
 			local idx=Data.Get("Index") or {}
 			for _,c in CATS do local cat=c[1];local n=quest.index[cat]
-				row("Cat_"..cat,c[2].." • "..n.have.."/"..n.total..(idx.done and idx.done[cat] and " • ครบแล้ว!" or "").."\nของใหม่ +1 Gem • ครบหมวด +50 Gems (ไม่นับของที่แอดมินเสก)",n.have>=n.total and UI.Colors.Green or UI.Colors.Teal,none)
+				local unlocked=idx.done and idx.done[cat];local effect=Progression.Index[cat].text
+				row("Cat_"..cat,c[2].." • "..n.have.."/"..n.total..(unlocked and " • โบนัสปลดแล้ว" or "").."\n"..effect..(game.ReplicatedStorage.FeatureFlags:GetAttribute("IndexBonuses")~=true and " (บัฟปิด)" or ""),unlocked and UI.Colors.Green or UI.Colors.Teal,none)
 			end
+			row("IndexRewards","ของใหม่ +1 Gem • ครบหมวด +50 Gems • ไม่นับของแอดมิน\nบัฟที่ปลดแล้วคงผ่าน Rebirth และการเพิ่มของสะสมใหม่",UI.Colors.Slate,none)
 			local function names(cat,listDefs,label)
 				local have,missing=0,{};for _,d in listDefs do if idx[cat] and idx[cat][d.id] then have+=1 else table.insert(missing,d.name) end end
 				row("Missing_"..cat,label.." ที่ยังไม่มี: "..(#missing==0 and "-" or table.concat(missing,", ")),UI.Colors.Slate,none)
@@ -148,6 +151,14 @@ function Controller.Start()
 			local rarity={};for _,w in Weapons.List do rarity[w.rarity]=rarity[w.rarity] or {0,0};rarity[w.rarity][2]+=1;if idx.weapons and idx.weapons[w.id] then rarity[w.rarity][1]+=1 end end
 			local parts={};for _,r in {"Common","Rare","Epic","Legendary","Mythic"} do if rarity[r] then table.insert(parts,r.." "..rarity[r][1].."/"..rarity[r][2]) end end
 			row("WeaponRarity","อาวุธตามความหายาก: "..table.concat(parts," • "),UI.Colors.Slate,none)
+		elseif tab=="Achievements" then
+			local d=Data.Get();local enabled=game.ReplicatedStorage.FeatureFlags:GetAttribute("Achievements")==true
+			row("TitleNone","ถอดฉายาที่แสดงบนหัว",UI.Colors.Slate,function() call("Equip","","AchievementAction") end)
+			for _,def in Progression.Achievements do local a=def;local claimed=d.Achievements.claimed[a.id];local have=CollectionMath.AchievementProgress(d,a)
+				local equipped=d.Achievements.equipped==a.id
+				local text=a.name.." • "..NF.Short(have).."/"..NF.Short(a.need).." • "..a.gems.." Gems\n"..a.title.." • "..(not enabled and "ระบบปิด" or (claimed and (equipped and "กำลังใช้ฉายา" or "กดเลือกฉายา") or (have>=a.need and "กดรับรางวัล + ฉายา" or "ยังทำไม่ครบ")))
+				row("Achievement_"..a.id,text,equipped and UI.Colors.Purple or (claimed or have>=a.need) and UI.Colors.Green or UI.Colors.Slate,function() if enabled then call(claimed and "Equip" or "Claim",a.id,"AchievementAction") end end)
+			end
 		else
 			local unlocked=Data.Get("Progress.UnlockedZones") or {1}
 			row("Warp0","หมู่บ้าน Rootfall\nจบ Run (ถ้ามี) แล้วกลับหมู่บ้าน",UI.Colors.Green,function() call("Warp",0) end)
@@ -170,6 +181,12 @@ function Controller.Start()
 	end
 	local toggle=UI.Button({text="เควส & Index",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})
 	toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(16,417);toggle.Parent=gui
+	local flags=game.ReplicatedStorage:WaitForChild("FeatureFlags")
+	local function feature()
+		toggle.Visible=flags:GetAttribute("Story")==true or flags:GetAttribute("Achievements")==true or flags:GetAttribute("IndexBonuses")==true
+		if not toggle.Visible then panel.Visible=false end
+	end
+	for _,flag in {"Story","Achievements","IndexBonuses"} do flags:GetAttributeChangedSignal(flag):Connect(feature) end;feature()
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	for _,name in {"InventoryHUD","GardenHUD","PetHUD"} do task.spawn(function()
 		local other=player.PlayerGui:WaitForChild(name,30);local p=other and other:WaitForChild("Panel",10)
@@ -177,7 +194,7 @@ function Controller.Start()
 	end) end
 
 	Net.Event("QuestState").OnClientEvent:Connect(function(packet)
-		quest=packet;tracker.Visible=packet.enabled;toggle.Visible=packet.enabled
+		quest=packet;tracker.Visible=packet.enabled;feature()
 		trackTitle.Text=packet.title
 		local cur=packet.current
 		trackStep.Text=cur and (cur.text..(cur.need>1 and " "..cur.have.."/"..cur.need or "")..(cur.blocked and " (Phase 7)" or "")) or "จบบทหลักแล้ว"
@@ -246,7 +263,7 @@ function Controller.Start()
 				elseif not lit and light then light:Destroy() end
 			end
 		end
-		if panel.Visible and (tab=="Warp" or tab=="Index") then render() end
+		if panel.Visible and (tab=="Warp" or tab=="Index" or tab=="Achievements") then render() end
 		task.wait(.25)
 	end end)
 	task.spawn(function() while not Data.IsReady() do task.wait(.1) end;pcall(function() Net.Function("StoryAction"):InvokeServer("Sync") end) end)

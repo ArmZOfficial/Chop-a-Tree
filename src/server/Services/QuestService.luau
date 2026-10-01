@@ -13,12 +13,12 @@ local Mutations=require(Shared.Config.Mutations)
 local Data=require(script.Parent.DataService)
 local Features=require(script.Parent.FeatureService)
 local Run=require(script.Parent.RunService)
+local CollectionMath=require(Shared.CollectionMath)
 local Quest={}
 local talked,lastPacket={},{}
 local dailyById={};for _,q in Story.Daily do dailyById[q.id]=q end
-local totals={weapons=#Weapons.List,pets=#Pets.List,seeds=#Seeds.List,mutations=0}
-local mutationIds={};for id in Mutations.Values do mutationIds[id]=true end;for id in Pets.Mutations do mutationIds[id]=true end
-for _ in mutationIds do totals.mutations+=1 end
+local totals=CollectionMath.Totals
+local mutationIds=CollectionMath.Catalog.mutations
 Quest.IndexTotals=totals
 
 local function notify(p,text) Net.Event("Notify"):FireClient(p,{text=text}) end
@@ -113,27 +113,22 @@ end
 -- Index records owned non-admin items; each new entry pays Gems once.
 function Quest.ScanIndex(p)
 	local idx=Data.Get(p,"Index");local gained=0
-	local function add(cat,id) if id and not idx[cat][id] then idx[cat][id]=true;gained+=1 end end
+	local function add(cat,id) if id and CollectionMath.Catalog[cat][id] and not idx[cat][id] then idx[cat][id]=true;gained+=1 end end
 	local inv=Data.Get(p,"Inventory")
 	for _,w in inv.Weapons do if not w.admin_spawned and Weapons.ById[w.id] then add("weapons",w.id) end end
 	for _,pet in inv.Pets do if not pet.admin_spawned and Pets.ById[pet.id] then add("pets",pet.id);if pet.mutation then add("mutations",pet.mutation) end end end
 	for _,s in inv.Seeds do if not s.admin_spawned and Seeds.ById[s.id] then add("seeds",s.id) end end
 	for _,plot in Data.Get(p,"Garden.plots") do if not plot.admin_spawned then add("seeds",plot.id);for m in plot.mutations or {} do if mutationIds[m] then add("mutations",m) end end end end
 	for _,f in inv.Fruits do if not f.admin_spawned then for m in f.mutations or {} do if mutationIds[m] then add("mutations",m) end end end end
-	if gained==0 then return 0 end
-	local gems=gained*Story.IndexGem
+	local gems=gained*Story.IndexGem;local completed=0;local counts=CollectionMath.Counts(Data.GetData(p))
 	for cat,total in totals do
-		local n=0;for _ in idx[cat] do n+=1 end
-		if n>=total and not idx.done[cat] then idx.done[cat]=true;gems+=Story.IndexCompleteGems;notify(p,"Index หมวด "..cat.." ครบ! +"..Story.IndexCompleteGems.." Gems") end
+		if counts[cat].have>=total and not idx.done[cat] then idx.done[cat]=true;completed+=1;gems+=Story.IndexCompleteGems;notify(p,"Index หมวด "..cat.." ครบ! +"..Story.IndexCompleteGems.." Gems") end
 	end
+	if gained==0 and completed==0 then return 0 end
 	Data.Set(p,"Index",idx);Data.AddCurrency(p,"Gems",gems)
 	return gained
 end
-function Quest.IndexCounts(p)
-	local idx=Data.Get(p,"Index");local out={}
-	for cat,total in totals do local n=0;for _ in idx[cat] do n+=1 end;out[cat]={have=n,total=total} end
-	return out
-end
+function Quest.IndexCounts(p) return CollectionMath.Counts(Data.GetData(p)) end
 
 function Quest.Send(p,force)
 	if not Data.IsLoaded(p) or not p.Parent then return end

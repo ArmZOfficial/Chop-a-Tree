@@ -1,6 +1,6 @@
 ---
 name: chop-a-tree-assets
-description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing, rebirth, daily rewards, codes, leaderboards); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
+description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams including rebirth, rewards, Index buffs and achievements; choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
 ---
 
 # Creator Store สำหรับ Chop a Tree
@@ -62,7 +62,15 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 3. Boosts เป็น UTC expiry ใน profile และคงผ่าน Rebirth/reconnect; ต่อเวลา ไม่คูณ magnitude ซ้ำ. ผ่าน Run.Award และรวม Wood/Coins cap ×4. EXP/Luck ต้องต่อ seam ของระบบนั้นก่อนเพิ่ม row แจกบูสต์.
 4. Leaderboard server-owned: อ่าน Stats/Progress/Pet.Income, ตัด Meta.AdminTouched, integer log encoding ใน LeaderboardMath และแสดง Global ≈. Score 0 เป็น tombstone ของ season; UpdateAsync ต้องรักษา 0 จาก stale writes. ไม่ล้าง provenance เพื่อให้คนกลับเข้าอันดับ. Client ขอ cache เท่านั้น; ห้ามให้ remote เปิดงาน DataStore refresh ตามการกด.
 5. Studio ใช้ ChopBoards_Studio_v1_ แยกเกมจริง. ทดสอบ tombstone/failed API ด้วย fake store ไม่เขียนคะแนนทดสอบหรือ tombstone บัญชีจริงใน production. เทสต์ profile ต้อง snapshot/restore และ GUIHarness Finish ก่อน Stop. AttributeChanged เป็น deferred; รอ handler ทำงานก่อนตรวจจอ/ปุ่มที่เปลี่ยนตาม flag.
-6. Phase 8b ผ่าน 45 checks + GUI และ Global API Studio; อ่าน validation สำหรับ regression/ข้อจำกัด. ถัดไป Phase 8c บัฟ Index/Achievements แล้วระบบ Phase 8 ที่เหลือ; PvP ranking รอ Phase 9, UI/ภาพและ balance รอบใหญ่รอ Phase 10.
+6. Phase 8b ผ่าน 45 checks + GUI และ Global API Studio; อ่าน validation สำหรับ regression/ข้อจำกัด. Phase 8c บัฟ Index/Achievements ทำแล้วตามแนวทางด้านล่าง; PvP ranking รอ Phase 9, UI/ภาพและ balance รอบใหญ่รอ Phase 10.
+
+## แนวทาง Index buffs, Achievements และ Phase 8d
+
+1. อ่าน `docs/phase8_collections_validation.md` ก่อนแก้ collection/Luck/title. QuestService เป็นเจ้าของ discovery และ completion marker; CollectionMath + Config.Progression เป็นสูตร/catalog ร่วม UI/server; AchievementService เป็นเจ้าของ Claim/Equip/RefreshTitle. สะสม ID จริงที่ไม่ใช่ admin_spawned เท่านั้น; คง marker ที่ปลดแล้วเมื่อขยาย catalog และเติม marker ที่หายของเซฟเก่าครบหมวดด้วยรางวัลครั้งเดียว.
+2. Run.Power/Award และ Weapon.Open เป็นจุดใช้บัฟ. Wood/Coins รวม Index กับ Rebirth แบบบวก cap ×2 ถาวร ก่อนบัฟรวม ×4; Power รวม pet/Index cap ×4. Luck เพิ่มโอกาส Epic+ แบบสัมพัทธ์ cap +25%, probability ≤100%, Giant เดิม. Luck=0 ต้องคง baseline แบบตรงตัว; UI หีบใช้สูตรเดียวกัน.
+3. Achievements.claimed/equipped อยู่ profile เดียวกับ Gems. ตรวจเกณฑ์ที่ server และบันทึก marker/เงินโดยไม่ yield; public remote รับ Sync/Claim/Equip เท่านั้น. ชื่อ title มาจาก Config, เลือกเฉพาะที่ claim แล้ว; RefreshTitle หลัง snapshot/CharacterAdded/flag change. Admin unlock/reset marksTarget; unlock ไม่จ่าย Gems.
+4. Phase 8c ผ่าน 55 checks และ GUI เมาส์จริง; regression 36/51/41/45. VM scenario/GUIHarness ต้อง snapshot/restore และ Finish ก่อน Stop. พัก Leaderboard ระหว่างจำลอง profile; แยกเควสหลักเมื่อวัด Gems จาก achievement. Sync source ทีละไฟล์แล้วตรวจ UTF-8/LF length/hash เพื่อจับ output truncation ก่อน Play.
+5. ต่อ Phase 8d อากาศครบทุกแบบ/Live Event ผ่าน WeatherSchedule/Garden/Pet seams เดิมตาม plan 4.12/5.7. บอสโลก/เทศกาล/ร้าน/Season Pass/Emote-Photo ยังแยกเป็นงานค้าง Phase 8; อย่าประกาศจบทั้ง Phase. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

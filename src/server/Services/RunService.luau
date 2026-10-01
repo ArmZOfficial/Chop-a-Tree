@@ -16,6 +16,7 @@ local Nest = require(script.Parent.NestService)
 local Loot = require(Shared.Loot)
 local RebirthMath = require(Shared.RebirthMath)
 local Reward = require(script.Parent.RewardService)
+local CollectionMath = require(Shared.CollectionMath)
 local Http = game:GetService("HttpService")
 local chestRng = Random.new()
 local Run = {}
@@ -50,7 +51,8 @@ function Run.Power(player)
 	if not d then return 0 end
 	local override=player:GetAttribute("AdminCutPower")
 	if type(override)=="number" then return override end
-	return Balance.CutPower(Weapon.Combat(player).power,d.Run.Active and d.Run.Level or 1,Pet.Mult(player,"Power"),d.Progress.Rebirth)
+	local powerBuff=math.min(4,Pet.Mult(player,"Power")*(1+CollectionMath.Bonus(d,"Power",Features.IsEnabled("IndexBonuses"))))
+	return Balance.CutPower(Weapon.Combat(player).power,d.Run.Active and d.Run.Level or 1,powerBuff,d.Progress.Rebirth)
 end
 
 function Run.Send(player,summary)
@@ -138,8 +140,9 @@ function Run.Award(player,zone,tier,autoCut,rewardMult)
 	local reward=Balance.TreeReward(zone,tier,d.Progress.Rebirth,autoCut,RebirthMath.AutoReward(d,skillsOn))
 	local boost=Features.IsEnabled("FriendBoost") and (boosts[player] or 1) or 1
 	local weather=Weather.Def()
-	local woodBoost=math.min(4,boost*weather.wood*Pet.Mult(player,"Wood")*RebirthMath.Mult(d,"Wood",skillsOn)*Reward.Mult(player,"Wood"))
-	local coinBoost=math.min(4,boost*RebirthMath.Mult(d,"Coins",skillsOn)*Reward.Mult(player,"Coins"));local scale=rewardMult or 1
+	local indexOn=Features.IsEnabled("IndexBonuses")
+	local woodBoost=math.min(4,boost*weather.wood*Pet.Mult(player,"Wood")*CollectionMath.Permanent(d,"Wood",skillsOn,indexOn)*Reward.Mult(player,"Wood"))
+	local coinBoost=math.min(4,boost*CollectionMath.Permanent(d,"Coins",skillsOn,indexOn)*Reward.Mult(player,"Coins"));local scale=rewardMult or 1
 	r.Wood+=reward.wood*woodBoost*scale; r.Coins+=reward.coins*coinBoost*scale; r.Exp+=reward.exp*boost*scale*weather.exp*Garden.ExpBuff()*Pet.Mult(player,"Exp"); r.Trees+=1; r.Zone=zone
 	Garden.TreeDrop(player,zone,tier,autoCut)
 	while r.Exp>=Balance.ExpToNext(r.Level,zone,Data.Get(player,"Progress.Rebirth")) do
