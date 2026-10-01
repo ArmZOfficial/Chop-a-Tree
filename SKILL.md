@@ -1,6 +1,6 @@
 ---
 name: chop-a-tree-assets
-description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing, rebirth); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
+description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; follow its gameplay-system seams (weapons, gardens, eggs, pets, stealing, rebirth, daily rewards, codes, leaderboards); choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
 ---
 
 # Creator Store สำหรับ Chop a Tree
@@ -47,13 +47,22 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 3. รักษา Trunk โปร่งใสเป็น PrimaryPart/collider และ Look เป็นภาพที่ไม่ชน; ตรวจซ่อน/เกิดใหม่ด้วย TreeService. `BossArena.GuardianOffset` เลื่อนบอส 26 studs ไปด้านที่ห่างจากแนวทางเดิน (โซน 8 ไปด้านข้าง Lumora); BossService ใช้ offset นี้. ตรวจเส้นทางทั้ง Edit และ Play เพราะบอสเกิดตอน Play และรากอาจขวางทางแม้ Edit ผ่าน.
 4. ZoneAmbience เป็น particle ฝั่ง client ตาม footprint เดียวกับ RunService.ZoneAt; ไม่แก้ Lighting หรือ mutation. รูปลักษณ์/เสียงเฉพาะโซนและอุปกรณ์จริงยังต้องตรวจใน Phase 10.
 
-## แนวทางต่อ Rebirth และ Phase 8b
+## แนวทาง Rebirth (Phase 8a)
 
 1. อ่าน `docs/phase8_rebirth_validation.md` ก่อนต่อ Phase 8. RebirthService เป็นเจ้าของธุรกรรมวัฏจักร/ซื้อทักษะ; สูตรและราคาอยู่ RebirthMath + Config.Rebirth. บอสต้องเป็นผลงานในวัฏจักรปัจจุบัน; รีเซ็ตเควสหลักผ่าน Quest.ResetStory โดยคง Stats/Index/รายวัน/สัปดาห์.
 2. ใช้ Prepare token ผูกผู้เล่น/R หมดอายุ 30 วิและใช้ครั้งเดียว; Confirm ตรวจเงื่อนไขซ้ำ. ซื้อทักษะส่ง expected rank ป้องกัน replay. Force ผ่าน AdminService เท่านั้น; ห้ามเพิ่ม yield ระหว่างเปลี่ยนเงิน/Token/ทักษะ/วัฏจักร.
 3. คง UID ของ inventory/crops เมื่อรีเซ็ตความจุ. Pet.Trim ย้ายสัตว์เกินความจุกลับกระเป๋า; GardenState แยก visible slots จาก unlockedSlots. ต้นปลูกเหนือความจุยังเก็บผลได้ แต่ server ห้ามปลูกใหม่จนซื้อช่องคืน.
 4. รวมบัฟ Wood friend/weather/pet/skill ไม่เกิน ×4 และ Coins friend/skill ไม่เกิน ×4; rewardMult ของบอสแยกจากเพดานบัฟ. AutoCut reward/ChestLevel ใช้ RunService เป็นจุดเดียว. ทักษะถาวรคงอยู่ทุกวัฏจักร; ราคาเป็นค่าตั้งต้นรอจูน Phase 10.
-5. เทสต์ผ่าน Script ใน VM เกมจริงและ snapshot/restore profile/flags/weather/anchor; GUIHarness ต้อง Finish ก่อน Stop. ตรวจ modal ZIndex ด้วยภาพและคลิกจริง. Phase 8a ผ่าน 41 checks; งานถัดไป Daily login/Codes/Leaderboard และส่วน Phase 8 ที่เหลือ ไม่ถือว่าจบทั้ง Phase 8.
+5. เทสต์ผ่าน Script ใน VM เกมจริงและ snapshot/restore profile/flags/weather/anchor; GUIHarness ต้อง Finish ก่อน Stop. ตรวจ modal ZIndex ด้วยภาพและคลิกจริง. Phase 8a ผ่าน 41 checks; Daily login/Codes/Leaderboard ทำแล้วใน Phase 8b ตามแนวทางด้านล่าง ยังไม่ถือว่าจบทั้ง Phase 8.
+
+## แนวทางต่อ Daily, Codes, Leaderboard และ Phase 8c
+
+1. อ่าน `docs/phase8_rewards_validation.md` ก่อนแก้รางวัล/อันดับ. DailyService เป็นเจ้าของวัน UTC/streak/claim, CodeService เป็นเจ้าของ normalize/expiry/stable redemption ID, RewardService เป็นจุดให้ Gems/หีบ/บูสต์; client ห้ามกำหนดเวลา/ราคา/รางวัล. เก็บ marker และรางวัลใน profile เดียว ไม่มี yield ระหว่างธุรกรรม.
+2. Daily นับวันล็อกอินแม้ไม่รับของ; รับได้เฉพาะวันปัจจุบัน ไม่ย้อนหลัง, ขาดวันเริ่มใหม่และหลังวันที่ 7 วนรางวัล. Codes อยู่ Server.Config.Codes; เพิ่มโค้ดด้วย stable ID ใหม่และ UTC expiry. ห้าม reuse ID เก่าเพื่อให้ผู้เล่นรับซ้ำโดยไม่ตั้งใจ.
+3. Boosts เป็น UTC expiry ใน profile และคงผ่าน Rebirth/reconnect; ต่อเวลา ไม่คูณ magnitude ซ้ำ. ผ่าน Run.Award และรวม Wood/Coins cap ×4. EXP/Luck ต้องต่อ seam ของระบบนั้นก่อนเพิ่ม row แจกบูสต์.
+4. Leaderboard server-owned: อ่าน Stats/Progress/Pet.Income, ตัด Meta.AdminTouched, integer log encoding ใน LeaderboardMath และแสดง Global ≈. Score 0 เป็น tombstone ของ season; UpdateAsync ต้องรักษา 0 จาก stale writes. ไม่ล้าง provenance เพื่อให้คนกลับเข้าอันดับ. Client ขอ cache เท่านั้น; ห้ามให้ remote เปิดงาน DataStore refresh ตามการกด.
+5. Studio ใช้ ChopBoards_Studio_v1_ แยกเกมจริง. ทดสอบ tombstone/failed API ด้วย fake store ไม่เขียนคะแนนทดสอบหรือ tombstone บัญชีจริงใน production. เทสต์ profile ต้อง snapshot/restore และ GUIHarness Finish ก่อน Stop. AttributeChanged เป็น deferred; รอ handler ทำงานก่อนตรวจจอ/ปุ่มที่เปลี่ยนตาม flag.
+6. Phase 8b ผ่าน 45 checks + GUI และ Global API Studio; อ่าน validation สำหรับ regression/ข้อจำกัด. ถัดไป Phase 8c บัฟ Index/Achievements แล้วระบบ Phase 8 ที่เหลือ; PvP ranking รอ Phase 9, UI/ภาพและ balance รอบใหญ่รอ Phase 10.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

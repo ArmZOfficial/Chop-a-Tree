@@ -1,9 +1,16 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 8a Rebirth/ต้นไม้ทักษะ core ทดสอบแล้ว; Phase 8 ส่วนอื่นยังค้าง
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 8b Daily/Codes/Leaderboard core ทดสอบแล้ว; Phase 8 ส่วนอื่นยังค้าง
 > **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 11) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ต่อเลย** หลัง Phase 8a → ทำ **Phase 8b Daily login/Codes/Leaderboard** แล้ว. Daily 7 วัน UTC, Codes stable ID/expiry server-owned, timed Wood/Coins boosts, Top 10 Server/Global และกระดานหมู่บ้าน 2 แผ่นพร้อม prompt. Main โหลด Reward/Daily/Code/LeaderboardService และ RewardsController; schema v1 เติม Daily/Codes/Boosts. อ่าน `docs/phase8_rewards_validation.md` ก่อนต่อ Phase 8c บัฟ Index/Achievements.
+2. ผล **45/45** + GUI เมาส์/คีย์บอร์ดจริง: Daily 20 Gems, RELEASE 100 Gems + Rare 1 ใบ, ทั้งคู่รับซ้ำไม่ได้; snapshot profile จริงได้ 120 Gems. Global API Studio `ready` และภาพกระดาน/เมนูแสดงอันดับจริง; Studio ใช้ store แยกจากเกมจริง. ผล regression/AutoCut และข้อจำกัดอ่าน validation; ห้ามอ้างว่าเป็นทดสอบ production หลายเซิร์ฟ.
+3. Admin rewards 5 คำสั่งครบ; คำสั่งเปลี่ยนของ marksTarget. Global integer log encoding รองรับ 1e300 มี ≈; tombstone 0 ตัดแอดมินและกัน stale write คืนอันดับ. Season config แยก store; Meta.AdminTouched เดิมยังถูกตัดอย่างระมัดระวัง. Codes RELEASE/FORESTBOOST หมดอายุ 2026-11-01 00:00 UTC; เพิ่ม code ใหม่ต้องใช้ stable ID ใหม่.
+4. ทุก scenario/GUIHarness คืน profile/flags/weather/anchor/ตำแหน่งหลังตรวจ; source 16 ไฟล์ตรง repo/Studio Edit และไม่มี test Script ค้าง. startup smoke ใหม่พบ RewardsHUD/RebirthHUD ครบ Output ไม่มี error; Studio กลับ Edit. Regression Rebirth/หีบ/Run = 41/36/23; Run เคย timeout AutoCut แล้ว probe/รอบใหม่ผ่านโดยไม่แก้เทสต์ สาเหตุยังไม่ยืนยัน. ห้าม overwrite ProfileStore. หลักฐาน `phase8_rewards_test_results.json`, `phase8_rewards_regression_results.json`, `phase8_rewards_source_checksums.json`. ยังไม่ได้ Publish. Plan, skill และ handoff อัปเดตพร้อมกัน.
+
+### บันทึก Phase 8a (ประวัติ)
 
 1. ผู้ใช้สั่ง **ทำต่อเลย** หลังปิด Phase 7 → ทำ **Phase 8a Rebirth + ทักษะถาวร 5 สาย** แล้ว. Server ตรวจบอส/Coins ของวัฏจักรปัจจุบัน, เตรียม token ยืนยัน 30 วิใช้ครั้งเดียว, ตรวจเงื่อนไขซ้ำและรีเซ็ตเงิน/โซน/เควสหลัก/อัปเกรดฐาน. คง inventory/Gems/Index/Stats/เควสรายวัน/สัปดาห์/crops/skills; สัตว์เกินความจุกลับกระเป๋า. อ่าน `docs/phase8_rebirth_validation.md` ก่อนต่อ Phase 8b Daily login/Codes/Leaderboard.
 2. AutoCut reward .55→.75, ช่องสัตว์สูงสุด 6, หีบใน Run +5 เลเวล, Wood/Coins skill สูงสุด ×2. Run.Award รวม Wood friend/weather/pet/skill cap ×4 และ Coins friend/skill cap ×4; reward บอสแยกจาก cap. ราคากับ Token เป็นค่าตั้งต้น Config.Rebirth รอจูน Phase 10. แท็บ admin Rebirth มี 5 คำสั่ง; Feature Rebirth=true.
@@ -71,7 +78,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth/ทักษะ core ผ่าน 41/41 + GUI; Daily/Codes/Leaderboard และระบบอื่นยังค้าง |
+| **Phase 8** | 🟨 Rebirth/ทักษะผ่าน 41/41; Daily/Codes/Leaderboard ผ่าน 45/45 + GUI/API Studio; ระบบอื่นยังค้าง |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -121,14 +128,14 @@
 3. ต้นไม้: **160 ต้น/โซนครบทั้ง 8 โซน** หลัง Phase 7; โซน 3–8 ใช้ต้นแบบ Creator Store ตาม `docs/phase7_validation.md`.
 4. ~~ทางขึ้นเขาเกลียว~~ → ยกเลิก ใช้ทวีปตัว S แทน
 
-### 6.2 ไฟล์และ Studio (snapshot Phase 1; ไฟล์แก้ล่าสุดใช้ phase8_rebirth_source_checksums.json)
+### 6.2 ไฟล์และ Studio (snapshot Phase 1; ไฟล์แก้ล่าสุดใช้ phase8_rewards_source_checksums.json)
 
 1. `src/shared/Config/Zones.luau` → `ReplicatedStorage.Shared.Config.Zones`: UTF-8 LF **4,100 bytes, hash=1795469735**.
 2. `tools/map/MapBuilder.luau` → `ServerStorage.MapTools.MapBuilder`: UTF-8 LF **45,794 bytes, hash=182475945**.
 3. `Workspace.Map.{Ground,Water,Hills,Roads,Village,Wilds.Zone1..8}`; 4,619 BaseParts. ไม่มี Mountain.
 4. `Layout()/RoadPoints()/BuildWorld()/BuildZone()` ใช้ผังใหม่; `BuildVillage()` เดิมยังใช้. MapBuilder require Zones ด้วย `:Clone()` กัน require cache เก่า.
 5. Lighting Future, Atmosphere Density 0.2/Offset 0.3/Haze 0.3, StreamingEnabled=true.
-6. Studio id ล่าสุด `c1163648-12f6-4336-9953-e3d19be9259a`; ชื่อหน้าต่างเป็น Place2 แต่ตรวจ PlaceId/GameId แล้วเป็นเกมถูกต้อง. **เรียก list_roblox_studios และตรวจ PlaceId ทุกครั้งก่อนเขียน** เพราะ id เปลี่ยนเมื่อเปิด Studio ใหม่.
+6. Studio id ล่าสุด `975c8f5c-175f-44d4-bfcb-44154dd33573`; ชื่อ Chop a Trees ตรวจ PlaceId `93479990217075` แล้ว. **เรียก list_roblox_studios และตรวจ PlaceId ทุกครั้งก่อนเขียน** เพราะ id เปลี่ยนเมื่อเปิด Studio ใหม่/เชื่อมใหม่.
 
 ### 6.3 บทเรียนจากแมพภูเขา (เอาไปใช้กับผังใหม่)
 1. **กำแพงล่องหนรอบโซนต้องเว้นช่องกว้างพอ**: ช่อง = ครึ่งความยาวกำแพง + 16 (ถนนกว้าง 26) ไม่งั้นบังทางเข้า
@@ -167,7 +174,7 @@
 3. `require` จาก `execute_luau` มี cache แยกจาก Script ในเกม. ใช้ `:Clone()` เมื่อตรวจโมดูล stateless ใน Edit; **ห้าม require DataService จาก MCP เพื่ออ่าน live profile**. ทดสอบ service ใน Play ด้วย Script ชั่วคราว แล้วอ่านผลจาก workspace attributes. Net reuse Remotes เดิมแล้ว.
 4. คลิกเมาส์ทดสอบ: ใช้ `instance_path` ดีกว่าพิกัด (พิกัดมี GUI inset ~58px), หน้าต่างแชท Roblox ทับมุมซ้ายบนและบล็อกคลิก
 5. รอบ Play ล่าสุด ProfileStore แจ้ง "Roblox API services available - data will be saved" (เปิด API services แล้ว)
-6. เครื่องมือ Studio: `mcp__remote-devices__Roblox_Studio__*` — studio_id ล่าสุด **`c1163648-12f6-4336-9953-e3d19be9259a`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
+6. เครื่องมือ Studio: `mcp__Roblox_Studio__*` — studio_id ล่าสุด **`975c8f5c-175f-44d4-bfcb-44154dd33573`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
 
 ## 9. สิ่งที่ ArmZ ต้องทำเอง (แจ้งไว้แล้ว)
 
@@ -177,7 +184,7 @@
 
 ## 10. Phase ถัดไป
 
-**ถัดจาก Phase 8a core คือ Phase 8b Daily login/Codes/Leaderboard**. อ่าน `phase8_rebirth_validation.md` และ SKILL.md สำหรับ seams ของวัฏจักร/ทักษะ. บัฟ Index/Achievements, อากาศครบ/บอสโลก/อีเวนต์/Live Event, Emote/Photo และร้าน/Season Pass ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+**ถัดจาก Phase 8b core คือ Phase 8c บัฟ Index/Achievements**. อ่าน `phase8_rewards_validation.md`, `phase8_rebirth_validation.md` และ SKILL.md สำหรับ seams ของรางวัล/อันดับ/วัฏจักร/ทักษะ. อากาศครบ/บอสโลก/อีเวนต์/Live Event, Emote/Photo และร้าน/Season Pass ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
 
 1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
 2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย), บัฟถาวร Index + Achievements (Phase 8).

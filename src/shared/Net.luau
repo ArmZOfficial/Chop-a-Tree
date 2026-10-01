@@ -21,6 +21,7 @@ local EVENTS = {
 	"QuestState",
 	"StoryShow",
 	"BossEvent",
+	"LeaderboardShow",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
@@ -32,6 +33,9 @@ local FUNCTIONS = {
 	"BaseAction",
 	"StoryAction",
 	"RebirthAction",
+	"DailyAction",
+	"CodeAction",
+	"LeaderboardRequest",
 }
 
 local Net = {}

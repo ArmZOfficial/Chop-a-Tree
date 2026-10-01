@@ -2,7 +2,7 @@
 
 > เกม Roblox ที่ผสม 3 แนว: **ฟันต้นไม้เก็บหีบ** (แรงบันดาลใจจาก Cut Trees) + **ปลูกสวน** (Grow a Garden) + **ขโมยไข่/เลี้ยงสัตว์** (Steal an Egg)
 > ทุกอย่าง (โมเดล ชื่อ ไอเทม UI) ออกแบบเองทั้งหมด ไม่ก๊อปจากเกมต้นฉบับ
-> สถานะ: **Phase 0–1 เสร็จ · Phase 2–7 core ทดสอบแล้ว · Phase 8a Rebirth/ทักษะ core ผ่าน 41/41** — ครบ 8 โซนและเริ่มวัฏจักรใหม่ได้; ถัดไป Phase 8b Daily login/Codes/Leaderboard และส่วน Phase 8 ที่เหลือ (ร่างที่ 11). บท 3–8 ยังเป็นแม่แบบ, NPC/คัตซีนเฉพาะบทยังค้าง · ผลตรวจ/ข้อจำกัดดู `docs/HANDOFF.md` และ `docs/phase8_rebirth_validation.md`
+> สถานะ: **Phase 0–1 เสร็จ · Phase 2–7 core ทดสอบแล้ว · Phase 8a Rebirth/ทักษะ ผ่าน 41/41 · Phase 8b Daily/Codes/Leaderboard ผ่าน 45/45** — ครบ 8 โซนและเริ่มวัฏจักรใหม่ได้; ถัดไป Phase 8c บัฟ Index/Achievements และส่วน Phase 8 ที่เหลือ (ร่างที่ 11). บท 3–8 ยังเป็นแม่แบบ, NPC/คัตซีนเฉพาะบทยังค้าง · ผลตรวจ/ข้อจำกัดดู `docs/HANDOFF.md`, `docs/phase8_rebirth_validation.md` และ `docs/phase8_rewards_validation.md`
 
 > การอัปเดตงาน: ปรับแผนนี้, `SKILL.md` และ `docs/HANDOFF.md` ให้สอดคล้องกันทุกครั้ง ตามกฎใน `SKILL.md` (ArmZ สั่งเมื่อ 2026-10-01).
 
@@ -363,6 +363,7 @@
 1. **Leaderboard** (ในหมู่บ้าน + Global): ต้นไม้ที่ฟันรวม, ดาเมจสูงสุดต่อครั้ง, Rebirth, รายได้ต่อวินาที, แรงก์ PvP
 2. **Daily Reward**: ล็อกอินติดกัน 7 วัน วันที่ 7 ได้หีบใหญ่ ขาดแล้วเริ่มใหม่
 3. **Codes**: ช่องกรอกโค้ดในเมนู ให้ Gems/หีบ/บัฟ ตั้งโค้ดเวลาอัปเดตหรือยอดไลก์ถึงเป้า
+4. **Phase 8b core ทำแล้ว 2026-10-01**: Daily นับวันล็อกอิน UTC, ไม่รับย้อนหลัง, วนรางวัลหลังวันที่ 7. Codes stable ID/expiry อยู่ server; RELEASE และ FORESTBOOST หมดอายุ 2026-11-01 00:00 UTC. Timed Wood/Coins ×2 ต่อเวลาและรวม cap ×4. Leaderboard Top 10 Server/Global สำหรับต้นไม้/ดาเมจ/Rebirth/รายได้คอก; Global log encoding เป็นค่าประมาณเพื่อรองรับ 1e300, refresh 120 วิ และ Studio แยก store. ตัดผู้เล่น AdminTouched พร้อม tombstone กัน stale write คืนอันดับ; PvP rank รอ Phase 9. ผ่าน 45/45 + GUI/API Studio; รายละเอียด regression/ราคา/ข้อจำกัดใน `phase8_rewards_validation.md`.
 
 ### 4.14 PvP — แมพแยก "Chop Arena"
 
@@ -452,7 +453,8 @@ StarterGui
 7. **Phase 7 — โซน 3–8 แบบเต็ม**
    - **สถานะ 2026-10-01:** core ครบ 8 โซน, 160 ต้น/โซน, ต้นแบบ Creator Store ที่ตัด script ออก 8 แบบสำหรับโซน 3–8, ไข่รวม 10 ชนิด/สัตว์ 42 ตัว, รัง 16 แห่ง/48 จุดไข่, บอส 8 ตัวและ ambience ฝั่ง client. Phase 7 ผ่าน 23/23; regression Phase 6/5 ผ่าน 51/81 (Phase 5 จากรอบก่อนแก้ตำแหน่งบอส). แก้รากและลำต้นบอสขวางทางเดินด้วย GuardianOffset; raycast ใน Play ผ่าน 2,048 จุด และเดินจริง 16/16 เส้นทางผ่าน. รายละเอียด/ความไม่สม่ำเสมอของเทสต์บอส/ข้อจำกัดใน `phase7_validation.md`. บท 3–8 ใช้แม่แบบเดิม; NPC อื่น/บทพูดเฉพาะบท/คัตซีนและบอสโจมตีกลับยังค้าง Phase 8–10. เก็บ MapAssets ใน place เพื่อสร้างภาพจากต้นแบบซ้ำ.
 8. **Phase 8 — Rebirth, Daily, Codes, Leaderboard, อากาศครบทุกแบบ + บอสโลก + อีเวนต์เทศกาล + Live Event แอดมิน, Emote/Photo, ร้านเติมเงิน + Season Pass**
-   - **สถานะ 2026-10-01 — Phase 8a core:** Rebirth + ทักษะถาวร 5 สายผ่าน 41/41 และ GUI เมาส์จริง. ครั้งแรกต้องบอสโซน 4 ของวัฏจักรปัจจุบัน; Coins = 1e9 × 100^(requiredZone−4) × 10^R, Token = R+1. รีเซ็ตเงิน/เงินค้างคอก/โซน/เควสหลัก/อัปเกรดฐาน; คง inventory/Gems/Index/Stats/รายวัน/สัปดาห์/crops/skills. สัตว์เกินความจุเข้ากระเป๋าและ crops เหนือช่องเริ่มต้นยังเก็บผลได้. AutoCut .55→.75, ช่องสัตว์สูงสุด 6, หีบ +5 เลเวล, Wood/Coins สูงสุด ×2; บัฟ Wood รวม cap ×4. มี admin 5 คำสั่งและ Feature Rebirth เปิด. รายละเอียดราคา/การยืนยัน/ผล regression/ข้อจำกัดใน `phase8_rebirth_validation.md`. ถัดไป Phase 8b Daily login/Codes/Leaderboard; ส่วนอื่นของ Phase 8 ยังไม่ทำ. Reconnect/multi-account/มือถือ/gamepad และ economy ผู้เล่นจริงรอตรวจ.
+   - **สถานะ 2026-10-01 — Phase 8b core:** Daily/Codes/Leaderboard ผ่าน 45/45 + GUI เมาส์/คีย์บอร์ดจริง และ Global API ใน Studio store แยก. ใช้รางวัล/หีบเดิม, เพิ่ม timed Wood/Coins boosts และ admin rewards 5 คำสั่ง; schema v1 เติมข้อมูลโดยไม่ล้างเซฟ. Rebirth regression ผ่าน 41/41, หีบ 36/36; ผล Run/AutoCut และข้อจำกัดตาม `phase8_rewards_validation.md`. Phase 8c ถัดไปบัฟ Index/Achievements; อากาศ/บอสโลก/อีเวนต์/ร้าน/Season Pass/Emote ยังค้าง.
+   - **สถานะ 2026-10-01 — Phase 8a core:** Rebirth + ทักษะถาวร 5 สายผ่าน 41/41 และ GUI เมาส์จริง. ครั้งแรกต้องบอสโซน 4 ของวัฏจักรปัจจุบัน; Coins = 1e9 × 100^(requiredZone−4) × 10^R, Token = R+1. รีเซ็ตเงิน/เงินค้างคอก/โซน/เควสหลัก/อัปเกรดฐาน; คง inventory/Gems/Index/Stats/รายวัน/สัปดาห์/crops/skills. สัตว์เกินความจุเข้ากระเป๋าและ crops เหนือช่องเริ่มต้นยังเก็บผลได้. AutoCut .55→.75, ช่องสัตว์สูงสุด 6, หีบ +5 เลเวล, Wood/Coins สูงสุด ×2; บัฟ Wood รวม cap ×4. มี admin 5 คำสั่งและ Feature Rebirth เปิด. รายละเอียดราคา/การยืนยัน/ผล regression/ข้อจำกัดใน `phase8_rebirth_validation.md`. Phase 8b Daily login/Codes/Leaderboard ทำแล้วตามสถานะด้านบน; ส่วน Phase 8 ที่เหลือยังค้าง. Reconnect/multi-account/มือถือ/gamepad และ economy ผู้เล่นจริงรอตรวจ.
 9. **Phase 9 — PvP Arena** (Place แยก)
 10. **Phase 10 — ขัดเกลา + ปรับปรุง UI + Balance รอบใหญ่**: ปรับภาพแมพ/โมเดล แสง เสียง VFX และแอนิเมชัน; **ปรับปรุง UI ทุกหน้า** (HUD, Run, Inventory, เปิดหีบ, สวน/เมล็ด, พยากรณ์อากาศ, ร้านค้า, เควส และ Admin Panel) ให้สี ฟอนต์ ไอคอน ปุ่ม และแอนิเมชันเป็นสไตล์ fantasy anime เดียวกัน จัดวางให้อ่านง่าย กดสะดวก และไม่บังการเล่นทั้งคอมพิวเตอร์และมือถือ; ทดสอบตัวเลขกับผู้เล่นจริง
 

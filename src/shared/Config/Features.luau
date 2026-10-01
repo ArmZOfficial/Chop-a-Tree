@@ -14,6 +14,9 @@ return table.freeze({
 	Stealing = true, -- Phase 5
 	Story = true, -- Phase 6
 	Rebirth = true, -- Phase 8a core
+	Daily = true, -- Phase 8b
+	Codes = true,
+	Leaderboard = true,
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9
 })

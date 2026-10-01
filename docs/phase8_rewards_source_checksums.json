@@ -1,0 +1,82 @@
+{
+  "StarterPlayer.StarterPlayerScripts.Client.Main": [
+    544,
+    2044863917,
+    "src/client/Main.client.luau"
+  ],
+  "ServerScriptService.Server.Main": [
+    2551,
+    3421730,
+    "src/server/Main.server.luau"
+  ],
+  "ServerScriptService.Server.Services.DataService": [
+    12120,
+    978217772,
+    "src/server/Services/DataService.luau"
+  ],
+  "ServerScriptService.Server.Services.RunService": [
+    10384,
+    2101894447,
+    "src/server/Services/RunService.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Features": [
+    767,
+    1334322525,
+    "src/shared/Config/Features.luau"
+  ],
+  "ReplicatedStorage.Shared.Net": [
+    2438,
+    143107202,
+    "src/shared/Net.luau"
+  ],
+  "StarterPlayer.StarterPlayerScripts.Client.RewardsController": [
+    8955,
+    1246675504,
+    "src/client/RewardsController.luau"
+  ],
+  "ServerScriptService.Server.AdminCommands.RewardsCommands": [
+    1826,
+    1762304348,
+    "src/server/AdminCommands/RewardsCommands.luau"
+  ],
+  "ServerScriptService.Server.Config.Codes": [
+    368,
+    224096024,
+    "src/server/Config/Codes.luau"
+  ],
+  "ServerScriptService.Server.Services.CodeService": [
+    1810,
+    474849751,
+    "src/server/Services/CodeService.luau"
+  ],
+  "ServerScriptService.Server.Services.DailyService": [
+    2174,
+    349480324,
+    "src/server/Services/DailyService.luau"
+  ],
+  "ServerScriptService.Server.Services.LeaderboardService": [
+    6767,
+    883476657,
+    "src/server/Services/LeaderboardService.luau"
+  ],
+  "ServerScriptService.Server.Services.RewardService": [
+    774,
+    1145212448,
+    "src/server/Services/RewardService.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Daily": [
+    465,
+    2117028354,
+    "src/shared/Config/Daily.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Leaderboards": [
+    318,
+    575222980,
+    "src/shared/Config/Leaderboards.luau"
+  ],
+  "ReplicatedStorage.Shared.LeaderboardMath": [
+    868,
+    414343536,
+    "src/shared/LeaderboardMath.luau"
+  ]
+}

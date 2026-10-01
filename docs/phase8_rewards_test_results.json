@@ -1,0 +1,185 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "Reconcile adds Daily Codes Boosts while preserving old data",
+      "passed": true
+    },
+    {
+      "name": "First visit starts day one without awarding anything",
+      "passed": true
+    },
+    {
+      "name": "Day one grants configured Gems once",
+      "passed": true
+    },
+    {
+      "name": "Repeated claim on the same UTC day pays nothing",
+      "passed": true
+    },
+    {
+      "name": "Consecutive visit advances at UTC midnight",
+      "passed": true
+    },
+    {
+      "name": "A visit without a claim still counts as a login",
+      "passed": true
+    },
+    {
+      "name": "Third day grants one Rare chest",
+      "passed": true
+    },
+    {
+      "name": "Rewards skip missed claims rather than paying them retroactively",
+      "passed": true
+    },
+    {
+      "name": "Fifth day grants a timed Wood boost",
+      "passed": true
+    },
+    {
+      "name": "Seventh day pays 100 Gems and an Epic chest",
+      "passed": true
+    },
+    {
+      "name": "After seven days the reward calendar cycles to day one",
+      "passed": true
+    },
+    {
+      "name": "Skipping a login day resets the streak",
+      "passed": true
+    },
+    {
+      "name": "A clock rollback cannot duplicate a previously claimed day",
+      "passed": true
+    },
+    {
+      "name": "Disabled Daily cannot grant a reward",
+      "passed": true
+    },
+    {
+      "name": "Codes normalize case and surrounding whitespace",
+      "passed": true
+    },
+    {
+      "name": "Non-string oversized empty and invalid codes are rejected",
+      "passed": true
+    },
+    {
+      "name": "Unknown codes cannot grant rewards",
+      "passed": true
+    },
+    {
+      "name": "RELEASE grants Gems and one Rare chest",
+      "passed": true
+    },
+    {
+      "name": "Codes persist redemption by stable ID",
+      "passed": true
+    },
+    {
+      "name": "Case variants cannot redeem the code twice",
+      "passed": true
+    },
+    {
+      "name": "Profile reload preserves redemption history",
+      "passed": true
+    },
+    {
+      "name": "Expiry boundary rejects the code",
+      "passed": true
+    },
+    {
+      "name": "One second before expiry remains valid",
+      "passed": true
+    },
+    {
+      "name": "FORESTBOOST grants fifteen minutes of Wood x2",
+      "passed": true
+    },
+    {
+      "name": "Boost is x2 before expiry and x1 at expiry",
+      "passed": true
+    },
+    {
+      "name": "Additional boost time extends duration without multiplying magnitude",
+      "passed": true
+    },
+    {
+      "name": "Disabled Codes cannot redeem",
+      "passed": true
+    },
+    {
+      "name": "Timed reward multipliers apply through actual Run awards",
+      "passed": true
+    },
+    {
+      "name": "Wood and Coins each double on server",
+      "passed": true
+    },
+    {
+      "name": "Skill plus timed boosts obey aggregate x4 caps",
+      "passed": true
+    },
+    {
+      "name": "Rebirth preserves Daily Codes and boost expiry",
+      "passed": true
+    },
+    {
+      "name": "Leaderboard zero is a valid score distinct from exclusion tombstone",
+      "passed": true
+    },
+    {
+      "name": "Leaderboard encoding is ordered across fractional and huge values",
+      "passed": true
+    },
+    {
+      "name": "Leaderboard huge values remain integer and finite",
+      "passed": true
+    },
+    {
+      "name": "Leaderboard quantization retains displayed large-number precision",
+      "passed": true
+    },
+    {
+      "name": "Server ranking excludes admins and breaks ties by user ID",
+      "passed": true
+    },
+    {
+      "name": "Server ranking honors its top limit",
+      "passed": true
+    },
+    {
+      "name": "Global publication writes all four integer scores",
+      "passed": true
+    },
+    {
+      "name": "Admin exclusion tombstones every global metric",
+      "passed": true
+    },
+    {
+      "name": "Stale eligible writes cannot revive an excluded entry",
+      "passed": true
+    },
+    {
+      "name": "Global API failures return failure without crashing rewards",
+      "passed": true
+    },
+    {
+      "name": "Village boards have live displays and menu prompts",
+      "passed": true
+    },
+    {
+      "name": "Feature off hides village displays and disables their prompts",
+      "passed": true
+    },
+    {
+      "name": "Leaderboard state reports feature off and Studio isolation",
+      "passed": true
+    },
+    {
+      "name": "Balance SelfTest still passes",
+      "passed": true
+    }
+  ]
+}
