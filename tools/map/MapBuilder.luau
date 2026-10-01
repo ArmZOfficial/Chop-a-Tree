@@ -285,23 +285,45 @@ function MapBuilder.BuildWorld()
 			end
 		end
 
-		-- ภูเขาขั้นบันได (low-poly) สีตามโซนของความสูงนั้น
+		-- ภูเขาขั้นบันได (low-poly) ไล่สีตามโซน: หน้าผา = ผสมสีพื้น+หน้าผาของโซน, ขอบขั้น = สีพื้นโซน
 		local mountain = fresh(root, "Mountain")
 		local top = Zones.List[#Zones.List].y - 12
+		local function zoneBlend(y)
+			local list = Zones.List
+			if y <= list[1].y then
+				return list[1], list[1], 0
+			end
+			for i = 1, #list - 1 do
+				local a, b = list[i], list[i + 1]
+				if y < b.y then
+					return a, b, (y - a.y) / (b.y - a.y)
+				end
+			end
+			return list[#list], list[#list], 0
+		end
+		local function capMaterial(z)
+			if z.id == 6 then
+				return Enum.Material.Snow
+			elseif z.id >= 7 then
+				return Enum.Material.Glacier
+			end
+			return Enum.Material.Grass
+		end
 		local y0 = 0
 		local idx = 0
 		while y0 < top do
 			idx += 1
 			local h = math.min(40, top - y0)
-			local band = Zones.List[1]
-			for _, z in Zones.List do
-				if y0 + h / 2 >= z.y - 60 then
-					band = z
-				end
-			end
-			local shade = (idx % 2 == 0) and 1 or 0.92
-			local c = band.colors.cliff
-			disk(mountain, Vector3.zero, mountainR(y0 + h / 2), h, y0 + h, Color3.new(c.R * shade, c.G * shade, c.B * shade), Enum.Material.Rock, "Tier" .. idx)
+			local a, b, t = zoneBlend(y0 + h / 2)
+			local cliffA = a.colors.ground:Lerp(a.colors.cliff, 0.5)
+			local cliffB = b.colors.ground:Lerp(b.colors.cliff, 0.5)
+			local c = cliffA:Lerp(cliffB, t)
+			local shade = (idx % 2 == 0) and 1 or 0.9
+			local R = mountainR(y0 + h / 2)
+			disk(mountain, Vector3.zero, R, h, y0 + h, Color3.new(c.R * shade, c.G * shade, c.B * shade), Enum.Material.Rock, "Tier" .. idx)
+			-- ขอบขั้นบันได (ส่วนที่โผล่พ้นขั้นถัดไป) สีพื้นของโซน
+			local capZone = t < 0.5 and a or b
+			disk(mountain, Vector3.zero, R + 0.3, 1.2, y0 + h + 0.1, a.colors.ground:Lerp(b.colors.ground, t), capMaterial(capZone), "Cap" .. idx)
 			y0 += h
 		end
 
@@ -884,10 +906,10 @@ function MapBuilder.BuildZone(index)
 		end
 
 		if zone.built then
-			-- ต้นไม้ ~120 ต้น ระดับสูงขึ้นตามระยะจากทางเข้า
-			local target = 120
+			-- ต้นไม้ ~160 ต้น (ArmZ เลือกให้แน่นขึ้น) ระดับสูงขึ้นตามระยะจากทางเข้า
+			local target = 160
 			local tries = 0
-			while #trees < target and tries < 6000 do
+			while #trees < target and tries < 9000 do
 				tries += 1
 				local r = math.sqrt(rng:NextNumber()) * (Z.radius - 14)
 				local a = rng:NextNumber(0, math.pi * 2)
