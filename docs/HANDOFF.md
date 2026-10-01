@@ -219,7 +219,7 @@
 3. `require` จาก `execute_luau` มี cache แยกจาก Script ในเกม. ใช้ `:Clone()` เมื่อตรวจโมดูล stateless ใน Edit; **ห้าม require DataService จาก MCP เพื่ออ่าน live profile**. ทดสอบ service ใน Play ด้วย Script ชั่วคราว แล้วอ่านผลจาก workspace attributes. Net reuse Remotes เดิมแล้ว.
 4. คลิกเมาส์ทดสอบ: ใช้ `instance_path` ดีกว่าพิกัด (พิกัดมี GUI inset ~58px), หน้าต่างแชท Roblox ทับมุมซ้ายบนและบล็อกคลิก
 5. รอบ Play ล่าสุด ProfileStore แจ้ง "Roblox API services available - data will be saved" (เปิด API services แล้ว)
-6. เครื่องมือ Studio: `mcp__Roblox_Studio__*` — studio_id ล่าสุด **`975c8f5c-175f-44d4-bfcb-44154dd33573`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
+6. เครื่องมือ Studio: `mcp__Roblox_Studio__*` — studio_id ล่าสุด **`3dbff2d2-8220-476a-b8fd-c627a63ce47b`** (เปลี่ยนได้ ให้เรียก list_roblox_studios ก่อน)
 
 ## 9. สิ่งที่ ArmZ ต้องทำเอง (แจ้งไว้แล้ว)
 
