@@ -1,0 +1,42 @@
+{
+  "StarterPlayer.StarterPlayerScripts.Client.Main": [
+    502,
+    1011867654,
+    "src/client/Main.client.luau"
+  ],
+  "StarterPlayer.StarterPlayerScripts.Client.ZoneAmbience": [
+    3469,
+    394158315,
+    "src/client/ZoneAmbience.luau"
+  ],
+  "ServerScriptService.Server.Services.BossService": [
+    7747,
+    342712096,
+    "src/server/Services/BossService.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Eggs": [
+    3150,
+    1712674899,
+    "src/shared/Config/Eggs.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Pets": [
+    9883,
+    1380967477,
+    "src/shared/Config/Pets.luau"
+  ],
+  "ReplicatedStorage.Shared.Config.Zones": [
+    4094,
+    790722711,
+    "src/shared/Config/Zones.luau"
+  ],
+  "ServerStorage.MapTools.MapBuilder": [
+    48291,
+    889033007,
+    "tools/map/MapBuilder.luau"
+  ],
+  "ServerStorage.MapTools.AssetPrototypes": [
+    4442,
+    406117262,
+    "tools/map/AssetPrototypes.luau"
+  ]
+}

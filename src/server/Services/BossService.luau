@@ -27,6 +27,8 @@ local function notify(p,text) Net.Event("Notify"):FireClient(p,{text=text}) end
 
 local function build(arena,zone)
 	local def=Zones.List[zone];local floor=arena:GetPivot().Position+Vector3.new(0,.5,0)
+	-- MapBuilder places guardians beside the through trail (and beside Lumora).
+	floor+=arena:GetAttribute("GuardianOffset") or (zone==#Zones.List and Vector3.new(26,0,0) or Vector3.zero)
 	local m=Instance.new("Model");m.Name="Guardian_"..def.key
 	local function part(name,size,cf,color,shape,material)
 		local x=Instance.new("Part");x.Name=name;x.Size=size;x.CFrame=cf;x.Color=color;x.Anchored=true;x.Material=material or Enum.Material.Wood

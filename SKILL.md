@@ -40,6 +40,13 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 3. สูตรบอสอยู่ที่ `Balance.BossHP/BossRequiredPower` (BalanceConfig `BossHPMult/BossRewardMult` ตรงกับ `balance_sim.py`). บอสถูกสร้างเฉพาะโซน `built=true` — Phase 7 แค่เปลี่ยน `built` และสร้างโซน บอส/บท/วาร์ปจะทำงานเอง แต่ต้องเพิ่มไข่/สัตว์/บทพูดของโซนนั้น.
 4. ประตูโซนเปิดที่ client จาก `Progress.UnlockedZones`; รางวัลทุกอย่างต้องตรวจ `Run.CanAccess` ที่ server เสมอ. UI ใหม่ที่ฝั่งขวาต้องไม่ชนพยากรณ์อากาศ (y 120–180) และ Run panel; ตัวติดตามเควสอยู่ซ้าย (y 475).
 
+## แนวทางต่อโซน 3–8 และ Phase 8
+
+1. อ่าน `docs/phase7_validation.md` ก่อนต่อ Phase 8. โซนทั้ง 8 เปิดใช้งานแล้ว; ไข่โซน 3–8 มาจากรัง/หีบ (`belt=0`) และ Pets มี 42 ตัว. บท 3–8 เล่นได้ด้วยแม่แบบเดิม; NPC เพิ่มเติม/บทพูดเฉพาะบท/คัตซีนยังค้างตาม validation.
+2. ต้นไม้โซน 3–8 ใช้ `ServerStorage.MapAssets.Trees.<ZoneKey>` จาก `tools/map/AssetPrototypes.luau`; เก็บต้นแบบที่ตรวจแล้วใน place. ก่อนสร้างซ้ำจาก place ใหม่ ให้ใส่ asset ID ตาม `Prototypes.Sources` ใน `ServerStorage.AssetStaging`, เรียก Build/Report และยืนยัน scripts=0. ถ้าไม่มีต้นแบบ MapBuilder จะใช้ต้นไม้ Part เดิม.
+3. รักษา Trunk โปร่งใสเป็น PrimaryPart/collider และ Look เป็นภาพที่ไม่ชน; ตรวจซ่อน/เกิดใหม่ด้วย TreeService. `BossArena.GuardianOffset` เลื่อนบอส 26 studs ไปด้านที่ห่างจากแนวทางเดิน (โซน 8 ไปด้านข้าง Lumora); BossService ใช้ offset นี้. ตรวจเส้นทางทั้ง Edit และ Play เพราะบอสเกิดตอน Play และรากอาจขวางทางแม้ Edit ผ่าน.
+4. ZoneAmbience เป็น particle ฝั่ง client ตาม footprint เดียวกับ RunService.ZoneAt; ไม่แก้ Lighting หรือ mutation. รูปลักษณ์/เสียงเฉพาะโซนและอุปกรณ์จริงยังต้องตรวจใน Phase 10.
+
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง

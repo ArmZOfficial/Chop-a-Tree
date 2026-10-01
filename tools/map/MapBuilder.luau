@@ -528,7 +528,74 @@ function MapBuilder.BuildVillage()
 end
 
 -- ========== โซน ==========
+-- Vetted Creator Store prototypes (tools/map/AssetPrototypes.luau) live in
+-- ServerStorage.MapAssets.Trees.<ZoneKey>; zones without them keep the block trees.
+local function assetVariants(zone)
+	local root = ServerStorage:FindFirstChild("MapAssets")
+	local folder = root and root:FindFirstChild("Trees") and root.Trees:FindFirstChild(zone.key)
+	local list = folder and folder:GetChildren() or {}
+	return #list > 0 and list or nil
+end
+
+local function placeAsset(parent, proto, pos, height, rng)
+	local look = proto:Clone()
+	look.Name = "Look"
+	look:ScaleTo(height * proto:GetAttribute("HeightScale") / proto:GetAttribute("Height"))
+	look:PivotTo(CFrame.new(pos) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
+	look.Parent = parent
+	return look
+end
+
+local function rotVeins(m, zone, pos, tw, trunkH, rng, trunk)
+	for i = 1, 3 do
+		local a = i / 3 * math.pi * 2
+		P({
+			Name = "RotVein",
+			Size = Vector3.new(0.4, trunkH * 0.8, 0.4),
+			CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * tw * 0.52, trunkH * 0.45, math.sin(a) * tw * 0.52)) * CFrame.Angles(0, 0, rng:NextNumber(-0.25, 0.25)),
+			Color = Zones.RotColor,
+			Material = Enum.Material.Neon,
+			CanCollide = false,
+			Parent = m,
+		})
+	end
+	local light = Instance.new("PointLight")
+	light.Color = Zones.RotColor
+	light.Range = 16
+	light.Brightness = 1.5
+	light.Parent = trunk
+end
+
+-- Asset tree: an invisible trunk collider stays the PrimaryPart so TreeService,
+-- hit raycasts and health bars work unchanged; the asset clone is visual only.
+local function assetTree(parent, zone, tier, pos, rng, tagName, variants)
+	local m = Instance.new("Model")
+	m.Name = "Tree_T" .. tier
+	local h = 10 + tier * 6
+	local tw = 1.4 + tier * 0.45
+	local trunkH = h * 0.55
+	local trunk = P({
+		Name = "Trunk",
+		Size = Vector3.new(tw, trunkH, tw),
+		CFrame = CFrame.new(pos + Vector3.new(0, trunkH / 2, 0)),
+		Transparency = 1,
+		Parent = m,
+	})
+	placeAsset(m, variants[rng:NextInteger(1, #variants)], pos, h, rng)
+	if tier == 6 then rotVeins(m, zone, pos, tw, trunkH, rng, trunk) end
+	m.PrimaryPart = trunk
+	m:SetAttribute("Zone", zone.id)
+	m:SetAttribute("Tier", tier)
+	CollectionService:AddTag(m, tagName or "Tree")
+	m.Parent = parent
+	return m
+end
+
 local function makeTree(parent, zone, tier, pos, rng, tagName)
+	local variants = assetVariants(zone)
+	if variants then
+		return assetTree(parent, zone, tier, pos, rng, tagName, variants)
+	end
 	local m = Instance.new("Model")
 	m.Name = "Tree_T" .. tier
 	local h = 10 + tier * 6
@@ -558,23 +625,7 @@ local function makeTree(parent, zone, tier, pos, rng, tagName)
 	end
 	if tier == 6 then
 		-- ต้นราเน่า: เส้นสีม่วงเรืองแสง
-		for i = 1, 3 do
-			local a = i / 3 * math.pi * 2
-			P({
-				Name = "RotVein",
-				Size = Vector3.new(0.4, trunkH * 0.8, 0.4),
-				CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * tw * 0.52, trunkH * 0.45, math.sin(a) * tw * 0.52)) * CFrame.Angles(0, 0, rng:NextNumber(-0.25, 0.25)),
-				Color = Zones.RotColor,
-				Material = Enum.Material.Neon,
-				CanCollide = false,
-				Parent = m,
-			})
-		end
-		local light = Instance.new("PointLight")
-		light.Color = Zones.RotColor
-		light.Range = 16
-		light.Brightness = 1.5
-		light.Parent = trunk
+		rotVeins(m, zone, pos, tw, trunkH, rng, trunk)
 	end
 	m.PrimaryPart = trunk
 	m:SetAttribute("Zone", zone.id)
@@ -631,6 +682,11 @@ local function bossArena(parent, pos, zone, trailStart, trailEnd)
 		end
 	end
 	m.PrimaryPart = m.Floor
+	-- Keep the guardian's collidable trunk/roots clear of the through trail.
+	local direction = flat(trailEnd - trailStart).Unit
+	local side = Vector3.new(direction.Z, 0, -direction.X)
+	if flat(pos - trailStart):Dot(side) < 0 then side = -side end
+	m:SetAttribute("GuardianOffset", zone.id == #Zones.List and Vector3.new(26, 0, 0) or side * 26)
 	tag(m, "BossArena", { Zone = zone.id, Boss = zone.boss })
 	return m
 end
@@ -686,7 +742,15 @@ local function decorZone(folder, zone, center, radius, rng, avoid)
 				P({ Name = "Bush", Shape = Enum.PartType.Ball, Size = Vector3.new(s * 1.4, s, s * 1.4), CFrame = CFrame.new(p + Vector3.new(0, s * 0.35, 0)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], CanCollide = false, Parent = folder })
 			end
 		end
-	elseif zone.id == 2 then
+	elseif assetVariants(zone) then
+		-- Small themed props from the same vetted prototypes (no collision, not choppable).
+		local variants = assetVariants(zone)
+		for _ = 1, 28 do
+			local p = spot(8)
+			if p then placeAsset(folder, variants[rng:NextInteger(1, #variants)], p, rng:NextNumber(3, 7), rng) end
+		end
+	end
+	if zone.id == 2 then
 		for _ = 1, 12 do
 			local p = spot(10)
 			if p then

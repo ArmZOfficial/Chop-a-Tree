@@ -30,7 +30,8 @@ local ok,err=xpcall(function()
 		for _,s in c.steps do if not ({talk=true,stat=true,zone=true,boss=true,shrine=true})[s.kind] or (s.zone and not Zones.List[s.zone]) or (s.kind=="talk" and not Story.Npcs[s.npc]) then valid=false end end end
 	check("Eight chapters with valid steps",valid)
 	local boss1=Bo.Get(1)
-	check("Guardians exist only for built zones",boss1 and Bo.Get(2) and not Bo.Get(3) and Collection:HasTag(boss1.model,"Boss") and boss1.model:GetAttribute("BossName")=="Old Oakheart")
+	local allBuilt=true;for z=1,8 do if (Zones.List[z].built and not Bo.Get(z)) or (not Zones.List[z].built and Bo.Get(z)) then allBuilt=false end end
+	check("Guardians exist exactly for built zones",boss1 and allBuilt and Collection:HasTag(boss1.model,"Boss") and boss1.model:GetAttribute("BossName")=="Old Oakheart")
 	-- Chapter 1
 	local bram=tagged("NPC","NpcId","Bram")
 	at(bram:GetPivot()*CFrame.new(0,0,60))
@@ -58,8 +59,8 @@ local ok,err=xpcall(function()
 	hit=Bo.Hit(p,1);check("Boss hit removes the right health share",hit and math.abs(boss1.model:GetAttribute("HealthRatio")-(1-2e6/6e6))<1e-9)
 	check("Boss swing respects weapon cooldown",not Bo.Hit(p,1))
 	g=gems();local kills=D.Get(p,"Stats.BossKills");local run=R.Get(p);local chests=#run.Chests
-	p:SetAttribute("AdminCutPower",7e6);task.wait(1.05);Bo.Hit(p,1)
-	check("Killing the boss marks it defeated",boss1.model:GetAttribute("Alive")==false and D.Get(p,"Progress.Bosses")["1"]==1 and D.Get(p,"Stats.BossKills")==kills+1)
+	p:SetAttribute("AdminCutPower",7e6);task.wait(1.05);local killed,why=Bo.Hit(p,1)
+	check("Killing the boss marks it defeated ("..tostring(why).."; position="..tostring(p.Character:GetPivot().Position)..")",killed and boss1.model:GetAttribute("Alive")==false and D.Get(p,"Progress.Bosses")["1"]==1 and D.Get(p,"Stats.BossKills")==kills+1)
 	check("First defeat grants Gems and an Epic run chest",gems()>=g+Story.BossGems and #run.Chests==chests+1 and run.Chests[#run.Chests].rarity=="Epic")
 	check("Dead boss cannot be hit",not Bo.Hit(p,1))
 	Q.Check(p);check("Boss step completes",step()==7)
@@ -89,7 +90,7 @@ local ok,err=xpcall(function()
 	local zone2Stone=tagged("WarpStone","Zone",2);at(zone2Stone:GetPivot()*CFrame.new(0,0,6))
 	check("Warping home ends the Run",St.Warp(p,0) and not D.Get(p,"Run.Active"))
 	D.Set(p,"Progress.StoryChapter",3);D.Set(p,"Quests.main",{step=1,base=0})
-	local s3=Q.Step(p);check("Chapter 3 zone step is blocked until Phase 7",s3.kind=="zone" and Q.Blocked(s3));Q.Check(p);check("Blocked step does not advance",step()==1)
+	local s3=Q.Step(p);check("Chapter 3 zone step follows the zone build flag",s3.kind=="zone" and Q.Blocked(s3)==not Zones.List[3].built);Q.Check(p);check("Zone step does not advance away from the zone",step()==1)
 	-- Daily / weekly
 	local d1=Q.Side(p,"daily");local d2=Q.Side(p,"daily")
 	local distinct=#d1.ids==3 and d1.ids[1]~=d1.ids[2] and d1.ids[2]~=d1.ids[3] and d1.ids[1]~=d1.ids[3]

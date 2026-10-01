@@ -1,4 +1,4 @@
--- Initial pet roster for built zones 1–2; zones 3–8 add rows in Phase 7.
+-- Pet roster: zones 1–2 from Phase 5, zones 3–8 added in Phase 7 (five per zone).
 -- buff: Power/Wood/Exp multiply forest results, Speed multiplies WalkSpeed.
 local list={
 	{id="pet_bunny",name="Clover Bunny",thai="กระต่ายโคลเวอร์",rarity="Common",zone=1,buff="Speed",shape="bunny",color=Color3.fromRGB(245,240,230),accent=Color3.fromRGB(120,200,110)},
@@ -13,6 +13,36 @@ local list={
 	{id="pet_boar",name="Amber Boar",thai="หมูป่าอำพัน",rarity="Epic",zone=2,buff="Power",shape="boar",rideable=true,color=Color3.fromRGB(150,92,52),accent=Color3.fromRGB(250,180,70)},
 	{id="pet_stag",name="Autumn Stag",thai="กวางใบไม้ร่วง",rarity="Legendary",zone=2,buff="Speed",shape="deer",rideable=true,color=Color3.fromRGB(190,96,40),accent=Color3.fromRGB(255,150,60)},
 	{id="pet_phoenix",name="Leaf Phoenix",thai="ฟีนิกซ์ใบไม้",rarity="Mythic",zone=2,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(230,80,40),accent=Color3.fromRGB(255,190,60)},
+	{id="pet_sporetoad",name="Spore Toad",thai="คางคกสปอร์",rarity="Common",zone=3,buff="Speed",shape="bunny",color=Color3.fromRGB(110,170,120),accent=Color3.fromRGB(90,230,200)},
+	{id="pet_glowmoth",name="Glowmoth",thai="ผีเสื้อกลางคืนเรืองแสง",rarity="Rare",zone=3,buff="Exp",shape="bird",color=Color3.fromRGB(150,110,200),accent=Color3.fromRGB(90,230,200)},
+	{id="pet_fungalfox",name="Fungal Fox",thai="จิ้งจอกเห็ด",rarity="Epic",zone=3,buff="Power",shape="fox",color=Color3.fromRGB(170,90,200),accent=Color3.fromRGB(240,240,255)},
+	{id="pet_mireboar",name="Mire Boar",thai="หมูป่าบึง",rarity="Legendary",zone=3,buff="Wood",shape="boar",rideable=true,color=Color3.fromRGB(80,100,80),accent=Color3.fromRGB(90,230,200)},
+	{id="pet_sporedrake",name="Spore Drake",thai="มังกรสปอร์",rarity="Mythic",zone=3,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(120,70,160),accent=Color3.fromRGB(90,255,210)},
+	{id="pet_petalbunny",name="Petal Bunny",thai="กระต่ายกลีบซากุระ",rarity="Common",zone=4,buff="Wood",shape="bunny",color=Color3.fromRGB(255,220,235),accent=Color3.fromRGB(255,150,190)},
+	{id="pet_blossomcrane",name="Blossom Crane",thai="กระเรียนซากุระ",rarity="Rare",zone=4,buff="Exp",shape="bird",color=Color3.fromRGB(250,250,250),accent=Color3.fromRGB(220,50,60)},
+	{id="pet_roninfox",name="Ronin Fox",thai="จิ้งจอกโรนิน",rarity="Epic",zone=4,buff="Power",shape="fox",color=Color3.fromRGB(240,140,90),accent=Color3.fromRGB(200,40,50)},
+	{id="pet_sakurastag",name="Sakura Stag",thai="กวางซากุระ",rarity="Legendary",zone=4,buff="Speed",shape="deer",rideable=true,color=Color3.fromRGB(220,170,150),accent=Color3.fromRGB(255,183,213)},
+	{id="pet_cherrydragon",name="Cherry Dragon",thai="มังกรเชอร์รี",rarity="Mythic",zone=4,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(255,160,200),accent=Color3.fromRGB(255,240,250)},
+	{id="pet_voltsquirrel",name="Volt Squirrel",thai="กระรอกสายฟ้า",rarity="Common",zone=5,buff="Speed",shape="bunny",color=Color3.fromRGB(200,190,90),accent=Color3.fromRGB(255,235,80)},
+	{id="pet_stormcrow",name="Storm Crow",thai="อีกาพายุ",rarity="Rare",zone=5,buff="Power",shape="bird",color=Color3.fromRGB(60,60,80),accent=Color3.fromRGB(255,235,80)},
+	{id="pet_thunderwolf",name="Thunder Wolf",thai="หมาป่าสายฟ้า",rarity="Epic",zone=5,buff="Speed",shape="wolf",rideable=true,color=Color3.fromRGB(90,100,140),accent=Color3.fromRGB(255,235,80)},
+	{id="pet_bambooboar",name="Bamboo Boar",thai="หมูป่าไผ่",rarity="Legendary",zone=5,buff="Wood",shape="boar",rideable=true,color=Color3.fromRGB(120,160,80),accent=Color3.fromRGB(230,230,120)},
+	{id="pet_raijudrake",name="Raiju Drake",thai="มังกรไรจู",rarity="Mythic",zone=5,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(70,90,170),accent=Color3.fromRGB(255,245,120)},
+	{id="pet_snowhare",name="Snow Hare",thai="กระต่ายหิมะ",rarity="Common",zone=6,buff="Exp",shape="bunny",color=Color3.fromRGB(245,250,255),accent=Color3.fromRGB(160,220,255)},
+	{id="pet_frostowl",name="Frost Owl",thai="นกฮูกน้ำแข็ง",rarity="Rare",zone=6,buff="Wood",shape="bird",color=Color3.fromRGB(220,235,250),accent=Color3.fromRGB(120,180,230)},
+	{id="pet_icewolf",name="Ice Wolf",thai="หมาป่าน้ำแข็ง",rarity="Epic",zone=6,buff="Power",shape="wolf",rideable=true,color=Color3.fromRGB(200,225,245),accent=Color3.fromRGB(140,220,255)},
+	{id="pet_aurorastag",name="Aurora Stag",thai="กวางออโรรา",rarity="Legendary",zone=6,buff="Speed",shape="deer",rideable=true,color=Color3.fromRGB(170,200,230),accent=Color3.fromRGB(120,255,200)},
+	{id="pet_glacierwyrm",name="Glacier Wyrm",thai="มังกรธารน้ำแข็ง",rarity="Mythic",zone=6,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(150,210,250),accent=Color3.fromRGB(240,250,255)},
+	{id="pet_gembunny",name="Gem Bunny",thai="กระต่ายอัญมณี",rarity="Common",zone=7,buff="Wood",shape="bunny",color=Color3.fromRGB(200,180,250),accent=Color3.fromRGB(150,230,255)},
+	{id="pet_prismbird",name="Prism Bird",thai="นกปริซึม",rarity="Rare",zone=7,buff="Exp",shape="bird",color=Color3.fromRGB(150,230,255),accent=Color3.fromRGB(255,160,240)},
+	{id="pet_shardfox",name="Shard Fox",thai="จิ้งจอกผลึก",rarity="Epic",zone=7,buff="Power",shape="fox",color=Color3.fromRGB(180,150,240),accent=Color3.fromRGB(255,255,255)},
+	{id="pet_quartzboar",name="Quartz Boar",thai="หมูป่าควอตซ์",rarity="Legendary",zone=7,buff="Power",shape="boar",rideable=true,color=Color3.fromRGB(230,220,250),accent=Color3.fromRGB(180,150,240)},
+	{id="pet_prismdrake",name="Prism Drake",thai="มังกรปริซึม",rarity="Mythic",zone=7,buff="Exp",shape="drake",rideable=true,color=Color3.fromRGB(170,230,255),accent=Color3.fromRGB(255,180,250)},
+	{id="pet_cloudkit",name="Cloud Kit",thai="ลูกแมวเมฆ",rarity="Common",zone=8,buff="Speed",shape="kit",color=Color3.fromRGB(250,250,255),accent=Color3.fromRGB(200,220,255)},
+	{id="pet_halodove",name="Halo Dove",thai="นกพิราบรัศมี",rarity="Rare",zone=8,buff="Exp",shape="bird",color=Color3.fromRGB(255,255,250),accent=Color3.fromRGB(255,215,100)},
+	{id="pet_starwolf",name="Star Wolf",thai="หมาป่าดวงดาว",rarity="Epic",zone=8,buff="Power",shape="wolf",rideable=true,color=Color3.fromRGB(60,70,130),accent=Color3.fromRGB(255,230,120)},
+	{id="pet_celestialstag",name="Celestial Stag",thai="กวางสวรรค์",rarity="Legendary",zone=8,buff="Speed",shape="deer",rideable=true,color=Color3.fromRGB(240,235,220),accent=Color3.fromRGB(255,215,100)},
+	{id="pet_lumorawyrm",name="Lumora Wyrm",thai="มังกรลูมอรา",rarity="Mythic",zone=8,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(255,240,170),accent=Color3.fromRGB(140,255,190)},
 }
 local byId={};for _,v in list do byId[v.id]=v end
 return table.freeze({

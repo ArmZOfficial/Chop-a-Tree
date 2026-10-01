@@ -1,0 +1,109 @@
+{
+  "raycast": {
+    "samples": 2048,
+    "count": 0,
+    "issues": []
+  },
+  "walking": {
+    "status": "passed",
+    "current": "Zone8",
+    "results": [
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_0_1",
+        "waypoints": 6
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_1_2",
+        "waypoints": 4
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_2_3",
+        "waypoints": 4
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_3_4",
+        "waypoints": 5
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_4_5",
+        "waypoints": 4
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_5_6",
+        "waypoints": 4
+      },
+      {
+        "speed": 16,
+        "passed": true,
+        "route": "Road_6_7",
+        "waypoints": 4
+      },
+      {
+        "speed": 80,
+        "passed": true,
+        "route": "Road_7_8",
+        "waypoints": 388
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone1",
+        "waypoints": 19
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone2",
+        "waypoints": 19
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone3",
+        "waypoints": 14
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone4",
+        "waypoints": 14
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone5",
+        "waypoints": 19
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone6",
+        "waypoints": 19
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone7",
+        "waypoints": 15
+      },
+      {
+        "speed": 40,
+        "passed": true,
+        "route": "Zone8",
+        "waypoints": 12
+      }
+    ]
+  }
+}

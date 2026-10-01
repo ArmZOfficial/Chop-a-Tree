@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "All eight zones are marked built",
+      "passed": true
+    },
+    {
+      "name": "Every zone has 160 choppable trees",
+      "passed": true
+    },
+    {
+      "name": "Zone 3-8 trees use asset visuals over an invisible collider trunk",
+      "passed": true
+    },
+    {
+      "name": "The built map contains no scripts from Creator Store assets",
+      "passed": true
+    },
+    {
+      "name": "Vetted prototypes are script-free and record their asset IDs",
+      "passed": true
+    },
+    {
+      "name": "All 16 nests map to their zone egg",
+      "passed": true
+    },
+    {
+      "name": "Every nest exposes three egg spots",
+      "passed": true
+    },
+    {
+      "name": "Zone eggs hatch only that zone's pets",
+      "passed": true
+    },
+    {
+      "name": "Guardians exist for all eight zones",
+      "passed": true
+    },
+    {
+      "name": "Sky Isles guardian stands beside the Lumora trunk",
+      "passed": true
+    },
+    {
+      "name": "Client ambience detects the same zone as the server at every spawn",
+      "passed": true
+    },
+    {
+      "name": "Locked zone 3 trees cannot be chopped",
+      "passed": true
+    },
+    {
+      "name": "Unlocked zone 3 tree falls and pays zone 3 rewards",
+      "passed": true
+    },
+    {
+      "name": "Asset tree hides fully when felled",
+      "passed": true
+    },
+    {
+      "name": "Asset tree reappears on respawn",
+      "passed": true
+    },
+    {
+      "name": "Zone 3 guardian needs zone 3 tier 6 power",
+      "passed": true
+    },
+    {
+      "name": "Zone 3 guardian can be defeated (120000000000)",
+      "passed": true
+    },
+    {
+      "name": "Zone 3 shrine unlocks zone 4",
+      "passed": true
+    },
+    {
+      "name": "Chapter 3 steps are no longer blocked",
+      "passed": true
+    },
+    {
+      "name": "Warp to zone 4 starts a Run there",
+      "passed": true
+    },
+    {
+      "name": "Standing in zone 3 completes the chapter 3 zone step",
+      "passed": true
+    },
+    {
+      "name": "Zone 6 nest gives a Frost Egg once secured",
+      "passed": true
+    },
+    {
+      "name": "Balance self-test still passes",
+      "passed": true
+    }
+  ]
+}

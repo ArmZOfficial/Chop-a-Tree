@@ -1,9 +1,17 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 6 เนื้อเรื่อง/เควส/บอส core ทดสอบแล้ว
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 10) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-01 (เวลาไทย) · Phase 7 ครบ 8 โซน core ทดสอบแล้ว + แก้บอสขวางทางเดิน
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 11) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ทำต่อ** จากรอบ Phase 7 ที่หยุดเพราะ session limit. ปิดงาน Phase 7 core: Zones ทั้ง 8 built=true, ต้นไม้ 160/โซน, Creator Store prototypes 8 แบบที่ตัด script ออก, ไข่ 10 ชนิด/สัตว์ 42 ตัว, รัง 16 แห่ง/48 จุดไข่, บอส 8 ตัว, ZoneAmbience. อ่าน `docs/phase7_validation.md` ก่อนต่อ **Phase 8**; บท 3–8 ยังเป็นแม่แบบและ NPC/คัตซีนเฉพาะบทยังค้าง.
+2. ตรวจเพิ่มเติมพบราก/ลำต้นบอสขวางทางจริง (เดินติดโซน 5). แก้ MapBuilder ให้เก็บ `BossArena.GuardianOffset` และ BossService ใช้ offset 26 studs ไปด้านห่างจากทางเดิน; โซน 8 อยู่ข้าง Lumora. ตรวจใน Play ด้วย raycast 2,048 จุด ไม่มีปัญหาหลังแก้. ผลเดินจริง/ผลเทสต์รอบสุดท้ายดู validation และ JSON ของ Phase 7.
+3. Source ของ Phase 7 ทั้ง 8 ไฟล์ตรวจเทียบ repo/Studio ตาม `docs/phase7_source_checksums.json`; ห้าม overwrite ProfileStore. MapAssets ที่ตรวจแล้วอยู่ใน ServerStorage ของ place; สร้างซ้ำจาก place ใหม่ต้องโหลดต้นแบบตาม `tools/map/AssetPrototypes.luau` ก่อน (ไม่มีต้นแบบจะ fallback เป็นต้นไม้ Part).
+4. ยังไม่ได้ Publish เกมจริง; Save/Publish place ใน Studio เมื่อพร้อม. แผน, skill และ handoff อัปเดตพร้อมกันตามคำสั่งผู้ใช้.
+5. ผลสุดท้าย: Phase 7 **23/23**, regression Phase 6 **51/51**; Phase 5 **81/81** เป็นผลจากรอบก่อนแก้ตำแหน่งบอส. Raycast Play **2,048 จุด** และเดินจริง **16/16 เส้นทาง** ผ่าน; JSON อยู่ใน `docs/phase7_*` และ `phase5_phase7_regression_results.json`. คืน profile/ตำแหน่ง/WalkSpeed แล้ว; Studio กลับ Edit ไม่มี test Script ค้าง. การฆ่าบอสในเทสต์เคยล้มไม่สม่ำเสมอแล้วรันซ้ำผ่าน; สาเหตุยังไม่ยืนยัน ดู validation.
+
+### บันทึกก่อน Phase 7 (ประวัติ; สถานะล่าสุดใช้รายการด้านบน)
 
 1. Phase 0 เสร็จแล้ว; Phase 1 เปลี่ยนจากภูเขาเป็น **ทวีปตัว S เสร็จและทดสอบแล้ว** ใน Studio PlaceId `93479990217075`.
 2. ArmZ อนุญาตชัดเจน **ลบแมพภูเขาเดิม แล้วสร้างแมพใหม่**; ทำแล้ว ไม่ต้องถามซ้ำ.
@@ -55,7 +63,8 @@
 | **Phase 4 สวน + อากาศพื้นฐาน** | ✅ core ผ่าน 55 checks + GUI; ทดสอบเซิร์ฟจริงหลายเครื่อง/มือถือและภาพ/เสียง/UI สุดท้ายยังค้าง |
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
-| Phase 7–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
+| **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
+| Phase 8–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
 
@@ -101,10 +110,10 @@
 ### 6.1 คำตอบของ ArmZ ที่ยังใช้กับผังใหม่
 1. หมู่บ้าน: **วงกลมรอบลานกลาง** (แท่นหีบกลาง, ร้าน/NPC วงใน, ฐาน 7 ฐานวงนอก, เว้นช่องตรงประตูป่า) — ลานเป็นสนามหญ้า ลานกลางเป็นหิน
 2. โมเดล: ธีม fantasy anime / low-poly; แนวทาง Creator Store ล่าสุดอยู่ใน `SKILL.md` (แทนข้อกำหนดเดิมที่สร้างจาก Part เองทั้งหมด).
-3. ต้นไม้: **160 ต้น/โซน** ในโซนที่สร้างเต็ม (1–2), โซน 3–8 เป็นโครง (PreviewTree 14 ต้น + ป้าย "สร้างเต็มใน Phase 7")
+3. ต้นไม้: **160 ต้น/โซนครบทั้ง 8 โซน** หลัง Phase 7; โซน 3–8 ใช้ต้นแบบ Creator Store ตาม `docs/phase7_validation.md`.
 4. ~~ทางขึ้นเขาเกลียว~~ → ยกเลิก ใช้ทวีปตัว S แทน
 
-### 6.2 ไฟล์และ Studio (ตรงกันแล้ว)
+### 6.2 ไฟล์และ Studio (snapshot Phase 1; checksum ล่าสุดใช้ phase7_source_checksums.json)
 
 1. `src/shared/Config/Zones.luau` → `ReplicatedStorage.Shared.Config.Zones`: UTF-8 LF **4,100 bytes, hash=1795469735**.
 2. `tools/map/MapBuilder.luau` → `ServerStorage.MapTools.MapBuilder`: UTF-8 LF **45,794 bytes, hash=182475945**.
@@ -160,7 +169,9 @@
 
 ## 10. Phase ถัดไป
 
-1. **Phase 7 โซน 3–8 แบบเต็ม**: ตาม skill `roblox-map-builder` **ต้องถามรายละเอียดหน้าตาแต่ละโซนกับ ArmZ ก่อนสร้าง** (ธีม/ต้นไม้/ของตกแต่ง/asset Creator Store ตาม `SKILL.md`). หลังสร้างให้ตั้ง `Config.Zones[n].built=true` — บอส บทเควส วาร์ป และประตูจะทำงานเอง; ต้องเพิ่มไข่/สัตว์ของโซน (Config.Eggs/Pets ตาม EggType ของรัง) และตรวจเส้นทางด้วย `tools/map/ValidateRoutes.luau`.
+**ถัดจาก Phase 7 core คือ Phase 8**: Rebirth/ต้นไม้ทักษะ, Daily/Codes/Leaderboard, บัฟ Index/Achievements, อากาศครบ/บอสโลก/อีเวนต์/Live Event และร้าน/Season Pass ตาม plan หัวข้อ 7. เริ่มเป็นระบบย่อยที่ทดสอบจบได้และคงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+
+1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
 2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย), บัฟถาวร Index + Achievements (Phase 8).
 3. อ่าน `docs/phase6_validation.md`, `phase5_validation.md`, `phase4_validation.md`, `phase3_validation.md` สำหรับ seams. ยังต้องทดสอบ multi-account/multi-server มือถือ/gamepad. อากาศชุดที่เหลือ/Live Event/ไข่ Robux/Secret/Rebirth ต่อ Phase 8; art/เสียง/โมเดลบอส-สัตว์/คัตซีน/UI polish ต่อ Phase 10.
 4. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
