@@ -1,9 +1,13 @@
 ---
 name: chop-a-tree-assets
-description: Choose and integrate Roblox Creator Store assets when building or improving the Chop a Tree map, visuals, or gameplay systems.
+description: Maintain the Chop a Tree plan, skill, and handoff together when updating project work; choose and integrate Roblox Creator Store assets for its map, visuals, or gameplay systems.
 ---
 
 # Creator Store สำหรับ Chop a Tree
+
+## การอัปเดตเอกสารโปรเจกต์
+
+ทุกครั้งที่อัปเดตงาน ให้ปรับทั้ง `docs/plan.md`, `SKILL.md` และ `docs/HANDOFF.md` ในงานเดียวกันให้สอดคล้องกับข้อมูลล่าสุด: plan บันทึกแผนและสถานะ, skill บันทึกแนวทางทำงานและข้อกำหนด, handoff บันทึกงานที่ทำแล้ว ผลตรวจ และงานถัดไป ตรวจทั้งสามไฟล์ให้ตรงกันก่อนสรุปว่างานเสร็จ (ArmZ สั่งเมื่อ 2026-10-01).
 
 ## แนวทางที่ ArmZ อนุญาต
 
