@@ -31,12 +31,12 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 0–1 | โครง/แมพ | ทำแล้ว |
 | 2–7 | Run/อาวุธ/สวน/สัตว์/เนื้อเรื่อง/8 โซน | core ทดสอบแล้ว; narrative/art บางส่วนค้าง |
 | 8a–f | Rebirth, Rewards, Index, Weather/Encounters, Merchant, Festivals, Emote/Photo | core ทดสอบแล้ว |
-| 8g | ร้าน Robux + Season Pass | Shop 34/34 รอบเดิม, Season 33/33 ล่าสุด + ซีซัน 2 พร้อม; ยังไม่ Publish |
+| 8g | ร้าน Robux + Season Pass | Shop 34/34 รันซ้ำ + OpenTen คลิกจริง/Pass refresh ผ่าน; Season 33/33 + ซีซัน 2 พร้อม; ยังไม่ Publish |
 | 9 | PvP แยก Place | ยังไม่ทำ |
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | รอปรับและตรวจ |
 
 ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) พร้อม 2026-11-01 ถึง 12-01 UTC; ใช้ XP/รางวัลเดิม. Rollover/late receipt/สองแถวรางวัลผ่าน scenario 33/33.
-ถัดไป: ปิดช่องว่างการทดสอบร้าน/receipt/OpenTen และหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 3 ก่อน **2026-12-01 UTC**.
+ถัดไป: ปิดช่องว่าง receipt/reconnect/failed-save, OpenTen เมื่อ inventory เต็ม, regression ที่เหลือ และหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 3 ก่อน **2026-12-01 UTC**.
 ค้าง: ตกแต่งฐาน/กับดัก/สัตว์เฝ้า, NPC/คัตซีนบท 3–8, Garden UI refresh, ของตกแต่งเทศกาล.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 

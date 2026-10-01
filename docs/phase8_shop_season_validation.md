@@ -1,6 +1,6 @@
 # Phase 8g — ร้าน Robux + Season Pass
 
-ทดสอบ 2026-10-02 (เวลาไทย), Studio PlaceId `93479990217075`. ร้าน **34/34**, Season Pass **29/29**, เปิดหน้าจริงใน Play แล้ว; ยังไม่ได้ Publish.
+ทดสอบ 2026-10-02 (เวลาไทย), Studio PlaceId `93479990217075`. ร้าน **34/34** รันซ้ำ, Season Pass **33/33**, OpenTen คลิกจริงผ่าน; ยังไม่ได้ Publish.
 
 ## ร้าน Robux (commit `89ee78b`)
 
@@ -10,7 +10,7 @@
 4. Pass ไม่ซ้อนกับทางฟรี: ×2 Wood/Coins = เพดานถาวรเดิม, Lucky +25% (ยา/Luck ทั้งเซิร์ฟเพิ่มชั่วคราวได้ถึง +50%), ช่องสัตว์ +2 (สูงสุด 6), ฟักไว ×2 = ตู้ฟักเลเวลสูงสุด, แปลง +10 (สูงสุด 30).
 5. Client `ShopController` ปุ่ม "ร้าน Robux" (200,365) แท็บ Game Pass/ไอเทม; เปิดหีบ 10 ใบใน InventoryController เมื่อมี OpenTen; VIP แท็กแชท/ฉายา/Daily +25 Gems.
 6. Admin แท็บ shop: สลับ Pass, ให้สินค้า, ยกเลิก Luck ทั้งเซิร์ฟ. Flag `Shop`.
-7. ผล scenario ร้าน (raw report ใน Git 5d09e37) 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt). ค้าง: ยังไม่ได้คลิกปุ่มเปิด 10 ใบจริง และยังไม่ได้รัน regression ชุดเก่าทั้งหมดหลังร้าน.
+7. ผล scenario ร้าน (raw report ใน Git 5d09e37) 34/34 + GUI (เปิดร้าน, ราคา 17 รายการ, กดซื้อเปิด prompt); รันซ้ำ 34/34 ล่าสุด. OpenTen ตรวจเพิ่มด้านล่าง; regression ชุดเก่าทั้งหมดยังไม่ได้รันหลังร้าน.
 
 ## Season Pass (commit `4d3ba3e`)
 
@@ -33,3 +33,14 @@
 ## ตรวจเพิ่มซีซัน 2 — 2026-10-02
 
 Phase8SeasonScenario เดิมปรับ boundary ให้รองรับหลายซีซัน เพิ่ม 4 checks: ไม่มี gap, rollover reset XP/Premium/claims แต่คง pendingFor, ใบเสร็จซีซัน 1 มาช้าจ่าย fallback ไม่ปลดซีซัน 2, Premium/claim สองแถวซีซัน 2. ผ่าน **33/33** ใน Script VM; harness คืน profile/flags/ตำแหน่ง. ไม่เปลี่ยน service/สูตร/รางวัล. Balance simulator ผ่าน (`python -X utf8`; รอบแรก console cp1252 พิมพ์ไทยไม่ได้). Config/Season ตรง Studio Edit 2257 bytes/hash31 522002800, ไม่มี error/test script ค้าง; ไม่ Publish. Shop/GUI/regression อื่นยังเป็นผลรอบเดิม.
+
+## OpenTen / สิทธิ์ Pass — 2026-10-02
+
+ใช้ Phase8ShopGUIHarness เดิม: แยก fixture 12 Rare chests, inventory ว่าง, OpenTen=true; Finish คืน profile/flags/anchor/ตำแหน่งและตรวจ Currencies/Inventory/Purchases/Boosts/Meta/Garden/Pets/Stats/Season ตรง snapshot ก่อน SaveNow.
+
+- คลิกปุ่มจริง: 12→2 หีบ, 0→10 อาวุธ, Stats.ChestsOpened 0→10; Result แสดงรางวัล. คลิกอีกครั้งได้ 2 ใบที่เหลือ: 0 หีบ/12 อาวุธ/Stats 12. ผ่านก่อนและหลังแก้ UI.
+- พบปุ่มค้างเมื่อถอน Pass ขณะกระเป๋าเปิด: Data.Changed ไม่ฟัง Purchases. Server ปฏิเสธและไม่เสียของอยู่แล้ว. แก้ InventoryController ฟัง `Purchases.passes` และ path ลูก; เพิ่ม/ถอนสิทธิ์ทั้งแบบ whole/nested patch อัปเดตปุ่มทันทีโดยไม่ปิดเปิดกระเป๋า.
+- Client InvokeServer OpenTen โดยไม่มี Pass ถูกปฏิเสธ; หีบ/อาวุธ/Stats เท่าเดิม. Shop scenario รันซ้ำผ่าน 34/34; startup Balance 9 checks ผ่าน, console ไม่มี error.
+- Finish ตรวจคืนข้อมูลผ่านทั้งสองรอบ; ลบ Script ชั่วคราวก่อน Stop. InventoryController ตรง Studio Edit 14778 bytes/hash31 593705462. Docs คง 8 ไฟล์; ไม่ Publish.
+
+ยังไม่พิสูจน์ OpenTen เมื่อ inventory เต็ม/เหลือช่องน้อย, regression ชุดเก่าทั้งหมด, receipt/reconnect/failed-save ในบัญชีจริง และ mobile/gamepad.

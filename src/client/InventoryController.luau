@@ -167,7 +167,7 @@ function Inventory.Start()
 	local toggle=UI.Button({text="กระเป๋า / หีบ",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})
 	toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(16,245);toggle.Parent=gui
 	Net.Event("InventoryShow").OnClientEvent:Connect(show)
-	Data.Changed:Connect(function(path) if path=="" or path=="Currencies.Stardust" or path:sub(1,10)=="Inventory." or path:match("^Index") or path:match("^Rebirth") then if panel.Visible then render() end end end)
+	Data.Changed:Connect(function(path) if path=="" or path=="Currencies.Stardust" or path=="Purchases.passes" or path:sub(1,17)=="Purchases.passes." or path:sub(1,10)=="Inventory." or path:match("^Index") or path:match("^Rebirth") then if panel.Visible then render() end end end)
 	for _,flag in {"Rebirth","IndexBonuses","WeatherEncounters"} do game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal(flag):Connect(function() if panel.Visible then render() end end) end
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	resize()
