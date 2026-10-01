@@ -23,6 +23,7 @@ return table.freeze({
 	WeatherEncounters = true, -- Stardust, rare eggs, world boss
 	Merchant = true, -- Phase 8d3
 	Festivals = true, -- Phase 8e
+	Emotes = true, -- Phase 8f emotes + photo mode
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9
 })

@@ -102,6 +102,12 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. WeatherService เป็นจุดเดียวที่แปลงอากาศ (`festive` ใน `Weather.AtTime`): เปลี่ยนเฉพาะ Clear/อากาศธรรมดา, คงอากาศหายากและ RotInvasion, eventKey ขึ้นต้น `fest:`. Live Event และ override เซิร์ฟมาก่อนเทศกาล. ระบบใหม่ที่อ่าน mutation อากาศต้องใช้ `Weather.Def()` ไม่อ่าน Config.Weather ตรง.
 3. Mutation ใหม่ของเทศกาลขยาย catalog Index; ปรับ fixture จำนวนในเทสต์เดิมให้ตรงข้อมูลจริงและคง completion marker. ของตกแต่ง/ของสะสมเทศกาลยังค้าง.
 
+## แนวทาง Emote/Photo (Phase 8f)
+
+1. อ่าน `docs/phase8_emote_validation.md`. EmoteController (client) เป็นเจ้าของวงล้อและโหมดถ่ายรูป; ท่าทางใช้ Animation จาก Animate script มาตรฐาน (replicate เอง). เอฟเฟกต์ที่คนอื่นต้องเห็นต้องสร้างที่ server (EmoteService) และ server เลือกค่าทั้งหมด client ส่งแค่ action.
+2. ScreenGui ใหม่จะถูกซ่อนอัตโนมัติในโหมดถ่ายรูปและคืนค่า Enabled เดิมตอนออก; คอลัมน์ปุ่มซ้ายที่สอง x=200 ใช้แล้วที่ y 245/305.
+3. เมื่อทำร้าน/Season Pass ให้เพิ่มระบบปลดล็อกท่าทางเป็นข้อมูลใน profile และตรวจที่ server ก่อนเล่นท่าพิเศษ; ท่าพื้นฐานคงฟรี.
+
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 
 ArmZ อนุญาตเมื่อ 2026-10-01 ให้เลือกของจาก Creator Store ที่เห็นว่าเหมาะสมและช่วยให้งานง่ายขึ้น แล้วนำมาใช้ในโปรเจกต์ได้เลย ไม่ต้องถามอนุญาตซ้ำสำหรับการนำ asset ที่เข้าถึงได้มาใช้ตามงานที่สั่ง แนวทางนี้แทนข้อกำหนดเดิมที่ให้สร้างโมเดลทุกชิ้นจาก Part เอง

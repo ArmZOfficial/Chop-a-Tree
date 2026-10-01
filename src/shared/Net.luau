@@ -22,6 +22,7 @@ local EVENTS = {
 	"StoryShow",
 	"BossEvent",
 	"LeaderboardShow",
+	"EmoteAction",
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน

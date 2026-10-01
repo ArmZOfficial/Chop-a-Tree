@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-02",
+  "script": "tools/tests/Phase8EmoteScenario.server.luau",
+  "passed": true,
+  "total": 5,
+  "checks": [
+    {
+      "name": "Aura colour follows the equipped weapon element or rarity",
+      "passed": true
+    },
+    {
+      "name": "Showcase creates a replicated aura",
+      "passed": true
+    },
+    {
+      "name": "Cooldown blocks spam",
+      "passed": true
+    },
+    {
+      "name": "Aura is removed after 3 seconds",
+      "passed": true
+    },
+    {
+      "name": "Feature off blocks showcase",
+      "passed": true
+    }
+  ],
+  "gui": {
+    "emote": "G opened wheel; mouse click Emote_dance played looped Action Animation1; holding W stopped it",
+    "showcase": "mouse click Emote_showcase played CheerAnim and server ShowcaseAura replicated to client (white: no element weapon equipped)",
+    "photo": {
+      "enter": "P key: only PhotoHUD enabled, CoreGui off, camera Scriptable",
+      "freecam": "W 0.7s + E 0.3s moved camera 15.2 studs, character moved 0",
+      "filter": "mouse click Filter2 (anime) Saturation .45 Contrast .15",
+      "exit": "P key restored the same 14 ScreenGuis, CoreGui on, camera Custom, filter off"
+    },
+    "admin": "client AdminRun emote.aura ok, aura present"
+  }
+}
