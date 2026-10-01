@@ -54,6 +54,22 @@ end)
 
 local DataService -- ใส่ตอน Init (กัน require วน)
 
+-- ยศที่ Owner ตั้งจากเมนู (เก็บใน DataStore จึงไม่ต้อง Publish ใหม่); Studio ใช้ store แยก
+local grantStore: DataStore? = nil
+pcall(function()
+	grantStore = DataStoreService:GetDataStore("AdminUsers_v1" .. (RunService:IsStudio() and "_Studio" or ""))
+end)
+local GRANTABLE = { Tester = true, Moderator = true, Admin = true } -- Owner ตั้งผ่าน Config เท่านั้น
+
+local function grantedLevel(userId: number): string?
+	if not grantStore then
+		return nil
+	end
+	local ok, users = pcall(grantStore.GetAsync, grantStore, "users")
+	local name = ok and type(users) == "table" and users[tostring(userId)]
+	return if type(name) == "string" and GRANTABLE[name] then name else nil
+end
+
 function AdminService.Register(cmd: Command)
 	assert(commands[cmd.id] == nil, "duplicate admin command " .. cmd.id)
 	commands[cmd.id] = cmd
@@ -79,6 +95,10 @@ local function computeLevel(player: Player): number
 	local listed = (AdminsConfig.Users :: any)[player.UserId]
 	if listed and LEVELS[listed] then
 		best = math.max(best, LEVELS[listed])
+	end
+	local granted = grantedLevel(player.UserId)
+	if granted then
+		best = math.max(best, LEVELS[granted])
 	end
 	local groupId = AdminsConfig.GroupId
 	if groupId == 0 and game.CreatorType == Enum.CreatorType.Group then
@@ -301,9 +321,91 @@ local function giveUI(player: Player)
 	clone.Parent = gui
 end
 
+-- Owner ตั้ง/ถอดยศให้ผู้เล่นในเซิร์ฟ; มีผลทันทีที่นี่ และเซิร์ฟอื่นตอนผู้เล่นเข้าใหม่
+local function setGranted(target: Player, name: string?): (boolean, string?)
+	if not grantStore then
+		return false, "DataStore ใช้ไม่ได้"
+	end
+	local ok, err = pcall(grantStore.UpdateAsync, grantStore, "users", function(users)
+		users = type(users) == "table" and users or {}
+		users[tostring(target.UserId)] = name
+		return users
+	end)
+	if not ok then
+		return false, "บันทึกไม่สำเร็จ: " .. tostring(err)
+	end
+	levelCache[target] = nil
+	local level = AdminService.GetLevel(target)
+	local panel = target:FindFirstChild("PlayerGui") and (target :: any).PlayerGui:FindFirstChild("AdminPanel")
+	if level < LEVELS.Tester and panel then
+		panel:Destroy()
+	elseif level >= LEVELS.Tester and not panel then
+		task.spawn(giveUI, target)
+	end
+	return true, target.Name .. " ตอนนี้เป็น " .. levelName(level)
+end
+
+local function registerGrantCommands()
+	for i, name in { "Tester", "Moderator", "Admin" } do
+		AdminService.Register({
+			id = "admin.grant" .. name,
+			tab = "mod",
+			label = "ตั้งเป็น " .. name,
+			sub = "ผู้เล่นที่เลือก • เก็บถาวร",
+			color = "Purple",
+			order = 90 + i,
+			minLevel = "Owner",
+			usesTarget = true,
+			singleTarget = true,
+			confirm = 1,
+			run = function(ctx)
+				return setGranted(ctx.targets[1], name)
+			end,
+		})
+	end
+	AdminService.Register({
+		id = "admin.revoke",
+		tab = "mod",
+		label = "ถอดยศแอดมิน",
+		sub = "ยศจาก Config/กลุ่มถอดที่นี่ไม่ได้",
+		color = "Red",
+		order = 94,
+		minLevel = "Owner",
+		usesTarget = true,
+		singleTarget = true,
+		confirm = 1,
+		run = function(ctx)
+			return setGranted(ctx.targets[1], nil)
+		end,
+	})
+	AdminService.Register({
+		id = "admin.list",
+		tab = "mod",
+		label = "รายชื่อแอดมินที่ตั้งจากเมนู",
+		order = 95,
+		minLevel = "Owner",
+		run = function()
+			if not grantStore then
+				return false, "DataStore ใช้ไม่ได้"
+			end
+			local ok, users = pcall(grantStore.GetAsync, grantStore, "users")
+			if not ok then
+				return false, "อ่านไม่สำเร็จ"
+			end
+			local lines = {}
+			for userId, name in (type(users) == "table" and users or {}) do
+				local okName, userName = pcall(Players.GetNameFromUserIdAsync, Players, tonumber(userId))
+				table.insert(lines, (okName and userName or userId) .. " = " .. tostring(name))
+			end
+			return true, #lines == 0 and "ยังไม่มี" or table.concat(lines, ", ")
+		end,
+	})
+end
+
 function AdminService.Init()
 	DataService = require(script.Parent.DataService)
 	Net.Function("AdminRun").OnServerInvoke = handleRun
+	registerGrantCommands()
 end
 
 function AdminService.Start()
