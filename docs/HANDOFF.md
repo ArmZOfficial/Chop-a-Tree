@@ -127,7 +127,7 @@
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
 | **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 แม่แบบใช้ได้แล้ว, NPC/บทพูดเฉพาะ/คัตซีนยังค้าง |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59; merchant/ambient/sell cap 30/30; festivals 15/15; Emote/Photo 5/5 + input; ถัดไปร้าน/Season Pass |
+| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59; merchant/ambient/sell cap 30/30; festivals 15/15; Emote/Photo 5/5 + input; ร้าน Robux 34/34; Season Pass 29/29; คอสเมติกรอ ArmZ |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -233,7 +233,7 @@
 
 ## 10. Phase ถัดไป
 
-**Phase 8f Emote/Photo ทำแล้ว; ถัดไปคือร้านเติมเงิน + Season Pass**. อ่าน `phase8_emote_validation.md`, `phase8_festival_validation.md`, `phase8_merchant_validation.md`, `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+**Phase 8g ร้าน Robux + Season Pass ทำแล้ว** (อ่าน `phase8_shop_season_validation.md`). ถัดไป: เพิ่มซีซัน 2 ก่อน 2026-11-01 UTC, ระบบคอสเมติก (plan 17.5) เมื่อ ArmZ สั่ง, งาน Phase 8 ที่ค้าง (บท 3–8/NPC/คัตซีน), Publish โดย ArmZ. อ่าน `phase8_emote_validation.md`, `phase8_festival_validation.md`, `phase8_merchant_validation.md`, `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
 
 1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
 2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย). Index buffs/Achievements ทำแล้วใน Phase 8c.

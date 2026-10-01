@@ -114,6 +114,12 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. WeatherService เป็นจุดเดียวที่แปลงอากาศ (`festive` ใน `Weather.AtTime`): เปลี่ยนเฉพาะ Clear/อากาศธรรมดา, คงอากาศหายากและ RotInvasion, eventKey ขึ้นต้น `fest:`. Live Event และ override เซิร์ฟมาก่อนเทศกาล. ระบบใหม่ที่อ่าน mutation อากาศต้องใช้ `Weather.Def()` ไม่อ่าน Config.Weather ตรง.
 3. Mutation ใหม่ของเทศกาลขยาย catalog Index; ปรับ fixture จำนวนในเทสต์เดิมให้ตรงข้อมูลจริงและคง completion marker. ของตกแต่ง/ของสะสมเทศกาลยังค้าง.
 
+## แนวทางร้าน Robux + Season Pass (Phase 8g)
+
+1. อ่าน `docs/phase8_shop_season_validation.md`. ของ Robux ให้เฉพาะใน `ProcessReceipt` (ไม่ yield, ledger `Purchases.receipts`, ตอบ Granted หลังเซฟ); Pass ไม่ซ้อนทางฟรี.
+2. ซีซันใหม่ = เพิ่มแถว `Seasons` id ใหม่ก่อนซีซันเก่าจบ. Premium ไม่มีหีบเกิน Legendary (ไม่ P2W); คอสเมติก Exclusive รอระบบ 17.5 ที่ ArmZ ยังไม่สั่ง.
+3. ปุ่มคอลัมน์ x=200 ใช้แล้วที่ y 245/305/365/425.
+
 ## แนวทาง Emote/Photo (Phase 8f)
 
 1. อ่าน `docs/phase8_emote_validation.md`. EmoteController (client) เป็นเจ้าของวงล้อและโหมดถ่ายรูป; ท่าทางใช้ Animation จาก Animate script มาตรฐาน (replicate เอง). เอฟเฟกต์ที่คนอื่นต้องเห็นต้องสร้างที่ server (EmoteService) และ server เลือกค่าทั้งหมด client ส่งแค่ action.
