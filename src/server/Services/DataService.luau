@@ -30,7 +30,7 @@ end
 DataService.Template = {
 	DataVersion = DataService.DATA_VERSION,
 	Currencies = currencyTemplate(),
-	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0, EggsHatched = 0, EggsStolen = 0, ChestsOpened = 0, SeedsPlanted = 0, Harvests = 0, BossKills = 0 },
+	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0, EggsHatched = 0, EggsStolen = 0, ChestsOpened = 0, SeedsPlanted = 0, Harvests = 0, BossKills = 0, WorldBossKills = 0 },
 	Progress = { Zone = 1, UnlockedZones = { 1 }, Rebirth = 0, StoryChapter = 1, Bosses = {}, Shrines = {} },
 	Quests = {
 		main = { step = 1, base = 0 },
@@ -45,7 +45,7 @@ DataService.Template = {
 	Boosts = { Wood = 0, Coins = 0 },
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {} },
-	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0 }, equipSlots = 3 },
+	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, weatherBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0 }, equipSlots = 3 },
 	Run = { Active = false, Level = 1, Exp = 0, Zone = 1, Wood = 0, Coins = 0, Trees = 0, Chests = {}, Seeds = {}, Eggs = {}, StartedAt = 0 },
 	Settings = { AutoAttack = false, AutoCut = false, FriendSteal = false },
 	Meta = { AdminTouched = false, FirstJoin = 0, LastJoin = 0, Joins = 0 },

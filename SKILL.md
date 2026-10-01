@@ -42,7 +42,7 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 ## แนวทางต่อโซน 3–8 และ Phase 8
 
-1. อ่าน `docs/phase7_validation.md` ก่อนต่อ Phase 8. โซนทั้ง 8 เปิดใช้งานแล้ว; ไข่โซน 3–8 มาจากรัง/หีบ (`belt=0`) และ Pets มี 42 ตัว. บท 3–8 เล่นได้ด้วยแม่แบบเดิม; NPC เพิ่มเติม/บทพูดเฉพาะบท/คัตซีนยังค้างตาม validation.
+1. อ่าน `docs/phase7_validation.md` ก่อนต่อ Phase 8. โซนทั้ง 8 เปิดใช้งานแล้ว; ไข่โซน 3–8 มาจากรัง/หีบ (`belt=0`). Catalog เดิม 42 ตัว; Phase 8d2 เพิ่ม Blood Raven เป็น 43 ตัว. บท 3–8 เล่นได้ด้วยแม่แบบเดิม; NPC เพิ่มเติม/บทพูดเฉพาะบท/คัตซีนยังค้างตาม validation.
 2. ต้นไม้โซน 3–8 ใช้ `ServerStorage.MapAssets.Trees.<ZoneKey>` จาก `tools/map/AssetPrototypes.luau`; เก็บต้นแบบที่ตรวจแล้วใน place. ก่อนสร้างซ้ำจาก place ใหม่ ให้ใส่ asset ID ตาม `Prototypes.Sources` ใน `ServerStorage.AssetStaging`, เรียก Build/Report และยืนยัน scripts=0. ถ้าไม่มีต้นแบบ MapBuilder จะใช้ต้นไม้ Part เดิม.
 3. รักษา Trunk โปร่งใสเป็น PrimaryPart/collider และ Look เป็นภาพที่ไม่ชน; ตรวจซ่อน/เกิดใหม่ด้วย TreeService. `BossArena.GuardianOffset` เลื่อนบอส 26 studs ไปด้านที่ห่างจากแนวทางเดิน (โซน 8 ไปด้านข้าง Lumora); BossService ใช้ offset นี้. ตรวจเส้นทางทั้ง Edit และ Play เพราะบอสเกิดตอน Play และรากอาจขวางทางแม้ Edit ผ่าน.
 4. ZoneAmbience เป็น particle ฝั่ง client ตาม footprint เดียวกับ RunService.ZoneAt; ไม่แก้ Lighting หรือ mutation. รูปลักษณ์/เสียงเฉพาะโซนและอุปกรณ์จริงยังต้องตรวจใน Phase 10.
@@ -70,15 +70,23 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 2. Run.Power/Award และ Weapon.Open เป็นจุดใช้บัฟ. Wood/Coins รวม Index กับ Rebirth แบบบวก cap ×2 ถาวร ก่อนบัฟรวม ×4; Power รวม pet/Index cap ×4. Luck เพิ่มโอกาส Epic+ แบบสัมพัทธ์ cap +25%, probability ≤100%, Giant เดิม. Luck=0 ต้องคง baseline แบบตรงตัว; UI หีบใช้สูตรเดียวกัน.
 3. Achievements.claimed/equipped อยู่ profile เดียวกับ Gems. ตรวจเกณฑ์ที่ server และบันทึก marker/เงินโดยไม่ yield; public remote รับ Sync/Claim/Equip เท่านั้น. ชื่อ title มาจาก Config, เลือกเฉพาะที่ claim แล้ว; RefreshTitle หลัง snapshot/CharacterAdded/flag change. Admin unlock/reset marksTarget; unlock ไม่จ่าย Gems.
 4. Phase 8c ผ่าน 55 checks และ GUI เมาส์จริง; regression 36/51/41/45. VM scenario/GUIHarness ต้อง snapshot/restore และ Finish ก่อน Stop. พัก Leaderboard ระหว่างจำลอง profile; แยกเควสหลักเมื่อวัด Gems จาก achievement. Sync source ทีละไฟล์แล้วตรวจ UTF-8/LF length/hash เพื่อจับ output truncation ก่อน Play.
-5. Phase 8d1 อากาศ/Live Event core ทำแล้วตามแนวทางด้านล่าง; ของพิเศษจากอากาศ/บอสโลกต่อ Phase 8d2. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังแยกเป็นงานค้าง Phase 8; อย่าประกาศจบทั้ง Phase. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
+5. Phase 8d1 อากาศ/Live Event และ Phase 8d2 Stardust/ไข่พิเศษ/บอสโลกทำแล้วตามแนวทางด้านล่าง. Ambient mutation/merchant/rare fruit daily cap ต่อ Phase 8d3; เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงานค้าง Phase 8. Reconnect/respawn จริง/หลายบัญชี/มือถือ/gamepad และ balance ผู้เล่นจริงยังรอตรวจ.
 
 ## แนวทางอากาศ/Live Event หลัง Phase 8d1
 
-1. อ่าน `docs/phase8_weather_validation.md` ก่อนต่อ weather encounters. WeatherSchedule เป็น UTC deterministic; rare forecast ซ่อน, night-only ใช้ UTC 18–06, Rainbow ต่อ Rain, weekend ใช้ UTC. RotInvasion ยัง manual-only จนมี world boss; อย่าเปิด weight/รอบ 2 ชม. ก่อน encounter และรางวัลพร้อม.
+1. อ่าน `docs/phase8_weather_validation.md` และ `docs/phase8_encounters_validation.md` ก่อนแก้อากาศ. WeatherSchedule เป็น UTC deterministic; rare forecast ซ่อน, night-only ใช้ UTC 18–06, Rainbow ต่อ Rain, weekend ใช้ UTC. RotInvasion เป็น overlay 10 นาทีแรกของทุก UTC block 2 ชม. ตาม Config.WeatherEncounters; weight=0 เพื่อไม่สุ่มซ้ำ ตรวจ forecast/midnight เมื่อแก้ตาราง.
 2. WeatherService เป็นจุด resolve: feature Weather → Live Event → local override → UTC. LiveEventService owns MemoryStore current record/revision และ MessagingService reread + polling; late join อ่านขั้นตามเวลาเดิม. Studio แยก topic/store. Owner global start/stop confirm 2 ชั้นผ่าน AdminService; public remote ไม่มี Force และข้อความเป็น preset ที่เชื่อถือได้.
 3. Wood/Coins อากาศรวม cap ×4 ผ่าน Run.Award; Area/crit/HP ผ่าน Tree.Hit, Fog chest ใช้ Run.CollectChest/provenance เดิม. Mutation สวนผ่าน GardenMath/Config.Mutations, hatch ผ่าน Pet.Advance online เท่านั้น; Index ใช้ union IDs ของผล/สัตว์และคง earned completion marker เมื่อขยาย catalog.
 4. Phase 8d1 ผ่าน 38 checks, regression 55/81/51/36/55 และ mouse preview. API global transaction/missed-message ทดสอบ fake store; Studio read ready ไม่ใช่ proof broadcast หลายเซิร์ฟ. ก่อนสรุป global ready ต้องตรวจจริงหลายเซิร์ฟพร้อม API outage/cancel. Scenario/GUIHarness snapshot/restore, Finish ก่อน Stop, source checksum 16 ไฟล์ตรง Edit.
-5. ต่อ Phase 8d2 Meteor Stardust/ไข่พิเศษ/Fog rare nests และ Rot world boss; หลังจากนั้น merchant/เทศกาล/rare fruit daily sale cap. เสียง/ภาพ/VFX สุดท้ายและอุปกรณ์จริงรอ Phase 10. ปรับ plan, SKILL, handoff พร้อมกันตามกฎเดิม.
+5. Phase 8d2 ผ่าน 59 checks และ GUI จริง; regression 36/81/51/23/55/38. ต่อ Phase 8d3 ambient zone mutation/merchant/rare fruit daily cap ตาม plan; เทศกาล/ร้าน/Season Pass/Emote และเสียง/ภาพ/VFX ยังแยกงานค้าง. ปรับ plan, SKILL, handoff พร้อมกันตามกฎเดิม.
+
+## แนวทาง Stardust, ไข่พิเศษ และบอสโลก (Phase 8d2)
+
+1. WeatherEncounterService owns runtime Stardust/world boss/weather nest lifecycle; Config.WeatherEncounters + EncounterMath ownsค่าเริ่มต้นและ payout. Stardust เก็บเข้าธนาคารทันทีด้วย server distance/Run/access/event key/TTL; ลบ pickup ก่อนจ่ายโดยไม่ yield. Exchange ที่แท่นใช้ Weapon.GrantChest และ Meta.AdminTouched provenance; public EncounterAction รับ Exchange เท่านั้น.
+2. PetService owns Aurora purchase: ตรวจอากาศ/สายพาน/Coins/ความจุก่อนบันทึก marker + debit + GrantEgg ในเธรดเดียว. ใช้ Pets.weatherBought แยกจาก beltBought ซึ่งมี numeric epoch cleanup. Ledger คงผ่าน Rebirth/reload; ล้าง marker เก่ากว่า 7 วันเท่านั้น.
+3. Nest.AddSpot/RemoveSpot ใช้ guardian เดิม. Take จับ definition ไว้กับ carrier และตรวจ WeatherKey ที่ server. เมื่ออากาศจบ retire spot; held egg ยัง Secure ด้วย ID เดิมได้, Drop ลบ spot. Callback refill ต้องตรวจ generation/registration/retired เพื่อไม่สร้างไข่หมดอายุคืนมา.
+4. World boss ใช้ลานโซน 1 และ suppress guardian เดิมชั่วคราว; restore เมื่อจบ/ปิด flag. Boss.CreateWorld แยกจาก Boss.Get/Progress.Bosses. รางวัลตาม share ที่ clip ถึง HP เหลือ, paid marker ก่อนจ่าย, เฉพาะผู้เล่น loaded ที่ยังอยู่ Run เดิม; บันทึก Stats.WorldBossKills แยกจาก BossKills. บอสเกิดครั้งเดียวต่อ event key แม้ toggle flag; HP แยกตาม Rebirth ผ่าน Balance.BossHP.
+5. ทดสอบ RemoteFunction ผ่าน InvokeServer จาก client จริง: Roblox อ่าน OnServerInvoke callback กลับไม่ได้. เทสต์ profile ใน Script VM พร้อม snapshot/restore และพัก AutoSave/Leaderboard; GUIHarness Finish ก่อน Stop. Source checksum 18 ไฟล์ตรง Edit; หลายบัญชี/reconnect จริง/แชร์ดาเมจต่าง Rebirth/มือถือ/ภาพสุดท้ายยังต้องตรวจตาม validation.
 
 ## แนวทางที่ ArmZ อนุญาต (รายละเอียด)
 

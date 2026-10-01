@@ -11,8 +11,8 @@ local list={
 	{id="Aurora",name="ออโรรา",duration=360,weight=3,growth=1,wood=1.5,coins=1.5,exp=1,hp=1,mutation="Aurora",chance=.015,rare=true,nightOnly=true,note="Wood/Coins ×1.5 • Aurora"},
 	{id="Bloodmoon",name="พระจันทร์สีเลือด",duration=480,weight=1,growth=1,wood=1,exp=1,hp=2,mutation="Bloodlit",chance=.01,rare=true,nightOnly=true,reward=4,note="HP ต้นไม้ ×2 • รางวัล ×4"},
 	{id="Rainbow",name="รุ้งหลังฝน",duration=120,weight=0,growth=1,wood=1,exp=1,hp=1,mutation="Rainbow",chance=.01,rare=true,note="Mutation Rainbow • สีพิเศษ"},
-	-- Manual/Live Event only until the world-boss encounter is implemented.
-	{id="RotInvasion",name="ราเน่าบุก",duration=600,weight=0,growth=.75,wood=1,exp=1,hp=1,mutation="Rotten",chance=.1,rare=true,note="สวนโตช้าลง • Mutation Rotten"},
+	-- Fixed UTC encounter every two hours; excluded from random weather rolls.
+	{id="RotInvasion",name="ราเน่าบุก",duration=600,weight=0,growth=.75,wood=1,exp=1,hp=1,mutation="Rotten",chance=.1,rare=true,note="บอสโลกโซน 1 • สวนโตช้าลง"},
 }
 local byId={};for _,v in list do byId[v.id]=v end
 return table.freeze({List=list,ById=byId,Seed=40261001,ClearMin=300,ClearMax=480,LightningSeconds=15,LightningReward=3,RainbowChance=.1,WeekendRareMult=2})

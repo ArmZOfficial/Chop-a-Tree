@@ -26,7 +26,7 @@ local function show(s,on)
 end
 local function refill(s)
 	s.generation+=1;local gen=s.generation
-	task.delay(rng:NextInteger(Config.NestRefillMin,Config.NestRefillMax),function() if s.generation==gen then show(s,true) end end)
+	task.delay(rng:NextInteger(Config.NestRefillMin,Config.NestRefillMax),function() if s.generation==gen and not s.retired and spots[s.spot]==s then show(s,true) end end)
 end
 local function release(p)
 	local c=carriers[p];carriers[p]=nil
@@ -38,13 +38,15 @@ function Nest.Take(p,spot)
 	if not Features.IsEnabled("Eggs") or not Data.IsLoaded(p) then return false,"ระบบไข่ยังไม่เปิด" end
 	local s=spots[spot]
 	if not s or not s.ready then return false,"รังนี้ยังไม่มีไข่" end
+	local weatherKey=spot:GetAttribute("WeatherKey")
+	if weatherKey and (not Features.IsEnabled("WeatherEncounters") or require(script.Parent.WeatherService).State().eventKey~=weatherKey) then return false,"รอบอากาศนี้จบแล้ว" end
 	if not Data.Get(p,"Run.Active") then return false,"หยิบไข่ในป่าได้ระหว่าง Run" end
 	if not table.find(Data.Get(p,"Progress.UnlockedZones"),s.zone) then return false,"ยังไม่ปลดล็อกโซนนี้" end
 	if carriers[p] or p:GetAttribute("CarryingEgg") then return false,"ถือไข่ได้ทีละ 1 ใบ" end
 	if Pet.EggRoom(p)<=0 then return false,"ไข่เต็มกระเป๋า" end
 	local hr=root(p);if not hr or (hr.Position-spot.Position).Magnitude>12 then return false,"เข้าใกล้รังก่อน" end
 	show(s,false);s.generation+=1
-	carriers[p]={spot=spot}
+	carriers[p]={spot=spot,def=s.def,zone=s.zone}
 	local g=guardians[s.nest];if g then g.alarmUntil=os.clock()+Config.BurstSeconds end
 	Pet.SetCarry(p,s.def.color,Config.NestSlow,nil)
 	return true,"ได้ไข่! วิ่งไปหินวาร์ปหรือกด End Run — ผู้พิทักษ์ไล่ตามอยู่!"
@@ -52,7 +54,7 @@ end
 -- Egg returns to its nest (caught, death, leaving, cancelled run).
 function Nest.Drop(p,reason)
 	local c=release(p);if not c then return false end
-	show(spots[c.spot],true)
+	local s=spots[c.spot];if s.retired then spots[c.spot]=nil;c.spot:Destroy() else show(s,true) end
 	if reason and p.Parent then notify(p,reason,true) end
 	return true
 end
@@ -60,14 +62,26 @@ function Nest.Secure(p)
 	local c=carriers[p];if not c or not Data.Get(p,"Run.Active") then return Nest.Drop(p) end
 	release(p)
 	local s=spots[c.spot];local eggs=Data.Get(p,"Run.Eggs") or {}
-	table.insert(eggs,{id=s.def.id,rebirthDrop=Data.Get(p,"Progress.Rebirth"),admin_spawned=Data.Get(p,"Meta.AdminTouched")==true})
-	Data.Set(p,"Run.Eggs",eggs);refill(s)
-	notify(p,"ไข่ปลอดภัยแล้ว! ("..s.def.name..") ได้รับเมื่อจบ Run")
+	table.insert(eggs,{id=c.def.id,rebirthDrop=Data.Get(p,"Progress.Rebirth"),admin_spawned=Data.Get(p,"Meta.AdminTouched")==true})
+	Data.Set(p,"Run.Eggs",eggs);if s.retired then spots[c.spot]=nil;c.spot:Destroy() else refill(s) end
+	notify(p,"ไข่ปลอดภัยแล้ว! ("..c.def.name..") ได้รับเมื่อจบ Run")
 	return true
 end
 function Nest.Carrying(p) return carriers[p] end
 function Nest.Spots() return spots end
 function Nest.Guardian(nest) return guardians[nest] end
+function Nest.AddSpot(spot,def)
+	local nest=spot.Parent;if not guardians[nest] or spots[spot] then return false end
+	local v=Visual.Egg(def.color,.85);v:PivotTo(spot.CFrame);v.Parent=spot
+	local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="หยิบไข่";prompt.ObjectText=def.thai;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
+	local s={spot=spot,nest=nest,def=def,zone=nest:GetAttribute("Zone"),ready=true,visual=v,prompt=prompt,generation=0};spots[spot]=s;show(s,true)
+	prompt.Triggered:Connect(function(p) local ok,msg=Nest.Take(p,spot);notify(p,msg,not ok) end);return true
+end
+function Nest.RemoveSpot(spot)
+	local s=spots[spot];if not s then return end;s.retired=true;s.generation+=1;show(s,false)
+	for _,c in carriers do if c.spot==spot then return end end
+	spots[spot]=nil;spot:Destroy()
+end
 
 local function guardian(nest)
 	local home=nest:GetPivot()*CFrame.new(9,0,0)
@@ -95,7 +109,7 @@ function Nest.Init()
 				spot.Transparency=1
 				local v=Visual.Egg(def.color,.85);v:PivotTo(spot.CFrame);v.Parent=spot
 				local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="หยิบไข่";prompt.ObjectText=def.thai;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
-				local s={nest=nest,def=def,zone=nest:GetAttribute("Zone"),ready=true,visual=v,prompt=prompt,generation=0}
+				local s={spot=spot,nest=nest,def=def,zone=nest:GetAttribute("Zone"),ready=true,visual=v,prompt=prompt,generation=0}
 				spots[spot]=s;show(s,true)
 				prompt.Triggered:Connect(function(p) local ok,msg=Nest.Take(p,spot);notify(p,msg,not ok) end)
 			end end

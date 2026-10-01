@@ -56,7 +56,18 @@ function Boss.Get(zone) return bosses[zone] end
 function Boss.Reset(b)
 	b.ratio=1;b.contributors={};b.cycle+=1
 	b.model:SetAttribute("Alive",true);b.model:SetAttribute("HealthRatio",1)
-	for part,o in b.parts do part.Transparency=o[1];part.CanCollide=o[2] end
+	for part,o in b.parts do part.Transparency=b.suppressed and 1 or o[1];part.CanCollide=not b.suppressed and o[2] end
+end
+function Boss.Suppress(zone,on)
+	local b=bosses[zone];if not b then return end;b.suppressed=on
+	if on then Collection:RemoveTag(b.model,"Boss") else Collection:AddTag(b.model,"Boss") end
+	for part,o in b.parts do part.Transparency=(on or b.ratio<=0) and 1 or o[1];part.CanCollide=not on and b.ratio>0 and o[2] end
+end
+function Boss.CreateWorld()
+	local b=bosses[1];if not b then return nil end
+	Boss.Suppress(1,true);local world=build(b.model.Parent,1);world.model.Name="RotWorldBoss"
+	world.model:SetAttribute("BossName","จ้าวแห่งราเน่า");world.model:SetAttribute("WorldBoss",true)
+	return world
 end
 local function reward(p,zone,first)
 	local defeated=Data.Get(p,"Progress.Bosses");local key=tostring(zone)
@@ -83,7 +94,7 @@ end
 
 function Boss.Hit(p,zone)
 	local b=bosses[zone];local r=Run.Get(p);local hr=root(p)
-	if not Features.IsEnabled("Story") or not b or b.ratio<=0 or not r or not r.Active or not hr then return false,"Inactive" end
+	if not Features.IsEnabled("Story") or not b or b.suppressed or b.ratio<=0 or not r or not r.Active or not hr then return false,"Inactive" end
 	if not Run.CanAccess(p,zone) or Run.ZoneAt(p)~=zone then return false,"Zone locked" end
 	if flat(hr.Position,b.center)>Story.BossRange or math.abs(hr.Position.Y-b.center.Y)>20 then return false,"Out of range" end
 	local rebirth=Data.Get(p,"Progress.Rebirth");local power=Run.Power(p);local health=Weather.Def().hp
@@ -106,7 +117,7 @@ function Boss.Hit(p,zone)
 end
 -- Admin/test helper: finish the boss with the given player as the only contributor.
 function Boss.Kill(p,zone)
-	local b=bosses[zone];if not b or b.ratio<=0 then return false end
+	local b=bosses[zone];if not b or b.suppressed or b.ratio<=0 then return false end
 	b.contributors={};local r=Run.Get(p)
 	if p and r then b.contributors[p]={share=1,at=os.clock(),run=r} end
 	b.ratio=0;fell(b);return true

@@ -235,10 +235,11 @@ function Controller.Start()
 				shown=true;local zone=boss:GetAttribute("Zone");local rb=Data.Get("Progress.Rebirth") or 0
 				local weather=game.ReplicatedStorage:FindFirstChild("WeatherState");local health=weather and weather:GetAttribute("HealthMult") or 1
 				local hp=Balance.BossHP(zone,rb)*health;local req=Balance.BossRequiredPower(zone,rb)*health;local ratio=boss:GetAttribute("HealthRatio") or 1
+				if boss:GetAttribute("WorldBoss") then hp=Balance.BossHP(zone,rb)*(boss:GetAttribute("WorldHPFactor") or 1);req=0 end
 				bossName.Text=boss:GetAttribute("BossName").." • "..(power<req and ("🔒 ต้องการ Power "..NF.Short(req)) or (NF.Short(hp*ratio).." / "..NF.Short(hp)))
 				bossName.TextColor3=power<req and UI.Colors.Red or UI.Colors.Text
 				bossFill.Size=UDim2.fromScale(math.clamp(ratio,0,1),1)
-				if not introduced[boss] then introduced[boss]=true;showBanner(string.upper(boss:GetAttribute("BossName")),"GUARDIAN • "..Zones.List[zone].thai,Color3.fromRGB(220,130,255)) end
+				if not introduced[boss] then introduced[boss]=true;showBanner(string.upper(boss:GetAttribute("BossName")),(boss:GetAttribute("WorldBoss") and "WORLD BOSS" or "GUARDIAN").." • "..Zones.List[zone].thai,Color3.fromRGB(220,130,255)) end
 			end
 		end
 		bossBar.Visible=shown

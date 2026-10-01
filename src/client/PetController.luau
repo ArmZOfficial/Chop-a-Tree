@@ -140,6 +140,8 @@ function Controller.Start()
 			actions({{"Close","ปิด",UI.Colors.Slate,function() panel.Visible=false end}})
 		else
 			local now=os.time()
+			local offer=state.weatherOffer
+			if offer then row("WeatherBuy",Eggs.ById[offer.id].name.." • "..NF.Short(offer.price).." Coins\n"..(offer.bought and "ซื้อรอบนี้แล้ว" or "ซื้อได้ 1 ใบต่อรอบออโรรา"),offer.bought and UI.Colors.Slate or UI.Colors.Purple,function() pet("BuyWeather") end) end
 			for _,r in Math.BeltWindow(now) do local epoch=r.epoch;local def=Eggs.ById[r.id];local bought=state.beltBought[tostring(r.epoch)]
 				row("Belt_"..r.epoch,def.name.." • "..NF.Short(Math.EggPrice(r.id)).." Coins • โซน "..def.zone.."\nฟัก "..math.ceil(def.hatch/60).." นาที • "..(bought and "ซื้อแล้ว" or "อยู่บนสายพานอีก "..math.max(0,r.leavesAt-now).." วิ"),
 					bought and UI.Colors.Disabled or UI.Colors.Orange,function() pet("Buy",epoch) end)

@@ -8,6 +8,7 @@ local Visual=require(Shared.WeaponVisual)
 local Weapons=require(Shared.Config.Weapons)
 local Rarities=require(Shared.Config.Rarities)
 local Config=require(Shared.Config.Chests)
+local Encounters=require(Shared.Config.WeatherEncounters)
 local Data=require(script.Parent.ClientData)
 local CollectionMath=require(Shared.CollectionMath)
 local Inventory={}
@@ -119,6 +120,13 @@ function Inventory.Start()
 			end
 		end
 		if #ids==0 then UI.Label("ยังไม่มีอาวุธ — เก็บหีบจากป่าแล้วกลับมาเปิด",16,{Size=UDim2.new(1,-10,0,80),Parent=weaponList}) end
+		if game.ReplicatedStorage.FeatureFlags:GetAttribute("WeatherEncounters")==true then
+			local dust=Data.Get("Currencies.Stardust") or 0
+			local exchange=UI.Button({text="Stardust "..dust.." • แลก "..Encounters.ChestDust.." = Rare",color=UI.Colors.Purple,size=UDim2.new(1,-8,0,48),onClick=function()
+				local success,ok,msg=pcall(function() return Net.Function("EncounterAction"):InvokeServer("Exchange") end)
+				message.Text=success and msg or "เชื่อมต่อไม่ได้";render()
+			end});exchange.Name="DustExchange";exchange.LayoutOrder=0;exchange.Parent=chestList
+		end
 		for i,c in chests do
 			local row=UI.New("Frame",{Name="Chest_"..tostring(c.uid),BackgroundColor3=UI.Colors.PanelDark,Size=UDim2.new(1,-8,0,124),LayoutOrder=i,Parent=chestList},{UI.Corner(10),UI.Padding(8)})
 			UI.Label(c.rarity.." • LEVEL "..c.level.." ×"..c.count,16,{Size=UDim2.new(1,0,0,24),Parent=row})
@@ -153,8 +161,8 @@ function Inventory.Start()
 	local toggle=UI.Button({text="กระเป๋า / หีบ",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})
 	toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(16,245);toggle.Parent=gui
 	Net.Event("InventoryShow").OnClientEvent:Connect(show)
-	Data.Changed:Connect(function(path) if path=="" or path:sub(1,10)=="Inventory." or path:match("^Index") or path:match("^Rebirth") then if panel.Visible then render() end end end)
-	for _,flag in {"Rebirth","IndexBonuses"} do game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal(flag):Connect(function() if panel.Visible then render() end end) end
+	Data.Changed:Connect(function(path) if path=="" or path=="Currencies.Stardust" or path:sub(1,10)=="Inventory." or path:match("^Index") or path:match("^Rebirth") then if panel.Visible then render() end end end)
+	for _,flag in {"Rebirth","IndexBonuses","WeatherEncounters"} do game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal(flag):Connect(function() if panel.Visible then render() end end) end
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	resize()
 end

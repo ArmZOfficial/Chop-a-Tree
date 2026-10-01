@@ -46,7 +46,7 @@ local ok,err=xpcall(function()
 	check("All 16 nests map to their zone egg",nestsOk and nestCount==16)
 	local spots=0;for _ in N.Spots() do spots+=1 end;check("Every nest exposes three egg spots",spots==48)
 	local petsOk=true;for _,e in Eggs.List do for _,row in e.pets do local pet=Pets.ById[row[1]];if not pet or (e.nestType and pet.zone~=e.zone) then petsOk=false end end end
-	check("Zone eggs hatch only that zone's pets",petsOk and #Pets.List==42)
+	check("Zone eggs hatch only that zone's pets",petsOk and #Pets.List==43)
 	local bossesOk=true;for z=1,8 do if not Bo.Get(z) then bossesOk=false end end
 	local lumora=Collection:GetTagged("Lumora")[1]
 	check("Guardians exist for all eight zones",bossesOk)

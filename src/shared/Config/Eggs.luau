@@ -24,5 +24,8 @@ local list={
 	{id="egg_celestial",name="Celestial Egg",thai="ไข่สวรรค์",zone=8,nestType="CelestialEgg",hatch=3600,price=2500,belt=0,color=Color3.fromRGB(255,236,170),
 		pets={{"pet_cloudkit",45},{"pet_halodove",35},{"pet_starwolf",15},{"pet_celestialstag",4.5},{"pet_lumorawyrm",0.5}}},
 }
+table.insert(list,{id="egg_mist",name="Mist Egg",thai="ไข่หมอก",zone=1,hatch=900,price=50000,belt=0,color=Color3.fromRGB(160,195,220),pets={{"pet_wolf",65},{"pet_drake",30},{"pet_lumikit",5}}})
+table.insert(list,{id="egg_aurora",name="Aurora Egg",thai="ไข่ออโรรา",zone=1,hatch=1800,price=100000,belt=0,color=Color3.fromRGB(110,255,195),pets={{"pet_wolf",60},{"pet_drake",35},{"pet_lumikit",5}}})
+table.insert(list,{id="egg_bloodmoon",name="Bloodmoon Egg",thai="ไข่พระจันทร์สีเลือด",zone=1,hatch=3600,price=0,belt=0,color=Color3.fromRGB(220,55,85),pets={{"pet_lumikit",50},{"pet_bloodraven",50}}})
 local byId,byNest={},{};for _,v in list do byId[v.id]=v;if v.nestType then byNest[v.nestType]=v end end
 return table.freeze({List=list,ById=byId,ByNest=byNest})

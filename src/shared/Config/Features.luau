@@ -20,6 +20,7 @@ return table.freeze({
 	IndexBonuses = true, -- Phase 8c
 	Achievements = true,
 	LiveEvents = true, -- Phase 8d core
+	WeatherEncounters = true, -- Stardust, rare eggs, world boss
 	Shop = false, -- Phase 8
 	PvP = false, -- Phase 9
 })

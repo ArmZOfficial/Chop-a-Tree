@@ -1,0 +1,113 @@
+{
+  "passed": true,
+  "exchange": {
+    "dust": 0,
+    "chests": [
+      {
+        "uid": "e60fc958-767b-4b51-8909-14b9fc36752f",
+        "rarity": "Rare",
+        "zone": 1,
+        "count": 1,
+        "level": 1,
+        "rebirthDrop": 0,
+        "admin_spawned": true
+      }
+    ],
+    "eggs": [],
+    "coins": 210
+  },
+  "aurora": {
+    "dust": 0,
+    "chests": [
+      {
+        "uid": "e60fc958-767b-4b51-8909-14b9fc36752f",
+        "rarity": "Rare",
+        "zone": 1,
+        "count": 1,
+        "level": 1,
+        "rebirthDrop": 0,
+        "admin_spawned": true
+      }
+    ],
+    "eggs": [
+      "egg_aurora"
+    ],
+    "coins": 0
+  },
+  "auroraReplay": {
+    "dust": 0,
+    "chests": [
+      {
+        "uid": "e60fc958-767b-4b51-8909-14b9fc36752f",
+        "rarity": "Rare",
+        "zone": 1,
+        "count": 1,
+        "level": 1,
+        "rebirthDrop": 0,
+        "admin_spawned": true
+      }
+    ],
+    "eggs": [
+      "egg_aurora"
+    ],
+    "coins": 0
+  },
+  "meteor": {
+    "dust": 5,
+    "chests": [
+      {
+        "uid": "e60fc958-767b-4b51-8909-14b9fc36752f",
+        "rarity": "Rare",
+        "zone": 1,
+        "count": 1,
+        "level": 1,
+        "rebirthDrop": 0,
+        "admin_spawned": true
+      }
+    ],
+    "eggs": [
+      "egg_aurora"
+    ],
+    "coins": 0
+  },
+  "world": {
+    "dust": 5,
+    "chests": [
+      {
+        "uid": "e60fc958-767b-4b51-8909-14b9fc36752f",
+        "rarity": "Rare",
+        "zone": 1,
+        "count": 1,
+        "level": 1,
+        "rebirthDrop": 0,
+        "admin_spawned": true
+      }
+    ],
+    "worldRatio": 0.9999791666666666,
+    "eggs": [
+      "egg_aurora"
+    ],
+    "coins": 0
+  },
+  "forgedActionAccepted": false,
+  "captures": [
+    "Phase8d2_DustExchange",
+    "Phase8d2_AuroraPurchase",
+    "Phase8d2_MeteorCollect",
+    "Phase8d2_WorldBossHUD"
+  ],
+  "restoration": {
+    "passed": true,
+    "mismatches": []
+  },
+  "admin": {
+    "dust": 20,
+    "adminTouched": true,
+    "restored": true,
+    "commands": [
+      "encounters.refresh",
+      "stardust.give"
+    ],
+    "usesTarget": true
+  }
+}

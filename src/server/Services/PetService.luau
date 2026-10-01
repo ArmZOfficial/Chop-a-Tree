@@ -279,6 +279,25 @@ local function clearPen(p)
 	local b=Garden.Base(p);local pen=b and b:FindFirstChild("PetPen");local old=pen and pen:FindFirstChild("PenPets")
 	if old then old:Destroy() end;penSig[p]=nil
 end
+function Pet.WeatherOffer(p)
+	if not enabled(p) or not Features.IsEnabled("WeatherEncounters") then return nil end
+	local s=Weather.State();if s.id~="Aurora" then return nil end
+	local id=require(Shared.Config.WeatherEncounters).AuroraEgg
+	return {id=id,price=Eggs.ById[id].price,bought=Data.Get(p,"Pets.weatherBought")[s.eventKey]~=nil}
+end
+function Pet.BuyWeather(p)
+	local offer=Pet.WeatherOffer(p);if not offer then return false,"ไม่มีไข่ออโรราในขณะนี้" end
+	if not near(p,conveyor(),Config.PenRange) then return false,"ซื้อไข่ที่สายพานในหมู่บ้าน" end
+	if offer.bought then return false,"ซื้อไข่รอบอากาศนี้แล้ว" end
+	if not table.find(Data.Get(p,"Progress.UnlockedZones"),1) or Pet.EggRoom(p)<=0 then return false,"ไข่เต็มหรือยังไม่ปลดล็อกโซน" end
+	if Data.Get(p,"Currencies.Coins")<offer.price then return false,"Coins ไม่พอ" end
+	local s=Weather.State();local marks=Data.Get(p,"Pets.weatherBought")
+	for key,at in marks do if type(at)=="number" and at<os.time()-7*86400 then marks[key]=nil end end
+	-- Validate first; marker, debit and egg are committed together without yielding.
+	marks[s.eventKey]=os.time();Data.Set(p,"Pets.weatherBought",marks);Data.AddCurrency(p,"Coins",-offer.price)
+	Pet.GrantEgg(p,{id=offer.id,rebirthDrop=Data.Get(p,"Progress.Rebirth"),admin_spawned=Data.Get(p,"Meta.AdminTouched")==true})
+	return true,"ซื้อไข่ออโรราแล้ว"
+end
 function Pet.Send(p)
 	if not Data.IsLoaded(p) or not p.Parent then return end
 	local d=Data.Get(p,"Pets");local inc={}
@@ -289,6 +308,7 @@ function Pet.Send(p)
 		hatchSpeed=Math.HatchSpeed(d.upgrades.incubator),mount=mounts[p],beltBought=table.clone(d.beltBought),now=os.time(),
 		mults={Power=Pet.Mult(p,"Power"),Wood=Pet.Mult(p,"Wood"),Exp=Pet.Mult(p,"Exp"),Speed=Pet.Mult(p,"Speed")},
 		friendSteal=Data.Get(p,"Settings.FriendSteal")==true,
+		weatherOffer=Pet.WeatherOffer(p),
 	})
 end
 
@@ -344,6 +364,7 @@ function Pet.Init()
 		elseif action=="Collect" then ok,msg=Pet.Collect(p)
 		elseif action=="Upgrade" and type(arg)=="string" then ok,msg=Pet.Upgrade(p,arg)
 		elseif action=="Buy" then ok,msg=Pet.Buy(p,arg)
+		elseif action=="BuyWeather" then ok,msg=Pet.BuyWeather(p)
 		elseif action=="Mount" then ok,msg=Pet.Mount(p,arg)
 		elseif action=="Dismount" then Pet.Dismount(p);ok,msg=true,"ลงจากหลังแล้ว" end
 		Pet.Send(p);return ok,msg,extra

@@ -44,6 +44,7 @@ local list={
 	{id="pet_celestialstag",name="Celestial Stag",thai="กวางสวรรค์",rarity="Legendary",zone=8,buff="Speed",shape="deer",rideable=true,color=Color3.fromRGB(240,235,220),accent=Color3.fromRGB(255,215,100)},
 	{id="pet_lumorawyrm",name="Lumora Wyrm",thai="มังกรลูมอรา",rarity="Mythic",zone=8,buff="Power",shape="drake",rideable=true,color=Color3.fromRGB(255,240,170),accent=Color3.fromRGB(140,255,190)},
 }
+table.insert(list,{id="pet_bloodraven",name="Blood Raven",thai="อีกาจันทราเลือด",rarity="Secret",zone=1,buff="Power",shape="bird",rideable=false,color=Color3.fromRGB(60,35,55),accent=Color3.fromRGB(255,70,100)})
 local byId={};for _,v in list do byId[v.id]=v end
 return table.freeze({
 	List=list,ById=byId,

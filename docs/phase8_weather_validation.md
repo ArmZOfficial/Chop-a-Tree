@@ -26,7 +26,7 @@
 3. เมาส์แอดมินจริงเริ่ม preview ได้; สังเกต Clear pending→Sakura→Golden→Aurora, LIVE forecast/particles และ Aurora ClockTime=0. คำขอ global start ที่ไม่ confirm ถูกปฏิเสธว่า "ต้องกดยืนยัน 2 ชั้น". Studio MemoryStore read status ready; ยังไม่ใช่หลักฐานว่า publish/subscribe/cancel ข้ามหลายเซิร์ฟจริงผ่าน.
 4. balance_sim.py baseline และ diff --check ผ่าน. Startup smoke ใหม่ Output ไม่มี error, กลับ Edit ไม่มี harness/scenario ค้าง; ไม่ overwrite ProfileStore. Plan/SKILL/HANDOFF อัปเดตพร้อมกัน.
 
-## ค้าง Phase 8d2 และข้อจำกัด
+## ประวัติส่วนค้างหลัง Phase 8d1 และข้อจำกัด
 
-1. Fog rare nests, Aurora shop eggs, Bloodmoon Secret eggs, Meteor Stardust pickups/การใช้, Rot world boss ทุก 2 ชม., ambient zone mutation, merchant/เทศกาล และเพดานขาย rare fruit ต่อวันยังไม่ทำ. Meteor ตอนนี้ให้ garden/pet mutation และภาพพื้นฐาน; Rot ให้ Rotten/growth เท่านั้น. ห้ามอ้างว่า Phase 8 หรือผลตาม weather table ทุกช่องเสร็จแล้ว.
+1. **อัปเดต Phase 8d2 (2026-10-02):** Fog rare nests/Aurora shop eggs/Bloodmoon Secret eggs/Meteor Stardust และ Rot world boss ทุก 2 ชม. ทำแล้ว 59/59 + GUI/regression ตาม `phase8_encounters_validation.md`. Rot เปลี่ยนจาก manual-only เป็น fixed UTC overlay 10 นาทีแรกของทุก 2 ชม.; weight=0. Ambient zone mutation/merchant/rare fruit daily cap ต่อ Phase 8d3; เทศกาลและส่วน Phase 8 ที่เหลือยังค้าง.
 2. Global Publish/Subscribe/Cancel ในหลายเซิร์ฟจริง, lower-rank account authorization, disconnect/API outage ระยะยาว, mobile/gamepad, เสียง/VFX สุดท้าย และ balance ผู้เล่นจริงยังรอตรวจ. Wind Area เพิ่มใน Tree.Hit แล้ว แต่ยังไม่มี scenario เปรียบเทียบ radius จริงโดยเฉพาะ. Night eligibility ใช้ UTC; night-only manual/Live Event ทำงานได้ทุกเวลาโดยเป็น override.

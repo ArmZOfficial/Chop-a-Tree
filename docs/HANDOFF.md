@@ -1,9 +1,17 @@
 # HANDOFF — Chop a Tree (สำหรับ AI ตัวถัดไป)
 
-> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d1 อากาศ/Live Event core ทดสอบแล้ว; encounters/ของพิเศษต่อ Phase 8d2
-> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 13) ประกอบ**
+> อัปเดตล่าสุด: 2026-10-02 (เวลาไทย) · Phase 8d2 Stardust/ไข่พิเศษ/บอสโลกทดสอบแล้ว; ถัดไป Phase 8d3
+> **อ่านไฟล์นี้ก่อน แล้วอ่าน `docs/plan.md` (แผนหลัก ร่างที่ 14) ประกอบ**
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
+
+1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8d2 encounters core** แล้ว: Meteor Stardust โซน 1 ทุก 20 วิ (+5, TTL 90 วิ, cap 12), ใช้ server Run/access/distance/eventKey และเก็บธนาคารทันที; แลก 20 = Rare LEVEL 1 IL 1 ที่แท่นหีบ. Fog rare/Bloodmoon Secret-only spot ใช้ Nest carry/guardian/End Run เดิม. Aurora Egg 100K Coins ที่สายพานซื้อได้ครั้งเดียวต่อ event key; schema v1 เพิ่ม Pets.weatherBought/Stats.WorldBossKills โดยคงเซฟและ Rebirth. Catalog pets = 43 (เพิ่ม Blood Raven).
+2. RotInvasion ทุก UTC 2 ชม. นาน 10 นาที (weight=0, rare forecast ???) ใช้ลานบอสโซน 1 ชั่วคราว, HP ×8 จาก Balance.BossHP(1,R). แบ่ง pool 1,000 Gems/100 Stardust ตาม normalized damage ≥0.1%/ปัดลง; จ่ายครั้งเดียว เฉพาะ loaded player ที่ยังอยู่ Run เดิม. แยก Stats.WorldBossKills และไม่เพิ่ม Progress.Bosses/ศาลเจ้า/เควส guardian; ปิด flag/อากาศจบคืนบอสปกติ, event key เดิมไม่เกิดซ้ำ.
+3. ผ่าน **59/59**, regression หีบ/สัตว์/เนื้อเรื่อง/โซน/Collections/Weather **36/81/51/23/55/38**. GUI mouse แลกหีบ, ซื้อ Aurora/ซื้อซ้ำถูกปฏิเสธ, keyboard E +5 Stardust และ CHOP ลด HP world boss; public Force ถูกปฏิเสธ. Owner admin grant +20/marksTarget ผ่านจริง และมี 2 คำสั่ง weather. หลักฐาน `phase8_encounters_{test_results,regression_results,gui_results,source_checksums}.json`; อ่าน `docs/phase8_encounters_validation.md` ก่อนต่อ.
+4. คืน profile/flags/weather/anchor/ตำแหน่ง/Balance และ GUI Finish แล้ว;เทียบข้อมูลเศรษฐกิจ/สัตว์/collection/Meta ไม่ต่าง. Source **18/18** ตรง Studio Edit, startup smoke ไม่มี error, ไม่มี test Script ค้าง; balance baseline/diff --check ผ่าน. ไม่ overwrite ProfileStore/ไม่ Publish. Plan/SKILL/handoff อัปเดตพร้อมกัน. รอบเพิ่ม remote assertion เคยใช้ getter OnServerInvoke ที่ Roblox ไม่รองรับ; ย้าย proof ไป InvokeServer จาก client จริง แล้ว scenario 59 ข้อเดิมผ่าน.
+5. ถัดไป **Phase 8d3 ambient zone mutations/merchant/rare fruit daily cap** ตาม plan. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นส่วนค้าง Phase 8. หลายบัญชี/แชร์ HP ต่าง Rebirth/server hop/reconnect/ขาดการเชื่อมต่อระหว่างจ่าย/มือถือ/gamepad/balance/VFX-เสียงยังไม่ได้พิสูจน์; อย่าประกาศจบ Phase 8. HP/contribution เป็นต่อเซิร์ฟ ไม่มี cross-server shared boss; disconnected/จบ Run ก่อน defeat ไม่ได้ payout ย้อนหลัง. ราคาพิเศษ/rarity odds เป็นค่าเริ่มต้น Phase 10.
+
+### บันทึก Phase 8d1 (ประวัติ)
 
 1. ผู้ใช้สั่ง **ทำต่อเลย** → ทำ **Phase 8d1 อากาศ/Live Event core** แล้ว. Config อากาศ 13 แบบ, ผล mutation 15 แบบ/Index union 16 IDs, Wind Area ×1.5/Sakura crit ×15/Aurora Wood-Coins ×1.5/Bloodmoon HP ×2 รางวัล ×4 (Wood/Coins cap ×4), Fog chest เพิ่ม 1 จุดโซน 1. ตาราง UTC + rare weekend weights ×2, night gates, Rainbow 10% ต่อ Rain; RotInvasion manual-only. อ่าน `docs/phase8_weather_validation.md` ก่อนต่อ **Phase 8d2 Stardust/ไข่พิเศษ/บอสโลก**; ยังไม่ถือว่า weather table ทุกช่องหรือทั้ง Phase 8 เสร็จ.
 2. LiveEventService ใช้ MemoryStore UpdateAsync revision + MessagingService reread/poll 30 วิ; UTC sequence + start delay 5 วิ/late join/expiry/failed API. Owner-only start/stop ทุกเซิร์ฟ confirm 2, preview/stop preview เฉพาะเซิร์ฟ 2 คำสั่ง. Preset Sakura→Golden→Aurora 2 นาที/ขั้น (preview 20 วิ), Studio topic/store แยก `_Studio`. Global delivery เป็น best effort; ขณะ API ขัดข้องไม่รับประกันเปลี่ยนพร้อมกันทันที. ไม่มี public Force หรือข้อความผู้เล่น broadcast.
@@ -83,16 +91,16 @@
 
 | Phase | สถานะ |
 |---|---|
-| วางแผน (plan.md ร่างที่ 10) | ✅ อัปเดตสถานะ Phase 6 และงาน UI แล้ว |
+| วางแผน (plan.md ร่างที่ 14) | ✅ plan/SKILL/handoff ตรง Phase 8d2 และงานถัดไป 8d3 |
 | **Phase 0 ฐานราก** | ✅ เสร็จ ทดสอบแล้วใน Studio ไม่มี error, commit `5f6f7e8` |
 | **Phase 1 แมพโครง** | ✅ ทวีปตัว S กระชับ สร้างและทดสอบแล้ว |
 | **Phase 2 ฟันต้นไม้ + Run** | ✅ core ผ่าน 23 checks + GUI; AFK ไม่จำกัดเวลายังไม่รองรับ, โล่ AFK รอ Phase 5 |
 | **Phase 3 หีบ + อาวุธ** | ✅ core ผ่าน 36 checks + GUI; ภาพโมเดล procedural รอขัดเกลา Phase 10 |
 | **Phase 4 สวน + อากาศพื้นฐาน** | ✅ core ผ่าน 55 checks + GUI; ทดสอบเซิร์ฟจริงหลายเครื่อง/มือถือและภาพ/เสียง/UI สุดท้ายยังค้าง |
 | **Phase 5 ไข่ + สัตว์ + ขโมย + ฐาน** | ✅ core ผ่าน 81 checks + GUI; ค้างตกแต่งฐาน/กับดัก และทดสอบขโมยหลายบัญชีจริง |
-| **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 รอ Phase 7, บัฟ Index/Achievements รอ Phase 8 |
+| **Phase 6 เนื้อเรื่อง + เควส + บอส** | ✅ core ผ่าน 51 checks + GUI; บท 3–8 แม่แบบใช้ได้แล้ว, NPC/บทพูดเฉพาะ/คัตซีนยังค้าง |
 | **Phase 7 โซน 3–8** | ✅ core ครบ 8 โซน ผ่าน 23/23; รายละเอียดเส้นทาง/ข้อจำกัดใน phase7_validation.md |
-| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; อากาศ/Live Event core 38/38 + GUI; encounters/ของพิเศษและระบบอื่นยังค้าง |
+| **Phase 8** | 🟨 Rebirth 41/41; Rewards 45/45; Collections 55/55; Weather/Live Event 38/38; encounters 59/59 + GUI; ถัดไป 8d3 และระบบ Phase 8 ที่เหลือ |
 | Phase 9–10 | ⬜ ยังไม่เริ่ม (ดู plan.md หัวข้อ 7, 16) |
 
 ## 5. Phase 0 ที่ทำแล้ว (โครงโค้ด Rojo)
@@ -198,11 +206,11 @@
 
 ## 10. Phase ถัดไป
 
-**ถัดจาก Phase 8b core คือ Phase 8c บัฟ Index/Achievements**. อ่าน `phase8_rewards_validation.md`, `phase8_rebirth_validation.md` และ SKILL.md สำหรับ seams ของรางวัล/อันดับ/วัฏจักร/ทักษะ. อากาศครบ/บอสโลก/อีเวนต์/Live Event, Emote/Photo และร้าน/Season Pass ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
+**ถัดจาก Phase 8d2 core คือ Phase 8d3 ambient zone mutations/พ่อค้าเร่/เพดานขายผลหายากต่อวัน**. อ่าน `phase8_encounters_validation.md`, `phase8_weather_validation.md` และ SKILL.md ก่อนต่อ. เทศกาล/ร้าน/Season Pass/Emote-Photo ยังเป็นงาน Phase 8 ที่เหลือตาม plan หัวข้อ 7; คงเพดานบัฟ/กฎทางฟรีในหัวข้อ 17.
 
 1. **Phase 7 core ทำแล้ว**: โซนทั้ง 8 built=true; บอส/บทแม่แบบ/วาร์ป/ประตูทำงาน และเพิ่มไข่/สัตว์โซน 3–8 แล้ว. อ่าน `docs/phase7_validation.md` สำหรับผลตรวจ/ข้อจำกัด; รักษา GuardianOffset และต้นแบบ MapAssets เมื่อแก้แมพ.
-2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย), บัฟถาวร Index + Achievements (Phase 8).
-3. อ่าน `docs/phase6_validation.md`, `phase5_validation.md`, `phase4_validation.md`, `phase3_validation.md` สำหรับ seams. ยังต้องทดสอบ multi-account/multi-server มือถือ/gamepad. อากาศชุดที่เหลือ/Live Event/ไข่ Robux/Secret ต่อ Phase 8; art/เสียง/โมเดลบอส-สัตว์/คัตซีน/UI polish ต่อ Phase 10.
+2. ค้างจาก Phase 5–6: **ตกแต่งฐาน (plan 9.2)**, กับดัก/สัตว์เฝ้าฐาน, ทดสอบขโมย/ตีบอสร่วมกับผู้เล่นจริง 2+ บัญชี, แก้ GardenController ไม่ให้สร้างปุ่มใหม่ทุก 2 วิ (มีงานแยกเสนอไว้แล้ว), NPC อื่นตามเนื้อเรื่อง (พ่อค้ากระรอก/นักวิจัย). Index buffs/Achievements ทำแล้วใน Phase 8c.
+3. อ่าน `docs/phase6_validation.md`, `phase5_validation.md`, `phase4_validation.md`, `phase3_validation.md` สำหรับ seams. ยังต้องทดสอบ multi-account/multi-server มือถือ/gamepad. ไข่ Secret/weather encounters ทำแล้ว, ไข่ Robux/ร้านยังค้าง; art/เสียง/โมเดลบอส-สัตว์/คัตซีน/UI polish ต่อ Phase 10.
 4. **ทุก Phase ต้องเพิ่มปุ่มทดสอบใน Admin Panel** ผ่าน `AdminService.Register` และปิดระบบที่ยังไม่พร้อมด้วย Feature Flag
 5. ArmZ ขอระบุ **งานปรับปรุง UI** ในแผนแล้ว: Phase 10 ครอบคลุม HUD, Run, Inventory, เปิดหีบ, สวน/เมล็ด, ไข่/สัตว์, เควส/Index, พยากรณ์อากาศ, ร้านค้า และ Admin Panel ให้เป็นสไตล์เดียวกัน อ่านง่ายและกดสะดวกบนคอมพิวเตอร์/มือถือ พร้อมขัดเกลาภาพแมพ แสง เสียง VFX และแอนิเมชัน (ดู plan.md หัวข้อ 7).
 

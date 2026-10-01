@@ -27,7 +27,7 @@ local function dayRows(day)
 	end
 	cache[day]=rows;for key in cache do if math.abs(key-day)>1 then cache[key]=nil end end;return rows
 end
-function Schedule.At(now)
+local function naturalAt(now)
 	local day=math.floor(now/86400);local rows=dayRows(day)
 	for i,row in rows do if now<row.endsAt then
 		if now<row.startAt then
@@ -39,5 +39,19 @@ function Schedule.At(now)
 		return {id=row.id,endsAt=row.endsAt,nextId=Config.ById[nextRow.id].rare and "???" or nextRow.id,nextAt=nextRow.startAt,eventKey=row.id..":"..row.startAt}
 	end end
 	return {id="Clear",endsAt=(day+1)*86400,nextId="???",nextAt=(day+1)*86400,eventKey="Clear:"..day}
+end
+function Schedule.At(now)
+	local C=require(script.Parent.Config.WeatherEncounters)
+	local start=math.floor(now/C.WorldPeriod)*C.WorldPeriod
+	if now<start+C.WorldSeconds then
+		local after=naturalAt(start+C.WorldSeconds)
+		local nextAt=after.id=="Clear" and after.nextAt or start+C.WorldSeconds
+		local nextId=after.id=="Clear" and after.nextId or (Config.ById[after.id].rare and "???" or after.id)
+		return {id="RotInvasion",endsAt=start+C.WorldSeconds,nextId=nextId,nextAt=nextAt,eventKey="RotInvasion:"..start}
+	end
+	local s=naturalAt(now);local nextRot=start+C.WorldPeriod
+	if s.endsAt>=nextRot then s.endsAt=nextRot end
+	if s.nextAt>=nextRot then s.nextAt=nextRot;s.nextId="???" end
+	return s
 end
 return Schedule

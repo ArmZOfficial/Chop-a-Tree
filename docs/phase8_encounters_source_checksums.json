@@ -1,0 +1,149 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "path": "src/client/InventoryController.luau",
+      "length": 14251,
+      "hash": 802996875,
+      "studioLength": 14251,
+      "studioHash": 802996875,
+      "matched": true
+    },
+    {
+      "path": "src/client/PetController.luau",
+      "length": 21192,
+      "hash": 700729669,
+      "studioLength": 21192,
+      "studioHash": 700729669,
+      "matched": true
+    },
+    {
+      "path": "src/client/StoryController.luau",
+      "length": 22900,
+      "hash": 33344474,
+      "studioLength": 22900,
+      "studioHash": 33344474,
+      "matched": true
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "length": 2804,
+      "hash": 1530911888,
+      "studioLength": 2804,
+      "studioHash": 1530911888,
+      "matched": true
+    },
+    {
+      "path": "src/server/Services/BossService.luau",
+      "length": 8451,
+      "hash": 275550476,
+      "studioLength": 8451,
+      "studioHash": 275550476,
+      "matched": true
+    },
+    {
+      "path": "src/server/Services/DataService.luau",
+      "length": 12209,
+      "hash": 2084062809,
+      "studioLength": 12209,
+      "studioHash": 2084062809,
+      "matched": true
+    },
+    {
+      "path": "src/server/Services/NestService.luau",
+      "length": 9101,
+      "hash": 765829196,
+      "studioLength": 9101,
+      "studioHash": 765829196,
+      "matched": true
+    },
+    {
+      "path": "src/server/Services/PetService.luau",
+      "length": 25083,
+      "hash": 108095943,
+      "studioLength": 25083,
+      "studioHash": 108095943,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Config/Eggs.luau",
+      "length": 3817,
+      "hash": 408392408,
+      "studioLength": 3817,
+      "studioHash": 408392408,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Config/Features.luau",
+      "length": 922,
+      "hash": 478512329,
+      "studioLength": 922,
+      "studioHash": 478512329,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Config/Pets.luau",
+      "length": 10230,
+      "hash": 480671867,
+      "studioLength": 10230,
+      "studioHash": 480671867,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Config/Weather.luau",
+      "length": 2470,
+      "hash": 1143308408,
+      "studioLength": 2470,
+      "studioHash": 1143308408,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Net.luau",
+      "length": 2480,
+      "hash": 1333354514,
+      "studioLength": 2480,
+      "studioHash": 1333354514,
+      "matched": true
+    },
+    {
+      "path": "src/shared/WeatherSchedule.luau",
+      "length": 3031,
+      "hash": 1831339178,
+      "studioLength": 3031,
+      "studioHash": 1831339178,
+      "matched": true
+    },
+    {
+      "path": "src/server/AdminCommands/EncounterCommands.luau",
+      "length": 567,
+      "hash": 4574885,
+      "studioLength": 567,
+      "studioHash": 4574885,
+      "matched": true
+    },
+    {
+      "path": "src/server/Services/WeatherEncounterService.luau",
+      "length": 9177,
+      "hash": 1316409868,
+      "studioLength": 9177,
+      "studioHash": 1316409868,
+      "matched": true
+    },
+    {
+      "path": "src/shared/Config/WeatherEncounters.luau",
+      "length": 269,
+      "hash": 208773243,
+      "studioLength": 269,
+      "studioHash": 208773243,
+      "matched": true
+    },
+    {
+      "path": "src/shared/EncounterMath.luau",
+      "length": 327,
+      "hash": 746841338,
+      "studioLength": 327,
+      "studioHash": 746841338,
+      "matched": true
+    }
+  ]
+}
