@@ -758,7 +758,7 @@ StarterGui
 
 ### 17.3 Dev Product (ซื้อซ้ำได้)
 
-**ชุดภาพ/ข้อความพร้อมแล้ว 2026-10-02:** ครบ 17 รายการใน `assets/monetization/developer-products/`: Gems 4 แพ็ก, ยา Wood/Coins/EXP/Luck ×2 แบบ 15/30 นาที 8 รายการ, server Luck 15 นาที, ฟักทันที, โตทันที, กุญแจหีบ และล็อกฐานทันที. ภาพ PNG 512×512 alpha ผ่านตรวจ 17/17 + ภาพรวม, ชื่อ/คำอธิบายไทย-อังกฤษใน README/gallery, ZIP ครบชุด. ราคาและ ID ยังเว้นไว้; copy เป็นร่างผลที่จะทำจริง. ยังไม่ได้ต่อ receipt/ซื้อซ้ำ/เปิด Shop/สร้างสินค้า/ตั้งขาย/Publish. ร้านและ Season Pass ยังเป็นงานระบบถัดไป.
+**ชุดภาพ/ข้อความพร้อมแล้ว 2026-10-02:** ครบ 17 รายการใน `assets/monetization/developer-products/`: Gems 4 แพ็ก, ยา Wood/Coins/EXP/Luck ×2 แบบ 15/30 นาที 8 รายการ, server Luck 15 นาที, ฟักทันที, โตทันที, กุญแจหีบ และล็อกฐานทันที. ภาพ PNG 512×512 alpha ผ่านตรวจ 17/17 + ภาพรวม, ชื่อ/คำอธิบายไทย-อังกฤษใน README/gallery, ZIP ครบชุด. กำหนดราคาฐาน Beta แล้วตามตารางด้านล่าง; ID ยังเว้นไว้; copy เป็นร่างผลที่จะทำจริง. ยังไม่ได้ต่อ receipt/ซื้อซ้ำ/เปิด Shop/สร้างสินค้า/ตั้งขาย/Publish. ร้านและ Season Pass ยังเป็นงานระบบถัดไป.
 
 | สินค้า | ผล | ทางฟรี |
 |---|---|---|
@@ -768,6 +768,34 @@ StarterGui
 | ข้ามเวลาฟัก/โต | ฟักไข่/โตต้นไม้ทันที | รอ หรือใช้ Gems |
 | กุญแจหีบ | เปิดหีบพิเศษ | กุญแจดรอปจากบอสและเควสรายสัปดาห์ |
 | ล็อกฐานทันที | รีเซ็ตคูลดาวน์ล็อกฐาน | รอคูลดาวน์ |
+
+#### 17.3.1 ราคาฐานเริ่มต้น — 2026-10-02
+
+## ราคาฐานเริ่มต้น (Robux)
+
+| สินค้า | Robux |
+|---|---:|
+| 100 Gems | 19 |
+| 550 Gems | 79 |
+| 1,200 Gems | 149 |
+| 6,500 Gems | 699 |
+| 2x Wood — 15 Minutes | 19 |
+| 2x Wood — 30 Minutes | 29 |
+| 2x Coins — 15 Minutes | 19 |
+| 2x Coins — 30 Minutes | 29 |
+| 2x EXP — 15 Minutes | 29 |
+| 2x EXP — 30 Minutes | 49 |
+| 2x Luck — 15 Minutes | 39 |
+| 2x Luck — 30 Minutes | 69 |
+| Server Luck Boost | 99 |
+| Instant Hatch | 39 |
+| Instant Grow | 19 |
+| Special Chest Key | 29 |
+| Instant Base Lock | 19 |
+
+ราคาเริ่มต้นสำหรับ Beta: แพ็ก Gems ใหญ่คุ้มขึ้นต่อ Robux, บูสต์ 30 นาทีถูกกว่าสองขวด 15 นาที, server Luck ราคา 99 เพราะช่วยทั้งเซิร์ฟ. ยังไม่ผ่านข้อมูลยอดซื้อ/retention หรือ balance Phase 10; ปรับตามข้อมูลจริง. ราคาของ Pass คงตาม plan 17.2, Season Premium ตาม plan 17.4 = 499 Robux.
+
+เป็นราคาฐานสำหรับตั้งใน Creator Dashboard; หากเปิด Managed Pricing ราคาที่ผู้เล่นเห็นอาจต่างกัน ใช้ราคาจริงจาก MarketplaceService ในร้านเกม ([เอกสาร Roblox](https://create.roblox.com/docs/production/monetization/regional-pricing)).
 
 ### 17.4 Season Pass (รายเดือน)
 

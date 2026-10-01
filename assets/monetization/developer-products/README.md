@@ -1,8 +1,34 @@
 # Chop a Tree — Developer Products
 
-ครบ 17 สินค้าตาม plan 17.3. ภาพ PNG 512×512 วงกลม พื้นหลังโปร่งใส. ราคาและ Product ID ยังไม่ได้กำหนด; ยังไม่ได้สร้างสินค้า/ตั้งขาย/ต่อ receipt ในเกม. ข้อความเป็นร่างสำหรับผลที่จะทำจริง ควรตรวจการให้รางวัลและกติกาบูสต์ก่อนเปิดขาย.
+ครบ 17 สินค้าตาม plan 17.3. ภาพ PNG 512×512 วงกลม พื้นหลังโปร่งใส. กำหนดราคาฐานเริ่มต้นแล้ว; Product ID ยังไม่ได้กำหนด; ยังไม่ได้สร้างสินค้า/ตั้งขาย/ต่อ receipt ในเกม. ข้อความเป็นร่างสำหรับผลที่จะทำจริง ควรตรวจการให้รางวัลและกติกาบูสต์ก่อนเปิดขาย.
 
 เปิด `gallery.html` เพื่อดูภาพและคัดลอกชื่อ/คำอธิบายไทย-อังกฤษ. ใช้ `icons/` สำหรับอัปโหลด. `products.json` เก็บรายการ; `prompts.json` เก็บ prompt จาก built-in imagegen; `validation.json` เก็บผลตรวจขนาด/alpha/hash.
+
+## ราคาฐานเริ่มต้น (Robux)
+
+| สินค้า | Robux |
+|---|---:|
+| 100 Gems | 19 |
+| 550 Gems | 79 |
+| 1,200 Gems | 149 |
+| 6,500 Gems | 699 |
+| 2x Wood — 15 Minutes | 19 |
+| 2x Wood — 30 Minutes | 29 |
+| 2x Coins — 15 Minutes | 19 |
+| 2x Coins — 30 Minutes | 29 |
+| 2x EXP — 15 Minutes | 29 |
+| 2x EXP — 30 Minutes | 49 |
+| 2x Luck — 15 Minutes | 39 |
+| 2x Luck — 30 Minutes | 69 |
+| Server Luck Boost | 99 |
+| Instant Hatch | 39 |
+| Instant Grow | 19 |
+| Special Chest Key | 29 |
+| Instant Base Lock | 19 |
+
+ราคาเริ่มต้นสำหรับ Beta: แพ็ก Gems ใหญ่คุ้มขึ้นต่อ Robux, บูสต์ 30 นาทีถูกกว่าสองขวด 15 นาที, server Luck ราคา 99 เพราะช่วยทั้งเซิร์ฟ. ยังไม่ผ่านข้อมูลยอดซื้อ/retention หรือ balance Phase 10; ปรับตามข้อมูลจริง. ราคาของ Pass คงตาม plan 17.2, Season Premium ตาม plan 17.4 = 499 Robux.
+
+เป็นราคาฐานสำหรับตั้งใน Creator Dashboard; หากเปิด Managed Pricing ราคาที่ผู้เล่นเห็นอาจต่างกัน ใช้ราคาจริงจาก MarketplaceService ในร้านเกม ([เอกสาร Roblox](https://create.roblox.com/docs/production/monetization/regional-pricing)).
 
 ## 100 Gems
 
