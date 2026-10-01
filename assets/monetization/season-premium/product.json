@@ -5,5 +5,5 @@
   "icon": "icons/season-pass-premium.png",
   "descriptionEn": "Unlock the Premium reward track for the current season. Earn season levels through play to claim rewards. Valid for this season only.",
   "descriptionTh": "ปลดล็อกแถวรางวัล Premium ของซีซันปัจจุบัน เล่นเพื่อเก็บเลเวลซีซันและรับรางวัล ใช้ได้เฉพาะซีซันนี้",
-  "status": "Product created and ID verified 2026-10-02. Season entitlement and receipt processing still need implementation and verification."
+  "status": "Product created and ID verified 2026-10-02. Sold from the in-game Season panel; SeasonService grants Premium for the season on sale (tests 29/29). Not published yet."
 }

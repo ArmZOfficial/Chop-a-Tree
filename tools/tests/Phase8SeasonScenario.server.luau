@@ -1,0 +1,66 @@
+-- Phase 8g Season Pass. Inject in Studio Play as a temporary Script. Always restores the real profile.
+assert(game:GetService("RunService"):IsStudio())
+local V=game.ServerScriptService.Server.Services;local S=game.ReplicatedStorage.Shared
+local D=require(V.DataService);local F=require(V.FeatureService);local M=require(V.MonetizationService);local R=require(V.RunService)
+local Season=require(V.SeasonService);local C=require(S.Config.Season);local Products=require(S.Config.Products)
+local p=game.Players:GetPlayers()[1];assert(D.WaitForData(p,30));local original=D.ExportJSON(p)
+local pivot=p.Character:GetPivot()
+local flags={};for _,id in {"SeasonPass","Shop","AutoSave","AutoCut"} do flags[id]=F.IsEnabled(id) end
+local results={}
+local function check(name,ok) assert(ok,name);table.insert(results,{name=name,passed=true}) end
+local Granted=Enum.ProductPurchaseDecision.PurchaseGranted
+local function receipt(id) return M.ProcessReceipt({PlayerId=p.UserId,ProductId=Products.SeasonPremium.id,PurchaseId=id,CurrencySpent=499}) end
+workspace:SetAttribute("Phase8SeasonStatus","running")
+local ok,err=xpcall(function()
+ for id in flags do F.Set(id,true) end;F.Set("AutoSave",false)
+ D.Set(p,"Meta.AdminTouched",true);D.Set(p,"Purchases.receipts",{});Season.Reset(p);D.SetCurrency(p,"Gems",0);D.Set(p,"Inventory.Chests",{})
+ local migrated=D.Migrate({DataVersion=1})
+ check("Schema adds an empty Season block",migrated.Season.id=="" and migrated.Season.xp==0 and migrated.Season.premium==false and migrated.Season.pendingFor=="")
+ local s1=C.Seasons[1]
+ check("30 levels, every level has a free and premium reward",#C.Levels==30 and (function() for _,r in C.Levels do if not r.free.label or not r.premium.label then return false end end;return true end)())
+ check("No Mythic chest in either track (no P2W tier)",(function() for _,r in C.Levels do for _,t in {r.free,r.premium} do if t.chest and t.chest.rarity=="Mythic" then return false end end end;return true end)())
+ check("Active season matches its UTC window",Season.Active(s1.startsAt)==s1 and Season.Active(s1.endsAt)==nil and Season.Active(s1.startsAt-1)==nil)
+ local now=s1.startsAt+3600
+ Season.Touch(p,now);check("Touch binds the profile to the active season",D.Get(p,"Season.id")==s1.id)
+ -- XP from Stats (DataService.Changed is deferred, so yield before reading)
+ R.End(p,false);R.Begin(p);R.SetMode(p,"AutoCut",false);local xp=D.Get(p,"Season.xp");D.Increment(p,"Stats.TreesCut",1);task.wait()
+ check("Manual tree cut gives TreesCut XP",D.Get(p,"Season.xp")-xp==C.Xp.TreesCut)
+ R.SetMode(p,"AutoCut",true);xp=D.Get(p,"Season.xp");D.Increment(p,"Stats.TreesCut",1);task.wait()
+ check("Auto Cut tree gives the reduced XP",D.Get(p,"Season.xp")-xp==C.Xp.AutoTreesCut);R.SetMode(p,"AutoCut",false);R.End(p,false)
+ xp=D.Get(p,"Season.xp");D.Increment(p,"Stats.EggsHatched",2);D.Increment(p,"Stats.Harvests",1);task.wait()
+ check("Hatch and harvest give XP per increment",D.Get(p,"Season.xp")-xp==2*C.Xp.EggsHatched+C.Xp.Harvests)
+ xp=D.Get(p,"Season.xp");D.Increment(p,"Stats.EggsStolen",1);task.wait();check("Stats outside the XP table give nothing",D.Get(p,"Season.xp")==xp)
+ F.Set("SeasonPass",false);D.Increment(p,"Stats.TreesCut",1);task.wait();check("Flag off stops XP",D.Get(p,"Season.xp")==xp);F.Set("SeasonPass",true)
+ -- claims
+ Season.Reset(p);Season.Touch(p,now)
+ check("Level 1 reward is locked at level 0",not Season.Claim(p,"free",1,now))
+ Season.AddXp(p,C.XpPerLevel,now);check("1000 XP reaches level 1",Season.Level(D.Get(p,"Season.xp"))==1)
+ local g=D.GetCurrency(p,"Gems");check("Free level 1 pays its reward",Season.Claim(p,"free",1,now) and D.GetCurrency(p,"Gems")-g==C.Levels[1].free.gems)
+ g=D.GetCurrency(p,"Gems");check("A claimed reward cannot be claimed again",not Season.Claim(p,"free",1,now) and D.GetCurrency(p,"Gems")==g)
+ local okP,msgP=Season.Claim(p,"premium",1,now);check("Premium track needs Premium",not okP and string.find(msgP,"Premium")~=nil)
+ check("Bad track/level input is refused",not Season.Claim(p,"gold",1,now) and not Season.Claim(p,"free",1.5,now) and not Season.Claim(p,"free",99,now))
+ Season.AddXp(p,1e9,now);check("XP is capped at the last level",D.Get(p,"Season.xp")==#C.Levels*C.XpPerLevel and Season.Level(D.Get(p,"Season.xp"))==#C.Levels)
+ -- purchase
+ Season.Reset(p);Season.Touch(p,now);D.Set(p,"Purchases.receipts",{});D.SetCurrency(p,"Gems",0)
+ check("Premium can be bought in an active season",Season.CanBuy(p,now)==true)
+ Season.MarkPending(p,now);check("Prompt stamps the season on sale",D.Get(p,"Season.pendingFor")==s1.id)
+ check("Receipt unlocks Premium for the season on sale",receipt("season-test-1")==Granted and D.Get(p,"Season.premium")==true and D.Get(p,"Season.pendingFor")=="" and D.GetCurrency(p,"Gems")==0)
+ check("Replayed receipt does not grant again",receipt("season-test-1")==Granted and D.GetCurrency(p,"Gems")==0 and D.Get(p,"Purchases.receipts")["season-test-1"]~=nil)
+ local okB=Season.CanBuy(p,now);check("Owned season Premium cannot be prompted again",not okB and not M.Prompt(p,"seasonPremium"))
+ check("A second paid receipt in the same season pays fallback Gems",receipt("season-test-2")==Granted and D.Get(p,"Season.premium")==true and D.GetCurrency(p,"Gems")==C.PremiumFallbackGems)
+ Season.AddXp(p,4*C.XpPerLevel,now);g=D.GetCurrency(p,"Gems");local okA=Season.ClaimAll(p,now)
+ local want=0;for i=1,4 do want+=(C.Levels[i].free.gems or 0)+(C.Levels[i].premium.gems or 0) end
+ check("Claim all pays both tracks up to the current level",okA and D.GetCurrency(p,"Gems")-g==want and #D.Get(p,"Inventory.Chests")>0)
+ check("Claim all with nothing left is refused",not Season.ClaimAll(p,now))
+ -- season binding
+ Season.Reset(p);Season.Touch(p,now);D.Set(p,"Season.pendingFor","s0_old");D.SetCurrency(p,"Gems",0)
+ check("Receipt stamped for an ended season pays Gems, not this season",receipt("season-test-3")==Granted and D.Get(p,"Season.premium")==false and D.GetCurrency(p,"Gems")==C.PremiumFallbackGems)
+ Season.SetPremium(p,true);Season.AddXp(p,C.XpPerLevel,now);Season.Touch(p,s1.endsAt+1)
+ local d=D.Get(p,"Season");check("Season end drops Premium, XP and claims",d.id=="" and d.premium==false and d.xp==0 and next(d.free)==nil)
+ check("No season: no XP, no claims, no sale",(function() Season.AddXp(p,500,s1.endsAt+1);return D.Get(p,"Season.xp")==0 end)() and not Season.ClaimAll(p,s1.endsAt+1) and not Season.CanBuy(p,s1.endsAt+1))
+ F.Set("SeasonPass",false);check("Flag off refuses claims and sale",not Season.Claim(p,"free",1,now) and not Season.CanBuy(p,now));F.Set("SeasonPass",true)
+end,debug.traceback)
+for id,v in flags do F.Set(id,v) end;pcall(R.End,p,false)
+D.ImportJSON(p,original);M.Refresh(p);R.Send(p);p.Character:PivotTo(pivot);D.SaveNow(p)
+workspace:SetAttribute("Phase8SeasonResults",game.HttpService:JSONEncode({passed=ok,checks=results,error=not ok and err or nil}));workspace:SetAttribute("Phase8SeasonStatus",ok and "passed" or "failed")
+print("[Phase8SeasonScenario]",ok and "passed" or err,#results)

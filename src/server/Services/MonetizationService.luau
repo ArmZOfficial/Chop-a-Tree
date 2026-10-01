@@ -15,6 +15,7 @@ local P=require(script.Parent.PetService)
 local G=require(script.Parent.GardenService)
 local Steal=require(script.Parent.StealService)
 local Ach=require(script.Parent.AchievementService)
+local Season=require(script.Parent.SeasonService)
 local M={}
 local GEMS={gems100=100,gems550=550,gems1200=1200,gems6500=6500}
 local BOOST={wood15={"Wood",900},wood30={"Wood",1800},coins15={"Coins",900},coins30={"Coins",1800},exp15={"Exp",900},exp30={"Exp",1800},luck15={"Luck",900},luck30={"Luck",1800}}
@@ -52,18 +53,20 @@ function M.Grant(p,key)
 		G.Advance(p,now,true);D.Set(p,"Garden",d);G.Send(p)
 	elseif key=="chestKey" then W.GrantChest(p,"Legendary",10,G.ShopZone(p),1,D.Get(p,"Meta.AdminTouched")==true)
 	elseif key=="baseLock" then Steal.ForceLock(p)
+	elseif key=="seasonPremium" then return Season.GrantPremium(p,now)
 	else error("unknown product "..tostring(key)) end
 end
 function M.ProcessReceipt(info)
-	local row=C.ProductById[info.ProductId];local p=Players:GetPlayerByUserId(info.PlayerId)
+	local row=info.ProductId==C.SeasonPremium.id and C.SeasonPremium or C.ProductById[info.ProductId];local p=Players:GetPlayerByUserId(info.PlayerId)
 	if not row or not p or not D.IsLoaded(p) then return Enum.ProductPurchaseDecision.NotProcessedYet end
 	local id=tostring(info.PurchaseId)
 	if not D.Get(p,"Purchases.receipts")[id] then
-		if not pcall(M.Grant,p,row.key) then return Enum.ProductPurchaseDecision.NotProcessedYet end
+		local ok,text=pcall(M.Grant,p,row.key)
+		if not ok then return Enum.ProductPurchaseDecision.NotProcessedYet end
 		local now=os.time();local t=table.clone(D.Get(p,"Purchases.receipts"))
 		for k,at in t do if at<now-C.ReceiptKeepSeconds then t[k]=nil end end
 		t[id]=now;D.Set(p,"Purchases.receipts",t)
-		Net.Event("Notify"):FireClient(p,{text="ได้รับ "..row.name.." แล้ว ขอบคุณที่สนับสนุน!"})
+		Net.Event("Notify"):FireClient(p,{text=(text or "ได้รับ "..row.name.." แล้ว").." ขอบคุณที่สนับสนุน!"})
 	end
 	-- Report success only once the receipt marker is in the saved copy (no double grants after a crash).
 	local saved=D.SaveAndWait(p,function(data) return data and data.Purchases and data.Purchases.receipts and data.Purchases.receipts[id]~=nil end,30)
@@ -75,6 +78,10 @@ function M.Prompt(p,key)
 	if pass then
 		if M.Owns(p,key) then return false,"มี "..pass.name.." แล้ว" end
 		MS:PromptGamePassPurchase(p,pass.id);return true,"เปิดหน้าซื้อ "..pass.name
+	end
+	if key=="seasonPremium" then
+		local ok,msg=Season.CanBuy(p);if not ok then return false,msg end
+		Season.MarkPending(p);MS:PromptProductPurchase(p,C.SeasonPremium.id);return true,"เปิดหน้าซื้อ "..C.SeasonPremium.name
 	end
 	local row=C.ProductByKey[key];if not row then return false,"ไม่มีสินค้านี้" end
 	local check=READY[key];if check then local ok,msg=check(p);if not ok then return false,msg end end

@@ -799,7 +799,9 @@ StarterGui
 
 ### 17.4 Season Pass (รายเดือน)
 
-**ภาพ/listing พร้อมแล้ว 2026-10-02:** `assets/monetization/season-premium/` มีไอคอนวงกลม PREMIUM PNG 512×512 alpha, `product.json`/README คำอธิบายไทย-อังกฤษสั้น, ราคาฐาน 499 Robux และ prompt. สิทธิ์เฉพาะซีซันที่ซื้อ ต้องเล่นเก็บเลเวลเพื่อ claim; ไม่ปลดทุกเลเวลทันที. Product ID 3715870274 (สร้างแล้ว ตรวจ GetProductInfo 499 Robux) แต่ยังไม่ได้ต่อระบบ season entitlement/receipt/ตั้งขาย/Publish. ก่อนเปิดขายผูก receipt กับ season ID ที่ประกาศขายและป้องกันซื้อ Premium ซีซันเดิมซ้ำ.
+**ภาพ/listing พร้อมแล้ว 2026-10-02:** `assets/monetization/season-premium/` มีไอคอนวงกลม PREMIUM PNG 512×512 alpha, `product.json`/README คำอธิบายไทย-อังกฤษสั้น, ราคาฐาน 499 Robux และ prompt. สิทธิ์เฉพาะซีซันที่ซื้อ ต้องเล่นเก็บเลเวลเพื่อ claim; ไม่ปลดทุกเลเวลทันที. Product ID 3715870274 (ตรวจ GetProductInfo 499 Robux).
+
+**ระบบทำแล้ว 2026-10-02 (ยังไม่ Publish):** `Config/Season.luau` ซีซัน 1 "ป่าแรกผลิ" 2026-10-01→11-01 UTC, 30 เลเวล × 1,000 XP, รางวัลฟรี+Premium ทุกเลเวล (Gems/ยาบูสต์/หีบ; Premium ไม่มีหีบเกิน Legendary = ไม่ P2W; คอสเมติก Exclusive รอระบบ 17.5). XP จาก Stats: ฟันต้นไม้ 10 (Auto Cut 5), ปลูก/เก็บผล 15, ฟักไข่ 40, เปิดหีบ 10, บอส 150. `SeasonService` claim ทีละเลเวล/รับทั้งหมด, ซีซันใหม่รีเซ็ต XP/Premium/claim (ของค้างหาย). Premium: prompt บันทึก `Season.pendingFor`, receipt ปลดเฉพาะซีซันนั้นและไม่จ่ายซ้ำ; มีแล้ว/ซีซันจบ → 4,500 Gems แทน. หน้า Season Pass (ปุ่มม่วง HUD), admin season.xp/premium/reset, flag `SeasonPass`. ทดสอบ `Phase8SeasonScenario` 29/29 + regression Shop 34/34 + เปิดหน้าจริงใน Play.
 
 1. **สายฟรี**: ได้รางวัลทุกเลเวล (Gems, ยาบูสต์, ไข่, หีบ, อาวุธ, ท่าทาง)
 2. **สาย Premium** (ประมาณ 499 R$): รางวัลเพิ่มอีกแถว เน้น **คอสเมติก Exclusive** (สกินอาวุธ, ออร่า, ชุดตกแต่งฐาน, สัตว์หน้าตาพิเศษที่ค่าพลังเท่าตัวปกติ) + ยาบูสต์/Gems

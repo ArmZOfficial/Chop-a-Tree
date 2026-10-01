@@ -19,7 +19,7 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 ## Season Pass Premium
 
-เมื่อสร้างหรือแก้ listing ซีซัน อ่าน `assets/monetization/season-premium/product.json`/README ตาม plan 17.4: ภาพ PREMIUM PNG 512×512 alpha, ราคา 499 Robux, copy ไทย-อังกฤษระบุสิทธิ์เฉพาะซีซันและเล่นเก็บเลเวล. ID 3715870274 (`Products.SeasonPremiumId`). ก่อนเปิดขายตรวจ season-bound entitlement, receipt ไม่จ่ายซ้ำ และป้องกันซื้อซีซันเดียวกันซ้ำ; ข้อความไม่ได้รับประกันผ่านตัวกรอง Roblox.
+เมื่อสร้างหรือแก้ listing ซีซัน อ่าน `assets/monetization/season-premium/product.json`/README ตาม plan 17.4: ภาพ PREMIUM PNG 512×512 alpha, ราคา 499 Robux, copy ไทย-อังกฤษระบุสิทธิ์เฉพาะซีซันและเล่นเก็บเลเวล. ID 3715870274 (`Products.SeasonPremium`). ระบบอยู่ `SeasonService`/`Config/Season.luau`/`SeasonController`: เพิ่มซีซันใหม่ = เพิ่มแถวใน `Seasons` (id ใหม่ห้ามซ้ำ). XP มาจาก Stats delta ผ่าน DataService.Changed ซึ่งเป็น deferred → เทสต้อง `task.wait()` ก่อนอ่าน. Receipt ต้องไม่ yield; Premium ผูก `pendingFor` จาก prompt. ทดสอบด้วย `tools/tests/Phase8SeasonScenario.server.luau`; ข้อความไม่ได้รับประกันผ่านตัวกรอง Roblox.
 
 ## แนวทางต่อระบบอาวุธและ UI
 

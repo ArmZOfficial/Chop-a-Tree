@@ -25,5 +25,6 @@ return table.freeze({
 	Festivals = true, -- Phase 8e
 	Emotes = true, -- Phase 8f emotes + photo mode
 	Shop = true, -- Phase 8g Robux shop
+	SeasonPass = true, -- Phase 8g Season Pass
 	PvP = false, -- Phase 9
 })
