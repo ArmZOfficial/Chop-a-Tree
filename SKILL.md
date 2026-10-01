@@ -28,5 +28,5 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - ArmZ อนุญาตเลือกและใช้ asset ที่เข้าถึงได้ตามงาน (2026-10-01), ปรับให้เข้าธีม; ตรวจผู้สร้าง/ID/descendants/scripts ใน staging ก่อนใช้งาน.
 - คง tags/attributes/collider/ownership; เก็บ prototype ใน ServerStorage ให้ MapBuilder สร้างซ้ำได้. เปลี่ยนทางเดินตรวจ Edit+Play ด้วย `tools/map/ValidateRoutes.luau`.
 - ภาพสินค้าอยู่ `assets/monetization/`; PNG 512×512 alpha, หนึ่งภาพต่อสินค้า. โค้ด Config/Products เป็นแหล่ง ID/รายการจริง; JSON/gallery เป็น listing assets อาจเป็น snapshot. ไม่รับประกันผ่าน text filter.
-- Arena: ตรวจ GameId ของสอง Place ให้ตรงกันก่อนตั้ง Config.Arena.PlaceId; คง PvP ปิดจน match server พร้อม. TeleportData เป็น hint ไม่ใช่หลักฐานสิทธิ์/รางวัล. Lobby test ใช้ RunArenaLobby.ps1 + Luau CLI; teleport จริงตรวจใน Player หลังได้รับคำสั่ง Publish.
+- Arena: ตรวจ GameId ของสอง Place ให้ตรงกันก่อนตั้ง Config.Arena.PlaceId; คง PvP ปิดจน match server พร้อม. TeleportData เป็น hint ไม่ใช่หลักฐานสิทธิ์/รางวัล. Lobby test ใช้ RunArenaLobby.ps1 + Luau CLI; Place Arena (`135249057761883`) MCP inject/require ตอน Play ไม่ได้ ให้วาง test Script ใน Edit แล้ว Play; teleport จริงตรวจใน Player หลังได้รับคำสั่ง Publish.
 - แนวทางเฉพาะระบบ: `docs/systems.md` (เลือก heading). Raw validation/history เรียก Git 5d09e37 เมื่อจำเป็น; docs คงเฉพาะ reference ที่ใช้งาน ไม่เพิ่ม archive ซ้ำ.

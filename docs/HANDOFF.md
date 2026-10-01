@@ -5,7 +5,7 @@
 ## สถานะล่าสุด
 
 - **Phase 9a lobby ทำแล้ว**: พอร์ทัลเดิมเปิดหน้าคิว Duel/FFA/Timber Clash/Egg Heist; Ranked/Casual แยก, ตรวจ Run/ไข่/mount/ระยะ/ชีวิต, reserved-server transfer + failure/timeout recovery. Luau CLI 37 checks; Studio startup/คลิก GUI ผ่าน, source 7 ไฟล์ตรง repo; คืน flags/pivot/anchor แล้ว Studio Edit ไม่มี test scripts. Config Arena.PlaceId=0/PvP=false. Combat/สนาม/แรงก์/รางวัลยังไม่ทำ; ดู [Arena](systems.md#arena).
-- Arena Place ใหม่ `135249057761883` อยู่ Universe เกมหลักแล้ว (ตรวจ GetGamePlacesAsync). Place เก่า `122495944523559` ผิด Universe ไม่ใช้. ต้องเปิด Place ใหม่ใน Studio เพื่อสร้าง match server ก่อนตั้ง Config.Arena.PlaceId.
+- Arena Place ใหม่ `135249057761883` อยู่ Universe เกมหลักแล้ว (ตรวจ GetGamePlacesAsync). Place เก่า `122495944523559` ผิด Universe ไม่ใช้. **Phase 9b match server** Duel/FFA ใส่ใน Studio Place นี้แล้ว (`arena/server/`), self-test 10/10, source 2 ไฟล์ตรง; ยังไม่ Save/Publish Place Arena, ยังไม่ตั้ง Config.Arena.PlaceId, ยังไม่ทดสอบ 2 คน/teleport จริง. โหมดทีม/rank/token/Casual cap ค้าง; ดู [Arena](systems.md#arena).
 
 - **Phase 8g ร้าน Robux + Season Pass ทำและทดสอบแล้ว; ยังไม่ Publish.** ไม่สรุปว่าเกม/ทุก Phase พร้อมเปิดจริง.
 - Shop: 10 Pass + 17 Developer Products ID จริงใน `src/shared/Config/Products.luau`; เปิด flag Shop/SeasonPass, PvP ปิด. ราคา UI อ่านสดจาก Roblox.
