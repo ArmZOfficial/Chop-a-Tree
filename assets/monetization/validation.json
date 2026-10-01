@@ -1,0 +1,147 @@
+{
+  "checked": "2026-10-02",
+  "count": 10,
+  "allPassed": true,
+  "icons": [
+    {
+      "id": "vip",
+      "file": "icons/01-vip.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 547189,
+      "sha256": "CBE067849075AED4AB611F6E16331245B58F0E5BD2F077FD4E62D323DC1BBB45"
+    },
+    {
+      "id": "wood-2x",
+      "file": "icons/02-wood-2x.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 591355,
+      "sha256": "C56ACE24E8DD352AA41B3F1E10F50F460480DFCA423DAE551BA49AE7CD4B2C3E"
+    },
+    {
+      "id": "coins-2x",
+      "file": "icons/03-coins-2x.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 525099,
+      "sha256": "1FF5EC6CCBB43207768D8B5C0126B1B3ED5F6A92280E9E004913E670BFE23DE0"
+    },
+    {
+      "id": "lucky",
+      "file": "icons/04-lucky.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 576549,
+      "sha256": "D4EE48AF0E66C2C83E37E0C5AEF871FC71C6B854F7EC1975B8E25E7194591551"
+    },
+    {
+      "id": "pet-slots",
+      "file": "icons/05-pet-slots.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 554720,
+      "sha256": "8AF3256BB6D7AAABDEF9196D6C3ECAAE9C87CF087BABC06AD57A620AF7901E3B"
+    },
+    {
+      "id": "hatch-2x",
+      "file": "icons/06-hatch-2x.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 541730,
+      "sha256": "3095ACADAF0D5CFBE648C0029E08DFF28DA3DF9AC059B567F601E35F4373CC15"
+    },
+    {
+      "id": "garden-slots",
+      "file": "icons/07-garden-slots.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 559942,
+      "sha256": "D1ACB80ACE5DB18533CEEA9972A5F027F4400B16D2FD9A13E0ACC5CE3BEDA389"
+    },
+    {
+      "id": "auto-sell",
+      "file": "icons/08-auto-sell.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 541946,
+      "sha256": "46351223C3DBFEA9AEB17F217FBA2C89E302C9F9A3F354D3B52F2657FCFEC574"
+    },
+    {
+      "id": "teleport",
+      "file": "icons/09-teleport.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 631311,
+      "sha256": "8E9B01745941B6E14FBE2B12FABAD0E118EE96663214C84DFE733178805C7C08"
+    },
+    {
+      "id": "multi-open",
+      "file": "icons/10-multi-open.png",
+      "width": 512,
+      "height": 512,
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bytes": 572397,
+      "sha256": "A048A19C96E7A0A972F493EAA9AAD0ED1A5B25FB1E8A8A30E87902C6782C16F8"
+    }
+  ]
+}

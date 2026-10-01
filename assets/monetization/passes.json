@@ -1,0 +1,96 @@
+{
+  "game": "Chop a Tree",
+  "status": "Artwork and listing-copy drafts; purchase entitlements are not implemented or enabled.",
+  "passes": [
+    {
+      "id": "vip",
+      "name": "VIP",
+      "thaiName": "VIP แห่งพงไพร",
+      "price": 249,
+      "th": "เป็นนักผจญภัย VIP ใน Chop a Tree! รับฉายา VIP สีแชทพิเศษ สิทธิ์เข้าห้อง VIP ในหมู่บ้าน และช่องรางวัล Daily เพิ่ม 1 ช่อง ซื้อครั้งเดียว ใช้ได้ถาวร",
+      "en": "Become a VIP adventurer in Chop a Tree! Unlock a VIP title, a special chat color, access to the village VIP room, and one extra Daily reward slot. One purchase, permanent access.",
+      "icon": "icons/01-vip.png"
+    },
+    {
+      "id": "wood-2x",
+      "name": "2x Wood",
+      "thaiName": "ไม้ ×2",
+      "price": 299,
+      "th": "ฟันต้นไม้ให้คุ้มทุกครั้ง! รับ Wood เป็น 2 เท่าแบบถาวรใน Chop a Tree แล้วนำไปอัปเกรดสวน ตู้ฟัก และฐาน โบนัส Wood ถาวรชนิดเดียวกันใช้ค่าที่สูงที่สุด ไม่คูณซ้อนกัน",
+      "en": "Make every chop count! Collect 2x Wood permanently in Chop a Tree and put it toward your garden, incubator, and base upgrades. Permanent Wood bonuses use the highest applicable value and do not multiply together.",
+      "icon": "icons/02-wood-2x.png"
+    },
+    {
+      "id": "coins-2x",
+      "name": "2x Coins",
+      "thaiName": "เหรียญ ×2",
+      "price": 299,
+      "th": "เก็บ Coins จากรางวัลป่าเป็น 2 เท่าแบบถาวร! สะสมเงินไว้ซื้อไข่และพัฒนาฐานใน Chop a Tree โบนัส Coins ถาวรชนิดเดียวกันใช้ค่าที่สูงที่สุด ไม่คูณซ้อนกัน",
+      "en": "Earn 2x Coins from forest rewards permanently! Save up for eggs and grow your home in Chop a Tree. Permanent Coin bonuses use the highest applicable value and do not multiply together.",
+      "icon": "icons/03-coins-2x.png"
+    },
+    {
+      "id": "lucky",
+      "name": "Lucky",
+      "thaiName": "โชคแห่งป่า",
+      "price": 399,
+      "th": "เพิ่มโอกาสได้อาวุธ Epic ขึ้นไปจากหีบอีก 25% เมื่อเทียบกับโอกาสเดิม! เช่น โอกาส 4% จะเพิ่มเป็น 5% โบนัสโชคถาวรรวมสูงสุด +25% ไม่รับประกันว่าจะได้ของหายากทุกครั้ง",
+      "en": "Boost your chance of finding Epic or higher weapons in chests by 25% relative to the base odds! For example, 4% becomes 5%. Permanent Luck bonuses are capped at +25%. Rare drops are not guaranteed.",
+      "icon": "icons/04-lucky.png"
+    },
+    {
+      "id": "pet-slots",
+      "name": "+2 Pet Slots",
+      "thaiName": "เพื่อนร่วมทาง +2",
+      "price": 349,
+      "th": "พกสัตว์เลี้ยงร่วมผจญภัยเพิ่มอีก 2 ตัว! จัดทีมเพื่อนตัวโปรดเพื่อช่วยฟันต้นไม้และออกสำรวจ Chop a Tree จำนวนสัตว์ที่พกได้รวมสูงสุด 6 ตัวตามเพดานเกม",
+      "en": "Bring two more pets along on your adventure! Build a team of your favorite companions for chopping and exploring Chop a Tree. Equipped pets remain capped at six in total.",
+      "icon": "icons/05-pet-slots.png"
+    },
+    {
+      "id": "hatch-2x",
+      "name": "2x Hatch Speed",
+      "thaiName": "ฟักไว ×2",
+      "price": 249,
+      "th": "รอเพื่อนตัวใหม่ไม่นาน! ไข่ในตู้ฟักฟักเร็วขึ้นเป็น 2 เท่าใน Chop a Tree โบนัสความเร็วถาวรชนิดเดียวกันใช้ค่าที่สูงที่สุด ไม่คูณซ้อนกับอัปเกรดตู้ฟัก",
+      "en": "Meet your new pets sooner! Hatch incubator eggs twice as fast in Chop a Tree. Permanent hatch-speed bonuses use the highest applicable value and do not multiply with incubator upgrades.",
+      "icon": "icons/06-hatch-2x.png"
+    },
+    {
+      "id": "garden-slots",
+      "name": "+10 Garden Plots",
+      "thaiName": "สวนใหญ่ +10",
+      "price": 249,
+      "th": "ขยายสวนด้วยช่องปลูกเพิ่ม 10 ช่อง! ปลูกผลไม้ให้หลากหลายและสร้างสวนในฝันของคุณใน Chop a Tree จำนวนช่องปลูกรวมยังอยู่ภายใต้เพดานของเกม",
+      "en": "Grow your dream garden with ten additional planting slots! Plant more varieties and make your home bloom in Chop a Tree. Total planting slots remain subject to the game's capacity limit.",
+      "icon": "icons/07-garden-slots.png"
+    },
+    {
+      "id": "auto-sell",
+      "name": "Auto Sell",
+      "thaiName": "ขายอัตโนมัติ",
+      "price": 149,
+      "th": "ผจญภัยต่อได้อย่างสะดวก! เปิดระบบขายผลไม้และ Wood อัตโนมัติใน Chop a Tree ลดการเดินกลับร้าน ระบบขายใช้ราคาปกติของเกม ไม่เพิ่มมูลค่าของไอเทม",
+      "en": "Keep your adventure moving! Enable automatic selling for fruit and Wood in Chop a Tree and spend less time returning to the shop. Items sell at their normal in-game prices.",
+      "icon": "icons/08-auto-sell.png"
+    },
+    {
+      "id": "teleport",
+      "name": "Teleport Anywhere",
+      "thaiName": "วาร์ปได้ทุกที่",
+      "price": 199,
+      "th": "เดินทางไวด้วยเมนูวาร์ป! วาร์ปจากจุดที่ระบบอนุญาตไปยังโซนที่คุณปลดล็อกแล้วใน Chop a Tree ไม่ข้ามเงื่อนไขเนื้อเรื่องหรือข้อจำกัดขณะถือไข่",
+      "en": "Travel quickly with the teleport menu! Warp from permitted locations to zones you have already unlocked in Chop a Tree. Story requirements and egg-carry restrictions still apply.",
+      "icon": "icons/09-teleport.png"
+    },
+    {
+      "id": "multi-open",
+      "name": "Open 10 Chests",
+      "thaiName": "เปิดหีบ ×10",
+      "price": 149,
+      "th": "เปิดหีบพร้อมกันได้สูงสุด 10 ใบ! จัดการหีบที่สะสมจากการผจญภัยใน Chop a Tree ได้สะดวกขึ้น ต้องมีหีบและพื้นที่กระเป๋าเพียงพอ การเปิดหลายใบไม่เปลี่ยนโอกาสดรอป",
+      "en": "Open up to ten chests at once! Clear your adventure haul faster in Chop a Tree. You need enough owned chests and inventory space. Multi-open does not change drop rates.",
+      "icon": "icons/10-multi-open.png"
+    }
+  ]
+}

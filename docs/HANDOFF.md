@@ -5,6 +5,8 @@
 
 ## 0. เริ่มตรงนี้ (สถานะล่าสุด)
 
+**งานล่าสุด — ชุด Game Pass 2026-10-02:** ผู้ใช้เลือกครบ 10 Pass ตาม plan 17.2. สร้างภาพแยก 10 PNG วงกลม 512×512 alpha โปร่งใส สไตล์ป่า/สวน/ไข่/ขวาน Chop a Tree และชื่อ/คำอธิบายไทย-อังกฤษครบที่ `assets/monetization/`. เปิด `gallery.html` เพื่อคัดลอก; `README.md` มีข้อความครบ, `passes.json` มีราคาในแผน/ไฟล์ภาพ, `prompts.json` เก็บ prompt, `validation.json` ตรวจขนาด/alpha/hash 10/10, `preview.png` ภาพรวม และ `Chop-a-Tree-Game-Passes.zip` ชุดดาวน์โหลด. ดูภาพ 512 แล้วครบ/อ่านได้. ไม่เปลี่ยนโค้ดเกม จึงไม่ได้รัน regression ใหม่; ยังไม่ได้ต่อสิทธิ์ซื้อ/เปิด Shop/สร้าง Pass/ตั้ง Sales/มี asset ID/Publish. ให้ใช้ข้อความหลังทำและตรวจสิทธิ์จริงแล้ว. plan/SKILL/handoff อัปเดตพร้อมกัน; งานระบบถัดไปยังร้านเติมเงิน + Season Pass ตามด้านล่าง.
+
 1. ผู้ใช้ตอบ **ต่อ** (เลือกทำ Emote/Photo ก่อนร้าน) → ทำ **Phase 8f** แล้ว: วงล้อท่าทาง 7 ท่า (G), โชว์อาวุธ + ออร่าสีธาตุจาก EmoteService (คูลดาวน์ 4 วิ), โหมดถ่ายรูป (P) ซ่อน UI/CoreGui, กรอบ CHOP A TREE, ฟิลเตอร์ 4 แบบ, กล้องอิสระบนคอม. Feature `Emotes`, remote `EmoteAction`, admin `emote.aura`.
 2. Server scenario **5/5** + input จริงครบ (เต้น/W ยกเลิก/โชว์อาวุธ/P/W-E ย้ายกล้อง ตัวละครนิ่ง/ฟิลเตอร์/คืน UI 14 ตัว). Source 7/7 ตรง Studio Edit, console ไม่มี error, ไม่ได้ Publish. อ่าน `docs/phase8_emote_validation.md`.
 3. ถัดไป: **ร้านเติมเงิน + Season Pass** (plan หัวข้อ 17) — ArmZ ต้องสร้าง Game Pass/Developer Product ใน Creator Dashboard แล้วส่ง ID; ห้ามซื้อ Robux เอง. ระบบปลดล็อกท่าทางให้ทำพร้อมร้าน/Season Pass.

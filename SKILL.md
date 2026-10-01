@@ -9,6 +9,10 @@ description: Maintain the Chop a Tree plan, skill, and handoff together when upd
 
 ทุกครั้งที่อัปเดตงาน ให้ปรับทั้ง `docs/plan.md`, `SKILL.md` และ `docs/HANDOFF.md` ในงานเดียวกันให้สอดคล้องกับข้อมูลล่าสุด: plan บันทึกแผนและสถานะ, skill บันทึกแนวทางทำงานและข้อกำหนด, handoff บันทึกงานที่ทำแล้ว ผลตรวจ และงานถัดไป ตรวจทั้งสามไฟล์ให้ตรงกันก่อนสรุปว่างานเสร็จ (ArmZ สั่งเมื่อ 2026-10-01).
 
+## ภาพและข้อความ Game Pass
+
+ชุด 10 Pass ตาม plan 17.2 อยู่ที่ `assets/monetization/`: `icons/` เป็น PNG 512×512 วงกลม alpha โปร่งใส, `README.md`/`gallery.html` มีชื่อและคำอธิบายไทย/อังกฤษ, `passes.json` มีข้อมูลราคาในแผนและไฟล์ภาพ. สร้างภาพแยกหนึ่งภาพต่อ Pass ใช้เอกลักษณ์ป่า/สวน/ไข่/ขวานของ Chop a Tree; เก็บ prompt และตรวจขนาด/alpha ใน `prompts.json`/`validation.json`. ข้อความเป็นร่างสำหรับสิทธิ์ตามแผน: permanent bonus ชนิดเดียวกันใช้ค่าสูงสุด, Lucky เพิ่มจากโอกาสเดิมและไม่รับประกันดรอป, วาร์ปเคารพการปลดล็อก/ข้อจำกัดถือไข่. ก่อนใช้ขายต้องต่อและตรวจ entitlement จริง; ห้ามใส่ ID สมมติหรือถือว่าทำภาพแล้วระบบซื้อเสร็จ. งานชุดนี้ไม่ได้เปิด Shop/สร้าง Pass/เปิด Sales/Publish.
+
 ## แนวทางต่อระบบอาวุธและ UI
 
 1. อ่าน `docs/phase3_validation.md` ก่อนแก้ inventory/หีบ/อาวุธ. ให้ WeaponService เป็นเจ้าของการสุ่ม สวมใส่ หลอม และทิ้ง; ใช้ Loot + Balance คำนวณ Power และอัตราดรอปทั้ง UI/server จาก Config เดียวกัน.
