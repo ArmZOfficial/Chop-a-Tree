@@ -28,7 +28,7 @@ function StoryService.Talk(p,npc)
 	local def=type(npc)=="string" and Story.Npcs[npc];local model=def and tagged("NPC","NpcId",npc)
 	if not def or not near(p,model,Story.TalkRange) then return false,"เดินเข้าไปใกล้ NPC ก่อน" end
 	local step=Quest.Step(p);local chapter=Data.Get(p,"Progress.StoryChapter")
-	local lines=step and step.kind=="talk" and step.npc==npc and def.chapter[chapter] or {def.idle[rng:NextInteger(1,#def.idle)]}
+	local lines=step and step.kind=="talk" and step.npc==npc and def.chapter[chapter] or def.zone==chapter and def.intro or {def.idle[rng:NextInteger(1,#def.idle)]}
 	if Data.Get(p,"Progress.Rebirth")>0 then
 		lines=table.clone(lines);table.insert(lines,1,"วัฏจักรที่ "..Data.Get(p,"Progress.Rebirth").." แล้วสินะ... ราเน่าแรงขึ้น แต่เจ้าก็แข็งแกร่งขึ้นด้วย!")
 	end

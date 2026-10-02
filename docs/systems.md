@@ -35,7 +35,8 @@
 
 - QuestService owns story/daily/weekly/Index; StoryService owns NPC/shrine/unlock/warp; BossService guardian. Progress.Bosses/Shrines keysเป็นstring.
 - Counter questsใช้ Stats delta; เพิ่ม Data.Increment+Config.Story row. daily/weekly deterministic UTC.
-- Balance.BossHP/BossRequiredPower เจ้าของสูตร; built=trueจึงสร้างboss. Server Run.CanAccess ก่อน reward. Phase6 51, Phase7 23 checks; บทเฉพาะ/NPC/คัตซีนยังค้าง.
+- Balance.BossHP/BossRequiredPower เจ้าของสูตร; built=trueจึงสร้างboss. Server Run.CanAccess ก่อน reward. Phase6 51, Phase7 23 checks.
+- Chapters 3–8 (2026-10-02): one keeper NPC per zone (Myco, Hana, Raiko, Borin, Quartz, Lumi) placed 14 studs from each ZoneSpawn by `tools/map/BuildZoneKeepers.luau` (rerun after a MapBuilder rebuild). Each chapter appends step 5 "talk to keeper" after the shrine, so saved step indexes stay valid. Talk shows intro lines while the keeper's chapter is active, outro on the closing step, idle otherwise; Lumi's outro ends The Withering and points to Rebirth. Shrine lighting plays a 3s client camera pan around the shrine before the dialog. Proof: `tools/tests/StoryKeepersScenario.server.luau` 7/7 on the real profile, restored; client dialog showed Lumi's outro. The camera pan was not triggered in Studio (MCP cannot fire remotes).
 
 ## Rebirth
 

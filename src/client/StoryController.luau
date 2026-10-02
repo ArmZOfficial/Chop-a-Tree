@@ -204,7 +204,16 @@ function Controller.Start()
 	Net.Event("StoryShow").OnClientEvent:Connect(function(msg)
 		if msg.kind=="dialog" then talk(msg.speaker,msg.lines)
 		elseif msg.kind=="banner" then showBanner(msg.title,msg.sub)
-		elseif msg.kind=="shrine" then showBanner(msg.title,"",Color3.fromRGB(120,255,160));talk("ศาลเจ้า",msg.lines)
+		elseif msg.kind=="shrine" then
+			-- Short camera cutscene around the shrine; Custom camera comes back even if the player moves.
+			local shrine=tagged("Shrine","Zone",msg.zone);local cam=workspace.CurrentCamera
+			if shrine and cam.CameraType==Enum.CameraType.Custom then
+				local pos=shrine:GetPivot().Position;cam.CameraType=Enum.CameraType.Scriptable
+				cam.CFrame=CFrame.lookAt(pos+Vector3.new(0,16,30),pos)
+				Tween:Create(cam,TweenInfo.new(3,Enum.EasingStyle.Sine),{CFrame=CFrame.lookAt(pos+Vector3.new(28,10,-8),pos)}):Play()
+				task.delay(3,function() cam.CameraType=Enum.CameraType.Custom end)
+			end
+			showBanner(msg.title,"",Color3.fromRGB(120,255,160));talk("ศาลเจ้า",msg.lines)
 		elseif msg.kind=="warp" then show("Warp") end
 	end)
 	Net.Event("BossEvent").OnClientEvent:Connect(function(msg)
