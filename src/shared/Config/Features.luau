@@ -27,4 +27,5 @@ return table.freeze({
 	Shop = true, -- Phase 8g Robux shop
 	SeasonPass = true, -- Phase 8g Season Pass
 	PvP = false, -- Phase 9
+	Decor = true, -- base decoration (plan 9.2)
 })

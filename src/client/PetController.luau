@@ -6,7 +6,7 @@ local Input=game:GetService("UserInputService")
 local S=game.ReplicatedStorage.Shared
 local Net=require(S.Net);local UI=require(S.UIKit);local NF=require(S.NumberFormat)
 local Pets=require(S.Config.Pets);local Eggs=require(S.Config.Eggs);local Config=require(S.Config.Base)
-local Math=require(S.PetMath);local Visual=require(S.PetVisual)
+local Math=require(S.PetMath);local Visual=require(S.PetVisual);local DecorConfig=require(S.Config.Decor);local ClientData=require(script.Parent.ClientData)
 local Controller={}
 local TABS={{"Incubator","ตู้ฟัก"},{"Eggs","ไข่"},{"Pets","สัตว์"},{"Base","ฐาน"},{"Belt","สายพานไข่"}}
 local PLACE={equip="พกติดตัว",pen="ในคอก",[""]="กระเป๋า"}
@@ -138,6 +138,15 @@ function Controller.Start()
 			local shield=player:GetAttribute("Shield") or ""
 			row("Shield","โล่ป้องกันขโมย: "..(SHIELD[shield] or "ไม่มี").."\nไข่ที่ฟักเกิน 75% และสัตว์ที่ฟักแล้วขโมยไม่ได้",shield~="" and UI.Colors.Blue or UI.Colors.Slate,function() end)
 			row("FriendSteal","เพื่อนขโมยไข่ได้: "..(state.friendSteal and "เปิด" or "ปิด").."\nกดเพื่อสลับ",UI.Colors.Slate,function() call("BaseAction","FriendSteal",not state.friendSteal) end)
+			-- Decoration: place where you stand on your slab; rotate/remove act on the nearest piece.
+			local decor=ClientData.Get("Decor.items") or {};local shrines=ClientData.Get("Progress.Shrines") or {};local count,beauty=0,0
+			for _,it in decor do count+=1;beauty+=DecorConfig.ById[it.id] and DecorConfig.ById[it.id].beauty or 0 end
+			row("DecorInfo","ตกแต่งฐาน • ความสวย "..beauty.." • "..count.."/"..DecorConfig.MaxItems.." ชิ้น\nยืนบนพื้นฐานแล้วกดวาง • ไม่มีผลต่อพลัง",UI.Colors.Slate,function() end)
+			row("DecorRotate","หมุนชิ้นที่ใกล้ที่สุด 90°",UI.Colors.Teal,function() call("DecorAction","Rotate") end)
+			row("DecorRemove","เก็บชิ้นที่ใกล้ที่สุด (คืน "..math.round(DecorConfig.Refund*100).."% Wood)",UI.Colors.Red,function() call("DecorAction","Remove") end)
+			for _,def in DecorConfig.List do local id=def.id;local locked=def.zone and not shrines[tostring(def.zone)]
+				row("Decor_"..id,def.name.." • "..NF.Short(def.price).." Wood • สวย +"..def.beauty.."\n"..(locked and "ล็อก: จุดศาลเจ้าโซน "..def.zone or "วางตรงที่ยืน"),locked and UI.Colors.Disabled or UI.Colors.Green,function() call("DecorAction","Place",id) end)
+			end
 			actions({{"Close","ปิด",UI.Colors.Slate,function() panel.Visible=false end}})
 		else
 			local now=os.time()
