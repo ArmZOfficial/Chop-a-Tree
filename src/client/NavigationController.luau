@@ -219,6 +219,9 @@ function Navigation.Start()
         local event=pg:FindFirstChild("WorldEventHUD") and pg.WorldEventHUD:FindFirstChild("Event");if event then event.Position=UDim2.new(.5,0,1,compact and -150 or -196) end
         -- The compass (MapHUD, DisplayOrder 22 for the boat ride) would draw over open windows: drop it below them.
         local map=pg:FindFirstChild("MapHUD");if map then map.DisplayOrder=obscured and 7 or 22 end
+        -- Floating world HUD (compass, zone/event banners) would still show through the dim: hide it while a menu is open.
+        if map then for _,c in map:GetChildren() do if c:IsA("GuiObject") and c.Name~="BoatSkip" then c.Visible=not obscured end end end
+        for _,name in {"ZoneHUD","WorldEventHUD"} do local g=pg:FindFirstChild(name);if g then g.Enabled=not obscured end end
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
             if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not compact and not forest.RunPanel.Visible end
