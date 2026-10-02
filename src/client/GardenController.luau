@@ -186,7 +186,7 @@ function Garden.Start()
 		tabs[target]=UI.Tab({name="Tab"..target,text=t[2],icon=t[3],size=UDim2.fromOffset(144,60),position=UDim2.fromOffset(40+(i-1)*152,122),parent=panel,textSize=23,iconSize=34,onClick=function() tab=target;cutPending=nil;render() end})
 	end
 	local function show(target)
-		local inv=player.PlayerGui:FindFirstChild("InventoryHUD");if inv then inv.Panel.Visible=false;inv.Result.Visible=false end
+		local inv=player.PlayerGui:FindFirstChild("InventoryHUD");if inv then inv.Panel.Visible=false end -- the old chest Result window is gone (ChestOpening)
 		if target then tab=target end;panel.Visible=true;cutPending=nil;render();request("Sync")
 	end
 	button("Toggle","Garden / Seeds",UI.Colors.Teal,gui,UDim2.fromOffset(16,305),UDim2.fromOffset(178,48),function() if panel.Visible then panel.Visible=false else show() end end)

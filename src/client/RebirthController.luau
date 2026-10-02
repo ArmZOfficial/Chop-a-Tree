@@ -8,7 +8,7 @@ local Controller={}
 function Controller.Start()
 	local player=Players.LocalPlayer;local state;local busy=false;local token
 	local gui=UI.New("ScreenGui",{Name="RebirthHUD",ResetOnSpawn=false,DisplayOrder=14,Parent=player:WaitForChild("PlayerGui")})
-	local shade=UI.New("TextButton",{Name="Shade",Text="",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=.45,AutoButtonColor=false,Visible=false,Parent=gui})
+	local shade=UI.New("TextButton",{Name="Shade",Text="",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=.45,AutoButtonColor=false,Visible=false,ZIndex=0,Parent=gui}) -- under the window (Global ZIndex)
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(720,550),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
 	local scale=UI.New("UIScale",{Parent=panel})
 	UI.Label("New Cycle • REBIRTH",24,{Parent=panel})

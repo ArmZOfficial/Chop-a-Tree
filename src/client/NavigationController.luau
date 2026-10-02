@@ -36,9 +36,9 @@ function Navigation.Start()
 	local side=UI.New("Frame",{Name="SideRail",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,.5),Size=UDim2.fromOffset(104,630),Visible=false,Parent=gui},{UI.List(Enum.FillDirection.Vertical,6,Enum.HorizontalAlignment.Center)})
 	local sideScale=UI.New("UIScale",{Parent=side})
 	local RAIL=104
-	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(490,400),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
+	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(490,330),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
 	UI.Label("Choose a Menu",24,{Parent=drawer})
-	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,45),Size=UDim2.new(1,0,1,-45),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12)})
+	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,62),Size=UDim2.new(1,0,1,-62),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12),UI.Padding(4)}) -- padding: tile outlines are not clipped
 	local records,panels={},{};local compact=false;local layout;local hidBackpack=false
     local blur=UI.New("BlurEffect",{Name="MenuBlur",Size=0,Parent=Lighting})
     UI.Window(drawer,"Choose a Menu","book")
@@ -201,7 +201,7 @@ function Navigation.Start()
 		rail.Visible=not compact and not modal;mobile.Visible=compact and not modal;drawer.Visible=drawer.Visible and not modal
 		side.Visible=active~=nil
 		if active then local s=sideScale.Scale;side.Position=UDim2.new(.5,RAIL/2*s-active.w*s/2+16*s,.5,8*s) end
-		fit(drawer,490,400)
+		fit(drawer,490,330)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
         -- Lift the open window's ScreenGui above every HUD (compass 22, event/zone banners 5...) so its

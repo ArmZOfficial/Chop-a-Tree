@@ -36,7 +36,6 @@ function A.Start()
 	end)
 	for i,m in C.Modes do local b=button("Join"..m.id,m.name,144+(i-1)*52,UI.Colors.Blue,function() request("Join",m.id) end);labels[m.id]=b:FindFirstChildWhichIsA("TextLabel",true) end
 	button("Leave","Leave Queue",356,UI.Colors.Red,function() request("Leave") end)
-	local close=UI.Button({text="×",color=UI.Colors.Slate,size=UDim2.fromOffset(40,36),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(1,-40,0,0);close.Parent=panel
 	Net.Event("ArenaShow").OnClientEvent:Connect(function() lastStatus=nil;rank();panel.Visible=true;request("State") end)
 	Net.Event("ArenaState").OnClientEvent:Connect(render)
 	game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal("PvP"):Connect(function() if not game.ReplicatedStorage.FeatureFlags:GetAttribute("PvP") then panel.Visible=false end end)

@@ -7,32 +7,33 @@ local TweenService = game:GetService("TweenService")
 local UIKit = {}
 local Art = require(script.Parent.UIArt)
 
+-- Studs theme palette (2026-10-03): saturated fills, near-black ink for outlines and inset panels.
 UIKit.Colors = table.freeze({
-	Outline = Color3.fromRGB(49, 30, 20),
-	Panel = Color3.fromRGB(116, 59, 37),
-	PanelDark = Color3.fromRGB(78, 37, 24),
-	Rail = Color3.fromRGB(120, 78, 45),
-	Card = Color3.fromRGB(145, 77, 49),
-	Input = Color3.fromRGB(73, 35, 25),
-	Text = Color3.fromRGB(255, 248, 228),
-	TextDim = Color3.fromRGB(239, 208, 176),
+	Outline = Color3.fromRGB(14, 16, 28),
+	Panel = Color3.fromRGB(38, 46, 74),
+	PanelDark = Color3.fromRGB(24, 28, 46),
+	Rail = Color3.fromRGB(96, 108, 140),
+	Card = Color3.fromRGB(52, 62, 96),
+	Input = Color3.fromRGB(20, 24, 40),
+	Text = Color3.fromRGB(255, 255, 255),
+	TextDim = Color3.fromRGB(214, 222, 238),
 	TextDark = Color3.fromRGB(26, 26, 26),
-	Accent = Color3.fromRGB(153, 235, 58),
-	AccentText = Color3.fromRGB(153, 235, 58),
-	Green = Color3.fromRGB(105, 198, 52),
-	Blue = Color3.fromRGB(81, 165, 235),
-	Red = Color3.fromRGB(239, 108, 82),
-	Purple = Color3.fromRGB(180, 133, 231),
-	Orange = Color3.fromRGB(241, 170, 64),
-	Teal = Color3.fromRGB(72, 189, 163),
-	Pink = Color3.fromRGB(232, 142, 169),
-	Slate = Color3.fromRGB(173, 153, 123),
-	Disabled = Color3.fromRGB(71, 85, 105),
+	Accent = Color3.fromRGB(140, 255, 60),
+	AccentText = Color3.fromRGB(140, 255, 60),
+	Green = Color3.fromRGB(70, 212, 40),
+	Blue = Color3.fromRGB(0, 150, 255),
+	Red = Color3.fromRGB(255, 48, 70),
+	Purple = Color3.fromRGB(170, 70, 255),
+	Orange = Color3.fromRGB(255, 176, 0),
+	Teal = Color3.fromRGB(0, 200, 190),
+	Pink = Color3.fromRGB(255, 90, 170),
+	Slate = Color3.fromRGB(120, 128, 148),
+	Disabled = Color3.fromRGB(96, 102, 118),
 })
 local C = UIKit.Colors
 
-UIKit.Font = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular)
-UIKit.FontBody = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium)
+UIKit.Font = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Heavy)
+UIKit.FontBody = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
 UIKit.FontBold = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
 
 type Props = { [string]: any }
@@ -130,38 +131,101 @@ function UIKit.Art(parent: Instance, atlas: string, sprite: string, props: Props
  if props then for k,v in props do (gui :: any)[k]=v end end
  return gui
 end
--- Nine-slice an atlas crop so corners keep their drawn proportions at any size.
--- `inset` is the border as a fraction of the crop's short side; border scale follows the image height.
-local SLICE={cards=.2,controls=.32,chrome=.3}
-local ICON={close=true,delete=true,badgeClaimed=true} -- drawn symbols must keep their proportions
-function UIKit.Slice(image: ImageLabel, inset: number)
- local rs=image.ImageRectSize;local i=math.floor(math.min(rs.X,rs.Y)*inset)
- image.ScaleType=Enum.ScaleType.Slice;image.SliceCenter=Rect.new(i,i,rs.X-i,rs.Y-i)
- local function fit() local a=image.AbsoluteSize;local m=math.min(a.X,a.Y);local cap=image.Parent and image.Parent:GetAttribute("SliceMax") or 2;if m>0 then image.SliceScale=math.clamp(m/math.min(rs.X,rs.Y),.05,cap) end end
- image:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit);fit()
+-- ===== Studs theme =====
+-- Chrome is drawn with native parts instead of the old wood atlases: one ImageLabel per surface
+-- (flat fill + vertical gradient, buttons get a darker bottom lip), dark outline, rounded corners
+-- and a tiled stud overlay. Taken from the reference kit in "Asset 3d" (2.rbxl MainUI, Buttons.fig);
+-- tokens: assets/ui/studs/README.md. Illustration atlases (pets, garden, rewards...) still use UIKit.Art.
+local STUDS="rbxassetid://136024762697460" -- translucent 4x4 stud tile
+local VIGNETTE="rbxassetid://79723271062969" -- soft inner shadow
+local rgb=Color3.fromRGB
+local INK=C.Outline
+-- {window body, title plate} per ScreenGui; other windows use DEFAULT.
+UIKit.Windows=table.freeze({
+ InventoryHUD={rgb(0,132,255),rgb(255,176,0)},
+ PetHUD={rgb(160,72,255),rgb(255,84,170)},
+ GardenHUD={rgb(46,184,60),rgb(255,196,0)},
+ ShopHUD={rgb(243,89,0),rgb(255,30,60)},
+ RewardsHUD={rgb(240,50,90),rgb(255,186,0)},
+ StoryHUD={rgb(0,168,190),rgb(255,176,0)},
+ SeasonHUD={rgb(255,160,0),rgb(120,80,255)},
+ RebirthHUD={rgb(90,70,230),rgb(255,186,0)},
+ ArenaHUD={rgb(170,30,40),rgb(255,186,0)},
+})
+local DEFAULT={rgb(64,86,140),rgb(0,150,255)}
+-- color nil = window colour; alpha = see-through ink panel; lip = 3D bottom edge;
+-- studs = overlay transparency (1 = none); glyph = drawn symbol (close/delete/claimed).
+local function st(color: Color3?, radius: number, stroke: number, studs: number, lip: boolean?, alpha: number?, glyph: string?)
+ return {color=color,radius=radius,stroke=stroke,studs=studs,lip=lip,alpha=alpha,glyph=glyph}
 end
+local function fixed(s) s.fixed=true;return s end -- ignores the Fill attribute (lit nav tiles)
+local GREEN,GOLD,RED=rgb(70,212,40),rgb(255,186,0),rgb(255,48,70)
+local STYLE={
+ window={wideWindow=st(nil,18,5,.8)},
+ detail={detailPanel=st(INK,14,3,1,false,.5)},
+ chrome={
+  navNormal=st(rgb(0,150,255),14,4,.75,true),navGold=fixed(st(GOLD,14,4,.75,true)),navGreen=fixed(st(GOLD,14,4,.75,true)),
+  tabNormal=st(INK,12,3,1,false,.45),tabGold=st(GOLD,12,3,.75,true),tabGreen=st(GOLD,12,3,.75,true), -- selected = gold everywhere (green vanished on green windows)
+  headerPlaque=st(nil,14,4,.75,true),infoRow=st(INK,12,3,1,false,.5),currencyCapsule=st(INK,14,3,1,false,.35),
+ },
+ controls={
+  buttonGreen=st(GREEN,12,3,.78,true),buttonGold=st(GOLD,12,3,.78,true),buttonRed=st(RED,12,3,.78,true),buttonDisabled=st(rgb(96,102,118),12,3,.78,true),
+  close=st(rgb(255,40,60),12,4,.78,true),delete=st(RED,12,3,.78,true,nil,"🗑"),
+  inert=st(INK,12,3,1,false,.45), -- Slate buttons: info rows and unavailable actions read as flat ink
+  badgeReady=st(GREEN,10,3,.8),badgeClaimed=st(GREEN,10,3,.8,false,nil,"✓"),progressTrack=st(INK,10,3,1,false,.4),
+ },
+ cards={
+  common=st(rgb(150,160,176),12,3,.7),rare=st(rgb(0,150,255),12,3,.7),epic=st(rgb(170,70,255),12,3,.7),legendary=st(rgb(255,176,0),12,3,.7),mythic=st(rgb(255,44,96),12,3,.7),
+  unknown=st(rgb(52,56,74),12,3,.85),product=st(INK,12,3,1,false,.45),today=st(rgb(255,196,0),12,4,.7),selected=st(rgb(255,214,40),12,4,.7),
+ },
+}
+local function ramp(c: Color3, lip: boolean?): ColorSequence
+ local hi,lo=c:Lerp(Color3.new(1,1,1),.25),c:Lerp(Color3.new(),.1)
+ if not lip then return ColorSequence.new(hi,lo) end
+ local edge=c:Lerp(Color3.new(),.4)
+ return ColorSequence.new({ColorSequenceKeypoint.new(0,hi),ColorSequenceKeypoint.new(.84,lo),ColorSequenceKeypoint.new(.85,edge),ColorSequenceKeypoint.new(1,edge)})
+end
+-- A surface for `parent`. Buttons/badges may set attribute Fill (Color3) to override the style colour.
 function UIKit.Skin(parent: GuiObject, atlas: string, sprite: string): ImageLabel?
- local old=parent:FindFirstChild("SurfaceArt")
- if old and old:GetAttribute("Sprite")==atlas.."/"..sprite then return old :: ImageLabel end
- if old then old:Destroy() end
- local image=UIKit.Art(parent,atlas,sprite,{Name="SurfaceArt",ZIndex=2,Size=UDim2.fromScale(1,1),ScaleType=Enum.ScaleType.Stretch})
- if image then
-  image:SetAttribute("Sprite",atlas.."/"..sprite)
-  local square=atlas=="chrome" and sprite:sub(1,3)=="nav"
-  if SLICE[atlas] and not square and not ICON[sprite] then UIKit.Slice(image,SLICE[atlas]) end
-  parent.BackgroundTransparency=1
-  local stroke=parent:FindFirstChildOfClass("UIStroke");if stroke then stroke.Enabled=false end
-  local gradient=parent:FindFirstChildOfClass("UIGradient");if gradient then gradient.Enabled=false end
-  local pad=parent:FindFirstChildOfClass("UIPadding")
-  if pad then image.Position=UDim2.fromOffset(-pad.PaddingLeft.Offset,-pad.PaddingTop.Offset);image.Size=UDim2.new(1,pad.PaddingLeft.Offset+pad.PaddingRight.Offset,1,pad.PaddingTop.Offset+pad.PaddingBottom.Offset) end
+ local style=STYLE[atlas] and STYLE[atlas][sprite];if not style then return nil end
+ local fill=(not style.fixed and parent:GetAttribute("Fill")) or style.color
+ if not fill then
+  local owner=parent:FindFirstAncestorWhichIsA("ScreenGui");local w=owner and UIKit.Windows[owner.Name] or DEFAULT
+  fill=sprite=="headerPlaque" and w[2] or w[1]
  end
+ local key=atlas.."/"..sprite.."#"..fill:ToHex()
+ local old=parent:FindFirstChild("SurfaceArt")
+ if old and old:GetAttribute("Sprite")==key then return old :: ImageLabel end
+ if old then old:Destroy() end
+ local alpha=style.alpha or 0;local tile=atlas=="window" and 88 or 56
+ local image=New("ImageLabel",{Name="SurfaceArt",Active=false,ZIndex=2,Size=UDim2.fromScale(1,1),BackgroundColor3=alpha>0 and fill or Color3.new(1,1,1),BackgroundTransparency=alpha,BorderSizePixel=0,
+  Image=style.studs<1 and STUDS or "",ImageTransparency=style.studs,ScaleType=Enum.ScaleType.Tile,TileSize=UDim2.fromOffset(tile,tile),Parent=parent},{
+  UIKit.Corner(style.radius),
+  New("UIStroke",{Thickness=style.stroke,Color=alpha>0 and INK or fill:Lerp(Color3.new(),.62),Transparency=alpha>0 and .25 or 0,ApplyStrokeMode=Enum.ApplyStrokeMode.Border,LineJoinMode=Enum.LineJoinMode.Round}),
+ })
+ if alpha==0 then New("UIGradient",{Rotation=90,Color=ramp(fill,style.lip),Parent=image}) end
+ if atlas=="window" then New("ImageLabel",{Name="Vignette",Active=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),Image=VIGNETTE,ImageTransparency=.72,ZIndex=1,Parent=image},{UIKit.Corner(style.radius)}) end
+ if style.glyph then
+  local centre=sprite=="delete"
+  local g=New("TextLabel",{Name="Glyph",BackgroundTransparency=1,Text=style.glyph,TextScaled=true,FontFace=UIKit.Font,TextColor3=Color3.new(1,1,1),AnchorPoint=Vector2.new(centre and .5 or 0,.5),Position=centre and UDim2.fromScale(.5,.45) or UDim2.new(0,8,.5,0),Size=centre and UDim2.fromScale(.6,.6) or UDim2.new(0,24,.7,0),ZIndex=2,Parent=image},{UIKit.TextStroke(2)})
+  g:SetAttribute("NoTranslate",true)
+ end
+ image:SetAttribute("Sprite",key)
+ -- Keep the surface under the parent's own content in both ZIndex modes (skins are often made before
+ -- the parent is in a ScreenGui): same level as the parent (Global draws it after its ancestors) and
+ -- the parent's content shifted above it, keeping its relative order. Window sets its body itself.
+ if atlas~="window" then
+  image.ZIndex=parent.ZIndex
+  local own={};local low=math.huge
+  for _,d in parent:GetDescendants() do if d:IsA("GuiObject") and d~=image and not d:IsDescendantOf(image) then table.insert(own,d);low=math.min(low,d.ZIndex) end end
+  local shift=image.ZIndex+1-low;if shift>0 then for _,d in own do d.ZIndex+=shift end end
+ end
+ parent.BackgroundTransparency=1
+ local stroke=parent:FindFirstChildOfClass("UIStroke");if stroke then stroke.Enabled=false end
+ local gradient=parent:FindFirstChildOfClass("UIGradient");if gradient then gradient.Enabled=false end
+ local pad=parent:FindFirstChildOfClass("UIPadding")
+ if pad then image.Position=UDim2.fromOffset(-pad.PaddingLeft.Offset,-pad.PaddingTop.Offset);image.Size=UDim2.new(1,pad.PaddingLeft.Offset+pad.PaddingRight.Offset,1,pad.PaddingTop.Offset+pad.PaddingBottom.Offset) end
  return image
-end
-local function buttonSprite(color: Color3): string
- if color==C.Disabled or color==C.Slate then return "buttonDisabled" end
- if color==C.Red then return "buttonRed" end
- if color==C.Orange then return "buttonGold" end
- return "buttonGreen"
 end
 
 export type ButtonOptions = {
@@ -240,7 +304,7 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 			Parent = button,
 		})
 	end
-	UIKit.Skin(button,"controls",buttonSprite(color));base.Visible=false
+	button:SetAttribute("Fill",color);UIKit.Skin(button,"controls",color==C.Slate and "inert" or "buttonGreen");base.Visible=false
 	for _,l in button:GetDescendants() do if l:IsA("UIStroke") and l.Parent:IsA("TextLabel") then l.Thickness=math.max(2,(o.textSize or 17)/10) end end
 	local pressed = false
 	button.MouseButton1Down:Connect(function()
@@ -271,7 +335,8 @@ function UIKit.SetButtonColor(holder: Frame, color: Color3, textColor: Color3?)
 		return
 	end
 	button.BackgroundColor3 = color
-	if not holder:GetAttribute("ArtCard") then UIKit.Skin(button,"controls",buttonSprite(color)) end
+	button:SetAttribute("Fill",color)
+	if not holder:GetAttribute("ArtCard") then UIKit.Skin(button,"controls",color==C.Slate and "inert" or "buttonGreen") end
 	for _, d in button:GetDescendants() do
 		if d:IsA("TextLabel") and textColor then
 			d.TextColor3 = textColor
@@ -350,7 +415,7 @@ function UIKit.Toast(parent: Instance, text: string, color: Color3?)
 	end)
 end
 
--- Common woodland window and existing atlas artwork, shared by every system.
+-- Common window chrome and the icon atlas, shared by every system.
 function UIKit.Icon(parent: Instance, id: string, props: Props?): ImageLabel?
  local atlas=require(game.ReplicatedStorage.Shared.Config.UIIcons)
  local r=atlas.Rects[id];if not r then return nil end
@@ -365,7 +430,7 @@ function UIKit.Symbol(parent: Instance, symbol: string, props: Props?): ImageLab
  return UIKit.Icon(parent,symbol,props)
 end
 local Heading=Color3.fromRGB(255,255,255)
--- Concept window: wood frame, big outlined title (optionally on a protruding plaque) and red X.
+-- Window: stud body in the system colour, big outlined title (optionally on a protruding colour plate) and red X.
 -- opts.plaque = plaque width; opts.center centres the plaque over the window.
 function UIKit.Window(panel: GuiObject, title: string?, symbol: string?, opts: Props?)
  if panel:FindFirstChild("SurfaceArt") then return end
@@ -385,22 +450,25 @@ function UIKit.Window(panel: GuiObject, title: string?, symbol: string?, opts: P
   heading=UIKit.Label(title,56,{Name="WindowHeading",Position=UDim2.fromOffset(108,6),Size=UDim2.new(1,-120,1,-16),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,TextColor3=Heading,ZIndex=5,Parent=host})
   New("UITextSizeConstraint",{MaxTextSize=58,Parent=heading})
  else
-  UIKit.Symbol(panel,symbol or "book",{Name="TitleIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,30-px,.105,-py-2),Size=UDim2.fromOffset(78,78),ZIndex=5})
-  heading=UIKit.Label(title,46,{Name="WindowHeading",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,112-px,.105,-py-2),Size=UDim2.new(.62,-112,0,64),TextColor3=Heading,TextWrapped=false,TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=5,Parent=panel})
+  -- Padded windows keep the original Title row (content y 0..36) for the heading; their own rows start below it.
+  local top=pad and 18 or nil;local h=top and 38 or 64
+  UIKit.Symbol(panel,symbol or "book",{Name="TitleIcon",AnchorPoint=Vector2.new(0,.5),Position=top and UDim2.fromOffset(30-px,top) or UDim2.new(0,30-px,.105,-py-2),Size=UDim2.fromOffset(top and 42 or 78,top and 42 or 78),ZIndex=5})
+  heading=UIKit.Label(title,46,{Name="WindowHeading",AnchorPoint=Vector2.new(0,.5),Position=top and UDim2.fromOffset(78-px,top) or UDim2.new(0,112-px,.105,-py-2),Size=UDim2.new(.62,-112,0,h),TextColor3=Heading,TextWrapped=false,TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=5,Parent=panel})
   heading.TextScaled=true -- after TextWrapped=false (setting that clears TextScaled)
   -- Small windows: use the whole title strip up to the close button; shrink long/Thai titles instead of cutting them.
-  local width=panel.Size.X.Offset;if width>0 and width<700 then heading.Size=UDim2.new(1,2*px-190,0,64) end
+  local width=panel.Size.X.Offset;if width>0 and width<700 then heading.Size=UDim2.new(1,2*px-190,0,h) end
   New("UITextSizeConstraint",{MaxTextSize=46,MinTextSize=18,Parent=heading})
  end
  heading:FindFirstChildOfClass("UIStroke").Thickness=4
  if original then original:GetPropertyChangedSignal("Text"):Connect(function() heading.Text=original.Text end) end
- local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(70,70),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.AnchorPoint=Vector2.new(.5,.5);close.Position=UDim2.new(1,px-30,0,-py+18);close.ZIndex=6;close.Parent=panel
- UIKit.Skin(close.Button,"controls","close");close.Button:FindFirstChildWhichIsA("TextLabel",true).Visible=false
+ local close=UIKit.Button({text="X",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(70,70),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.AnchorPoint=Vector2.new(.5,.5);close.Position=UDim2.new(1,px-30,0,-py+18);close.ZIndex=6;close.Parent=panel
+ local x=close.Button:FindFirstChildWhichIsA("TextLabel",true);x.Size=UDim2.new(1,0,.85,0);x:SetAttribute("NoTranslate",true)
  for _,v in close:GetDescendants() do if v:IsA("GuiObject") then v.ZIndex=6 end end
+ close.Button.SurfaceArt.ZIndex=5 -- under the X
  return heading
 end
 
--- Wooden tab: normal / gold / green states, optional icon and live label.
+-- Tab: ink (normal) / gold / green states, optional icon and live label.
 function UIKit.Tab(o: Props): TextButton
  local tab=New("TextButton",{Name=o.name or "Tab",AutoButtonColor=false,Text="",BackgroundTransparency=1,Size=o.size or UDim2.fromOffset(200,54),Position=o.position or UDim2.new(),LayoutOrder=o.layoutOrder or 0,Parent=o.parent})
  local row=New("Frame",{Name="Content",BackgroundTransparency=1,Size=UDim2.new(1,0,1,-4),ZIndex=3,Parent=tab},{New("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,HorizontalAlignment=Enum.HorizontalAlignment.Center,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder})})
@@ -412,10 +480,10 @@ function UIKit.Tab(o: Props): TextButton
 end
 function UIKit.SetTab(tab: GuiObject, state: string?)
  UIKit.Skin(tab,"chrome",state=="gold" and "tabGold" or state=="green" and "tabGreen" or "tabNormal")
- local label=tab:FindFirstChild("TabLabel",true);if label then label.TextColor3=state and Color3.new(1,1,1) or Color3.fromRGB(228,206,176) end
+ local label=tab:FindFirstChild("TabLabel",true);if label then label.TextColor3=state and Color3.new(1,1,1) or C.TextDim end
 end
 
--- Dark wooden strip for hints/stats; returns the frame and its live label.
+-- Ink strip for hints/stats; returns the frame and its live label.
 function UIKit.InfoBar(parent: Instance, text: string, props: Props?, symbol: string?): (Frame, TextLabel)
  local p: Props={Name="InfoBar",BackgroundTransparency=1,Size=UDim2.new(1,0,0,52),Parent=parent}
  if props then for k,v in props do p[k]=v end end

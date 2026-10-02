@@ -104,7 +104,7 @@ function Inventory.Start()
 		if pendingDelete~=selected then pendingDelete=selected;say("Click Delete again to permanently remove this weapon");return end
 		local uid=selected;pendingDelete=nil;request("Delete",uid)
 	end)
-	UI.Skin(delete.Button,"controls","delete");delete.Button.SurfaceArt.ScaleType=Enum.ScaleType.Fit
+	UI.Skin(delete.Button,"controls","delete")
 	local openOne=action("Open","Open 1",UI.Colors.Orange,0,1,function() openChest(selectedChest,false) end)
 	local openTen=action("OpenTen","Open 10",UI.Colors.Green,.5,.5,function() openChest(selectedChest,true) end)
 	local exchange=action("DustExchange","Exchange",UI.Colors.Green,0,1,function()

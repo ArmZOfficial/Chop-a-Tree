@@ -12,7 +12,7 @@ function Controller.Start()
 	local gui=UI.New("ScreenGui",{Name="SeasonHUD",ResetOnSpawn=false,DisplayOrder=13,Parent=player:WaitForChild("PlayerGui")})
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(760,540),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
 	local title=UI.Label("Season Pass",22,{Name="Title",Parent=panel})
-	local info=UI.Label("",15,{Name="Info",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,44),Parent=panel})
+	local info=UI.Label("",15,{Name="Info",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,44),TextScaled=true,Parent=panel});UI.New("UITextSizeConstraint",{MaxTextSize=15,Parent=info}) -- long Thai/EN lines shrink instead of spilling
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.new(0,0,1,-104),Size=UDim2.new(1,0,0,40),TextColor3=UI.Colors.Accent,Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Levels",Position=UDim2.fromOffset(0,140),Size=UDim2.new(1,0,1,-250),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,6)})
 	local price,busy,render=nil,false,nil

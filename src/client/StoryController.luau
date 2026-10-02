@@ -129,6 +129,7 @@ function Controller.Start()
 	end
 	render=function()
 		if not panel.Visible or not quest then return end
+		for _,t in TABS do local b=panel:FindFirstChild("Tab"..t[1]);if b then UI.SetButtonColor(b,t[1]==tab and UI.Colors.Orange or UI.Colors.Purple) end end -- selected tab
 		keep,order={},0
 		if tab=="Main" then
 			row("Chapter",quest.title,UI.Colors.Purple,none)
