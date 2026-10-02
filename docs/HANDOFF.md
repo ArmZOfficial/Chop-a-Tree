@@ -4,6 +4,19 @@
 
 ## สถานะล่าสุด
 
+## Regression รอบสุดท้าย (บางส่วน) บนเกาะใหม่ + Sword Pack (2026-10-03)
+
+รัน scenario เดิมใน Script VM ของ Studio Play ด้วย **mock profile** (ไม่แตะเซฟจริง; ทุกชุด restore ครบ, console ไม่มี error, ลบ test scripts แล้ว):
+
+| ชุด | ผล | ที่ต้องปรับในเทสต์ (เกมไม่ได้แก้) |
+|---|---:|---|
+| Phase2 Run/ตัดไม้/Auto Cut | **23/23** | ตัวปลอม contributor ต้องมี `SetAttribute` (Tree.Hit เขียน `CombatUntil`) |
+| Phase3 อาวุธ/หีบ/Fuse | **36/36** | ใช้ `Config.WeaponCatalog` (380 + legacy 100); เวลารอฟันคิดจาก speed ของดาบ (swd_001 = 0.8 → 1.25 วิ) |
+| Phase7 โซน/บอส/ศาลเจ้า/วาร์ป/รัง | **24/24** | โครงสร้างเกาะวงกลม (≥140 ต้น/โซน, Trunk collider, ไม่มี asset tree); ล้าง pass/boost เอง; กติกา Travel ใหม่ (รอ 3 วิหลังต่อสู้, ต้องเคยไปโซนนั้น, cooldown 2 วิ) + ข้อใหม่ "โซนที่ยังไม่เคยไปวาร์ปไม่ได้" |
+
+**ยังไม่ได้รันซ้ำหลังแมพ/ดาบใหม่:** Phase4 สวน, Phase5 สัตว์/ขโมย, Phase6 เนื้อเรื่อง, StoryKeepers, BaseDefence, Decor, Phase8a–f + ร้าน/ซีซัน (รวม ~144 KB; Phase6/Collections/Emote/Rebirth ยัง require `Config.Weapons` ตรง ๆ ต้องพอร์ตแบบ Phase3). ผลเดิมของชุดเหล่านี้เป็นของแมพเก่า — อย่าอ้างเป็นหลักฐานของแมพใหม่.
+วิธีรัน: สร้าง Script ใน ServerScriptService ด้วย multi_edit → ตั้ง `Enabled=false` ใน Edit → Play → รอ character แล้วตั้ง `Enabled=true` จาก execute_luau (Server) → อ่าน `workspace:GetAttribute("PhaseNTest…")` → Stop → ลบ. เทียบ hash กับไฟล์ repo ก่อนรันทุกครั้ง. mock profile ของ ArmZ มี pass ติดมา (เช่น Wood 2x, OpenTen) → scenario ที่วัดรางวัลต้องล้าง `Purchases.passes`/`Boosts` เอง หรือใช้ RegressionHarness.
+
 ## แทร็ก J ปิดงาน — เสียงเปิดหีบ + Open 10 จริง (2026-10-03, ยังไม่ Publish)
 
 `ChestOpening` เล่นเสียงละเฟส (Intro/Charge/Burst/Reveal) จากคลัง Pro Sound Effects ของ Roblox เท่านั้น — id/ชื่อ: [systems §Models](systems.md#models--builders). Full = ทุกเฟส, Fast/Off/Skip = เสียง Reveal อย่างเดียว, ดังตาม rarity 0.4–0.8, ปุ่ม SFX ใน Settings ปิดได้. แก้ข้อความ Open 10 ภาษาอังกฤษ "Open Chest N eggs" → "Opened N chests" (ไทย "เปิดหีบแล้ว N ใบ").
@@ -90,7 +103,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 ## งานถัดไป / ค้าง
 
-0. Master prompt: A/B/C/D/E/H/I/J เสร็จในส่วนที่ทำใน Studio ได้; F ไม่มีการปรับ balance (แก้เฉพาะข้อความ Open 10); G เอกสารตามทัน. เหลือเฉพาะที่ต้องใช้คน/เครื่องจริง: C+J บน Device Simulator/มือถือ/จอยจริง, ฟังเสียง, playtest เดินครบทุกโซน/บอสบนเกาะใหม่, หลายบัญชี, และการอนุมัติ migration v3 กับเซฟจริงก่อนปิด mock.
+0. Master prompt: A/B/C/D/E/H/I/J เสร็จในส่วนที่ทำใน Studio ได้; F ไม่มีการปรับ balance (แก้เฉพาะข้อความ Open 10); G เอกสารตามทัน. Regression: Phase2/3/7 ผ่านบนแมพใหม่ เหลือพอร์ต+รัน Phase4/5/6/8 (ดูหัวข้อบนสุด). ที่ต้องใช้คน/เครื่องจริง: C+J บน Device Simulator/มือถือ/จอยจริง, ฟังเสียง, playtest เดินครบทุกโซน/บอสบนเกาะใหม่, หลายบัญชี, และการอนุมัติ migration v3 กับเซฟจริงก่อนปิด mock.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.

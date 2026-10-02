@@ -17,28 +17,24 @@ local function at(cf) pcall(p.RequestStreamAroundAsync,p,cf.Position,5);p.Charac
 local function tagged(tag,attr,value) for _,x in Collection:GetTagged(tag) do if x:IsDescendantOf(workspace) and x:GetAttribute(attr)==value then return x end end end
 local ok,err=xpcall(function()
 	R.End(p,false);F.Set("Story",true);F.Set("Eggs",true);Wx.Force("Clear",3600);B.SetOverride("CritChance",0)
+	D.Set(p,"Purchases.passes",{});D.Set(p,"Boosts",{Wood=0,Coins=0,Exp=0,Luck=0}) -- baseline rewards without the harness
 	D.Set(p,"Progress.Rebirth",0);D.Set(p,"Inventory.Pets",{});D.Set(p,"Inventory.Eggs",{});D.Set(p,"Inventory.Equipped","")
 	local allBuilt=true;for _,z in Zones.List do if not z.built then allBuilt=false end end
 	check("All eight zones are marked built",allBuilt)
-	local perZone,assetTrees,badTrunk={}, 0,0
+	-- Ring island (track A): retro TreeKit trees, outer rings hold more trees than inner ones.
+	local perZone,badTrunk={},0
 	for _,m in Collection:GetTagged("Tree") do if m:IsDescendantOf(workspace) then
 		local z=m:GetAttribute("Zone");perZone[z]=(perZone[z] or 0)+1
-		if z>=3 then
-			if m:FindFirstChild("Look") then assetTrees+=1 end
-			if not m.PrimaryPart or m.PrimaryPart.Name~="Trunk" or m.PrimaryPart.Transparency~=1 or not m.PrimaryPart.CanCollide then badTrunk+=1 end
-		end
+		if not m.PrimaryPart or m.PrimaryPart.Name~="Trunk" or not m.PrimaryPart.CanCollide then badTrunk+=1 end
 	end end
-	local counts=true;for z=1,8 do if perZone[z]~=160 then counts=false end end
-	check("Every zone has 160 choppable trees",counts)
-	check("Zone 3-8 trees use asset visuals over an invisible collider trunk",assetTrees==960 and badTrunk==0)
+	local counts=true;for z=1,8 do if (perZone[z] or 0)<140 then counts=false end end
+	check("Every zone has at least 140 choppable trees",counts)
+	check("Every tree keeps a collidable Trunk as PrimaryPart",badTrunk==0)
 	local scripts=0;for _,d in workspace.Map:GetDescendants() do if d:IsA("LuaSourceContainer") then scripts+=1 end end
 	check("The built map contains no scripts from Creator Store assets",scripts==0)
-	local protoOk=true;local protoCount=0
-	for _,folder in game.ServerStorage.MapAssets.Trees:GetChildren() do for _,m in folder:GetChildren() do protoCount+=1
-		if not m:GetAttribute("AssetId") or not m:GetAttribute("Height") then protoOk=false end
-		for _,d in m:GetDescendants() do if d:IsA("LuaSourceContainer") then protoOk=false end end
-	end end
-	check("Vetted prototypes are script-free and record their asset IDs",protoOk and protoCount==8)
+	local protoOk=true
+	for _,d in game.ServerStorage.MapAssets:GetDescendants() do if d:IsA("LuaSourceContainer") then protoOk=false end end
+	check("Stored map prototypes are script-free",protoOk)
 	local nestsOk,nestCount=true,0
 	for _,nest in Collection:GetTagged("Nest") do if nest:IsDescendantOf(workspace) then nestCount+=1
 		local def=Eggs.ByNest[nest:GetAttribute("EggType")];if not def or def.zone~=nest:GetAttribute("Zone") then nestsOk=false end
@@ -50,7 +46,7 @@ local ok,err=xpcall(function()
 	local bossesOk=true;for z=1,8 do if not Bo.Get(z) then bossesOk=false end end
 	local lumora=Collection:GetTagged("Lumora")[1]
 	check("Guardians exist for all eight zones",bossesOk)
-	check("Sky Isles guardian stands beside the Lumora trunk",(Bo.Get(8).center-Vector3.new(lumora:GetPivot().Position.X,Bo.Get(8).center.Y,lumora:GetPivot().Position.Z)).Magnitude>=20)
+	check("Zone 8 guardian stands beside the Lumora trunk",(Bo.Get(8).center-Vector3.new(lumora:GetPivot().Position.X,Bo.Get(8).center.Y,lumora:GetPivot().Position.Z)).Magnitude>=20)
 	local same=true;for z=1,8 do local sp=tagged("ZoneSpawn","Zone",z);if Ambience.ZoneAt(sp.Position+Vector3.new(0,3,0))~=z then same=false end end
 	check("Client ambience detects the same zone as the server at every spawn",same)
 	-- Zone 3 gameplay
@@ -62,8 +58,8 @@ local ok,err=xpcall(function()
 	R.End(p,false);D.Set(p,"Progress.UnlockedZones",{1,2,3});R.Begin(p);near(tree);T.Reset(tree);task.wait(1.05)
 	local run=R.Get(p);hit=T.Hit(p,tree)
 	check("Unlocked zone 3 tree falls and pays zone 3 rewards",hit and tree:GetAttribute("Alive")==false and math.abs(run.Wood-B.TreeReward(3,1,0,false).wood)<1e-6)
-	check("Asset tree hides fully when felled",(function() for _,d in tree:GetDescendants() do if d:IsA("BasePart") and d.Transparency<1 then return false end end return true end)())
-	T.Reset(tree);check("Asset tree reappears on respawn",tree.PrimaryPart.Transparency==1 and tree.Look:FindFirstChildWhichIsA("BasePart").Transparency<1)
+	check("Felled tree hides fully",(function() for _,d in tree:GetDescendants() do if d:IsA("BasePart") and d.Transparency<1 then return false end end return true end)())
+	T.Reset(tree);check("Tree reappears on respawn",tree.PrimaryPart.Transparency==0 and tree.PrimaryPart.CanCollide)
 	-- Zone 3 boss and shrine unlock zone 4
 	local b3=Bo.Get(3);at(CFrame.new(b3.center+Vector3.new(-14,4,0)));p:SetAttribute("AdminCutPower",B.BossRequiredPower(3)*.5);task.wait(1.05)
 	hit,reason=Bo.Hit(p,3);check("Zone 3 guardian needs zone 3 tier 6 power",not hit and reason=="Power too low")
@@ -74,9 +70,13 @@ local ok,err=xpcall(function()
 	-- Chapter 3 zone step and warping to zone 4
 	D.Set(p,"Progress.StoryChapter",3);D.Set(p,"Quests.main",{step=1,base=0})
 	check("Chapter 3 steps are no longer blocked",not Q.Blocked(Q.Step(p)))
-	at(workspace.Map.Village.Services.WarpStone:GetPivot()*CFrame.new(0,0,6))
+	-- TravelService (map systems): no travel for 3 s after combat, fast travel only to visited zones, 2 s cooldown.
+	at(workspace.Map.Village.Services.WarpStone:GetPivot()*CFrame.new(0,0,6));task.wait(3.1)
+	D.Set(p,"Progress.VisitedZones",{})
+	check("Fast travel to an unvisited zone is rejected",not St.Warp(p,4))
+	D.Set(p,"Progress.VisitedZones",{["3"]=true,["4"]=true})
 	check("Warp to zone 4 starts a Run there",St.Warp(p,4) and D.Get(p,"Run.Active") and R.ZoneAt(p)==4)
-	at(tagged("WarpStone","Zone",4):GetPivot()*CFrame.new(0,0,6));St.Warp(p,3);task.wait(.3);Q.Check(p)
+	at(tagged("WarpStone","Zone",4):GetPivot()*CFrame.new(0,0,6));task.wait(2.1);St.Warp(p,3);task.wait(.3);Q.Check(p)
 	check("Standing in zone 3 completes the chapter 3 zone step",D.Get(p,"Quests.main.step")==2)
 	-- Zone 6 nest egg
 	D.Set(p,"Progress.UnlockedZones",{1,2,3,4,5,6});R.End(p,false);R.Begin(p)

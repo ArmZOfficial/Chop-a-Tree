@@ -75,7 +75,7 @@ local ok,err=xpcall(function()
 	fakeChar=Instance.new("Model"); fakeChar.Name="Phase2Contributor"
 	local hr=Instance.new("Part"); hr.Name="HumanoidRootPart"; hr.Anchored=true; hr.CanCollide=false; hr.Size=Vector3.one; hr.Parent=fakeChar
 	local hum=Instance.new("Humanoid"); hum.Parent=fakeChar; fakeChar.Parent=workspace
-	local fake={Character=fakeChar,Parent=true,UserId=-999999}
+	local fake={Character=fakeChar,Parent=true,UserId=-999999,SetAttribute=function() end,GetAttribute=function() end} -- Tree.Hit marks CombatUntil
 	local fakeRun={Active=true}; local fakeAwards=0
 	R.Get=function(who) if who==fake then return fakeRun end return originals.get(who) end
 	R.CanAccess=function(who,z) if who==fake then return z==1 end return originals.can(who,z) end
