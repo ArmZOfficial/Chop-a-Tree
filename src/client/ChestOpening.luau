@@ -140,14 +140,14 @@ function Opening.Play(results,opts)
 		flash.BackgroundTransparency=1
 		local equippedUid=Data.Get("Inventory.Equipped");local inv=Data.Get("Inventory.Weapons") or {}
 		local current=equippedUid and inv[equippedUid]
-		local card=UI.New("Frame",{Name=multi and "ResultGrid" or "ResultCard",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=multi and UDim2.fromOffset(720,420) or UDim2.fromOffset(440,400),BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(20),UI.Padding(16)})
+		local card=UI.New("Frame",{Name=multi and "ResultGrid" or "ResultCard",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=multi and UDim2.fromOffset(720,400) or UDim2.fromOffset(440,400),BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(20),UI.Padding(16)})
 		-- Ornate frame wraps the card (28 px overhang); corners keep their shape, edges stretch.
 		UI.New("ImageLabel",{Name="Frame",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.new(1,88,1,88),Image=FRAME,ImageColor3=color:Lerp(Color3.new(1,1,1),.3),ScaleType=Enum.ScaleType.Slice,SliceCenter=Rect.new(300,300,724,724),SliceScale=.26,Parent=card})
 		local scale=UI.New("UIScale",{Parent=card})
-		local function fit() local v=workspace.CurrentCamera.ViewportSize;scale.Scale=math.min(1,(v.X-24)/(multi and 776 or 496),(v.Y-24)/(multi and 476 or 456)) end -- card + frame overhang
+		local function fit() local v=workspace.CurrentCamera.ViewportSize;scale.Scale=math.min(1,(v.X-24)/(multi and 776 or 496),(v.Y-24)/456) end -- card + frame overhang; 62 px buttons stay >= 44 px on a 374 px high phone
 		fit();local fitConn=workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fit);card.Destroying:Connect(function() fitConn:Disconnect() end)
 		local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,1),Position=UDim2.fromScale(.5,1),Size=UDim2.new(1,0,0,62),Parent=card},{UI.List(Enum.FillDirection.Horizontal,10,Enum.HorizontalAlignment.Center)})
-		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=multi and 24 or 19,color=col,size=UDim2.fromOffset(multi and 200 or 128,multi and 62 or 58),onClick=fn});b.Name=name;b.Parent=buttons;return b end
+		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=multi and 24 or 19,color=col,size=UDim2.fromOffset(multi and 200 or 128,62),onClick=fn});b.Name=name;b.Parent=buttons;return b end
 		if multi then
 			UI.Label("Results",30,{Name="Heading",Size=UDim2.new(1,0,0,38),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
 			local grid=UI.New("Frame",{Name="Grid",BackgroundTransparency=1,Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,1,-116),Parent=card},{UI.New("UIGridLayout",{CellSize=UDim2.new(.2,-8,.5,-8),CellPadding=UDim2.fromOffset(8,8),SortOrder=Enum.SortOrder.LayoutOrder})})
