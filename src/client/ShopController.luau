@@ -1,4 +1,4 @@
--- Robux shop panel (plan 17). The server validates and opens every purchase prompt.
+-- Robux shop window (concept: assets/ui/elements-v1/concepts/shop.png). The server validates and opens every purchase prompt.
 local Players=game:GetService("Players")
 local MS=game:GetService("MarketplaceService")
 local TextChat=game:GetService("TextChatService")
@@ -7,15 +7,42 @@ local Net=require(S.Net);local UI=require(S.UIKit)
 local C=require(S.Config.Products)
 local Data=require(script.Parent.ClientData)
 local Shop={}
+-- Illustrations from the UI atlases; unmapped items use their uploaded product icon.
+local ART={gems100="rewards/gemsSmall",gems550="rewards/gemsMedium",gems1200="rewards/gemsLarge",gems6500="rewards/gemsLarge",
+	wood15="rewards/woodBoost",wood30="rewards/woodBoost",luck15="rewards/luckBoost",luck30="rewards/luckBoost",serverLuck="rewards/luckBoost",
+	chestKey="rewards/chestKey",instantHatch="incubation/eggReady",instantGrow="garden/plotReady",
+	Wood2x="rewards/woodBoost",Lucky="rewards/luckBoost",PetSlots="pets/pet_fox",HatchSpeed="incubation/cradleReady",GardenPlots="garden/plotGrowing",AutoSell="garden/fruit",OpenTen="rewards/epicChest"}
+local SYMBOL={VIP="trophy",Coins2x="gift",Teleport="arena",baseLock="shop",coins15="gift",coins30="gift",exp15="book",exp30="book"}
+local function describe(p)
+	local minutes=p.name:match("(%d+) min")
+	local k=p.key
+	if k:find("^gems") then return "Gems for your adventures."
+	elseif k=="serverLuck" then return "Chest luck for the whole server\nfor "..minutes.." minutes."
+	elseif k:find("^wood") then return "Double Wood\nfor "..minutes.." minutes."
+	elseif k:find("^coins") then return "Double Coins\nfor "..minutes.." minutes."
+	elseif k:find("^exp") then return "Double EXP\nfor "..minutes.." minutes."
+	elseif k:find("^luck") then return "Improve chest luck\nfor "..minutes.." minutes."
+	elseif k=="instantHatch" then return "Finish the eggs in\nyour incubator now."
+	elseif k=="instantGrow" then return "Finish growing your\ngarden trees now."
+	elseif k=="chestKey" then return "Legendary Chest\nLevel 10"
+	elseif k=="baseLock" then return "Lock your base\nright away." end
+	return ""
+end
+local function title(p) return p.key=="chestKey" and "Chest Key" or p.name end
 function Shop.Start()
 	local player=Players.LocalPlayer
 	local flags=game.ReplicatedStorage.FeatureFlags
-	local gui=UI.New("ScreenGui",{Name="ShopHUD",ResetOnSpawn=false,DisplayOrder=12,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("Shop",30,{Parent=panel})
-	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(72,40),Size=UDim2.new(1,0,0,24),TextColor3=UI.Colors.Accent,Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Grid(3,300,14)})
-	local tab,prices,icons,render="Passes",{},{},nil
+	local gui=UI.New("ScreenGui",{Name="ShopHUD",ResetOnSpawn=false,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,DisplayOrder=12,Parent=player:WaitForChild("PlayerGui")})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundTransparency=1,Parent=gui})
+	UI.Window(panel,"Shop","shop",{plaque=330,center=true})
+	local message=UI.Label("",14,{Name="Message",Visible=false,Parent=panel})
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(40,188),Size=UDim2.fromOffset(880,384),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,10),UI.Padding(4)})
+	local featured=UI.New("Frame",{Name="Featured",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=1,Parent=list},{UI.Grid(3,244,12)})
+	local others=UI.New("Frame",{Name="Others",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=2,Parent=list},{UI.Grid(3,122,12)})
+	local footer=UI.New("Frame",{Name="Footer",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,580),Size=UDim2.fromOffset(330,44),Parent=panel})
+	UI.Skin(footer,"chrome","infoRow")
+	local footerLabel=UI.Label("",20,{Size=UDim2.fromScale(1,1),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,TextColor3=Color3.fromRGB(255,220,120),ZIndex=3,Parent=footer})
+	local tab,prices,icons,render="Products",{},{},nil
 	local function price(id,kind)
 		if prices[id]==nil then prices[id]=false
 			task.spawn(function()
@@ -27,50 +54,63 @@ function Shop.Start()
 	local function request(action,key)
 		task.spawn(function()
 			local ok,success,msg=pcall(function() return Net.Function("ShopAction"):InvokeServer(action,key) end)
-			message.Text=ok and (msg or "") or "Could not reach the server";message.TextColor3=ok and success and UI.Colors.Accent or UI.Colors.Red
+			message.Text=ok and (msg or "") or "Could not reach the server"
+			if message.Text~="" then UI.Toast(gui,message.Text,ok and success and UI.Colors.Accent or UI.Colors.Red) end
 		end)
 	end
-    local function row(name,text,color,callback)
-        local parts=string.split(text,"\n");local heading=parts[1];local description=parts[2] or "";local key=name:gsub("^Pass_",""):gsub("^Product_","")
-        local symbols={VIP="trophy",Wood2x="leaf",Coins2x="gift",Lucky="season",PetSlots="egg",HatchSpeed="egg",GardenPlots="leaf",AutoSell="shop",Teleport="arena",OpenTen="gift"}
-        local symbol=symbols[key] or (key:find("gems") and "season") or (key:find("Hatch") and "egg") or (key:find("Grow") and "leaf") or "gift"
-        local card=UI.New("Frame",{Name=name,BackgroundColor3=UI.Colors.Card,Parent=list},{UI.Corner(12),UI.Stroke(3,UI.Colors.Outline),UI.Padding(10)})
-        UI.Skin(card,"cards","product")
-        local art=UI.Icon(card,symbol,{Position=UDim2.new(.5,-80,0,40),Size=UDim2.fromOffset(160,150)})
-        local sprite=key:lower():find("gem") and "gemsMedium" or key=="Wood2x" and "woodBoost" or key=="Lucky" and "luckBoost" or nil
-        if sprite then if art then art:Destroy() end;art=UI.Art(card,"rewards",sprite,{Position=UDim2.new(.5,-80,0,40),Size=UDim2.fromOffset(160,150)}) end
-        local product=C.PassByKey[key] or C.ProductByKey[key];local imageId=product and icons[product.id]
-        if art and imageId and imageId>0 then art.Image="rbxassetid://"..imageId;art.ImageRectOffset=Vector2.zero;art.ImageRectSize=Vector2.zero end
-        UI.Label((C.PassByKey[key] or C.ProductByKey[key] or {}).name or heading,21,{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,36),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
-        UI.Label(description~="" and description or "Repeatable purchase",14,{Position=UDim2.fromOffset(8,193),Size=UDim2.new(1,-16,0,45),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
-        local purchase=UI.Button({text=heading:match("R%$.*$") or (heading:find("Owned") and "Owned") or (heading:find("Warp") and "Open Warp") or "View",textSize=24,color=color==UI.Colors.Slate and color or UI.Colors.Green,size=UDim2.new(1,0,0,46),onClick=callback});purchase.Name="Purchase";purchase.Position=UDim2.new(0,0,1,-48);purchase.Parent=card
-    end
+	local function art(card,key,product,props)
+		local spec=ART[key];local a
+		if spec then local atlas,sprite=spec:match("^(%w+)/([%w_]+)$");a=UI.Art(card,atlas,sprite,props)
+		else
+			local imageId=product and icons[product.id]
+			if imageId and imageId>0 then a=UI.New("ImageLabel",{BackgroundTransparency=1,ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..imageId,Parent=card});for k,v in props do (a::any)[k]=v end
+			else a=UI.Icon(card,SYMBOL[key] or "gift",props) end
+		end
+		if a then a.Name="Art" end
+	end
+	-- Large card: illustration on top, name, short description, price.
+	local function big(product,key,desc,buy,color,onClick,order)
+		local card=UI.New("Frame",{Name=(tab=="Passes" and "Pass_" or "Product_")..key,BackgroundTransparency=1,LayoutOrder=order,Parent=featured});UI.Skin(card,"cards","product")
+		art(card,key,product,{Position=UDim2.fromOffset(20,12),Size=UDim2.new(1,-40,0,112)})
+		UI.Label(title(product),32,{Name="Title",Position=UDim2.fromOffset(12,122),Size=UDim2.new(1,-24,0,38),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
+		UI.Label((desc:gsub("%s+"," ")),17,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(14,160),Size=UDim2.new(1,-28,0,22),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
+		local b=UI.Button({text=buy,textSize=28,color=color,size=UDim2.new(1,-28,0,54),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,14,1,-62);b.Parent=card
+	end
+	-- Small card: illustration left, text and price right.
+	local function small(product,key,desc,buy,color,onClick,order)
+		local card=UI.New("Frame",{Name=(tab=="Passes" and "Pass_" or "Product_")..key,BackgroundTransparency=1,LayoutOrder=order,Parent=others});UI.Skin(card,"cards","product")
+		art(card,key,product,{Position=UDim2.fromOffset(12,11),Size=UDim2.fromOffset(100,100)})
+		UI.Label(title(product),21,{Name="Title",Position=UDim2.fromOffset(118,10),Size=UDim2.new(1,-130,0,28),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
+		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
+		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,44),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-52);b.Parent=card
+	end
+	local tabs={}
 	render=function()
 		if not panel.Visible then return end
-		for _,v in list:GetChildren() do if v:IsA("GuiObject") then v:Destroy() end end
+		for key,t in tabs do UI.SetTab(t,tab==key and "gold" or nil) end
+		for _,frame in {featured,others} do for _,v in frame:GetChildren() do if v:IsA("GuiObject") then v:Destroy() end end end
 		local owned=Data.Get("Purchases.passes") or {}
 		if tab=="Passes" then
-			for _,pass in C.Passes do local key=pass.key;price(pass.id,Enum.InfoType.GamePass)
-				if owned[key] and key=="Teleport" then row("Pass_"..key,pass.name.." ✓ • Click to open Warp\n"..pass.desc,UI.Colors.Green,function() request("Warp") end)
-				elseif owned[key] then row("Pass_"..key,pass.name.." ✓ Owned\n"..pass.desc,UI.Colors.Slate,function() end)
-				else row("Pass_"..key,pass.name.." • "..price(pass.id,Enum.InfoType.GamePass).."\n"..pass.desc,UI.Colors.Purple,function() request("Prompt",key) end) end
+			footerLabel.Text="Permanent upgrades"
+			for i,pass in C.Passes do local key=pass.key;local text=price(pass.id,Enum.InfoType.GamePass);local color=UI.Colors.Green;local fn=function() request("Prompt",key) end
+				if owned[key] and key=="Teleport" then text="Open Warp";fn=function() request("Warp") end
+				elseif owned[key] then text="✓ Owned";color=UI.Colors.Slate;fn=function() end end
+				;(i<=3 and big or small)(pass,key,pass.desc,text,color,fn,i)
 			end
 		else
-			for _,p in C.Products do local key=p.key
-				row("Product_"..key,p.name.." • "..price(p.id,Enum.InfoType.Product),UI.Colors.Orange,function() request("Prompt",key) end)
+			footerLabel.Text="Repeatable purchases"
+			for i,p in C.Products do local key=p.key
+				;(i<=3 and big or small)(p,key,describe(p),price(p.id,Enum.InfoType.Product),UI.Colors.Green,function() request("Prompt",key) end,i)
 			end
 		end
 	end
-	for i,t in {{"Passes","Game Pass (Permanent)"},{"Products","Repeatable Products"}} do local id=t[1]
-		local b=UI.Button({text=t[2],color=UI.Colors.Teal,size=UDim2.new(.5,-8,0,42),onClick=function() tab=id;render() end})
-		b.Name="Tab"..id;b.Position=UDim2.new((i-1)/2,0,0,62);b.Parent=panel
+	for i,t in {{"Passes","Gamepasses"},{"Products","Products"}} do local id=t[1]
+		tabs[id]=UI.Tab({name="Tab"..id,text=t[2],size=UDim2.fromOffset(270,58),position=UDim2.new(.5,(i-2)*278+4,0,118),parent=panel,textSize=28,onClick=function() tab=id;render() end})
 	end
-	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,44),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
 	local toggle=UI.Button({text="Robux Shop",color=UI.Colors.Orange,size=UDim2.fromOffset(130,48),onClick=function()
 		panel.Visible=not panel.Visible;message.Text="";render()
 	end});toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(200,365);toggle.Parent=gui
-	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-60)) end
-	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize);resize()
+	panel:GetPropertyChangedSignal("Visible"):Connect(function() if panel.Visible then render() end end)
 	local function flag() gui.Enabled=flags:GetAttribute("Shop")==true end
 	flags:GetAttributeChangedSignal("Shop"):Connect(flag);flag()
 	Data.Changed:Connect(function() render() end)

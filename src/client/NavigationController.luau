@@ -26,15 +26,22 @@ local function icon(parent,id)
 end
 function Navigation.Start()
 	local pg=Players.LocalPlayer.PlayerGui
-	local gui=UI.New("ScreenGui",{Name="NavigationHUD",ResetOnSpawn=false,DisplayOrder=2,Parent=pg})
+	local gui=UI.New("ScreenGui",{Name="NavigationHUD",ResetOnSpawn=false,DisplayOrder=20,Parent=pg})
 	local rail=UI.New("Frame",{Name="MainMenus",BackgroundTransparency=1,AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,12,.46,0),Size=UDim2.fromOffset(200,324),Parent=gui},{UI.Grid(2,100,12)})
+	-- Concept rail: while a primary window is open its menu tiles stack beside the window.
+	local side=UI.New("Frame",{Name="SideRail",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,.5),Size=UDim2.fromOffset(104,630),Visible=false,Parent=gui},{UI.List(Enum.FillDirection.Vertical,6,Enum.HorizontalAlignment.Center)})
+	local sideScale=UI.New("UIScale",{Parent=side})
+	local RAIL=104
 	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(490,400),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
 	UI.Label("Choose a Menu",24,{Parent=drawer})
 	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,45),Size=UDim2.new(1,0,1,-45),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12)})
 	local records,panels={},{};local compact=false;local layout
     local blur=UI.New("BlurEffect",{Name="MenuBlur",Size=0,Parent=Lighting})
     UI.Window(drawer,"Choose a Menu","book")
-	local more=UI.Button({text="More",color=UI.Colors.Orange,size=UDim2.fromOffset(94,100),onClick=function() drawer.Visible=not drawer.Visible end});more.Name="More";more.LayoutOrder=99;more.Parent=rail
+	local more=UI.Button({text="More",color=UI.Colors.Orange,size=UDim2.fromOffset(94,100),onClick=function()
+		local open=false;for _,r in panels do if r.panel.Visible then open=true;r.panel.Visible=false end end
+		drawer.Visible=open or not drawer.Visible
+	end});more.Name="More";more.LayoutOrder=99;more.Parent=rail
 	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(64,68),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
 	local function dress(holder,label,id)
 		local b=holder:FindFirstChild("Button");if not b then return end
@@ -46,25 +53,30 @@ function Navigation.Start()
 		icon(b,id);b.Activated:Connect(function() if holder~=more and holder~=mobile then drawer.Visible=false end end)
 	end
 	dress(more,"More","menu");dress(mobile,"Menu","menu");mobile:FindFirstChild("Button").Icon.Size=UDim2.fromOffset(42,35);mobile.Button.Icon.Position=UDim2.new(.5,-21,0,3)
-	local function fit(panel,w,h)
+	local function fit(panel,w,h,primary)
 		local v=workspace.CurrentCamera.ViewportSize;local scale=panel:FindFirstChildOfClass("UIScale") or UI.New("UIScale",{Parent=panel})
-		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24)/w,(v.Y-68)/h)
+		local rail=primary and not compact and RAIL or 0
+		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24-rail)/w,(v.Y-68)/h)
+		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*scale.Scale,.5,8*scale.Scale) end
+		return scale.Scale
 	end
-	local function bindPanel(panel,owner,w,h)
+	local function bindPanel(panel,owner,w,h,primary)
         local titles={InventoryHUD={"Inventory","bag"},PetHUD={"Pets","egg"},GardenHUD={"Garden","leaf"},ShopHUD={"Shop","shop"},RewardsHUD={"Rewards","gift"},StoryHUD={"Quests & Index","book"},SeasonHUD={"Season Pass","season"},RebirthHUD={"Rebirth","cycle"},ArenaHUD={"Chop Arena","arena"},NavigationHUD={"Settings","gear"}}
         local title=titles[owner.Name]
         if panel.Name=="Panel" or panel.Name=="Settings" then UI.Window(panel,title and title[1],title and title[2]) else UI.Window(panel) end
 		local shade=panel.Name=="Panel" and owner:FindFirstChild("Shade")
 		if not shade then shade=UI.New("TextButton",{Name="NavigationShade_"..panel.Name,Text="",AutoButtonColor=false,Size=UDim2.fromScale(1,1),BackgroundColor3=UI.Colors.Outline,BackgroundTransparency=.45,Visible=false,Parent=owner});shade.ZIndex=0;shade.Activated:Connect(function() panel.Visible=false end) end
-		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade});panel:SetAttribute("NavigationPanel",true)
+		-- Clicks on empty window areas must not fall through to the shade (which closes the window).
+		UI.New("TextButton",{Name="ClickBlocker",Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ZIndex=0,Parent=panel})
+		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade,primary=primary});panel:SetAttribute("NavigationPanel",true)
 		panel:GetPropertyChangedSignal("Visible"):Connect(function()
 			shade.Visible=panel.Visible
 			if panel.Visible then for _,r in panels do if r.panel~=panel then r.panel.Visible=false;r.shade.Visible=false end end;drawer.Visible=false end
 			if layout then layout() end
 		end)
 		local correcting=false
-		panel:GetPropertyChangedSignal("Size"):Connect(function() if not correcting then correcting=true;fit(panel,w,h);correcting=false end end)
-		fit(panel,w,h)
+		panel:GetPropertyChangedSignal("Size"):Connect(function() if not correcting then correcting=true;fit(panel,w,h,primary);correcting=false end end)
+		fit(panel,w,h,primary)
 	end
 	for index,spec in specs do
 		local owner=pg:FindFirstChild(spec[1]);local holder=owner and owner:FindFirstChild(spec[2])
@@ -72,7 +84,7 @@ function Navigation.Start()
 			dress(holder,spec[3],spec[4]);holder.LayoutOrder=index;holder.AnchorPoint=Vector2.zero
 			table.insert(records,{holder=holder,owner=owner,primary=spec[5]})
 			owner:GetPropertyChangedSignal("Enabled"):Connect(function() holder.Visible=owner.Enabled;if layout then layout() end end)
-			if spec[6] and owner:FindFirstChild("Panel") then bindPanel(owner.Panel,owner,spec[6],spec[7]) end
+			if spec[6] and owner:FindFirstChild("Panel") then bindPanel(owner.Panel,owner,spec[6],spec[7],spec[5]) end
 		end
 	end
 	for _,spec in {{"ArenaHUD","Panel",500,420},{"InventoryHUD","Result",380,365},{"ForestHUD","Summary",360,250},{"EmoteHUD","Wheel",330,330},{"StoryHUD","Dialog",620,150}} do
@@ -107,19 +119,26 @@ function Navigation.Start()
 	bindPanel(settings,gui,450,280)
 	layout=function()
 		local v=workspace.CurrentCamera.ViewportSize;compact=v.X<700 or v.Y<500
-		local modal=false;for _,r in panels do if r.panel.Visible and r.owner.Enabled then modal=true end;fit(r.panel,r.w,r.h) end
+		local modal,active=false,nil;for _,r in panels do local s=fit(r.panel,r.w,r.h,r.primary);if r.panel.Visible and r.owner.Enabled then modal=true;if r.primary and not compact then active=r;sideScale.Scale=s end end end
 		rail.Visible=not compact and not modal;mobile.Visible=compact and not modal;drawer.Visible=drawer.Visible and not modal
+		side.Visible=active~=nil
+		if active then local s=sideScale.Scale;side.Position=UDim2.new(.5,RAIL/2*s-active.w*s/2+16*s,.5,8*s) end
 		fit(drawer,490,400)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
-		if currencies then currencies.AnchorPoint=Vector2.new(0,compact and 0 or 1);currencies.Position=compact and UDim2.fromOffset(10,145) or UDim2.new(0,12,1,-18) end
+		if currencies then currencies.Visible=not obscured end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
             if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not forest.RunPanel.Visible end
         end
-        for _,r in records do r.holder.Parent=(compact or not r.primary) and grid or rail;r.holder.Size=UDim2.fromOffset(94,100) end
+        for _,r in records do
+            local here=active and r.primary;r.holder.Parent=here and side or ((compact or not r.primary) and grid or rail);r.holder.Size=here and UDim2.fromOffset(100,100) or UDim2.fromOffset(94,100)
+            local lit=active and active.owner==r.owner
+            UI.Skin(r.holder.Button,"chrome",lit and ((r.owner.Name=="PetHUD" or r.owner.Name=="GardenHUD") and "navGreen" or "navGold") or "navNormal")
+        end
+        more.Parent=active and side or rail;more.Size=active and UDim2.fromOffset(100,100) or UDim2.fromOffset(94,100)
 		local tracker=pg:FindFirstChild("StoryHUD") and pg.StoryHUD:FindFirstChild("Tracker")
 		if tracker then tracker.Visible=not obscured;tracker.AnchorPoint=Vector2.new(1,0);tracker.Position=UDim2.new(1,-12,0,92);tracker.Size=UDim2.fromOffset(compact and 190 or 240,90) end
 	end

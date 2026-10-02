@@ -130,6 +130,16 @@ function UIKit.Art(parent: Instance, atlas: string, sprite: string, props: Props
  if props then for k,v in props do (gui :: any)[k]=v end end
  return gui
 end
+-- Nine-slice an atlas crop so corners keep their drawn proportions at any size.
+-- `inset` is the border as a fraction of the crop's short side; border scale follows the image height.
+local SLICE={cards=.2,controls=.32,chrome=.3}
+local ICON={close=true,delete=true,badgeClaimed=true} -- drawn symbols must keep their proportions
+function UIKit.Slice(image: ImageLabel, inset: number)
+ local rs=image.ImageRectSize;local i=math.floor(math.min(rs.X,rs.Y)*inset)
+ image.ScaleType=Enum.ScaleType.Slice;image.SliceCenter=Rect.new(i,i,rs.X-i,rs.Y-i)
+ local function fit() local a=image.AbsoluteSize;local m=math.min(a.X,a.Y);local cap=image.Parent and image.Parent:GetAttribute("SliceMax") or 2;if m>0 then image.SliceScale=math.clamp(m/math.min(rs.X,rs.Y),.05,cap) end end
+ image:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit);fit()
+end
 function UIKit.Skin(parent: GuiObject, atlas: string, sprite: string): ImageLabel?
  local old=parent:FindFirstChild("SurfaceArt")
  if old and old:GetAttribute("Sprite")==atlas.."/"..sprite then return old :: ImageLabel end
@@ -137,6 +147,8 @@ function UIKit.Skin(parent: GuiObject, atlas: string, sprite: string): ImageLabe
  local image=UIKit.Art(parent,atlas,sprite,{Name="SurfaceArt",ZIndex=2,Size=UDim2.fromScale(1,1),ScaleType=Enum.ScaleType.Stretch})
  if image then
   image:SetAttribute("Sprite",atlas.."/"..sprite)
+  local square=atlas=="chrome" and sprite:sub(1,3)=="nav"
+  if SLICE[atlas] and not square and not ICON[sprite] then UIKit.Slice(image,SLICE[atlas]) end
   parent.BackgroundTransparency=1
   local stroke=parent:FindFirstChildOfClass("UIStroke");if stroke then stroke.Enabled=false end
   local gradient=parent:FindFirstChildOfClass("UIGradient");if gradient then gradient.Enabled=false end
@@ -229,6 +241,7 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 		})
 	end
 	UIKit.Skin(button,"controls",buttonSprite(color));base.Visible=false
+	for _,l in button:GetDescendants() do if l:IsA("UIStroke") and l.Parent:IsA("TextLabel") then l.Thickness=math.max(2,(o.textSize or 17)/10) end end
 	local pressed = false
 	button.MouseButton1Down:Connect(function()
 		pressed = true
@@ -345,18 +358,111 @@ function UIKit.Icon(parent: Instance, id: string, props: Props?): ImageLabel?
  if props then for k,v in props do p[k]=v end end
  return New("ImageLabel",p)
 end
-function UIKit.Window(panel: GuiObject, title: string?, symbol: string?)
+-- Symbol is a woodland icon id, or "atlas/sprite" for UIArt illustrations.
+function UIKit.Symbol(parent: Instance, symbol: string, props: Props?): ImageLabel?
+ local atlas,sprite=string.match(symbol,"^(%w+)/([%w_]+)$")
+ if atlas then return UIKit.Art(parent,atlas,sprite,props) end
+ return UIKit.Icon(parent,symbol,props)
+end
+local Heading=Color3.fromRGB(255,255,255)
+-- Concept window: wood frame, big outlined title (optionally on a protruding plaque) and red X.
+-- opts.plaque = plaque width; opts.center centres the plaque over the window.
+function UIKit.Window(panel: GuiObject, title: string?, symbol: string?, opts: Props?)
  if panel:FindFirstChild("SurfaceArt") then return end
  local surface=UIKit.Skin(panel,"window","wideWindow");if surface then surface.ZIndex=1 end
  if not title then return end
+ local o=opts or {}
+ local pad=panel:FindFirstChildOfClass("UIPadding");local px,py=pad and pad.PaddingLeft.Offset or 0,pad and pad.PaddingTop.Offset or 0
  local original=panel:FindFirstChild("Title") or panel:FindFirstChildWhichIsA("TextLabel")
  if original then original.Visible=false end
- local heading=UIKit.Label(title,30,{Name="WindowHeading",Position=UDim2.fromOffset(70,0),Size=UDim2.new(1,-125,0,44),TextColor3=Color3.fromRGB(255,217,111),ZIndex=5,Parent=panel});UIKit.TextStroke(3).Parent=heading
+ local host: GuiObject=panel
+ local heading
+ if o.plaque then
+  local w=o.plaque
+  host=New("Frame",{Name="HeaderPlaque",BackgroundTransparency=1,AnchorPoint=Vector2.new(o.center and .5 or 0,0),Position=o.center and UDim2.new(.5,-px,0,-34-py) or UDim2.fromOffset(22-px,-32-py),Size=UDim2.fromOffset(w,108),ZIndex=4,Parent=panel})
+  UIKit.Skin(host,"chrome","headerPlaque")
+  UIKit.Symbol(host,symbol or "book",{Name="TitleIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,14,.5,-2),Size=UDim2.fromOffset(92,92),ZIndex=5})
+  heading=UIKit.Label(title,56,{Name="WindowHeading",Position=UDim2.fromOffset(108,6),Size=UDim2.new(1,-120,1,-16),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,TextColor3=Heading,ZIndex=5,Parent=host})
+  New("UITextSizeConstraint",{MaxTextSize=58,Parent=heading})
+ else
+  UIKit.Symbol(panel,symbol or "book",{Name="TitleIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,30-px,.105,-py-2),Size=UDim2.fromOffset(78,78),ZIndex=5})
+  heading=UIKit.Label(title,46,{Name="WindowHeading",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,112-px,.105,-py-2),Size=UDim2.new(.62,-112,0,64),TextColor3=Heading,TextWrapped=false,TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=5,Parent=panel})
+ end
+ heading:FindFirstChildOfClass("UIStroke").Thickness=4
  if original then original:GetPropertyChangedSignal("Text"):Connect(function() heading.Text=original.Text end) end
- UIKit.Icon(panel,symbol or "book",{Position=UDim2.fromOffset(4,-8),Size=UDim2.fromOffset(60,60),ZIndex=5})
- local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(54,54),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.Position=UDim2.new(1,-42,0,-20);close.ZIndex=6;close.Parent=panel
+ local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(70,70),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.AnchorPoint=Vector2.new(.5,.5);close.Position=UDim2.new(1,px-30,0,-py+18);close.ZIndex=6;close.Parent=panel
  UIKit.Skin(close.Button,"controls","close");close.Button:FindFirstChildWhichIsA("TextLabel",true).Visible=false
  for _,v in close:GetDescendants() do if v:IsA("GuiObject") then v.ZIndex=6 end end
+ return heading
+end
+
+-- Wooden tab: normal / gold / green states, optional icon and live label.
+function UIKit.Tab(o: Props): TextButton
+ local tab=New("TextButton",{Name=o.name or "Tab",AutoButtonColor=false,Text="",BackgroundTransparency=1,Size=o.size or UDim2.fromOffset(200,54),Position=o.position or UDim2.new(),LayoutOrder=o.layoutOrder or 0,Parent=o.parent})
+ local row=New("Frame",{Name="Content",BackgroundTransparency=1,Size=UDim2.new(1,0,1,-4),ZIndex=3,Parent=tab},{New("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,HorizontalAlignment=Enum.HorizontalAlignment.Center,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder})})
+ if o.icon then UIKit.Symbol(row,o.icon,{Name="TabIcon",Size=UDim2.fromOffset(o.iconSize or 38,o.iconSize or 38),LayoutOrder=1,ZIndex=3}) end
+ UIKit.Label(o.text,o.textSize or 26,{Name="TabLabel",AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.fromOffset(0,40),TextWrapped=false,LayoutOrder=2,ZIndex=3,Parent=row}):FindFirstChildOfClass("UIStroke").Thickness=2.5
+ tab.Activated:Connect(function() if o.onClick then o.onClick() end end)
+ UIKit.SetTab(tab,o.state)
+ return tab
+end
+function UIKit.SetTab(tab: GuiObject, state: string?)
+ UIKit.Skin(tab,"chrome",state=="gold" and "tabGold" or state=="green" and "tabGreen" or "tabNormal")
+ local label=tab:FindFirstChild("TabLabel",true);if label then label.TextColor3=state and Color3.new(1,1,1) or Color3.fromRGB(228,206,176) end
+end
+
+-- Dark wooden strip for hints/stats; returns the frame and its live label.
+function UIKit.InfoBar(parent: Instance, text: string, props: Props?, symbol: string?): (Frame, TextLabel)
+ local p: Props={Name="InfoBar",BackgroundTransparency=1,Size=UDim2.new(1,0,0,52),Parent=parent}
+ if props then for k,v in props do p[k]=v end end
+ local bar=New("Frame",p);UIKit.Skin(bar,"chrome","infoRow")
+ local left=18
+ if symbol then UIKit.Symbol(bar,symbol,{Name="BarIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,12,.5,0),Size=UDim2.fromOffset(40,40),ZIndex=3});left=62 end
+ local label=UIKit.Label(text,20,{Name="BarLabel",Position=UDim2.fromOffset(left,0),Size=UDim2.new(1,-left-14,1,0),TextWrapped=true,ZIndex=3,Parent=bar})
+ return bar,label
+end
+
+-- Stat capsule (icon + caption + value) used in window headers.
+function UIKit.Capsule(parent: Instance, symbol: string?, caption: string, props: Props?): (Frame, TextLabel)
+ local p: Props={Name="Capsule",BackgroundTransparency=1,Size=UDim2.fromOffset(170,60),Parent=parent}
+ if props then for k,v in props do p[k]=v end end
+ local cap=New("Frame",p);UIKit.Skin(cap,"chrome","currencyCapsule")
+ local left=16
+ if symbol then UIKit.Symbol(cap,symbol,{Name="CapsuleIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,10,.5,0),Size=UDim2.fromOffset(42,42),ZIndex=3});left=58 end
+ UIKit.Label(caption,15,{Name="Caption",Position=UDim2.new(0,left,0,7),Size=UDim2.new(1,-left-10,0,18),TextWrapped=false,ZIndex=3,Parent=cap})
+ local value=UIKit.Label("",24,{Name="Value",Position=UDim2.new(0,left,0,24),Size=UDim2.new(1,-left-10,0,30),TextWrapped=false,TextScaled=true,ZIndex=3,Parent=cap})
+ New("UITextSizeConstraint",{MaxTextSize=25,Parent=value})
+ return cap,value
+end
+
+-- Small rounded status pill ("Ready", "Growing", "Empty" ...).
+function UIKit.Badge(parent: Instance, text: string, kind: string?, props: Props?): (Frame, TextLabel)
+ local p: Props={Name="Badge",BackgroundTransparency=1,Size=UDim2.fromOffset(150,40),Parent=parent}
+ if props then for k,v in props do p[k]=v end end
+ local badge=New("Frame",p)
+ local label=UIKit.Label(text,20,{Name="BadgeLabel",Size=UDim2.fromScale(1,1),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,ZIndex=(p.ZIndex or 3)+1,Parent=badge})
+ UIKit.SetBadge(badge,text,kind)
+ return badge,label
+end
+function UIKit.SetBadge(badge: GuiObject, text: string, kind: string?)
+ local sprite=kind=="ready" and "buttonGreen" or kind=="gold" and "buttonGold" or kind=="red" and "buttonRed" or kind=="claimed" and "badgeClaimed" or "progressTrack"
+ local art=UIKit.Skin(badge,"controls",sprite);if art then art.ZIndex=badge.ZIndex end
+ local label=badge:FindFirstChild("BadgeLabel") :: TextLabel?
+ if label then label.Text=text;label.Position=UDim2.fromOffset(kind=="claimed" and 18 or 0,0) end
+end
+
+-- Track with native fill; value is 0..1.
+function UIKit.Progress(parent: Instance, props: Props?): (Frame, Frame)
+ local p: Props={Name="Progress",BackgroundTransparency=1,Size=UDim2.fromOffset(240,30),Parent=parent}
+ if props then for k,v in props do p[k]=v end end
+ local track=New("Frame",p);UIKit.Skin(track,"controls","progressTrack")
+ local fill=New("Frame",{Name="Fill",BackgroundColor3=Color3.fromRGB(255,196,46),Position=UDim2.new(0,7,.5,0),AnchorPoint=Vector2.new(0,.5),Size=UDim2.new(0,0,1,-14),ZIndex=3,Parent=track},{UIKit.Corner(8),New("UIGradient",{Rotation=90,Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(230,150,20))})})
+ return track,fill
+end
+function UIKit.SetProgress(track: Frame, value: number, color: Color3?)
+ local fill=track:FindFirstChild("Fill") :: Frame?;if not fill then return end
+ fill.Size=UDim2.new(math.clamp(value,0,1),-14*math.clamp(value,0,1),1,-14);fill.Visible=value>0
+ if color then fill.BackgroundColor3=color end
 end
 
 return UIKit

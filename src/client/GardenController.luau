@@ -1,3 +1,4 @@
+-- Garden window (concept: assets/ui/elements-v1/concepts/garden.png). Server intents unchanged.
 local Players=game:GetService("Players")
 local Collection=game:GetService("CollectionService")
 local S=game.ReplicatedStorage.Shared
@@ -6,89 +7,164 @@ local Seeds=require(S.Config.Seeds);local Math=require(S.GardenMath);local Garde
 local Garden={}
 function Garden.Start()
 	local player=Players.LocalPlayer
-	local gui=UI.New("ScreenGui",{Name="GardenHUD",ResetOnSpawn=false,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("My Garden",22,{Parent=panel})
-	local message=UI.Label("Select a seed, then a plot to plant it",14,{Name="Message",Position=UDim2.fromOffset(310,8),Size=UDim2.new(1,-370,0,28),Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-270),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
-	local detail=UI.Label("",16,{Name="Detail",Position=UDim2.new(.69,10,0,300),Size=UDim2.new(.31,-22,0,170),Parent=panel})
-	local selection=UI.New("Frame",{Name="Selection",BackgroundTransparency=1,Position=UDim2.new(.69,0,0,112),Size=UDim2.new(.31,0,1,-270),Parent=panel})
+	local gui=UI.New("ScreenGui",{Name="GardenHUD",ResetOnSpawn=false,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundTransparency=1,Parent=gui})
+	UI.Window(panel,"Garden","leaf",{plaque=360,center=true})
+	local message=UI.Label("Select a seed, then a plot to plant it",14,{Name="Message",Visible=false,Parent=panel})
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(40,190),Size=UDim2.fromOffset(600,352),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Padding(4)})
+	-- Right: selected plot.
+	local selection=UI.New("Frame",{Name="Selection",BackgroundTransparency=1,Position=UDim2.fromOffset(652,118),Size=UDim2.fromOffset(272,494),Parent=panel})
 	UI.Skin(selection,"detail","detailPanel")
-	local selectionArt
+	local selTitle=UI.Label("Selected Plot",26,{Name="SelectedTitle",Position=UDim2.fromOffset(16,14),Size=UDim2.new(1,-32,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=selection})
+	UI.New("UITextSizeConstraint",{MaxTextSize=27,Parent=selTitle})
+	local selArt=UI.New("Frame",{Name="ArtHolder",BackgroundTransparency=1,Position=UDim2.fromOffset(22,50),Size=UDim2.new(1,-44,0,150),Parent=selection})
+	local selBadge=UI.Badge(selection,"Empty",nil,{Name="State",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,186),Size=UDim2.fromOffset(196,40),ZIndex=5})
+	local fruitRow,fruitLabel=UI.InfoBar(selection,"Fruit",{Name="Fruit",Position=UDim2.fromOffset(20,234),Size=UDim2.new(1,-40,0,46)},"garden/fruit")
+	local fruitValue=UI.Label("",18,{Name="FruitValue",Size=UDim2.new(1,-14,1,0),TextXAlignment=Enum.TextXAlignment.Right,TextWrapped=false,TextScaled=true,ZIndex=3,Parent=fruitRow})
+	UI.New("UITextSizeConstraint",{MaxTextSize=19,Parent=fruitValue})
+	local valueRow,valueLabel=UI.InfoBar(selection,"Value",{Name="Value",Position=UDim2.fromOffset(20,286),Size=UDim2.new(1,-40,0,46)},"garden/fruit")
+	valueRow.BarIcon.Image="";UI.New("Frame",{Name="Coin",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,16,.5,0),Size=UDim2.fromOffset(30,30),BackgroundColor3=Color3.fromRGB(250,204,21),ZIndex=3,Parent=valueRow},{UI.Corner(15),UI.Stroke(3)})
+	local valueText=UI.Label("",20,{Name="ValueText",Size=UDim2.new(1,-14,1,0),TextXAlignment=Enum.TextXAlignment.Right,TextWrapped=false,TextColor3=Color3.fromRGB(255,220,90),ZIndex=3,Parent=valueRow})
+	local plotActions=UI.New("Frame",{Name="PlotActions",BackgroundTransparency=1,Position=UDim2.fromOffset(16,342),Size=UDim2.new(1,-32,0,132),Parent=selection})
+	local confirm=UI.New("Frame",{Name="CutConfirm",BackgroundTransparency=1,Position=UDim2.fromOffset(16,342),Size=UDim2.new(1,-32,0,132),Visible=false,ZIndex=6,Parent=selection})
+	UI.Skin(confirm,"cards","product")
+	UI.Label("Are you sure you want to cut this tree?",18,{Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,0,52),TextXAlignment=Enum.TextXAlignment.Center,ZIndex=7,Parent=confirm})
 	local state,seedUid,cutPending;local slot=1;local tab="Garden";local busy=false
 	local render,request
-	local gridMode
-	local function layoutRows(mode)
-	 if gridMode==mode then return end;gridMode=mode
-	 local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
-	 if mode then UI.Grid(3,168,12).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+	local function say(text,ok)
+		message.Text=text;if text~="" then UI.Toast(gui,text,ok==false and UI.Colors.Red or UI.Colors.Accent) end
 	end
-
-	local function button(name,text,color,parent,pos,size,callback)
-		local b=UI.Button({text=text,color=color,size=size,onClick=callback});b.Name=name;b.Position=pos;b.Parent=parent;return b
+	local function button(name,text,color,parent,pos,size,callback,textSize)
+		local b=UI.Button({text=text,textSize=textSize or 22,color=color,size=size,onClick=callback});b.Name=name;b.Position=pos;b.Parent=parent;return b
 	end
 	request=function(action,arg)
 		if busy then return end;busy=true
 		task.spawn(function()
 			local ok,success,msg=pcall(function() return Net.Function("GardenAction"):InvokeServer(action,arg) end)
-			message.Text=ok and (msg or "Garden ready") or "Could not reach the server. Try again"
-			message.TextColor3=ok and success and UI.Colors.Text or UI.Colors.Accent
+			if action~="Sync" then say(ok and (msg or "Garden ready") or "Could not reach the server. Try again",ok and success) end
 			task.wait(.32);busy=false
 		end)
 	end
-	-- Rows are reused by name: state packets arrive every tick, so rebuilding would drop clicks mid-press.
-	local rows,used,order={},{},0
-	local function row(name,text,color,callback)
-		order+=1;used[name]=true
-		local r=rows[name]
-		if not r then
-			local holder=button(name,text,color,list,UDim2.new(),UDim2.new(1,-7,0,58),function() rows[name].fn() end)
-			r={holder=holder,button=holder:FindFirstChild("Button"),label=holder:FindFirstChildWhichIsA("TextLabel",true)};rows[name]=r
-		end
-		r.fn=callback;r.button.BackgroundColor3=color;r.holder.LayoutOrder=order
-		if r.label.Text~=text then r.label.Text=text end
-		r.holder:SetAttribute("ArtCard",gridMode)
-        if gridMode then
-         UI.Skin(r.button,"cards",color==UI.Colors.Teal and "selected" or "common")
-         r.label.Position=UDim2.new(0,10,1,-66);r.label.Size=UDim2.new(1,-20,0,58);r.label.TextSize=14
-         local index=tonumber(name:match("^Slot(%d+)$"));local plot=index and state.plots[tostring(index)]
-         local sprite=index and (plot and (plot.mature and "plotReady" or "plotGrowing") or "plotEmpty") or "seedPouch"
-         local art=r.button:FindFirstChild("Illustration")
-         if art and art:GetAttribute("Sprite")~=sprite then art:Destroy();art=nil end
-         if not art then art=UI.Art(r.button,"garden",sprite,{Position=UDim2.fromOffset(12,12),Size=UDim2.new(1,-24,1,-85)});art:SetAttribute("Sprite",sprite) end
-        else
-         local art=r.button:FindFirstChild("Illustration");if art then art:Destroy() end
-         UI.SetButtonColor(r.holder,color);r.label.Position=UDim2.new();r.label.Size=UDim2.fromScale(1,1)
-        end
-        return r.holder
+	local primary=button("Primary","Harvest",UI.Colors.Green,plotActions,UDim2.new(),UDim2.new(1,0,0,66),function()
+		local plot=state and state.plots[tostring(slot)]
+		if plot then request("Harvest",slot) elseif seedUid then request("Plant",{slot=slot,seed=seedUid}) else tab="Seeds";render();say("Select a seed first") end
+	end,32)
+	UI.Icon(primary.Button,"leaf",{Name="LeafIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,12,.5,0),Size=UDim2.fromOffset(40,40),ZIndex=4})
+	primary.Button:FindFirstChildWhichIsA("TextLabel",true).Position=UDim2.fromOffset(24,0)
+	local water=button("Water","Water",UI.Colors.Slate,plotActions,UDim2.fromOffset(0,74),UDim2.new(.5,-4,0,54),function() request("Water",slot) end,20)
+	local cut=button("Cut","Cut Tree",UI.Colors.Red,plotActions,UDim2.new(.5,4,0,74),UDim2.new(.5,-4,0,54),function() cutPending=slot;render() end,20)
+	UI.Art(water.Button,"garden","wateringCan",{Name="CanIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,8,.5,-2),Size=UDim2.fromOffset(32,32),ZIndex=4})
+	water.Button:FindFirstChildWhichIsA("TextLabel",true).Position=UDim2.fromOffset(16,0)
+	button("YesCut","Yes, Cut It",UI.Colors.Red,confirm,UDim2.new(0,10,1,-62),UDim2.new(.5,-14,0,52),function() if cutPending==slot then cutPending=nil;request("Cut",slot);render() end end,17)
+	button("CancelCut","Cancel",UI.Colors.Slate,confirm,UDim2.new(.5,4,1,-62),UDim2.new(.5,-14,0,52),function() cutPending=nil;render() end,17)
+	for _,v in confirm:GetDescendants() do if v:IsA("GuiObject") then v.ZIndex=math.max(v.ZIndex,7) end end
+	-- Bottom bar: planting slots + upgrade, or fruit total + sell on the Shop tab.
+	local slotsBar,slotsLabel=UI.InfoBar(panel,"Planting Slots",{Name="SlotsBar",Position=UDim2.fromOffset(40,552),Size=UDim2.fromOffset(600,58)},"leaf")
+	local slotsValue=UI.Label("",26,{Name="SlotsValue",Position=UDim2.fromOffset(250,0),Size=UDim2.fromOffset(120,58),TextWrapped=false,ZIndex=3,Parent=slotsBar})
+	local upgrade=button("Upgrade","Upgrade Slots",UI.Colors.Orange,slotsBar,UDim2.new(1,-212,0,4),UDim2.fromOffset(204,52),function() request("Upgrade") end,20)
+	local sell=button("Sell","Sell All Fruit",UI.Colors.Green,slotsBar,UDim2.new(1,-212,0,4),UDim2.fromOffset(204,52),function() request("Sell") end,20)
+	local gridMode
+	local function layoutRows(mode)
+		if gridMode==mode then return end;gridMode=mode
+		local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
+		if mode then UI.Grid(3,168,12).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
 	end
+	-- Elements are reused by name: state packets arrive every tick, so rebuilding would drop clicks mid-press.
+	local callbacks,used,order={},{},0
+	local function element(name,create)
+		order+=1;used[name]=true
+		local e=list:FindFirstChild(name)
+		if not e then e=create();e.Name=name;e.Parent=list;e.Activated:Connect(function() local fn=callbacks[name];if fn then fn() end end) end
+		e.LayoutOrder=order
+		return e
+	end
+	local function setArt(holder,atlas,sprite,props)
+		local key=atlas.."/"..sprite;local old=holder:FindFirstChild("Illustration")
+		if old and old:GetAttribute("Key")==key then return old end
+		if old then old:Destroy() end
+		local a=UI.Art(holder,atlas,sprite,props);if a then a:SetAttribute("Key",key) end
+		return a
+	end
+	-- Plot / seed card.
+	local function card(name,o)
+		callbacks[name]=o.onClick
+		local c=element(name,function()
+			local b=UI.New("TextButton",{Text="",AutoButtonColor=false,BackgroundTransparency=1})
+			UI.Badge(b,"",nil,{Name="Pill",AnchorPoint=Vector2.new(.5,1),Position=UDim2.new(.5,0,1,-30),Size=UDim2.fromOffset(130,34),ZIndex=5})
+			UI.Progress(b,{Name="Track",AnchorPoint=Vector2.new(.5,1),Position=UDim2.new(.5,0,1,-6),Size=UDim2.new(1,-40,0,22),ZIndex=5})
+			UI.Label("",15,{Name="Title",FontFace=UI.FontBold,Position=UDim2.fromOffset(10,6),Size=UDim2.new(1,-20,0,20),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,ZIndex=5,Parent=b})
+			return b
+		end)
+		UI.Skin(c,"cards",o.selected and "selected" or "product")
+		local a=setArt(c,o.atlas,o.sprite,{Position=UDim2.fromOffset(14,20),Size=UDim2.new(1,-28,1,-58)});if a then a.ImageColor3=o.tint or Color3.new(1,1,1) end
+		UI.SetBadge(c.Pill,o.pill,o.kind);c.Pill.Size=UDim2.fromOffset(math.clamp(#o.pill*11+34,96,170),34)
+		c.Track.Visible=o.progress~=nil;if o.progress then UI.SetProgress(c.Track,o.progress,Color3.fromRGB(110,214,70)) end
+		c.Pill.Position=UDim2.new(.5,0,1,o.progress and -30 or -10)
+		c.Title.Text=o.title or ""
+		return c
+	end
+	local function row(name,text,color,onClick)
+		callbacks[name]=onClick
+		local r=element(name,function()
+			local b=UI.New("TextButton",{Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.new(1,-8,0,70)})
+			UI.Label("",18,{Name="Text",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
+			return b
+		end)
+		UI.Skin(r,"cards",color==UI.Colors.Orange and "today" or "product")
+		r.Text.Text=text;r.Text.TextTransparency=color==UI.Colors.Disabled and .45 or 0
+	end
+	local tabs={}
 	render=function()
 		if not panel.Visible or not state then return end
+		for key,t in tabs do UI.SetTab(t,tab==key and "green" or nil) end
 		local gardenTab=tab=="Garden" or tab=="Seeds"
-		selection.Visible=gardenTab;detail.Position=gardenTab and UDim2.new(.69,10,0,300) or UDim2.new(0,0,1,-149);detail.Size=gardenTab and UDim2.new(.31,-22,0,170) or UDim2.new(1,0,0,40)
-		list.Size=gardenTab and UDim2.new(.67,0,1,-270) or UDim2.new(1,0,1,-270)
-		if selectionArt then selectionArt:Destroy() end
-		local selectedPlot=state.plots[tostring(slot)]
-		selectionArt=UI.Art(selection,"garden",selectedPlot and (selectedPlot.mature and "plotReady" or "plotGrowing") or "plotEmpty",{Position=UDim2.fromOffset(20,15),Size=UDim2.new(1,-40,0,160),ZIndex=3})
-		layoutRows(tab=="Garden" or tab=="Seeds");table.clear(used);order=0
+		selection.Visible=gardenTab
+		list.Size=gardenTab and UDim2.fromOffset(600,352) or UDim2.fromOffset(880,352)
+		slotsBar.Size=gardenTab and UDim2.fromOffset(600,58) or UDim2.fromOffset(880,58)
+		layoutRows(gardenTab);table.clear(used);order=0
 		if seedUid and not state.seeds[seedUid] then seedUid=nil end
-		local seed=seedUid and state.seeds[seedUid];local chosen=seed and Seeds.ById[seed.id].name or "None selected (Seeds tab)"
-		local count=0;for _,f in state.fruits do count+=f.count end;local value=Math.SellQuote(state.fruits,state.sold)
-		detail.Text="Slot "..slot.." • Seeds: "..chosen.."\nFruit "..count.." fruit • Total value "..NF.Short(value).." Coins • Add Slots "..NF.Short(state.upgrade).." Wood"
+		local seed=seedUid and state.seeds[seedUid]
+		-- Selected plot panel
+		local plot=state.plots[tostring(slot)];local def=plot and Seeds.ById[plot.id]
+		selTitle.Text=def and ("Slot "..slot.." • "..def.name) or ("Slot "..slot)
+		setArt(selArt,"garden",plot and (plot.mature and "plotReady" or "plotGrowing") or "plotEmpty",{Size=UDim2.fromScale(1,1)})
+		local ready=plot and plot.mature and plot.nextFruitAt<=state.now
+		if not plot then UI.SetBadge(selBadge,seed and "Ready to plant" or "Empty",seed and "gold" or nil)
+		elseif ready then UI.SetBadge(selBadge,"Ready to harvest","ready")
+		elseif plot.mature then UI.SetBadge(selBadge,"Fruit in "..math.max(0,plot.nextFruitAt-state.now).."s",nil)
+		else UI.SetBadge(selBadge,"Growing "..math.floor(plot.progress/def.grow*100).."%",nil) end
+		fruitValue.Text=def and (def.name.." ×"..def.yield) or (seed and Seeds.ById[seed.id].name.." seed" or "—")
+		valueText.Text=def and NF.Short(Math.Value({id=plot.id,zone=plot.zone,rebirthDrop=plot.rebirthDrop,mutations=plot.mutations})*def.yield) or "—"
+		local label=primary.Button:FindFirstChildWhichIsA("TextLabel",true)
+		label.Text=plot and "Harvest" or (seed and "Plant" or "Select Seed")
+		UI.SetButtonColor(primary,(not plot or ready) and UI.Colors.Green or UI.Colors.Slate)
+		water.Visible=plot~=nil;cut.Visible=plot~=nil
+		UI.SetButtonColor(water,plot and not plot.mature and not plot.watered and UI.Colors.Blue or UI.Colors.Slate)
+		water.Button:FindFirstChildWhichIsA("TextLabel",true).Text=plot and plot.watered and "Watered" or "Water"
+		if cutPending~=slot then cutPending=nil end
+		confirm.Visible=cutPending~=nil;plotActions.Visible=cutPending==nil
+		-- Bottom bar
+		local count=0;for _,f in state.fruits do count+=f.count end
+		if tab=="Shop" then slotsLabel.Text="Fruit "..count.." • Value";slotsValue.Text=NF.Short((Math.SellQuote(state.fruits,state.sold)));slotsValue.Position=UDim2.fromOffset(250,0)
+		else slotsLabel.Text="Planting Slots";slotsValue.Text=state.slots.." / "..GardenConfig.MaxSlots end
+		upgrade.Visible=tab~="Shop";sell.Visible=tab=="Shop"
+		local ulabel=upgrade.Button:FindFirstChildWhichIsA("TextLabel",true);ulabel.Text=state.slots>=GardenConfig.MaxSlots and "Max Slots" or ("Upgrade • "..NF.Short(state.upgrade).." Wood")
 		if tab=="Garden" then
 			if not state.base then row("NoBase","All bases occupied. Your garden will be ready when a base opens",UI.Colors.Slate,function() end) end
-			for i=1,state.slots do local index=i;local plot=state.plots[tostring(i)];local text="Slot "..i.." • Empty";local color=slot==i and UI.Colors.Teal or UI.Colors.Slate
-				if plot then
-					local def=Seeds.ById[plot.id];local status=plot.mature and (plot.nextFruitAt<=state.now and "Ready to Harvest" or "Fruit in "..math.max(0,plot.nextFruitAt-state.now).." sec") or (math.floor(plot.progress/def.grow*100).."% • "..math.ceil((def.grow-plot.progress)/(plot.watered and 1.1 or 1)).." sec")
-					text="Slot "..i.." • "..def.name.." • "..status..(plot.watered and " • Watered" or "").."\n"..Math.Key(plot.mutations)
-				end
-				row("Slot"..i,text,color,function() slot=index;cutPending=nil;render() end)
+			for i=1,state.slots do local index=i;local p=state.plots[tostring(i)];local d=p and Seeds.ById[p.id]
+				local o={atlas="garden",selected=slot==i,onClick=function() slot=index;cutPending=nil;render() end,title=d and d.name or ("Slot "..i)}
+				if not p then o.sprite="plotEmpty";o.pill=(slot==i and seed) and "Plant here" or (slot==i and "Select Seed" or "Empty");o.kind=(slot==i and seed) and "gold" or nil
+				elseif p.mature and p.nextFruitAt<=state.now then o.sprite="plotReady";o.pill="Ready";o.kind="ready"
+				elseif p.mature then o.sprite="plotReady";o.pill="Fruit "..math.max(0,p.nextFruitAt-state.now).."s"
+				else o.sprite="plotGrowing";o.pill=p.watered and "Watered" or "Growing";o.progress=math.clamp(p.progress/d.grow,0,1) end
+				card("Slot"..i,o)
 			end
 		elseif tab=="Seeds" then
 			local keys={};for uid in state.seeds do table.insert(keys,uid) end;table.sort(keys)
 			if #keys==0 then row("Empty","Find seeds in trees, chests or the village shop",UI.Colors.Slate,function() end) end
-			for _,uid in keys do local key=uid;local seed=state.seeds[uid];local def=Seeds.ById[seed.id]
-				row("Seed_"..uid,def.name.." ×"..seed.count.." • "..def.rarity.." • Zone "..seed.zone.."\nGrowth "..math.floor(def.grow/60).." min • Repeatable",seedUid==uid and UI.Colors.Teal or UI.Colors.Green,function() seedUid=key;tab="Garden";cutPending=nil;render() end)
+			for _,uid in keys do local key=uid;local s=state.seeds[uid];local d=Seeds.ById[s.id]
+				card("Seed_"..uid,{atlas="garden",sprite="seedPouch",tint=d.color:Lerp(Color3.new(1,1,1),.6),selected=seedUid==uid,title=d.name.." ×"..s.count,pill=d.rarity.." • "..math.floor(d.grow/60).."m",
+					onClick=function() seedUid=key;tab="Garden";cutPending=nil;render();say("Pick a plot, then press Plant") end})
 			end
 		elseif tab=="Merchant" then
 			local m=state.merchant
@@ -100,34 +176,22 @@ function Garden.Start()
 		else
 			local caps={};for id,n in GardenConfig.SellCaps do table.insert(caps,id.." "..math.max(0,n-(state.sold[id] or 0)).."/"..n) end;table.sort(caps)
 			row("SellCaps","Full-price items today (UTC): "..table.concat(caps," • ").."\nCan exceed cap by ×"..GardenConfig.OverCapMult,UI.Colors.Slate,function() end)
-			for _,def in Seeds.List do local id=def.id
-				row("Buy_"..id,def.name.." • "..NF.Short(Math.SeedPrice(id,state.shopZone)).." Coins • Left "..state.stock[id].."\n"..def.rarity.." • Restock in "..math.max(0,state.restockAt-state.now).." sec",state.stock[id]>0 and UI.Colors.Orange or UI.Colors.Disabled,function() request("Buy",id) end)
+			for _,d in Seeds.List do local id=d.id
+				row("Buy_"..id,d.name.." • "..NF.Short(Math.SeedPrice(id,state.shopZone)).." Coins • Left "..state.stock[id].."\n"..d.rarity.." • Restock in "..math.max(0,state.restockAt-state.now).." sec",state.stock[id]>0 and UI.Colors.Orange or UI.Colors.Disabled,function() request("Buy",id) end)
 			end
 		end
-		for name,r in rows do if not used[name] then r.holder:Destroy();rows[name]=nil end end
+		for _,v in list:GetChildren() do if v:IsA("GuiObject") and not used[v.Name] then v:Destroy();callbacks[v.Name]=nil end end
 	end
-	for i,name in {"Garden","Seeds","Shop","Merchant"} do local target=name
-		button("Tab"..name,({Garden="Garden",Seeds="Seeds",Shop="Shop / Sell Fruit",Merchant="Traveling Merchant"})[name],UI.Colors.Teal,panel,UDim2.new((i-1)/4,0,0,64),UDim2.new(1/4,-8,0,42),function() tab=target;cutPending=nil;render() end)
-	end
-	local actions={{"Plant","Plant",UI.Colors.Green,function() if seedUid then request("Plant",{slot=slot,seed=seedUid}) else tab="Seeds";render();message.Text="Select a seed first" end end},
-		{"Water","Water",UI.Colors.Blue,function() request("Water",slot) end},
-		{"Harvest","Harvest",UI.Colors.Orange,function() request("Harvest",slot) end},
-		{"Cut","Cut Tree",UI.Colors.Red,function() if cutPending==slot then cutPending=nil;request("Cut",slot) else cutPending=slot;message.Text="Click Cut again to confirm plot "..slot.." will be empty" end end}}
-	for i,a in actions do button(a[1],a[2],a[3],panel,UDim2.new((i-1)/4,0,1,-98),UDim2.new(.25,-8,0,42),a[4]) end
-	button("Sell","Sell All Fruit",UI.Colors.Orange,panel,UDim2.new(0,0,1,-48),UDim2.new(1/3,-8,0,42),function() request("Sell") end)
-	button("Upgrade","Add Planting Slots",UI.Colors.Purple,panel,UDim2.new(1/3,0,1,-48),UDim2.new(1/3,-8,0,42),function() request("Upgrade") end)
-	button("Close","Close",UI.Colors.Slate,panel,UDim2.new(2/3,0,1,-48),UDim2.new(1/3,-8,0,42),function() panel.Visible=false end)
-	local function resize()
-		local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-56))
+	for i,t in {{"Garden","Garden","leaf"},{"Seeds","Seeds","garden/seedPouch"},{"Shop","Shop","shop"},{"Merchant","Merchant","bag"}} do local target=t[1]
+		tabs[target]=UI.Tab({name="Tab"..target,text=t[2],icon=t[3],size=UDim2.fromOffset(144,60),position=UDim2.fromOffset(40+(i-1)*152,122),parent=panel,textSize=23,iconSize=34,onClick=function() tab=target;cutPending=nil;render() end})
 	end
 	local function show(target)
 		local inv=player.PlayerGui:FindFirstChild("InventoryHUD");if inv then inv.Panel.Visible=false;inv.Result.Visible=false end
-		if target then tab=target end;panel.Visible=true;cutPending=nil;resize();render();request("Sync")
+		if target then tab=target end;panel.Visible=true;cutPending=nil;render();request("Sync")
 	end
 	button("Toggle","Garden / Seeds",UI.Colors.Teal,gui,UDim2.fromOffset(16,305),UDim2.fromOffset(178,48),function() if panel.Visible then panel.Visible=false else show() end end)
 	Net.Event("GardenState").OnClientEvent:Connect(function(packet) state=packet;render() end)
 	Net.Event("GardenShow").OnClientEvent:Connect(show)
-	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	local hooked=setmetatable({},{__mode="k"})
 	local function hook(tool)
 		if not tool:IsA("Tool") or not tool:GetAttribute("GardenWater") or hooked[tool] then return end;hooked[tool]=true

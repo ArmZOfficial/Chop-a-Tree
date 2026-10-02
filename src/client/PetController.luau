@@ -9,6 +9,7 @@ local Pets=require(S.Config.Pets);local Eggs=require(S.Config.Eggs);local Config
 local Math=require(S.PetMath);local Visual=require(S.PetVisual);local DecorConfig=require(S.Config.Decor);local ClientData=require(script.Parent.ClientData)
 local Controller={}
 local TABS={{"Incubator","Incubator"},{"Eggs","Eggs"},{"Pets","Pets"},{"Base","Base"},{"Belt","Egg Conveyor"}}
+local TAB_ICONS={Incubator="incubation/eggGrowing",Eggs="egg",Pets="pets/pet_fox",Base="shop",Belt="gear"}
 local PLACE={equip="Carry",pen="In pen",[""]="Inventory"}
 local SHIELD={new="New Player (30 min)",afk="AFK Over 10 min",admin="Admin enabled"}
 
@@ -23,28 +24,32 @@ end
 
 function Controller.Start()
 	local player=Players.LocalPlayer
-	local gui=UI.New("ScreenGui",{Name="PetHUD",ResetOnSpawn=false,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("Eggs & Pets",22,{Parent=panel})
-	local message=UI.Label("Hatch eggs, raise pets and protect your base",14,{Name="Message",Position=UDim2.fromOffset(72,40),Size=UDim2.new(1,-72,0,20),Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-270),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
-	local detail=UI.Label("",14,{Name="Detail",Position=UDim2.new(0,0,1,-149),Size=UDim2.new(1,0,0,40),Parent=panel})
-	local bar=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.new(0,0,1,-98),Size=UDim2.new(1,0,0,96),Parent=panel})
-	local state;local tab="Incubator";local slot=1;local eggUid;local selected={};local releasePending;local busy=false
-	local render
-	local gridMode,layoutMode
-	local function layoutRows(mode)
-	 if layoutMode==mode then return end;layoutMode=mode;gridMode=mode=="Incubator" or mode=="Eggs" or mode=="Pets"
-	 local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
-	 if gridMode then UI.Grid(mode=="Incubator" and 3 or 4,mode=="Incubator" and 310 or 205,12).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+	local gui=UI.New("ScreenGui",{Name="PetHUD",ResetOnSpawn=false,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundTransparency=1,Parent=gui})
+	UI.Window(panel,"Pets","pets/pet_fox",{plaque=330})
+	local caps={}
+	for i,c in {{"Eggs","egg"},{"Pets","pets/pet_bunny"},{"Pen Income","rewards/gemsSmall"}} do
+		local _,value=UI.Capsule(panel,c[2],c[1],{Name="Stat"..i,AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,372+(i-1)*168,.105,-2),Size=UDim2.fromOffset(160,60)});caps[i]=value
 	end
-
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(40,190),Size=UDim2.fromOffset(880,350),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Padding(4)})
+	local incubator=UI.New("Frame",{Name="Incubator",BackgroundTransparency=1,Position=UDim2.fromOffset(40,190),Size=UDim2.fromOffset(880,352),Parent=panel})
+	local info,message=UI.InfoBar(panel,"",{Name="Info",Position=UDim2.fromOffset(40,556),Size=UDim2.fromOffset(568,54)},"codes")
+	local bar=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.fromOffset(620,552),Size=UDim2.fromOffset(300,62),Parent=panel})
+	local state;local tab="Incubator";local slot=1;local eggUid;local selected={};local releasePending;local busy=false
+	local HINTS={Incubator="Choose an egg, place it, then hatch when ready.",Eggs="Pick an egg, then choose an empty incubator slot.",Pets="Select pets to carry, pen, fuse or ride.",Base="Collect pen income, upgrade and protect your base.",Belt="Eggs ride the conveyor for a limited time."}
+	local render
+	local gridMode
+	local function setLayout(mode)
+		if gridMode==mode then return end;gridMode=mode
+		local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
+		if mode=="grid" then UI.Grid(5,186,10).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+	end
+	local function say(text,ok) message.Text=text;message.TextColor3=ok==false and Color3.fromRGB(255,140,120) or UI.Colors.Text end
 	local function call(remote,action,arg)
 		if busy then return end;busy=true
 		task.spawn(function()
 			local ok,success,msg=pcall(function() return Net.Function(remote):InvokeServer(action,arg) end)
-			message.Text=ok and (msg or "Done") or "Could not reach the server. Try again"
-			message.TextColor3=ok and success and UI.Colors.Text or UI.Colors.Accent
+			if action~="Sync" then say(ok and (msg or "Done") or "Could not reach the server. Try again",ok and success) end
 			if ok and success and action=="Fuse" then table.clear(selected) end
 			task.wait(.32);busy=false;render()
 		end)
@@ -53,115 +58,180 @@ function Controller.Start()
 	local function button(name,text,color,parent,pos,size,callback)
 		local b=UI.Button({text=text,color=color,size=size,onClick=callback});b.Name=name;b.Position=pos;b.Parent=parent;return b
 	end
-	-- State packets arrive every 2 seconds; buttons are updated in place so a
+	-- State packets arrive every 2 seconds; elements are updated in place so a
 	-- click that lands during a refresh is never lost on a destroyed instance.
-	local callbacks,keep,order={},{},0
-	local function reuse(parent,name,text,color,pos,size,callback)
-		callbacks[parent][name]=callback;keep[parent][name]=true
-		local b=parent:FindFirstChild(name)
-		if b then
-			local label=b.Button:FindFirstChildWhichIsA("TextLabel",true);if label then label.Text=text end
-			UI.SetButtonColor(b,color);b.Position=pos;b.Size=size
-		else b=button(name,text,color,parent,pos,size,function() local fn=callbacks[parent][name];if fn then fn() end end) end
+	local callbacks,used,order={},{},0
+	local function element(parent,name,create)
+		used[name]=true
+		local e=parent:FindFirstChild(name)
+		if not e then e=create();e.Name=name;e.Parent=parent end
+		return e
+	end
+	local function sweep(parent) for _,v in parent:GetChildren() do if v:IsA("GuiObject") and not used[v.Name] then v:Destroy() end end end
+	local function clickable(name)
+		local b=UI.New("TextButton",{Text="",AutoButtonColor=false,BackgroundTransparency=1})
+		b.Activated:Connect(function() local fn=callbacks[name];if fn then fn() end end)
 		return b
 	end
-	local function sweep(parent) for _,v in parent:GetChildren() do if v:IsA("GuiObject") and not keep[parent][v.Name] then v:Destroy() end end end
+	local function art(holder,key,make)
+		local old=holder:FindFirstChild("Art")
+		if old and old:GetAttribute("Key")==key then return old end
+		if old then old:Destroy() end
+		local a=make();if a then a.Name="Art";a:SetAttribute("Key",key) end
+		return a
+	end
+	-- Grid card: rarity frame, illustration (or model preview), name and sub line.
+	local function card(name,o)
+		order+=1;callbacks[name]=o.onClick
+		local c=element(list,name,function()
+			local b=clickable(name)
+			UI.Label("",18,{Name="Title",Position=UDim2.new(0,8,1,-56),Size=UDim2.new(1,-16,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=b})
+			UI.Label("",14,{Name="Sub",FontFace=UI.FontBold,Position=UDim2.new(0,8,1,-30),Size=UDim2.new(1,-16,0,22),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=b})
+			UI.Label("",22,{Name="Mark",Position=UDim2.fromOffset(12,8),Size=UDim2.fromOffset(60,26),TextColor3=UI.Colors.Accent,TextWrapped=false,Parent=b})
+			UI.New("Frame",{Name="Ring",BackgroundTransparency=1,Position=UDim2.fromOffset(-2,-2),Size=UDim2.new(1,4,1,4),ZIndex=4,Visible=false,Parent=b},{UI.Corner(16),UI.Stroke(4,Color3.fromRGB(255,224,90))})
+			return b
+		end)
+		c.LayoutOrder=order;UI.Skin(c,"cards",o.sprite)
+		c.Title.Text=o.title;c.Sub.Text=o.sub or "";c.Mark.Text=o.mark or "";c.Ring.Visible=o.selected==true
+		art(c,o.artKey,function() return o.makeArt(c) end)
+		return c
+	end
+	-- List row: wooden card with live text; colour only marks selection/availability.
 	local function row(name,text,color,callback)
-		order+=1;local b=reuse(list,name,text,color,UDim2.new(),UDim2.new(1,-7,0,58),callback);b.LayoutOrder=order;b:SetAttribute("ArtCard",gridMode)
-        local label=b.Button:FindFirstChildWhichIsA("TextLabel",true)
-        if gridMode then
-         UI.Skin(b.Button,"cards",color==UI.Colors.Teal and "selected" or "common");label.Position=UDim2.new(0,10,1,-72);label.Size=UDim2.new(1,-20,0,65);label.TextSize=14
-         local index=tonumber(name:match("^Slot(%d+)$"));local egg=index and state.incubator[tostring(index)]
-         local p=state.pets[name:gsub("^Pet_","")]
-         local atlas=p and "pets" or "incubation"
-         local sprite=p and p.id or (index and (egg and (egg.done and "cradleReady" or "cradleGrowing") or "cradleEmpty") or "eggGrowing")
-         local art=b.Button:FindFirstChild("Illustration")
-         if art and art:GetAttribute("Sprite")~=sprite then art:Destroy();art=nil end
-         if not art then art=UI.Art(b.Button,atlas,sprite,{Position=UDim2.fromOffset(14,8),Size=UDim2.new(1,-28,1,-82)});if art then art:SetAttribute("Sprite",sprite) end end
-         if p and not art and not b.Button:FindFirstChild("PetPreview") then
-          local view=UI.New("ViewportFrame",{Name="PetPreview",BackgroundTransparency=1,Position=UDim2.fromOffset(14,8),Size=UDim2.new(1,-28,1,-82),Ambient=Color3.new(1,1,1),Parent=b.Button})
-          local world=Instance.new("WorldModel");world.Parent=view
-          local model=Visual.Pet(p.id,1);model.Parent=world
-          local cf,size=model:GetBoundingBox();local camera=Instance.new("Camera");camera.FieldOfView=35;camera.CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,3)*1.45),cf.Position);camera.Parent=view;view.CurrentCamera=camera
-         end
-        else
-         local art=b.Button:FindFirstChild("Illustration");if art then art:Destroy() end
-         label.Position=UDim2.new();label.Size=UDim2.fromScale(1,1)
-        end
-        return b
+		order+=1;callbacks[name]=callback
+		local r=element(list,name,function()
+			local b=clickable(name);b.Size=UDim2.new(1,-8,0,70)
+			UI.Label("",18,{Name="Text",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
+			return b
+		end)
+		r.LayoutOrder=order;UI.Skin(r,"cards",color==UI.Colors.Teal and "selected" or (color==UI.Colors.Orange or color==UI.Colors.Purple) and "today" or "product")
+		r.Text.Text=text;r.Text.TextTransparency=color==UI.Colors.Disabled and .45 or 0
+		return r
 	end
 	local function actions(defs)
-		local top=math.min(4,#defs)
 		for i,a in defs do
-			local line=i<=top and 0 or 1;local n=line==0 and top or #defs-top;local col=line==0 and i-1 or i-top-1
-			reuse(bar,a[1],a[2],a[3],UDim2.new(col/n,0,0,line*50),UDim2.new(1/n,-8,0,42),a[4])
+			callbacks["Action_"..a[1]]=a[4]
+			local b=element(bar,a[1],function() return UI.Button({text=a[2],textSize=24,color=a[3],size=UDim2.new(1/#defs,-8,1,0),onClick=function() local fn=callbacks["Action_"..a[1]];if fn then fn() end end}) end)
+			b.Position=UDim2.new((i-1)/#defs,0,0,0);b.Size=UDim2.new(1/#defs,-8,1,0)
+			local label=b.Button:FindFirstChildWhichIsA("TextLabel",true);if label and label.Text~=a[2] then label.Text=a[2] end
+			UI.SetButtonColor(b,a[3])
+		end
+	end
+	-- Incubator slot cards are built once and updated in place.
+	local slots={}
+	for i=1,Config.IncubatorSlots do
+		local index=i;local w=(880-24)/Config.IncubatorSlots
+		local c=UI.New("TextButton",{Name="Slot"..i,Text="",AutoButtonColor=false,BackgroundTransparency=1,Position=UDim2.fromOffset((i-1)*(w+12),0),Size=UDim2.fromOffset(w,352),Parent=incubator})
+		c.Activated:Connect(function() slot=index;render() end)
+		local cradle=UI.Art(c,"incubation","cradleEmpty",{Name="Cradle",Position=UDim2.fromOffset(16,10),Size=UDim2.new(1,-32,0,226)})
+		local plus=UI.New("Frame",{Name="Plus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,0,96),Size=UDim2.fromOffset(86,86),BackgroundColor3=Color3.fromRGB(70,45,30),BackgroundTransparency=.35,ZIndex=4,Parent=c},{UI.Corner(43),UI.Stroke(5,Color3.fromRGB(220,210,200))})
+		UI.Label("+",64,{Size=UDim2.fromScale(1,1),Position=UDim2.fromOffset(0,-3),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=Color3.fromRGB(230,222,212),ZIndex=5,Parent=plus})
+		local name=UI.Label("",18,{Name="EggName",Position=UDim2.fromOffset(10,234),Size=UDim2.new(1,-20,0,24),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,Parent=c})
+		local pct=UI.Label("",22,{Name="Percent",Position=UDim2.fromOffset(10,256),Size=UDim2.new(1,-20,0,26),TextXAlignment=Enum.TextXAlignment.Center,Parent=c})
+		local track=UI.Progress(c,{Name="Track",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,284),Size=UDim2.new(1,-50,0,30)})
+		local warn=UI.Label("",17,{Name="Warning",Position=UDim2.fromOffset(10,318),Size=UDim2.new(1,-20,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,Parent=c})
+		local badge=UI.Badge(c,"Ready","ready",{Name="ReadyBadge",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,206),Size=UDim2.fromOffset(150,44),ZIndex=5})
+		local action=UI.Button({text="Hatch",textSize=30,color=UI.Colors.Green,size=UDim2.new(1,-40,0,64),onClick=function()
+			local egg=state and state.incubator[tostring(index)];slot=index
+			if egg and egg.done then pet("Hatch")
+			elseif not egg then if eggUid then pet("Place",{egg=eggUid,slot=index}) else tab="Eggs";render();say("Pick an egg for slot "..index) end end
+		end});action.Name="SlotAction";action.AnchorPoint=Vector2.new(.5,0);action.Position=UDim2.new(.5,0,0,262);action.Parent=c
+		slots[i]={card=c,cradle=cradle,plus=plus,name=name,pct=pct,track=track,warn=warn,badge=badge,action=action}
+	end
+	local function drawSlots()
+		for i,s in slots do local egg=state.incubator[tostring(i)];local def=egg and Eggs.ById[egg.id]
+			UI.Skin(s.card,"cards",slot==i and "selected" or "product")
+			local sprite=egg and (egg.done and "cradleReady" or "cradleGrowing") or "cradleEmpty"
+			if s.cradle:GetAttribute("Sprite")~=sprite then s.cradle:Destroy();s.cradle=UI.Art(s.card,"incubation",sprite,{Name="Cradle",Position=UDim2.fromOffset(16,10),Size=UDim2.new(1,-32,0,226)});s.cradle:SetAttribute("Sprite",sprite) end
+			if egg and not egg.done and def then s.cradle.ImageColor3=Color3.new(1,1,1) end
+			local growing=egg and not egg.done
+			s.plus.Visible=not egg;s.badge.Visible=egg and egg.done or false
+			s.pct.Visible=growing or false;s.track.Visible=growing or false;s.warn.Visible=(growing or (egg and egg.carriedBy)) and true or false
+			s.name.Visible=not (egg and egg.done)
+			s.name.Text=def and def.name or (not state.base and "No base yet" or "Empty slot")
+			s.name.Position=UDim2.fromOffset(10,growing and 234 or 228)
+			if growing and def then
+				local p=math.clamp(egg.progress/def.hatch,0,1);s.pct.Text=math.floor(p*100).."% • "..math.ceil((def.hatch-egg.progress)/state.hatchSpeed).."s"
+				UI.SetProgress(s.track,p)
+				local safe=p>=Config.SafeProgress
+				s.warn.Text=egg.carriedBy and "⚠ Theft in progress!" or (safe and "🛡 Protected from theft" or "🔒 Stealable below "..math.floor(Config.SafeProgress*100).."%")
+				s.warn.TextColor3=(egg.carriedBy or not safe) and Color3.fromRGB(255,96,86) or UI.Colors.Accent
+			end
+			s.action.Visible=not growing
+			local label=s.action.Button:FindFirstChildWhichIsA("TextLabel",true)
+			label.Text=egg and "Hatch" or (eggUid and "Place Egg" or "Select Egg")
 		end
 	end
 	local function selectedPets() local out={};for _,uid in selected do if state.pets[uid] then table.insert(out,uid) end end;return out end
-	callbacks[list],callbacks[bar]={},{}
+	local tabs={}
+	local function place(listH,infoX,infoW,infoY,barX,barW,barY)
+		list.Size=UDim2.fromOffset(880,listH);info.Position=UDim2.fromOffset(infoX,infoY);info.Size=UDim2.fromOffset(infoW,54)
+		bar.Position=UDim2.fromOffset(barX,barY);bar.Size=UDim2.fromOffset(barW,62);bar.Visible=barW>0
+	end
 	local draw
 	render=function()
 		if not panel.Visible or not state then return end
-		layoutRows(tab);keep[list],keep[bar],order={},{},0
+		for key,t in tabs do UI.SetTab(t,tab==key and "green" or nil) end
+		incubator.Visible=tab=="Incubator";list.Visible=tab~="Incubator"
+		setLayout((tab=="Eggs" or tab=="Pets") and "grid" or "list")
+		if tab=="Pets" then place(286,40,880,484,40,880,548) elseif tab=="Base" or tab=="Belt" then place(352,40,880,556,0,0,552) else place(352,40,568,556,620,300,552) end
+		table.clear(used);order=0
 		draw();sweep(list);sweep(bar)
 	end
 	draw=function()
 		for i=#selected,1,-1 do if not state.pets[selected[i]] then table.remove(selected,i) end end
 		if eggUid and not state.eggs[eggUid] then eggUid=nil end
 		local eggCount,petCount=0,0;for _ in state.eggs do eggCount+=1 end;for _ in state.pets do petCount+=1 end
-		local m=state.mults
-		detail.Text="Eggs "..eggCount.."/"..Config.MaxEggs.." • Pets "..petCount.."/"..Config.MaxPets.." • Pen +"..NF.Short(state.income).."/sec • Pen Income "..NF.Short(state.bank)..
-			"\nBonus: Power ×"..string.format("%.2f",m.Power).." • Wood ×"..string.format("%.2f",m.Wood).." • EXP ×"..string.format("%.2f",m.Exp).." • Speed ×"..string.format("%.2f",m.Speed)
+		caps[1].Text=eggCount.."/"..Config.MaxEggs;caps[2].Text=petCount.."/"..Config.MaxPets;caps[3].Text=NF.Short(state.income).."/s"
 		if tab=="Incubator" then
-			if not state.base then row("NoBase","All bases occupied. Your incubator will be ready when a base opens",UI.Colors.Slate,function() end) end
-			for i=1,Config.IncubatorSlots do local index=i;local egg=state.incubator[tostring(i)];local text="Slot "..i.." • Empty";local color=slot==i and UI.Colors.Teal or UI.Colors.Slate
-				if egg then local def=Eggs.ById[egg.id];local pct=math.floor(egg.progress/def.hatch*100)
-					text="Slot "..i.." • "..def.name.." • "..(egg.done and "Hatched!"..(egg.mutation and " ("..egg.mutation..")" or "") or pct.."% • in "..math.ceil((def.hatch-egg.progress)/state.hatchSpeed).." sec")..
-						"\n"..(egg.carriedBy and "⚠ Theft in progress!" or (egg.done and "Hatch Egg" or (pct>=Config.SafeProgress*100 and "Protected from theft" or "Stealable until 75% hatched")))
-				end
-				row("Slot"..i,text,color,function() slot=index;render() end)
-			end
-			actions({{"Place","Place Selected Egg",UI.Colors.Green,function() if eggUid then pet("Place",{egg=eggUid,slot=slot}) else tab="Eggs";render();message.Text="Select an egg first" end end},
-				{"Hatch","Hatch Ready Eggs",UI.Colors.Orange,function() pet("Hatch") end},
-				{"PickEgg","Select Egg",UI.Colors.Teal,function() tab="Eggs";render() end},
-				{"Close","Close",UI.Colors.Slate,function() panel.Visible=false end}})
+			drawSlots()
+			actions({{"Hatch","Hatch Ready Eggs",UI.Colors.Green,function() pet("Hatch") end}})
 		elseif tab=="Eggs" then
 			local keys={};for uid in state.eggs do table.insert(keys,uid) end;table.sort(keys)
-			if #keys==0 then row("Empty","Find eggs in forest nests, chests or the village conveyor, or steal from other bases",UI.Colors.Slate,function() end) end
+			if #keys==0 then setLayout("list");row("Empty","Find eggs in forest nests, chests or the village conveyor, or steal from other bases",UI.Colors.Slate,function() end) end
 			for _,uid in keys do local key=uid;local egg=state.eggs[uid];local def=Eggs.ById[egg.id]
-				row("Egg_"..uid,def.name.." • Hatch "..math.ceil((def.hatch-egg.progress)/60).." min"..(egg.stolen and " • Stolen" or "").."\n"..def.name.." • Zone "..egg.zone..(egg.progress>0 and " • Hatched "..math.floor(egg.progress/def.hatch*100).."%" or ""),
-					eggUid==uid and UI.Colors.Teal or UI.Colors.Pink,function() eggUid=key;tab="Incubator";render();message.Text="Select an empty slot, then place an egg" end)
+				card("Egg_"..uid,{sprite="product",title=def.name,sub="Hatch "..math.ceil((def.hatch-egg.progress)/60).." min"..(egg.stolen and " • Stolen" or ""),selected=eggUid==uid,
+					artKey=egg.id,makeArt=function(parent) local a=UI.Art(parent,"incubation","eggGrowing",{Position=UDim2.fromOffset(34,14),Size=UDim2.new(1,-68,1,-78)});a.ImageColor3=def.color:Lerp(Color3.new(1,1,1),.45);return a end,
+					onClick=function() eggUid=key;tab="Incubator";render();say("Choose an empty slot to place the "..def.name) end})
 			end
-			actions({{"Back","Return to incubator",UI.Colors.Teal,function() tab="Incubator";render() end},{"Close","Close",UI.Colors.Slate,function() panel.Visible=false end}})
+			actions({{"Back","Back to Incubator",UI.Colors.Green,function() tab="Incubator";render() end}})
 		elseif tab=="Pets" then
 			local keys={};for uid in state.pets do table.insert(keys,uid) end
 			local rank={equip=0,pen=1,[""]=2}
 			table.sort(keys,function(a,b) local x,y=state.pets[a],state.pets[b]
-				if rank[x.place]~=rank[y.place] then return rank[x.place]<rank[y.place] end
+				if rank[x.place or ""]~=rank[y.place or ""] then return rank[x.place or ""]<rank[y.place or ""] end
 				local rx,ry=table.find(Pets.Order,Pets.ById[x.id].rarity),table.find(Pets.Order,Pets.ById[y.id].rarity)
-				if rx~=ry then return rx>ry end;return a<b end)
-			if #keys==0 then row("Empty","No pets yet. Hatch eggs at your base",UI.Colors.Slate,function() end) end
-			for _,uid in keys do local key=uid;local p=state.pets[uid];local on=table.find(selected,uid)
-				row("Pet_"..uid,(state.mount==uid and "🐾 Mounted • " or "")..petLine(p),on and UI.Colors.Teal or (p.place=="equip" and UI.Colors.Green or (p.place=="pen" and UI.Colors.Orange or UI.Colors.Slate)),function()
-					releasePending=nil;local i=table.find(selected,key);if i then table.remove(selected,i) else table.insert(selected,key);if #selected>3 then table.remove(selected,1) end end;render() end)
+				if rx~=ry then return (rx or 0)>(ry or 0) end;return a<b end)
+			if #keys==0 then setLayout("list");row("Empty","No pets yet. Hatch eggs at your base",UI.Colors.Slate,function() end) end
+			for _,uid in keys do local key=uid;local p=state.pets[uid];local def=Pets.ById[p.id];local on=table.find(selected,uid)~=nil
+				local sprite=({Common="common",Rare="rare",Epic="epic",Legendary="legendary",Mythic="mythic"})[def.rarity] or "mythic"
+				card("Pet_"..uid,{sprite=sprite,title=def.name,sub="★"..p.tier.." • "..PLACE[p.place or ""],selected=on,mark=state.mount==uid and "🐾" or (p.place=="equip" and "✓" or nil),
+					artKey=p.id,makeArt=function(parent)
+						local a=UI.Art(parent,"pets",p.id,{Position=UDim2.fromOffset(20,12),Size=UDim2.new(1,-40,1,-74)});if a then return a end
+						local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70),Ambient=Color3.new(1,1,1),Parent=parent})
+						local world=Instance.new("WorldModel");world.Parent=view
+						local model=Visual.Pet(p.id,1);model.Parent=world
+						local cf,size=model:GetBoundingBox();local camera=Instance.new("Camera");camera.FieldOfView=35;camera.CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,3)*1.45),cf.Position);camera.Parent=view;view.CurrentCamera=camera
+						return view end,onClick=function()
+						releasePending=nil;local i=table.find(selected,key);if i then table.remove(selected,i) else table.insert(selected,key);if #selected>3 then table.remove(selected,1) end end
+						local s=selectedPets();if #s==1 then say(petLine(state.pets[s[1]])) else say(#s.." selected • Fuse needs 3 matching species/tier") end;render() end})
 			end
-			local function one(action) local s=selectedPets();if #s~=1 then message.Text="Select One Pet";return end;pet(action,s[1]) end
+			local function one(action) local s=selectedPets();if #s~=1 then say("Select one pet",false);return end;pet(action,s[1]) end
 			actions({{"Equip","Carry",UI.Colors.Green,function() one("Equip") end},{"Pen","Add to Pen",UI.Colors.Orange,function() one("Pen") end},
-				{"Store","Stow Bag",UI.Colors.Slate,function() one("Store") end},{"Fuse","Fuse 3",UI.Colors.Purple,function() local s=selectedPets();if #s==3 then pet("Fuse",s) else message.Text="Select 3 matching species/tier pets" end end},
-				{"Mount",state.mount and "Dismount" or "Mount",UI.Colors.Teal,function() if state.mount then pet("Dismount") else one("Mount") end end},
-				{"Release","Release Pet",UI.Colors.Red,function() local s=selectedPets();if #s~=1 then message.Text="Select One Pet";return end
-					if releasePending==s[1] then releasePending=nil;pet("Release",s[1]) else releasePending=s[1];message.Text="Click Release again to confirm (permanent)" end end},
-				{"Close","Close",UI.Colors.Slate,function() panel.Visible=false end}})
+				{"Store","Stow",UI.Colors.Slate,function() one("Store") end},{"Fuse","Fuse 3",UI.Colors.Orange,function() local s=selectedPets();if #s==3 then pet("Fuse",s) else say("Select 3 matching species/tier pets",false) end end},
+				{"Mount",state.mount and "Dismount" or "Mount",UI.Colors.Green,function() if state.mount then pet("Dismount") else one("Mount") end end},
+				{"Release","Release",UI.Colors.Red,function() local s=selectedPets();if #s~=1 then say("Select one pet",false);return end
+					if releasePending==s[1] then releasePending=nil;pet("Release",s[1]) else releasePending=s[1];say("Click Release again to confirm (permanent)",false) end end}})
 		elseif tab=="Base" then
 			local base=myBase(state.base);local now=os.time()
 			local lockUntil=base and base:GetAttribute("LockUntil") or 0;local ready=base and base:GetAttribute("LockReadyAt") or 0
 			local lockText=now<lockUntil and "Locked for "..(lockUntil-now).." sec" or (now<ready and "Cooldown "..(ready-now).." sec" or "Lock Ready "..Math.LockSeconds(state.upgrades.lock).." sec")
 			row("Collect","Collect Pen Income • "..NF.Short(state.bank).." Coins\nIncome +"..NF.Short(state.income).."/sec • Storage limit "..Config.OfflineHours.." hrs",UI.Colors.Orange,function() pet("Collect") end)
 			row("Lock","Lock Base • "..lockText.."\nBarrier blocks visitors Cooldown "..Config.LockCooldown.." sec",now<lockUntil and UI.Colors.Blue or UI.Colors.Purple,function() call("BaseAction","Lock") end)
-			local info={pen={"Pet Pen","Slot "..Math.PenSlots(state.upgrades.pen)},incubator={"Faster Incubator","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"Longer Base Lock",Math.LockSeconds(state.upgrades.lock).." sec"},
+			local infoText={pen={"Pet Pen","Slot "..Math.PenSlots(state.upgrades.pen)},incubator={"Faster Incubator","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"Longer Base Lock",Math.LockSeconds(state.upgrades.lock).." sec"},
 				trap={"Thorn Root Trap","Thief slowed by "..math.round((1-Math.TrapSlow(state.upgrades.trap))*100).."%"},guard={"Base Guard","Chasing thief "..math.round(Math.GuardChance(state.upgrades.guard)*100).."%"}}
 			for _,kind in {"pen","incubator","lock","trap","guard"} do local k=kind;local level=state.upgrades[k];local max=Math.MaxLevel(k)
-				row("Upgrade_"..k,info[k][1].." • Lv "..level.."/"..max.." • Now "..info[k][2].."\n"..(level>=max and "Max reached" or "Upgrade "..NF.Short(Math.UpgradeCost(k,level)).." Wood"),level>=max and UI.Colors.Disabled or UI.Colors.Green,function() pet("Upgrade",k) end)
+				row("Upgrade_"..k,infoText[k][1].." • Lv "..level.."/"..max.." • Now "..infoText[k][2].."\n"..(level>=max and "Max reached" or "Upgrade "..NF.Short(Math.UpgradeCost(k,level)).." Wood"),level>=max and UI.Colors.Disabled or UI.Colors.Green,function() pet("Upgrade",k) end)
 			end
 			local shield=player:GetAttribute("Shield") or ""
 			row("Shield","Theft Shield: "..(SHIELD[shield] or "None").."\nEggs over 75% hatched and hatched pets cannot be stolen",shield~="" and UI.Colors.Blue or UI.Colors.Slate,function() end)
@@ -177,7 +247,6 @@ function Controller.Start()
 				local note=def.festival and (locked and "Festival only" or "This festival only! Place at your position") or (locked and "Locked: light shrine in zone "..def.zone or "Place at Your Position")
 				row("Decor_"..id,def.name.." • "..NF.Short(def.price).." Wood • Beauty +"..def.beauty.."\n"..note,locked and UI.Colors.Disabled or (def.festival and UI.Colors.Orange or UI.Colors.Green),function() call("DecorAction","Place",id) end)
 			end
-			actions({{"Close","Close",UI.Colors.Slate,function() panel.Visible=false end}})
 		else
 			local now=os.time()
 			local offer=state.weatherOffer
@@ -186,21 +255,18 @@ function Controller.Start()
 				row("Belt_"..r.epoch,def.name.." • "..NF.Short(Math.EggPrice(r.id)).." Coins • Zone "..def.zone.."\nHatch "..math.ceil(def.hatch/60).." min • "..(bought and "Purchased" or "On conveyor for "..math.max(0,r.leavesAt-now).." sec"),
 					bought and UI.Colors.Disabled or UI.Colors.Orange,function() pet("Buy",epoch) end)
 			end
-			actions({{"Close","Close",UI.Colors.Slate,function() panel.Visible=false end}})
 		end
 	end
 	for i,t in TABS do local target=t[1]
-		button("Tab"..target,t[2],UI.Colors.Pink,panel,UDim2.new((i-1)/#TABS,0,0,64),UDim2.new(1/#TABS,-8,0,42),function() tab=target;releasePending=nil;render() end)
+		tabs[target]=UI.Tab({name="Tab"..target,text=t[2]=="Egg Conveyor" and "Conveyor" or t[2],icon=TAB_ICONS[target],size=UDim2.fromOffset(170,60),position=UDim2.fromOffset(40+(i-1)*177.5,122),parent=panel,textSize=24,onClick=function() tab=target;releasePending=nil;say(HINTS[target]);render() end})
 	end
-	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-56)) end
 	local function show(target)
 		for _,name in {"InventoryHUD","GardenHUD"} do local other=player.PlayerGui:FindFirstChild(name);if other and other:FindFirstChild("Panel") then other.Panel.Visible=false end end
-		if target then tab=target end;panel.Visible=true;releasePending=nil;resize();render();pet("Sync")
+		if target then tab=target end;panel.Visible=true;releasePending=nil;say(HINTS[tab]);render();pet("Sync")
 	end
 	button("Toggle","Eggs & Pets",UI.Colors.Pink,gui,UDim2.fromOffset(16,361),UDim2.fromOffset(178,48),function() if panel.Visible then panel.Visible=false else show() end end)
 	Net.Event("PetState").OnClientEvent:Connect(function(packet) state=packet;render() end)
 	Net.Event("PetShow").OnClientEvent:Connect(show)
-	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
 	for _,name in {"InventoryHUD","GardenHUD"} do task.spawn(function()
 		local other=player.PlayerGui:WaitForChild(name,30);local p=other and other:WaitForChild("Panel",10)
 		if p then p:GetPropertyChangedSignal("Visible"):Connect(function() if p.Visible then panel.Visible=false end end) end
