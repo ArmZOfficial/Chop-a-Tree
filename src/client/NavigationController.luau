@@ -181,6 +181,8 @@ function Navigation.Start()
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
 		if currencies then currencies.Visible=not obscured end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end
+        -- Minimap/compass (MapHUD, DisplayOrder 22) would draw over open windows: drop it below them.
+        local map=pg:FindFirstChild("MapHUD");if map then map.DisplayOrder=(obscured and not (map:FindFirstChild("Panel") and map.Panel.Visible)) and 7 or 22 end
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
             if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not forest.RunPanel.Visible end

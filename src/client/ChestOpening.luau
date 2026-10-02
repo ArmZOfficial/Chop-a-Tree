@@ -142,7 +142,7 @@ function Opening.Play(results,opts)
 		local function fit() local v=workspace.CurrentCamera.ViewportSize;scale.Scale=math.min(1,(v.X-24)/(multi and 720 or 440),(v.Y-24)/(multi and 480 or 440)) end
 		fit();local fitConn=workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fit);card.Destroying:Connect(function() fitConn:Disconnect() end)
 		local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,1),Position=UDim2.fromScale(.5,1),Size=UDim2.new(1,0,0,56),Parent=card},{UI.List(Enum.FillDirection.Horizontal,10,Enum.HorizontalAlignment.Center)})
-		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=24,color=col,size=UDim2.fromOffset(multi and 200 or 128,56),onClick=fn});b.Name=name;b.Parent=buttons;return b end
+		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=multi and 24 or 19,color=col,size=UDim2.fromOffset(multi and 200 or 128,56),onClick=fn});b.Name=name;b.Parent=buttons;return b end
 		if multi then
 			UI.Label("Results",30,{Name="Heading",Size=UDim2.new(1,0,0,38),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
 			local grid=UI.New("Frame",{Name="Grid",BackgroundTransparency=1,Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,1,-110),Parent=card},{UI.New("UIGridLayout",{CellSize=UDim2.new(.2,-8,.5,-8),CellPadding=UDim2.fromOffset(8,8),SortOrder=Enum.SortOrder.LayoutOrder})})
