@@ -57,7 +57,7 @@ Five primary windows now follow the elements-v1 concepts (layout, plaques, tabs,
 
 ## ดาบ: Sword Pack 380 (วางแผน ArmZ 2026-10-02)
 
-- ดาบใหม่ 380 ชิ้น ID `swd_001`–`swd_380` (stable); Common 110 / Rare 95 / Epic 80 / Legendary 60 / Mythic 35. basePower Base×1–×4 ในความหายาก, ธาตุ 8 คีย์เดิม (~25% Common ไม่มีธาตุ).
+- **ทำแล้ว 2026-10-02** (ดู HANDOFF/systems §Run). ดาบใหม่ 380 ชิ้น ID `swd_001`–`swd_380` (stable); Common 110 / Rare 95 / Epic 80 / Legendary 60 / Mythic 35. basePower Base×1–×4 ในความหายาก, ธาตุ 8 คีย์เดิม (~25% Common ไม่มีธาตุ).
 - ต้นทางข้อมูลยังเป็น `data/weapons.json` → `gen_config.py`; ระหว่างทดลองใช้ `Config.SwordPack` + `Shared.WeaponCatalog` รวมกับ `Config.Weapons` (ห้ามแก้ Weapons.luau ด้วยมือ). ก่อนปิดงานย้ายเข้า pipeline JSON และรัน `balance_sim.py`.
 - Feature flag `SwordPack`; ปิดแล้ว Loot ไม่สุ่ม swd_ แต่ ById ยังหาเจอ (เซฟไม่พัง). Index/collection totals ต้องนับใหม่.
 - ภาพ: ต่อ `WeaponVisual` (Tool `ForestWeapon` contract เดิม) ดาบ retro ≤10 parts + trail ตามธาตุเฉพาะตอนฟัน, VFX ตาม rarity, hit burst ที่ต้นไม้; ไม่สร้างระบบต่อสู้ใหม่. Mesh เสริมได้จาก `3d weapon/RPGWeapons_Free.zip` (Long/Short Sword, Sabre, Dagger).

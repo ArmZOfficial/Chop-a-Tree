@@ -5,7 +5,7 @@ local Teleport=game:GetService("TeleportService")
 local S=game.ReplicatedStorage.Shared
 local C=require(S.Config.Arena);local Net=require(S.Net)
 local D=require(script.Parent.DataService);local F=require(script.Parent.FeatureService)
-local P=require(script.Parent.PetService);local W=require(script.Parent.WeaponService);local Weapons=require(S.Config.Weapons)
+local P=require(script.Parent.PetService);local W=require(script.Parent.WeaponService);local Weapons=require(S.Config.WeaponCatalog)
 local A={};local queued,transferring,last={},{},{}
 local testTransport,testPlace
 local function mode(id) for _,m in C.Modes do if m.id==id then return m end end end

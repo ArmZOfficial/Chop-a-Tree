@@ -28,4 +28,6 @@ return table.freeze({
 	SeasonPass = true, -- Phase 8g Season Pass
 	PvP = false, -- Phase 9
 	Decor = true, -- base decoration (plan 9.2)
+	SwordPack = true, -- Sword Pack 380 chest pool (off = legacy pool; saves resolve both)
+	Sprint = true, -- Shift / touch / gamepad sprint (Config.Movement)
 })

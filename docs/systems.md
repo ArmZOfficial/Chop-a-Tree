@@ -15,6 +15,7 @@
 - RunService owns Run/access/award/AutoCut reward/ChestLevel; WeaponService owns random/equip/fuse/delete. Loot+Balance+Config เป็นสูตรร่วม.
 - ไข่ Nest secure เฉพาะส่งหินวาร์ป/End Run ที่ถูกต้อง; ตาย/ออก/Endแบบอื่น Drop. รางวัลอื่นใช้กติกา RunService.
 - อาวุธใหม่คง UID/definition ID, Tool+viewport Handle/WeaponId/ForestAxe, Giant×3.
+- **Sword Pack 380 (แทร็ก B):** ข้อมูล `data/swords.json` ← `tools/gen_swords.py`; `tools/gen_config.py` สร้าง `Config/SwordPack.luau` (แถวย่อ) + `Config/LegacyWeaponMap.luau` + `docs/sword-pack-migration.md`. ทุกระบบ require `Config.WeaponCatalog` (List = ดาบ 380 สำหรับหีบ/Index, Legacy = wpn_* เดิม legacy=true, ById = ทั้งคู่). Flag `SwordPack` เลือก pool หีบ (ปิด = pool เก่า). DataService v2: `MIGRATIONS[2]` แก้ item.id ในที่ + `legacyId`, Index union; ทุก step รันบน copy ใน pcall — ล้ม = คงข้อมูลเดิม/เวอร์ชันเดิม. Admin `data.migratetest` → `AdminCommands/SwordMigrationCheck` (ข้อมูลสังเคราะห์). WeaponVisual: retro Plastic/Studs ≤9 parts + `SwingTrail` (ForestController เปิดตอนฟัน + hit burst บล็อก neon).
 - Phase2 23, Phase3 36; fixtures ใน tools/tests. Power thresholds/EXP/odds ดู Balance/Config. หีบหลายใบไม่เปลี่ยน odds.
 
 ## Garden

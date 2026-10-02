@@ -4,7 +4,11 @@
 
 ## สถานะล่าสุด
 
-## Master prompt run 2026-10-02 — สำรวจก่อนแก้ (§1)
+## Master prompt run 2026-10-02
+
+**แทร็ก B เสร็จ (Studio = repo checksum ยกเว้น Zones WIP/ProfileStore):** ดาบ 380 ชื่อ EN/TH ไม่มีเลขท้าย, LegacyWeaponMap 100→100 (1:1, rarity เดิม, power ไม่ลด สูงสุด +22.7%, ธาตุตรง 61/100) ตาราง [sword-pack-migration](sword-pack-migration.md); DATA_VERSION 2. ผลตรวจ Studio Play: migratetest ผ่าน (v0/v1 → v2, 100 legacy id, 300 ชิ้น, equip/giant/locked/ซ้ำ/unknown/Index union/idempotent/step ล้มแล้วข้อมูลไม่เปลี่ยน), catalog 380+100 (110/95/80/60/35), WeaponVisual 760 tools ≤9 parts + trail ครบ, Loot 2000/2000 swd และปิด flag ได้ wpn 500/500; python `tools/tests/test_sword_pack.py` 4/4; luau-compile 169 ไฟล์ 0 error. **หมายเหตุ:** Studio Play ใช้ DataStore จริง → เซฟ ArmZKubfu ถูก migrate v1→v2 แล้ว (อาวุธ 0 ชิ้นอยู่แล้ว, Index wpn 3 → +swd 3; ไม่มีอะไรหาย). ยังไม่ Publish.
+
+### สำรวจก่อนแก้ (§1)
 
 Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a-tree-master-prompt.md) (แทร็ก A–J). Studio `Chop a Tree` PlaceId 93479990217075, Edit mode.
 

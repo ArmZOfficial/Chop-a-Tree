@@ -1,4 +1,4 @@
-local Weapons=require(game.ReplicatedStorage.Shared.Config.Weapons)
+local Weapons=require(game.ReplicatedStorage.Shared.Config.WeaponCatalog)
 return function(Admin,Weapon)
 	for _,rarity in {"Common","Rare","Epic","Legendary","Mythic"} do
 		Admin.Register({id="chests."..rarity,tab="chests",label="Grant Chests "..rarity.." ×3",color="Orange",usesTarget=true,marksTarget=true,run=function(ctx)

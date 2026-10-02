@@ -112,20 +112,17 @@ return function(Admin, DataService)
 		id = "data.migratetest",
 		tab = "data",
 		label = "Test Migration",
-		sub = "Migrate Sample v0 Save",
+		sub = "v0/v1 samples → Sword Pack v2",
 		color = "Slate",
 		order = 6,
 		run = function()
-			local sample = { Coins = 12345, Wood = 678, Gems = 9 } -- เซฟ v0 (เงินอยู่ที่ root)
-			local ok, result, log = pcall(DataService.Migrate, sample)
+			-- v0/v1 synthetic saves -> current version: currencies, every legacy weapon id, equip, giant,
+			-- locked, duplicates, unknown id, full inventory, Index union, idempotency, failed-step safety.
+			local ok, passed, summary, text = pcall(require(script.Parent.SwordMigrationCheck), DataService)
 			if not ok then
-				return false, "Migration Failed: " .. tostring(result)
+				return false, "Migration test crashed: " .. tostring(passed)
 			end
-			local good = result.Currencies.Coins == 12345 and result.Currencies.Wood == 678 and result.Coins == nil
-			local text = HttpService:JSONEncode(result)
-			return good,
-				(good and "Migration Passed: " or "Migration Invalid: ") .. table.concat(log, ", "),
-				{ text = text }
+			return passed, summary, { text = text }
 		end,
 	})
 	Admin.Register({

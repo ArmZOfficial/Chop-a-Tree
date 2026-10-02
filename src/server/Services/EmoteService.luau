@@ -2,7 +2,7 @@
 -- created here so every player sees it. Colour comes from the equipped weapon only.
 local Debris=game:GetService("Debris")
 local S=game.ReplicatedStorage.Shared
-local Weapons=require(S.Config.Weapons)
+local Weapons=require(S.Config.WeaponCatalog)
 local Rarities=require(S.Config.Rarities)
 local Net=require(S.Net)
 local D=require(script.Parent.DataService)

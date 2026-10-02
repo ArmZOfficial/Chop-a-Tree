@@ -1,6 +1,6 @@
 local Config=require(script.Parent.Config.Progression)
 local Rebirth=require(script.Parent.RebirthMath)
-local Weapons=require(script.Parent.Config.Weapons);local Pets=require(script.Parent.Config.Pets)
+local Weapons=require(script.Parent.Config.WeaponCatalog);local Pets=require(script.Parent.Config.Pets)
 local Seeds=require(script.Parent.Config.Seeds);local Mutations=require(script.Parent.Config.Mutations)
 local M={Catalog={weapons={},pets={},seeds={},mutations={}},Totals={}}
 for _,w in Weapons.List do M.Catalog.weapons[w.id]=true end

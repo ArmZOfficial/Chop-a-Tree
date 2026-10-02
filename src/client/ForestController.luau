@@ -142,8 +142,20 @@ function Forest.Start()
 			local tool=player.Character:FindFirstChildOfClass("Tool")
 			if tool then
 				local original=tool.Grip
+				local trail=tool:FindFirstChild("SwingTrail",true) -- Sword Pack trail: only visible during the swing
+				if trail then trail.Enabled=true;task.delay(0.3,function() trail.Enabled=false end) end
 				Tween:Create(tool,TweenInfo.new(0.12),{Grip=original*CFrame.Angles(math.rad(-65),0,0)}):Play()
 				task.delay(0.14,function() if tool.Parent then Tween:Create(tool,TweenInfo.new(0.18),{Grip=original}):Play() end end)
+				-- Retro hit burst: a few neon blocks in the weapon's trail colour (skipped on low graphics).
+				if trail and UserSettings().GameSettings.SavedQualityLevel.Value~=1 then
+					local c=trail.Color.Keypoints[1].Value
+					for i=1,4 do
+						local b=Instance.new("Part");b.Anchored=true;b.CanCollide=false;b.CanQuery=false;b.CanTouch=false;b.Material=Enum.Material.Neon;b.Color=c
+						b.Size=Vector3.one*.6;b.CFrame=CFrame.new(hit.position+Vector3.new(0,3,0));b.Parent=workspace
+						local dir=CFrame.Angles(0,i*math.pi/2,0).LookVector*3+Vector3.new(0,2,0)
+						Tween:Create(b,TweenInfo.new(.35),{CFrame=b.CFrame+dir,Size=Vector3.one*.1,Transparency=1}):Play();Debris:AddItem(b,.4)
+					end
+				end
 			end
 		end
 		local anchor=Instance.new("Part"); anchor.Anchored=true; anchor.Transparency=1; anchor.CanCollide=false; anchor.CanQuery=false; anchor.Size=Vector3.one; anchor.Position=hit.position+Vector3.new(0,5,0); anchor.Parent=workspace

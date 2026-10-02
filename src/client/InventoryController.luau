@@ -6,7 +6,7 @@ local UI=require(Shared.UIKit)
 local NF=require(Shared.NumberFormat)
 local Loot=require(Shared.Loot)
 local Visual=require(Shared.WeaponVisual)
-local Weapons=require(Shared.Config:FindFirstChild("WeaponCatalog") or Shared.Config.Weapons)
+local Weapons=require(Shared.Config.WeaponCatalog)
 local Rarities=require(Shared.Config.Rarities)
 local Config=require(Shared.Config.Chests)
 local Encounters=require(Shared.Config.WeatherEncounters)
@@ -156,7 +156,7 @@ function Inventory.Start()
 			local item=inv[uid];local def=Weapons.ById[item.id];local key=uid
 			local c=card(weaponList,"Item_"..uid,def and string.lower(def.rarity) or "unknown",i,selected==uid,function() selected=key;pendingSelection=nil;pendingFuse=nil;pendingDelete=nil;say();render() end)
 			if def then local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(12,10),Size=UDim2.new(1,-24,1,-50),Ambient=Color3.new(1,1,1),Parent=c});preview(view,def,item) end
-			UI.Label((item.giant and "GIANT " or "")..(def and def.name or "Retired item"),17,{Position=UDim2.new(0,6,1,-42),Size=UDim2.new(1,-12,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=c}):FindFirstChildOfClass("UIStroke").Thickness=2
+			UI.Label((item.giant and "GIANT " or "")..(def and def.name or "Unknown item"),17,{Position=UDim2.new(0,6,1,-42),Size=UDim2.new(1,-12,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=c}):FindFirstChildOfClass("UIStroke").Thickness=2
 			if equipped==uid then UI.Label("✓",24,{Position=UDim2.fromOffset(12,8),Size=UDim2.fromOffset(28,28),TextColor3=UI.Colors.Accent,Parent=c}) end
 			if item.stars and item.stars>1 then UI.Label(string.rep("★",item.stars),14,{Position=UDim2.new(1,-74,0,8),Size=UDim2.fromOffset(64,20),TextXAlignment=Enum.TextXAlignment.Right,TextColor3=Color3.fromRGB(255,214,64),TextWrapped=false,Parent=c}) end
 		end
@@ -192,8 +192,9 @@ function Inventory.Start()
 				rarity.Visible=true;rarity.BackgroundColor3=Rarities.Color[def.rarity]:Lerp(Color3.new(1,1,1),.15);rarityLabel.Text=def.rarity;rarity.Size=UDim2.fromOffset(math.max(90,#def.rarity*13+30),32)
 				powerBar.Visible=true;powerLabel.Text="Power";powerValue.Text=NF.Short(Loot.Power(item))
 				details.Text="IL "..item.il.." • ★"..item.stars.." • Speed "..def.speed.." • Area "..def.area*(item.giant and 2 or 1).."\n"..(item.stars<5 and ("Fuse ★"..(item.stars+1)..": 3 matching + "..NF.Short(Loot.FuseCost(item)).." Wood") or "Max ★5 reached")
+				if def.legacy then details.Text=details.Text.."\nLegacy weapon — upgrades to "..((Weapons.ById[def.replacement] or def).name).." on next join" end
 				equippedBadge.Visible=equipped==selected
-			elseif item then nameLabel.Text="Retired item";details.Text=tostring(item.id).."\nNo longer in the weapon catalog"
+			elseif item then nameLabel.Text="Unknown item";details.Text=tostring(item.id).."\nKept safe in your save — it will update automatically"
 			else nameLabel.Text="No weapon";details.Text="Open chests at the village station" end
 		else
 			if selectedChest=="Dust" then

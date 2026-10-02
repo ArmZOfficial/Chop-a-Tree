@@ -1,11 +1,19 @@
-local Weapons=require(script.Parent.Config.Weapons)
+local Weapons=require(script.Parent.Config.WeaponCatalog)
 local Rarities=require(script.Parent.Config.Rarities)
 local Config=require(script.Parent.Config.Chests)
 local Balance=require(script.Parent.Balance)
 local Loot={}
-local pools={}
-for _,r in Rarities.Order do pools[r]={} end
-for _,w in Weapons.List do if not w.retired then table.insert(pools[w.rarity],w) end end
+-- Chest pools: Sword Pack when FeatureFlags.SwordPack is on (default), legacy catalog when off.
+-- Either way ById resolves both, so saves never break when the flag flips.
+local pools,legacyPools={},{}
+for _,r in Rarities.Order do pools[r]={};legacyPools[r]={} end
+for _,w in Weapons.List do table.insert(pools[w.rarity],w) end
+for _,w in Weapons.Legacy do table.insert(legacyPools[w.rarity],w) end
+local function swordPackOn()
+	local flags=game:GetService("ReplicatedStorage"):FindFirstChild("FeatureFlags")
+	return not flags or flags:GetAttribute("SwordPack")~=false
+end
+function Loot.Pool(rarity) return (swordPackOn() and pools or legacyPools)[rarity] end
 
 local function choose(weights,rng)
 	local total=0; for _,v in weights do total+=v end
@@ -33,7 +41,7 @@ end
 function Loot.Roll(chest,rng,luck)
 	local weights,giantChance=Loot.Odds(chest.rarity,chest.level,luck)
 	local rarity=Rarities.Order[choose(weights,rng)]
-	local pool=pools[rarity]
+	local pool=Loot.Pool(rarity)
 	local weapon=pool[rng:NextInteger(1,#pool)]
 	-- Each definition already occupies a point in its rarity's x1..x4 range.
 	return {id=weapon.id,il=chest.zone,stars=1,giant=rng:NextNumber()<giantChance,rebirthDrop=chest.rebirthDrop or 0,roll=1,admin_spawned=chest.admin_spawned==true}

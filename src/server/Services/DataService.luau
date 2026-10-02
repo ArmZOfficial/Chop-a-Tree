@@ -10,12 +10,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared.Net)
 local Currencies = require(Shared.Config.Currencies)
+local LegacyWeaponMap = require(Shared.Config.LegacyWeaponMap)
 local ProfileStore = require(script.Parent.Parent.Packages.ProfileStore)
 
 local DataService = {}
 
 DataService.STORE_NAME = "PlayerData_v1"
-DataService.DATA_VERSION = 1
+DataService.DATA_VERSION = 2
 
 local function currencyTemplate()
 	local t = {}
@@ -70,6 +71,38 @@ DataService.MIGRATIONS = {
 		end
 		return data
 	end,
+	[2] = function(data)
+		-- Sword Pack: legacy weapon ids (wpn_*) -> swd_* 1:1 (same rarity, basePower never lower).
+		-- Item tables are edited in place, so uid keys, Equipped, il/stars/giant/rebirthDrop/roll/locked and
+		-- admin_spawned all survive. Unknown ids are left untouched (never deleted). Idempotent: swd ids are
+		-- not keys of the map, and legacyId is only written once.
+		local inv = type(data.Inventory) == "table" and data.Inventory.Weapons
+		if type(inv) == "table" then
+			for _, item in inv do
+				if type(item) == "table" and type(item.id) == "string" then
+					local new = LegacyWeaponMap[item.id]
+					if new then
+						item.legacyId = item.legacyId or item.id
+						item.id = new
+					end
+				end
+			end
+		end
+		-- Index: union — keep legacy entries and also mark their swords as collected (no extra Gems).
+		local idx = type(data.Index) == "table" and data.Index.weapons
+		if type(idx) == "table" then
+			local add = {}
+			for id, have in idx do
+				if have == true and LegacyWeaponMap[id] then
+					add[LegacyWeaponMap[id]] = true
+				end
+			end
+			for id in add do
+				idx[id] = true
+			end
+		end
+		return data
+	end,
 }
 
 local store = ProfileStore.New(DataService.STORE_NAME, DataService.Template)
@@ -115,7 +148,15 @@ function DataService.Migrate(data: any): (any, { string })
 	while version < DataService.DATA_VERSION do
 		local step = DataService.MIGRATIONS[version + 1]
 		assert(step, "missing migration to v" .. (version + 1))
-		data = step(data)
+		-- Each step runs on a copy: a failing step leaves the save exactly as it was (still at the old
+		-- version, retried next join) instead of half-migrated.
+		local ok, result = pcall(step, deepCopy(data))
+		if not ok or type(result) ~= "table" then
+			warn("[DataService] migration to v" .. (version + 1) .. " failed: " .. tostring(result))
+			table.insert(log, "v" .. version .. " → v" .. (version + 1) .. " FAILED")
+			break
+		end
+		data = result
 		version += 1
 		data.DataVersion = version
 		table.insert(log, "v" .. (version - 1) .. " → v" .. version)
@@ -314,6 +355,11 @@ local function onPlayerAdded(player: Player)
 	profile:AddUserId(player.UserId)
 	local migrated, log = DataService.Migrate(profile.Data)
 	if #log > 0 then
+		for k in profile.Data do
+			if migrated[k] == nil then
+				profile.Data[k] = nil
+			end
+		end
 		for k, v in migrated do
 			profile.Data[k] = v
 		end

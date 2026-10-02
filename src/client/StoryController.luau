@@ -5,7 +5,7 @@ local Collection=game:GetService("CollectionService")
 local Tween=game:GetService("TweenService")
 local S=game.ReplicatedStorage.Shared
 local Net=require(S.Net);local UI=require(S.UIKit);local NF=require(S.NumberFormat);local Balance=require(S.Balance)
-local Zones=require(S.Config.Zones);local Weapons=require(S.Config.Weapons);local Pets=require(S.Config.Pets);local Seeds=require(S.Config.Seeds)
+local Zones=require(S.Config.Zones);local Weapons=require(S.Config.WeaponCatalog);local Pets=require(S.Config.Pets);local Seeds=require(S.Config.Seeds)
 local Mutations=require(S.Config.Mutations)
 local Data=require(script.Parent.ClientData)
 local Progression=require(S.Config.Progression);local CollectionMath=require(S.CollectionMath)

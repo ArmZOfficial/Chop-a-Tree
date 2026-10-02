@@ -1,6 +1,6 @@
 local S=game.ReplicatedStorage.Shared
 local Zones=require(S.Config.Zones)
-local Weapons=require(S.Config.Weapons)
+local Weapons=require(S.Config.WeaponCatalog)
 local Pets=require(S.Config.Pets)
 local Seeds=require(S.Config.Seeds)
 local Mutations=require(S.Config.Mutations)
