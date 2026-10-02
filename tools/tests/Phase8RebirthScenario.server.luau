@@ -43,7 +43,7 @@ local ok,err=xpcall(function()
 	D.Set(p,"Pets.upgrades",{lock=2,incubator=2,pen=2});D.Set(p,"Pets.bank",12345);D.Set(p,"Pets.bankAt",os.time())
 	for _=1,12 do P.GrantPet(p,"pet_bunny",{}) end
 	P.GrantEgg(p,{id="egg_meadow",rebirthDrop=0});local eggCount=count(D.Get(p,"Inventory.Eggs"))
-	W.Grant(p,require(S.Config.Weapons).List[1].id,1,false)
+	W.Grant(p,require(S.Config.WeaponCatalog).List[1].id,1,false)
 	local weaponJson=game.HttpService:JSONEncode(D.Get(p,"Inventory.Weapons"));local chestsJson=game.HttpService:JSONEncode(D.Get(p,"Inventory.Chests"))
 	ready,_,token=RB.Prepare(p);check("Ready Rebirth can be confirmed",ready and RB.Confirm(p,token))
 	check("Rebirth increments exactly once and grants exactly one first-cycle token",D.Get(p,"Progress.Rebirth")==1 and D.GetCurrency(p,"RebirthTokens")==1 and not RB.Confirm(p,token))

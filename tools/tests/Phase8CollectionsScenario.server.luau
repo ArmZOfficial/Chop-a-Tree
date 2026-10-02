@@ -65,7 +65,7 @@ local ok,err=xpcall(function()
  check("Luck input clamps to zero through 50 percent including temporary boosts",near(capped[3],.075) and near(negative[3],plain[3]))
  local rare=Loot.Odds("Rare",1,.25);check("Rare chests reach combined Epic plus chance 25 percent",near(rare[3]+rare[4]+rare[5],.25))
  for _,rarity in {"Common","Rare","Epic","Legendary","Mythic"} do local weights=Loot.Odds(rarity,10000,.25);local sum=0;for _,v in weights do assert(v>=0 and v<=1);sum+=v end;check(rarity.." boosted probabilities remain normalized",near(sum,1)) end
- local random=Random.new(831);local high=0;local defs=require(S.Config.Weapons)
+ local random=Random.new(831);local high=0;local defs=require(S.Config.WeaponCatalog)
  for i=1,20000 do local item=roll({rarity="Common",level=1,zone=1},random,.25);local rarity=defs.ById[item.id].rarity;if rarity=="Epic" or rarity=="Legendary" or rarity=="Mythic" then high+=1 end end
  check("Seeded 20000 real rolls agree with Lucky distribution",math.abs(high/20000-.0625)<.008)
  local altar=game.CollectionService:GetTagged("ChestAltar")[1];assert(altar);p.Character:PivotTo(altar:GetPivot()+Vector3.new(0,4,0));D.Set(p,"Inventory.Chests",{{uid="luck-test",rarity="Common",level=1,zone=1,count=1,rebirthDrop=0,admin_spawned=false}})

@@ -1,7 +1,7 @@
 -- Phase 8f showcase aura. Inject in Studio Play; reads the equipped weapon, writes no profile data.
 assert(game:GetService("RunService"):IsStudio())
 local V=game.ServerScriptService.Server.Services;local S=game.ReplicatedStorage.Shared
-local F=require(V.FeatureService);local E=require(V.EmoteService);local W=require(V.WeaponService);local Weapons=require(S.Config.Weapons);local Rarities=require(S.Config.Rarities)
+local F=require(V.FeatureService);local E=require(V.EmoteService);local W=require(V.WeaponService);local Weapons=require(S.Config.WeaponCatalog);local Rarities=require(S.Config.Rarities)
 local p=game.Players:GetPlayers()[1];local results={};local flag=F.IsEnabled("Emotes")
 local function check(name,ok) assert(ok,name);table.insert(results,{name=name,passed=true}) end
 local function aura() return p.Character.HumanoidRootPart:FindFirstChild("ShowcaseAura") end

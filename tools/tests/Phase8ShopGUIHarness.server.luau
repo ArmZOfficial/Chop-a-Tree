@@ -20,7 +20,7 @@ local capacity=Instance.new("BindableFunction");capacity.Name="SetFreeSlots";cap
 capacity.OnInvoke=function(slots)
  local max=require(game.ReplicatedStorage.Shared.Config.Chests).MaxWeapons
  assert(type(slots)=="number" and slots%1==0 and slots>=0 and slots<=max)
- local id=require(game.ReplicatedStorage.Shared.Config.Weapons).List[1].id
+ local id=require(game.ReplicatedStorage.Shared.Config.WeaponCatalog).List[1].id
  local inv={};for _=1,max-slots do
   inv[game.HttpService:GenerateGUID(false)]={id=id,il=1,stars=1,giant=false,rebirthDrop=0,roll=1,admin_spawned=true}
  end
