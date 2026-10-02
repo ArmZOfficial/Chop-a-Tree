@@ -1022,11 +1022,191 @@ function MapBuilder.BuildMountains()
 	end)
 end
 
+-- ========== dressing (Creator Store packs) ==========
+-- Nature Asset Pack "Studs Texture Style" (116403161689840, khalil2insta) and VFX Pack
+-- (7564537285, synmade), vetted into ServerStorage.MapAssets.Nature / .VFX by
+-- tools/map/DressingPrototypes.luau. Runs on a built map with its own rng and folders
+-- (Zone.Decor.Dressing, Village.Dressing), so trees, chests and nests never move; run it again
+-- after any BuildZone/BuildVillage. Only rocks are solid. MapFX-tagged meshes are animated on
+-- the client by ZoneAmbience (Spin rad/s about their own Y, Bob studs).
+
+-- Recolour a prop to `to`, keeping each part's relative brightness.
+local function tint(model, to)
+	local th, ts, tv = to:ToHSV()
+	local top = 0
+	for _, p in model:GetChildren() do
+		top = math.max(top, select(3, p.Color:ToHSV()))
+	end
+	for _, p in model:GetChildren() do
+		p.Color = Color3.fromHSV(th, ts, tv * select(3, p.Color:ToHSV()) / top)
+	end
+end
+
+local function prop(parent, name, pos, scale, yaw)
+	local m = ServerStorage.MapAssets.Nature[name]:Clone()
+	m:ScaleTo(scale)
+	m:PivotTo(CFrame.new(pos) * CFrame.Angles(0, yaw, 0))
+	m.Parent = parent
+	return m
+end
+
+-- size: number = uniform factor on the prototype, or a Vector3.
+local function fx(parent, name, cf, size, color, transparency, spin, bob)
+	local p = ServerStorage.MapAssets.VFX[name]:Clone()
+	p.Size = typeof(size) == "number" and p.Size * size or size
+	p.CFrame = cf
+	p.Color = color
+	p.Transparency = transparency
+	p.Parent = parent
+	if spin or bob then tag(p, "MapFX", { Spin = spin or 0, Bob = bob or 0 }) end
+	return p
+end
+
+local ROCKS = { "Rock1", "Rock2", "Rock3", "SandRock1", "SandRock2" }
+-- Floating/standing zone meshes: prototype, size factor, height of the centre, look.
+local ZONE_FX = {
+	[2] = { mesh = "Tornado", size = 0.9, y = 6, alpha = 0.45, spin = 2 },
+	[3] = { mesh = "Orb", size = 0.5, y = 9, alpha = 0.3, spin = 0.5, bob = 1.5 },
+	[4] = { mesh = "Wind", size = 1.1, y = 8, alpha = 0.6, spin = 1 },
+	[5] = { mesh = "Thunder", size = 1, y = 9.5, alpha = 0.1, spin = 3, accent = true },
+	[6] = { mesh = "Wind", size = 1.3, y = 8, alpha = 0.7, spin = 0.8, accent = true },
+	[7] = { mesh = "Spike", size = 0.9, y = 3.5, alpha = 0.15, material = Enum.Material.Glass }, -- pale neon washes out to white
+	[8] = { mesh = "Star", size = 0.4, y = 12, alpha = 0.1, spin = 1, bob = 2 },
+}
+
+function MapBuilder.BuildDressing()
+	withHistory("Chop a Tree: Dressing", function()
+		local L = MapBuilder.Layout()
+		local map = mapRoot()
+		-- Flat markers the overlap box below cannot see, then every placed prop: { position, radius }.
+		local placed = {}
+		for tagName, r in { ChestSpot = 9, ZoneSpawn = 12, BossArena = 50, Nest = 12, GardenSlot = 8, PlayerBase = 46, Shop = 24, NPC = 12, Leaderboard = 24, ArenaPortal = 24, WarpStone = 12, Shrine = 20 } do
+			for _, inst in CollectionService:GetTagged(tagName) do
+				if inst:IsDescendantOf(map) then table.insert(placed, { inst:GetPivot().Position, r }) end
+			end
+		end
+		for _, Z in L.zones do
+			table.insert(placed, { Z.entry, 40 })
+			if Z.exit then table.insert(placed, { Z.stairFoot, 40 }) end
+		end
+		-- Empty ground: clear of the list above and nothing queryable from 1.5 studs over the floor.
+		local function open(p, r)
+			for _, q in placed do
+				if flat(p - q[1]).Magnitude < r + q[2] then return false end
+			end
+			return #workspace:GetPartBoundsInBox(CFrame.new(p.X, p.Y + 9.5, p.Z), Vector3.new(r * 2, 16, r * 2)) == 0
+		end
+		-- c = zone colours (nil keeps the pack's own greens/greys), n = counts.
+		local function dress(folder, rng, point, c, n)
+			local function scatter(count, r, fn)
+				for _ = 1, count or 0 do
+					for _ = 1, 30 do
+						local p = point(r)
+						if p and open(p, r) then
+							table.insert(placed, { p, r })
+							fn(p, rng:NextNumber(0, 2 * math.pi))
+							break
+						end
+					end
+				end
+			end
+			scatter(n.trees, 8, function(p, yaw)
+				prop(folder, "Tree" .. rng:NextInteger(1, 3), p, rng:NextNumber(1.2, 1.7), yaw)
+			end)
+			scatter(n.rocks, 9, function(p, yaw)
+				local m = prop(folder, ROCKS[rng:NextInteger(1, #ROCKS)], p - Vector3.new(0, 0.4, 0), rng:NextNumber(0.8, 1.5), yaw)
+				if c then tint(m, c.cliff) end
+			end)
+			scatter(n.bushes, 6, function(p, yaw)
+				local m = prop(folder, "Bush" .. rng:NextInteger(1, 3), p, rng:NextNumber(0.7, 1.2), yaw)
+				if c then tint(m, c.leaves[rng:NextInteger(1, #c.leaves)]) end
+			end)
+			scatter(n.dirt, 6, function(p, yaw)
+				local m = prop(folder, "Dirt" .. rng:NextInteger(1, 3), p, rng:NextNumber(1, 1.6), yaw)
+				if c then tint(m, c.ground:Lerp(Color3.new(), 0.25)) end
+			end)
+			scatter(n.grass, 1.5, function(p, yaw)
+				local m = prop(folder, "Grass" .. rng:NextInteger(1, 3), p, rng:NextNumber(2, 3.5), yaw)
+				if c then tint(m, c.leaves[rng:NextInteger(1, #c.leaves)]:Lerp(Color3.new(), 0.15)) end
+			end)
+			scatter(n.flowers, 2, function(p, yaw)
+				prop(folder, rng:NextNumber() < 0.5 and "FlowerPurple" or "FlowerOrange", p, rng:NextNumber(3, 4), yaw)
+			end)
+			return scatter
+		end
+		-- Halo + star over shrines, a coil round warp stones.
+		local function landmarks(folder, within)
+			for _, s in CollectionService:GetTagged("Shrine") do
+				if s:IsDescendantOf(within) then
+					local top, accent = s.Crystal.Position + Vector3.new(0, 10.5, 0), s.Crystal:GetAttribute("LitColor")
+					fx(folder, "Ring", CFrame.new(top), Vector3.new(15, 1.2, 15), accent, 0.2, 0.6)
+					fx(folder, "Star", CFrame.new(top + Vector3.new(0, 4, 0)), 0.4, accent, 0.1, 1, 0.5)
+				end
+			end
+			for _, w in CollectionService:GetTagged("WarpStone") do
+				if w:IsDescendantOf(within) then
+					fx(folder, "Spiral", w.PrimaryPart.CFrame, Vector3.new(9, 12, 9), w.Rune.Color, 0.35, 1.2)
+				end
+			end
+		end
+
+		for i, Z in L.zones do
+			local zone = Z.def
+			local root = map.Wilds[string.format("Zone%d_%s", i, zone.key)]
+			local folder = fresh(root.Decor, "Dressing")
+			local rng = Random.new(2000 + i)
+			local c = zone.colors
+			local scatter = dress(folder, rng, function(r)
+				local d = math.sqrt(rng:NextNumber() * (Z.outer ^ 2 - Z.inner ^ 2) + Z.inner ^ 2)
+				local p = polar(Vector3.zero, d, rng:NextNumber(-math.pi, math.pi), Z.y)
+				if d < Z.inner + r + 6 or d > Z.outer - r - 9 then return nil end
+				if flat(p - HUB.center).Magnitude < HUB.radius + r + 10 then return nil end
+				if p.Z > 0 and math.abs(p.X) < 16 + r then return nil end -- trail and stairs
+				return p
+			end, c, { rocks = 10, bushes = 14, dirt = 8, grass = 40, flowers = (i == 1 or i == 4) and 8 or 0 })
+			local f = ZONE_FX[i]
+			if f then
+				scatter(10, 5, function(p, yaw)
+					local color = f.accent and c.accent or c.leaves[rng:NextInteger(1, #c.leaves)]
+					local mesh = fx(folder, f.mesh, CFrame.new(p + Vector3.new(0, f.y, 0)) * CFrame.Angles(0, yaw, 0), f.size, color, f.alpha, f.spin, f.bob)
+					if f.material then mesh.Material = f.material end
+				end)
+			end
+			landmarks(folder, root)
+			-- Boss arena: two counter-turning floor rings and rot thorns outside the stone circle.
+			local floor = root.BossArena.BossArena.PrimaryPart.Position + Vector3.new(0, 0.9, 0)
+			fx(folder, "Ring", CFrame.new(floor), Vector3.new(58, 1, 58), c.accent, 0.3, 0.15)
+			fx(folder, "Ring", CFrame.new(floor), Vector3.new(40, 1, 40), c.accent, 0.3, -0.25)
+			for k = 0, 3 do
+				local a = (k + 0.5) / 4 * math.pi * 2
+				fx(folder, "Spike", CFrame.new(floor + Vector3.new(math.sin(a) * 44, 3.5, math.cos(a) * 44)) * CFrame.Angles(0, a, 0), 1.1, Zones.RotColor, 0.15)
+			end
+			if i == #Zones.List then
+				fx(folder, "Spiral", CFrame.new(0, Z.y + 42, 0), Vector3.new(32, 70, 32), c.accent, 0.5, 0.3)
+				local ring = root.Secrets.RealmGate.Ring -- first Ring sits at +13 on the gate's X axis
+				fx(folder, "Swirl", ring.CFrame * CFrame.new(-13, 0, 0) * CFrame.Angles(rad(90), 0, 0), Vector3.new(22, 3, 22), c.accent, 0.3, 1)
+			end
+		end
+
+		local village = map.Village
+		local folder = fresh(village, "Dressing")
+		local rng = Random.new(2000)
+		dress(folder, rng, function(r)
+			local d = math.sqrt(rng:NextNumber() * (175 ^ 2 - 45 ^ 2) + 45 ^ 2)
+			local p = polar(HUB.center, d, rng:NextNumber(-math.pi, math.pi), L.hub.plazaY)
+			if math.abs(p.X) < 16 + r then return nil end -- main path
+			return p
+		end, nil, { trees = 8, rocks = 5, bushes = 12, grass = 30, flowers = 10 })
+		landmarks(folder, village)
+	end)
+end
+
 function MapBuilder.BuildAll()
 	MapBuilder.BuildWorld()
 	MapBuilder.BuildMountains()
 	MapBuilder.BuildVillage()
 	MapBuilder.BuildAllZones()
+	MapBuilder.BuildDressing()
 end
 
 -- Tag counts + part totals (overall and per zone).

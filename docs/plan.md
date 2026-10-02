@@ -27,6 +27,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 - **Hub Rootfall ทิศใต้** (0,4,1010) r190: ท่าเรือใต้สุด, Chest Altar กลางลาน, ร้านขวาน (UpgradeShop) ซ้าย, ร้านไม้ (Sawmill) ขวา, Seed/Egg Conveyor/Bram/Warp/Leaderboards/Arena portal, บ้านผู้เล่น 7 หลัง (กระท่อมสีหลังคาต่างกันบนฐาน), Forest Gate ทิศเหนือเข้า Meadow; กำแพง hub กันเดินอ้อมประตู.
 - ทุกวงเข้าที่แกนใต้: บันไดหิน + torii ZoneGate (ปลดเมื่อชนะบอส) + ป้ายชื่อโซน; ขอบวงบนมี RotHedge; ลานบอส + ศาลเจ้า 75° ตะวันออกของทางเข้า; tier ต้นไม้สูงขึ้นตามระยะรอบวง (ฝั่งเหนือลึกสุด); หีบ 10 + รัง 2 ต่อโซน.
 - ต้นไม้ ~1 ต้น/1600 studs² (140–260 ต่อโซน รวม 1470) ทรง Kako9's Tree (บล็อก studs 17 parts) สีต่างกันตามโซน + ทรง Classic/Tall/Wide (2026-10-03). ภูเขาหิน Studded Rock ล้อมเกาะ+hub พร้อมกำแพงใสกันออกนอกแมพ (เว้นท่าเรือ/ทางเรือ). Lumora: ลานบอสกลาง + Realm Gate ฝั่งเหนือ.
+- ของตกแต่งพื้น/เอฟเฟกต์ (2026-10-03): `MapBuilder.BuildDressing()` ใช้ Nature Asset Pack `116403161689840` + VFX Pack `7564537285` — หิน/พุ่ม/หญ้า/ดอกไม้ย้อมสีตามโซน, วงแหวนลานบอส, halo ศาลเจ้า, เกลียว Warp Stone/Lumora, mesh ประจำโซน (+~2,900 parts).
 - โค้ด: `Config.Zones` (inner/outer/y + `Zones.At` + `Hub`), `tools/map/MapBuilder.luau`, `tools/map/TreeKit.luau`; constraints/ผลตรวจ: [systems §Map](systems.md#map).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
@@ -63,7 +64,7 @@ Regression หลังร้าน 2–7/8a–f รันซ้ำครบแ�
 ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) 2026-11-01→12-01 ซีซัน 3 ป่าหิมะเงิน (`s3_2026_12`) 12-01→2027-01-01 และซีซัน 4 ป่าโคมไฟ (`s4_2027_01`) 2027-01-01→02-01 UTC พร้อม; ใช้ XP/รางวัลเดิม. Rollover/late receipt/ห่วงโซ่ซีซันผ่าน scenario 34/34.
 ถัดไป: ซื้อผ่าน Roblox Player จริงแล้ว reconnect และตรวจหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 5 ก่อน **2027-02-01 UTC**.
 ผู้ใช้สั่งเริ่ม Phase 9 ระหว่างรอซื้อจริง: เริ่มจากพอร์ทัล/คิว Ranked-Casual แยกกัน, reserved server, ยกเลิก/failed-transfer recovery. PvP ยังปิดและ Arena.PlaceId=0 จนสนามอยู่ Universe เดียวกันและ match server พร้อม. รายละเอียดสถานะ/ข้อจำกัดใน [systems §Arena](systems.md#arena).
-ค้าง: ไลก์/กระดานฐานยอดนิยม. ตกแต่งฐาน/ของเทศกาล/กับดัก/สัตว์เฝ้า/NPC บท 3–8 ทำแล้ว ยังไม่ Publish.
+ไลก์ฐาน/กระดาน Popular Bases, ตกแต่งฐาน/ของเทศกาล/กับดัก/สัตว์เฝ้า/NPC บท 3–8 ทำแล้ว ยังไม่ Publish.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 
 Player-facing UI/signs/dialogue/notifications are **English + Thai** (Locale). Phase 10 direction: simulator-style brown wood windows, large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).

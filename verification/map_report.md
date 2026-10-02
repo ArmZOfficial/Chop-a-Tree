@@ -43,3 +43,7 @@ Applied after round 2: mountains taller (front ×8–12, back ×1.6 → tops up 
 Then: Tall/Wide canopies stretch one axis only (Tall height ×1.35, Wide width ×1.3) so no tree reads as a mushroom; white top caps removed from SakuraBlush/CrystalPrism; all 1,470 trees rebuilt in place (`zone1_player_after_fixes.jpg`).
 
 Still open (design/balance, ArmZ to decide): mountain stud scale (Roblox studs do not scale with part size), ground props, ring-1 tree height vs avatar, hub layout/altar/props, lighting.
+
+## Dressing pass — 2026-10-03 (Nature Asset Pack + VFX Pack)
+
+`MapBuilder.BuildDressing()` adds ground props (rocks, bushes, grass, dirt, flowers), hub trees, boss-arena floor rings + rot thorns, shrine halos, warp-stone coils and one themed mesh per zone. Not scored by a fresh verifier yet. Closes "ground props" and "boss arena has no focal landmark" from rounds 1–2; hub layout, lighting, mountain stud scale and ring-1 tree height stay open.

@@ -27,6 +27,17 @@ function Ambience.Start()
 	local anchor=Instance.new("Part");anchor.Name="ZoneAmbience";anchor.Anchored=true;anchor.CanCollide=false;anchor.CanQuery=false;anchor.CanTouch=false
 	anchor.Transparency=1;anchor.Size=Vector3.new(60,1,60);anchor.Parent=workspace
 	local emitter=Instance.new("ParticleEmitter");emitter.Enabled=false;emitter.EmissionDirection=Enum.NormalId.Bottom;emitter.SpreadAngle=Vector2.new(30,30);emitter.Parent=anchor
+	-- MapBuilder dressing meshes (tag MapFX): spin about their own Y (Spin rad/s) and bob (Bob studs). Local only.
+	local CollectionService=game:GetService("CollectionService")
+	local fx={}
+	local function track(part) fx[part]={part.CFrame,part:GetAttribute("Spin") or 0,part:GetAttribute("Bob") or 0,math.random()*6} end
+	for _,part in CollectionService:GetTagged("MapFX") do track(part) end
+	CollectionService:GetInstanceAddedSignal("MapFX"):Connect(track)
+	CollectionService:GetInstanceRemovedSignal("MapFX"):Connect(function(part) fx[part]=nil end)
+	game:GetService("RunService").Heartbeat:Connect(function()
+		local t=os.clock()
+		for part,f in fx do part.CFrame=f[1]*CFrame.new(0,math.sin(t*1.5+f[4])*f[3],0)*CFrame.Angles(0,t*f[2]+f[4],0) end
+	end)
 	local current
 	task.spawn(function() while true do
 		local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")

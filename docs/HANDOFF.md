@@ -1,8 +1,16 @@
 # Chop a Tree — HANDOFF
 
-อัปเดต 2026-10-03 (ไทย). ล่าสุด: regression ครบทุกชุดบนเกาะวงกลม + Sword Pack, ต้นไม้ทรง Kako9 + ภูเขาล้อมแมพ, แก้ UI modal (blur/HUD/ร้าน). ยังไม่ Publish. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
+อัปเดต 2026-10-03 (ไทย). ล่าสุด: ตกแต่งแมพด้วย Nature Asset Pack + VFX Pack (`BuildDressing`), ไลก์ฐาน + กระดาน Popular Bases, regression ครบทุกชุดบนเกาะวงกลม + Sword Pack, แก้ UI modal. ยังไม่ Publish. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
 
 ## สถานะล่าสุด
+
+## ตกแต่งแมพด้วย Creator Store 2 แพ็ก + ไลก์ฐาน (2026-10-03, ยังไม่ Publish)
+
+- **Asset ที่ ArmZ ส่งมา:** Nature Asset Pack Studs Texture Style `116403161689840` (khalil2insta) และ VFX Pack `7564537285` (synmade) — ฟรีทั้งคู่, ตรวจใน staging แล้วไม่มีสคริปต์ (แพ็ก Nature มีแค่ README คอมเมนต์). แม่แบบที่ใช้: `ServerStorage.MapAssets.Nature` (19 โมเดล) + `MapAssets.VFX` (9 mesh) สร้างด้วย [DressingPrototypes](../tools/map/DressingPrototypes.luau); ข้าม Union ทุกชิ้น (thread ของ MCP/command bar clone Union ไม่ได้ → Log, ดอกไม้ 3 สี, ชิ้นหนึ่งของ Rock3 ไม่ได้ใช้). staging ลบแล้ว.
+- **`MapBuilder.BuildDressing()`** (อยู่ใน BuildAll ด้วย): rng/โฟลเดอร์ของตัวเอง (`Zone.Decor.Dressing`, `Village.Dressing`) จึงไม่ขยับต้นไม้/หีบ/รัง; รันซ้ำได้ผลเท่าเดิม (ตรวจแล้ว). ต่อโซน: หิน 10 (ย้อมสี cliff, ชนได้) + พุ่ม 14 + หญ้า 40 (ย้อมสีใบของโซน) + แผ่นดิน 8 + ดอกไม้ 8 (โซน 1, 4); hub: ต้นไม้ตกแต่ง 8 + พุ่ม/หิน/หญ้า/ดอกไม้. VFX: วงแหวน+ดาวเหนือศาลเจ้า, เกลียวรอบ Warp Stone 9 จุด, วงแหวนพื้น 2 วง + หนาม Rot 4 จุดทุกลานบอส, เกลียวทองรอบ Lumora, วังวนใน Realm Gate, และของประจำโซน (2 ลมหมุนใบไม้, 3 ลูกแก้ว, 4/6 สายลม, 5 สายฟ้า, 7 คริสตัล Glass, 8 ดาวลอย). ของที่ไม่ใช่หิน CanCollide/CanQuery ปิด.
+- Client: `ZoneAmbience` หมุน/ลอย mesh ที่ติด tag `MapFX` (attribute `Spin` rad/s, `Bob` studs) — local เท่านั้น, รองรับ streaming.
+- ตรวจ: tag ทุกตัวเท่าเดิม (Tree 1470, ChestSpot 80 ...), Parts 33,115 → 36,055, MapFX 98, ValidateRoutes Edit 263 จุด 0 ปัญหา, หินไม่ทับจุดเกม, ไม่มีสคริปต์ใน Map/MapAssets, Play: mesh หมุนจริง (6/6 ที่สุ่มดู), console สะอาด, Studio = repo checksum (MapBuilder, ZoneAmbience, PhoneLayouts). ภาพ Edit/Play: hub, ลานบอสโซน 1, โซน 5/6/7, Lumora. **ยังไม่ตรวจ:** FPS มือถือหลังเพิ่ม ~2,900 parts, เดินดูครบทุกโซนด้วยตา, ValidateRoutes โหมด Play.
+- **ไลก์ฐาน + กระดาน Popular Bases** (งานค้างข้อ 3 เดิม): `DecorService.Like` — ProximityPrompt "Like Base" (ปุ่ม L) บน slab, 1 ไลก์ต่อเจ้าของฐานต่อวัน UTC, ไลก์ฐานตัวเองไม่ได้, ต้องอยู่ในระยะ `Decor.LikeRange` 40, เซฟ `Decor.likes/liked` (Reconcile, ไม่มี DATA_VERSION ใหม่); metric `Likes` ใน Config.Leaderboards. เลย์เอาต์มือถือของแท็บกระดานเป็น 5 ช่อง. ตรวจ (mock profile ผ่าน RegressionRunner): Decor **23/23**, Phase8 Rewards **45/45**, restore ครบ; แท็บ 5 ช่องบน desktop 1238×793 ข้อความไม่ล้น, คลิก Popular Bases ไม่มี error; locale 1,749 keys ขาดไทย 0. **ยังไม่ตรวจ:** ไลก์ด้วยบัญชีที่สองจริง (เทสต์ใช้ผู้เยี่ยมชมปลอม), แท็บ 5 ช่องบนจอมือถือ, กระดาน Global บน DataStore จริง.
 
 ## แก้ UI หน้าต่าง/modal (2026-10-03, ArmZ แจ้งจากภาพ, ยังไม่ Publish)
 
@@ -137,7 +145,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 1. ซีซัน 2–4 พร้อมแล้ว; เพิ่มแถวซีซัน 5 ID ใหม่ **ก่อน 2027-02-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.
-3. งานเดิมค้าง: ไลก์/กระดานฐานยอดนิยม. ทำแล้วรอ Publish: ตกแต่งฐาน+ของเทศกาล 15/15, กับดัก/สัตว์เฝ้า 8/8, NPC บท 3–8 7/7, Garden UI. ยืนยันกับโค้ดก่อนแก้. (Garden UI refresh แก้แล้ว; NPC ผู้เฝ้าโซน 3–8 + บทพูด + คัตซีนศาลเจ้า ทำแล้ว scenario 7/7; ทั้งหมดยังไม่ Publish)
+3. ทำแล้วรอ Publish: ไลก์/กระดานฐานยอดนิยม 23/23, ตกแต่งฐาน+ของเทศกาล, กับดัก/สัตว์เฝ้า 8/8, NPC บท 3–8 7/7, Garden UI. ยืนยันกับโค้ดก่อนแก้. (Garden UI refresh แก้แล้ว; NPC ผู้เฝ้าโซน 3–8 + บทพูด + คัตซีนศาลเจ้า ทำแล้ว scenario 7/7; ทั้งหมดยังไม่ Publish)
 4. Multi-account ขโมย/บอสร่วม, multi-server Live Events/world boss, mobile/gamepad ยังไม่พิสูจน์ครบ. Balance/เสียง/VFX/UI polish Phase 10.
 5. Phase 9 ถัดไป: Place Arena ใน Universe เดียวกัน, match server/combat 4 โหมด, Ranked/monthly ranks/tokens; คอสเมติกเมื่อ ArmZ สั่ง; Publish เมื่อผู้ใช้สั่ง.
 
