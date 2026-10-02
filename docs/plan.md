@@ -31,6 +31,8 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
+- Map scripting (2026-10-02): repo implementation + synthetic checks in [map-systems](map-systems.md). Boss/shrine unlock, x100 progression, seven Garden bases, existing Teleport pass and reward caps retained. Approved Explorer completion reward = one Common Level1/source-zone1 chest per zone (max8); Golden/Timber Wood x2 within overall x4. Studio sync/isolated VM/UI/device/7-player/performance proof remains pending; no live v3 migration or Publish.
+
 - สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
 - Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).
 

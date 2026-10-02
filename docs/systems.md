@@ -5,6 +5,8 @@
 
 ## Map
 
+- Map scripting repo work: [implementation/validation](map-systems.md). ZoneService/GateService/TravelService/DayCycle/WorldEvent/Explorer reuse the existing footprint, progression, pooling, Weather, Garden and reward owners. Data v3 is additive and tested synthetically only; Studio integration/performance/device proof pending. Do not start normal Main with v3 to validate migration on a real profile.
+
 - PlaceId 93479990217075; GameId 10768831527. **เกาะวงกลม 8 วง (2026-10-02)**: ศูนย์ (0,0), ใต้ = +Z; วง `inner/outer/y` อยู่ใน `Config.Zones` (1 Meadow 740–900 y4 → 7 Crystal 200–290 y64, 8 Lumora ที่ราบ r200 y78). Hub Rootfall = `Zones.Hub` (0,4,1010) r190 นอกโซน. ทั้ง 8 built=true.
 - ตำแหน่งโซนอ่านผ่าน `Zones.At(pos)` ที่เดียว (RunService.ZoneAt + ZoneAmbience); ห้ามคำนวณ footprint เอง. Merchant.Position อยู่ใน hub (36,0,1072).
 - MapBuilder (`tools/map/MapBuilder.luau`, Studio `ServerStorage.MapTools`) + `TreeKit.luau` (24 แบบ ≤7 parts + rot veins 3 ที่ tier 6; ผสม 55/30/15). Trunk = PrimaryPart/collider ที่มองเห็น. ทุกวงเข้าทางแกนใต้: บันไดขั้นละ ≤1 stud + torii ZoneGate (RotBarrier) + RotHedge สูง 8 บนขอบวงบน (ช่องเปิด ±19 พอดีเสา); หน้าผา 8–14 + hedge = กระโดดข้ามไม่ได้. Hub มีกำแพง 10 (ช่อง ForestGate เหนือ, ท่าเรือใต้), ชายฝั่ง CoastRock. MapAssets (Creator Store) ไม่ใช้แล้ว.

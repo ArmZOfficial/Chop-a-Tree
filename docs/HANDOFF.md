@@ -4,6 +4,10 @@
 
 ## สถานะล่าสุด
 
+## Map scripting system — repo implementation 2026-10-02
+
+เพิ่ม Zone/Gate rescue/DayCycle/Map+Compass/Travel+Home+Dock/WorldEvent/Explorer และ Admin QA ใน repo; ยังไม่ซิงก์ Studio เพราะอีกงานใช้ Play (รอผู้ใช้เลือกลำดับ Studio). **148 checks จำลองผ่าน**, compile/balance ผ่าน; ยังไม่มี runtime validator/GUI/device/7-player/performance proof. ตารางสำรวจก่อนแก้, Zones/balance, รายการไฟล์/ข้อจำกัดอยู่ [map-systems](map-systems.md). ผู้ใช้อนุมัติ v3 VisitedZones/Explorer + Common Level1/source-zone1 1ใบต่อโซน, Golden/Timber Wood ×2 ภายใน cap×4. คง boss+shrine, Garden7ฐาน, สูตร/Passเดิม. **ไม่รัน migration กับข้อมูลจริง/ไม่ Publish**; normal Main เปิดเซฟจริง จึงต้องใช้ mock-profile VM ก่อน. งานหีบ/Locale ของอีกงานคงไว้.
+
 ## Master prompt run 2026-10-02
 
 **แทร็ก I เสร็จ (EN+TH, ยังไม่ Publish):** `Shared.Locale` + `Config.Strings` (1,042 ข้อความไทย) + ชื่อแคตตาล็อกจาก `.thai`; client แปลทุก TextLabel/Button/Prompt ใน PlayerGui+Workspace สด, Settings ภาษา AUTO/ENGLISH/ไทย (`Settings.Language`, Reconcile). `strings.csv` 1,638 keys, missing_th = 0 (`tools/locale_extract.py --check`), glossary [localization-glossary](localization-glossary.md). Studio Play: สลับไทย → Settings/HUD/Inventory/Chests/ป้ายโลก/NPC เป็นไทย, สระ-วรรณยุกต์ไม่ขาด, เหลือ EN เฉพาะ ADMIN/OWNER (แอดมิน), สลับกลับ AUTO ได้ทันที, console ไม่มี error (คืนค่าเซฟเป็น Auto แล้ว). ข้อจำกัด: ข้อความที่ต่อกันแบบใหม่ต้องเพิ่ม template ใน CSV; ฟอนต์ไทยใช้ fallback ของ Roblox. **ผู้ใช้ต้องทำเอง:** Creator Hub → เกม → Localization → เปิด Automatic Translation (ภาษาไทย) + Automatic Text Capture — ใช้เวลาหลายวัน.
