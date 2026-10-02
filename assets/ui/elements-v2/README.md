@@ -1,6 +1,6 @@
 # Chop a Tree — concept-matched elements v2
 
-65 reusable image elements in 10 transparent PNGs, redrawn with built-in image_gen from the five generated screen concepts in elements-v1. Text/numbers/prices remain live Roblox GUI objects. This pack is prepared artwork, not an integrated or published UI and not a pixel-identical extraction of the concepts.
+65 reusable image elements in 10 transparent PNGs, redrawn with built-in image_gen from the five generated screen concepts in elements-v1. Text/numbers/prices remain live Roblox GUI objects. Imported into main Studio and assembled by Shared.UIArt/UIKit plus five primary controllers. This is an adaptation with live gameplay data, not a pixel-identical extraction or a published release.
 
 | File | Elements | Use |
 |---|---:|---|
@@ -19,7 +19,7 @@ Full sprite names/ID bindings, source dimensions and padded crop coordinates: sp
 
 ## Assemble
 
-1. Upload the 10 PNGs as image assets; record each actual image ID and uploaded texture dimensions. Moderation and runtime loading still need checking.
+1. Uploaded IDs and actual EditableImage texture sizes are recorded in sprites.json and runtime Shared.UIArt. Square images are 1024²; window 1023×640, detail 614×1023, incubation 1023×682.
 2. ElementAtlas.luau creates independent ImageLabels/ImageButtons using ImageRect; it scales source crops to uploaded dimensions. Keep Fit and matching aspect ratios. Painting arbitrary proportions with Slice needs a separately verified setup.
 3. Build window → transparent content container → tabs/detail/cards → actual item artwork → live English labels → actions/status/fill. Manifest safeAreas are conservative sprite-local heading/content rectangles, measured before display scaling.
 4. Reuse existing nav/resource art from elements-v1 and woodland-icons-v2; preserve every existing callback, price lookup, owner/capacity check and confirmation.
@@ -30,4 +30,4 @@ The six pet and nine weapon illustrations are a first catalog set, not all speci
 
 ## Verification / next work
 
-Checked: 10 RGBA images with transparent alpha, 65 crop bounds and rectangle isolation, manifest IDs against current catalogs, helper Luau compilation. New art still needs import, actual Play composition, font/layout matching and phone/gamepad checks. Full-screen references/UX matrix remain in ../elements-v1/UX.md. No gameplay source changed in this pack.
+Checked: 10 RGBA images/65 isolated crop bounds, imported texture dimensions and runtime mapping. Desktop Play: HUD, Inventory, Garden selection/Seeds, Pets tabs, Shop Passes/Products and Rewards Daily/Codes/red X clicked; Incubator illustrations verified after layer fix. Final Garden row-height/encoding and Rewards shade fixes compiled/synced; final screenshots interrupted by concurrent Studio map edits. Luau120 compile (0 errors), 8/8 UI sources match Studio. Mobile/gamepad and all transaction flows remain unverified. Concurrent Sword Pack catalog drops legacy weapon IDs: saved old items need a separate migration; do not restore the old catalog. References/UX matrix: ../elements-v1/UX.md. Server gameplay rules unchanged.

@@ -11,10 +11,10 @@ function Shop.Start()
 	local player=Players.LocalPlayer
 	local flags=game.ReplicatedStorage.FeatureFlags
 	local gui=UI.New("ScreenGui",{Name="ShopHUD",ResetOnSpawn=false,DisplayOrder=12,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(700,520),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
 	UI.Label("Shop",30,{Parent=panel})
-	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,30),Size=UDim2.new(1,0,0,24),TextColor3=UI.Colors.Accent,Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Grid(2,186,12)})
+	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(72,40),Size=UDim2.new(1,0,0,24),TextColor3=UI.Colors.Accent,Parent=panel})
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Grid(3,300,14)})
 	local tab,prices,icons,render="Passes",{},{},nil
 	local function price(id,kind)
 		if prices[id]==nil then prices[id]=false
@@ -35,12 +35,14 @@ function Shop.Start()
         local symbols={VIP="trophy",Wood2x="leaf",Coins2x="gift",Lucky="season",PetSlots="egg",HatchSpeed="egg",GardenPlots="leaf",AutoSell="shop",Teleport="arena",OpenTen="gift"}
         local symbol=symbols[key] or (key:find("gems") and "season") or (key:find("Hatch") and "egg") or (key:find("Grow") and "leaf") or "gift"
         local card=UI.New("Frame",{Name=name,BackgroundColor3=UI.Colors.Card,Parent=list},{UI.Corner(12),UI.Stroke(3,UI.Colors.Outline),UI.Padding(10)})
-        UI.New("UIGradient",{Rotation=90,Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(188,161,135)),Parent=card})
-        local art=UI.Icon(card,symbol,{Position=UDim2.fromOffset(6,27),Size=UDim2.fromOffset(82,82)})
+        UI.Skin(card,"cards","product")
+        local art=UI.Icon(card,symbol,{Position=UDim2.new(.5,-80,0,40),Size=UDim2.fromOffset(160,150)})
+        local sprite=key:lower():find("gem") and "gemsMedium" or key=="Wood2x" and "woodBoost" or key=="Lucky" and "luckBoost" or nil
+        if sprite then if art then art:Destroy() end;art=UI.Art(card,"rewards",sprite,{Position=UDim2.new(.5,-80,0,40),Size=UDim2.fromOffset(160,150)}) end
         local product=C.PassByKey[key] or C.ProductByKey[key];local imageId=product and icons[product.id]
         if art and imageId and imageId>0 then art.Image="rbxassetid://"..imageId;art.ImageRectOffset=Vector2.zero;art.ImageRectSize=Vector2.zero end
-        UI.Label((C.PassByKey[key] or C.ProductByKey[key] or {}).name or heading,21,{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,30),Parent=card})
-        UI.Label(description~="" and description or "Repeatable purchase",14,{Position=UDim2.fromOffset(98,38),Size=UDim2.new(1,-102,0,66),Parent=card})
+        UI.Label((C.PassByKey[key] or C.ProductByKey[key] or {}).name or heading,21,{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,36),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+        UI.Label(description~="" and description or "Repeatable purchase",14,{Position=UDim2.fromOffset(8,193),Size=UDim2.new(1,-16,0,45),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
         local purchase=UI.Button({text=heading:match("R%$.*$") or (heading:find("Owned") and "Owned") or (heading:find("Warp") and "Open Warp") or "View",textSize=24,color=color==UI.Colors.Slate and color or UI.Colors.Green,size=UDim2.new(1,0,0,46),onClick=callback});purchase.Name="Purchase";purchase.Position=UDim2.new(0,0,1,-48);purchase.Parent=card
     end
 	render=function()
@@ -67,7 +69,7 @@ function Shop.Start()
 	local toggle=UI.Button({text="Robux Shop",color=UI.Colors.Orange,size=UDim2.fromOffset(130,48),onClick=function()
 		panel.Visible=not panel.Visible;message.Text="";render()
 	end});toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(200,365);toggle.Parent=gui
-	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(700,size.X-28),math.min(520,size.Y-60)) end
+	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-60)) end
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize);resize()
 	local function flag() gui.Enabled=flags:GetAttribute("Shop")==true end
 	flags:GetAttributeChangedSignal("Shop"):Connect(flag);flag()

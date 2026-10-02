@@ -7,13 +7,23 @@ local Garden={}
 function Garden.Start()
 	local player=Players.LocalPlayer
 	local gui=UI.New("ScreenGui",{Name="GardenHUD",ResetOnSpawn=false,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(780,570),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
 	UI.Label("My Garden",22,{Parent=panel})
-	local message=UI.Label("Select a seed, then a plot to plant it",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
+	local message=UI.Label("Select a seed, then a plot to plant it",14,{Name="Message",Position=UDim2.fromOffset(310,8),Size=UDim2.new(1,-370,0,28),Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-270),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
-	local detail=UI.Label("",14,{Name="Detail",Position=UDim2.new(0,0,1,-149),Size=UDim2.new(1,0,0,40),Parent=panel})
+	local detail=UI.Label("",16,{Name="Detail",Position=UDim2.new(.69,10,0,300),Size=UDim2.new(.31,-22,0,170),Parent=panel})
+	local selection=UI.New("Frame",{Name="Selection",BackgroundTransparency=1,Position=UDim2.new(.69,0,0,112),Size=UDim2.new(.31,0,1,-270),Parent=panel})
+	UI.Skin(selection,"detail","detailPanel")
+	local selectionArt
 	local state,seedUid,cutPending;local slot=1;local tab="Garden";local busy=false
 	local render,request
+	local gridMode
+	local function layoutRows(mode)
+	 if gridMode==mode then return end;gridMode=mode
+	 local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
+	 if mode then UI.Grid(3,168,12).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+	end
+
 	local function button(name,text,color,parent,pos,size,callback)
 		local b=UI.Button({text=text,color=color,size=size,onClick=callback});b.Name=name;b.Position=pos;b.Parent=parent;return b
 	end
@@ -37,11 +47,30 @@ function Garden.Start()
 		end
 		r.fn=callback;r.button.BackgroundColor3=color;r.holder.LayoutOrder=order
 		if r.label.Text~=text then r.label.Text=text end
-		return r.holder
+		r.holder:SetAttribute("ArtCard",gridMode)
+        if gridMode then
+         UI.Skin(r.button,"cards",color==UI.Colors.Teal and "selected" or "common")
+         r.label.Position=UDim2.new(0,10,1,-66);r.label.Size=UDim2.new(1,-20,0,58);r.label.TextSize=14
+         local index=tonumber(name:match("^Slot(%d+)$"));local plot=index and state.plots[tostring(index)]
+         local sprite=index and (plot and (plot.mature and "plotReady" or "plotGrowing") or "plotEmpty") or "seedPouch"
+         local art=r.button:FindFirstChild("Illustration")
+         if art and art:GetAttribute("Sprite")~=sprite then art:Destroy();art=nil end
+         if not art then art=UI.Art(r.button,"garden",sprite,{Position=UDim2.fromOffset(12,12),Size=UDim2.new(1,-24,1,-85)});art:SetAttribute("Sprite",sprite) end
+        else
+         local art=r.button:FindFirstChild("Illustration");if art then art:Destroy() end
+         UI.SetButtonColor(r.holder,color);r.label.Position=UDim2.new();r.label.Size=UDim2.fromScale(1,1)
+        end
+        return r.holder
 	end
 	render=function()
 		if not panel.Visible or not state then return end
-		table.clear(used);order=0
+		local gardenTab=tab=="Garden" or tab=="Seeds"
+		selection.Visible=gardenTab;detail.Position=gardenTab and UDim2.new(.69,10,0,300) or UDim2.new(0,0,1,-149);detail.Size=gardenTab and UDim2.new(.31,-22,0,170) or UDim2.new(1,0,0,40)
+		list.Size=gardenTab and UDim2.new(.67,0,1,-270) or UDim2.new(1,0,1,-270)
+		if selectionArt then selectionArt:Destroy() end
+		local selectedPlot=state.plots[tostring(slot)]
+		selectionArt=UI.Art(selection,"garden",selectedPlot and (selectedPlot.mature and "plotReady" or "plotGrowing") or "plotEmpty",{Position=UDim2.fromOffset(20,15),Size=UDim2.new(1,-40,0,160),ZIndex=3})
+		layoutRows(tab=="Garden" or tab=="Seeds");table.clear(used);order=0
 		if seedUid and not state.seeds[seedUid] then seedUid=nil end
 		local seed=seedUid and state.seeds[seedUid];local chosen=seed and Seeds.ById[seed.id].name or "None selected (Seeds tab)"
 		local count=0;for _,f in state.fruits do count+=f.count end;local value=Math.SellQuote(state.fruits,state.sold)
@@ -89,7 +118,7 @@ function Garden.Start()
 	button("Upgrade","Add Planting Slots",UI.Colors.Purple,panel,UDim2.new(1/3,0,1,-48),UDim2.new(1/3,-8,0,42),function() request("Upgrade") end)
 	button("Close","Close",UI.Colors.Slate,panel,UDim2.new(2/3,0,1,-48),UDim2.new(1/3,-8,0,42),function() panel.Visible=false end)
 	local function resize()
-		local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(780,size.X-28),math.min(570,size.Y-56))
+		local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-56))
 	end
 	local function show(target)
 		local inv=player.PlayerGui:FindFirstChild("InventoryHUD");if inv then inv.Panel.Visible=false;inv.Result.Visible=false end

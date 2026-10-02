@@ -5,11 +5,11 @@ local Controller={}
 function Controller.Start()
 	local player=Players.LocalPlayer;local dailyState,boardState;local tab="Daily";local scope="Server";local metric="TreesCut";local busy=false
 	local gui=UI.New("ScreenGui",{Name="RewardsHUD",ResetOnSpawn=false,DisplayOrder=15,Parent=player:WaitForChild("PlayerGui")})
-	local shade=UI.New("TextButton",{Name="Shade",Text="",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=.45,Visible=false,Parent=gui})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(740,560),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(16)})
+	local shade=UI.New("TextButton",{Name="Shade",Text="",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(),BackgroundTransparency=.45,Visible=false,ZIndex=0,Parent=gui})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(16)})
 	local scale=UI.New("UIScale",{Parent=panel})
 	UI.Label("Rewards & Leaderboards",24,{Parent=panel})
-	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,480),Size=UDim2.new(1,-130,0,44),TextColor3=UI.Colors.Accent,Parent=panel})
+	local message=UI.Label("",14,{Name="Message",Position=UDim2.new(0,0,1,-52),Size=UDim2.new(1,-130,0,44),TextColor3=UI.Colors.Accent,Parent=panel})
 	local render
 	local function button(name,text,parent,pos,size,fn,color)
 		local b=UI.Button({text=text,textSize=16,size=size,onClick=fn,color=color or UI.Colors.Green});b.Name=name;b.Position=pos;b.Parent=parent;return b
@@ -23,12 +23,17 @@ function Controller.Start()
 			task.wait(remote=="CodeAction" and 1 or .4);busy=false;render()
 		end)
 	end
-	local daily=UI.New("Frame",{Name="Daily",Position=UDim2.fromOffset(0,100),Size=UDim2.new(1,0,0,365),BackgroundTransparency=1,Parent=panel})
+	local daily=UI.New("Frame",{Name="Daily",Position=UDim2.fromOffset(0,100),Size=UDim2.new(1,0,0,470),BackgroundTransparency=1,Parent=panel})
 	local summary=UI.Label("",15,{Name="Summary",Size=UDim2.new(1,0,0,40),Parent=daily})
-	local list=UI.New("ScrollingFrame",{Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,-180,1,-44),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=daily},{UI.List(Enum.FillDirection.Vertical,6)})
-	local rows={};for i,r in Daily.Rewards do rows[i]=UI.Label("",17,{Name="Day"..i,Size=UDim2.new(1,-12,0,44),BackgroundColor3=UI.Colors.Card,BackgroundTransparency=0,Parent=list}) end
-	button("Claim","Claim Today's Reward",daily,UDim2.new(1,-168,0,70),UDim2.fromOffset(168,60),function() request("DailyAction","Claim") end)
-	UI.Label("Resets at 00:00 UTC\n\nMissing a day resets your streak\nThe cycle repeats after day 7",14,{Position=UDim2.new(1,-168,0,145),Size=UDim2.fromOffset(168,150),Parent=daily})
+	local list=UI.New("ScrollingFrame",{Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,1,-106),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=daily},{UI.Grid(4,174,12)})
+	local rows,cards={},{};for i,r in Daily.Rewards do
+        local card=UI.New("Frame",{Name="Day"..i,BackgroundTransparency=1,LayoutOrder=i,Parent=list});cards[i]=card;UI.Skin(card,"cards","product")
+        UI.Label("DAY "..i,20,{Position=UDim2.fromOffset(8,6),Size=UDim2.new(1,-16,0,25),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+        UI.Art(card,"rewards",r.chest and (r.chest.rarity=="Epic" and "epicChest" or "rareChest") or r.boost and "woodBoost" or "gemsSmall",{Position=UDim2.fromOffset(24,33),Size=UDim2.new(1,-48,0,85)})
+        rows[i]=UI.Label(r.label,15,{Position=UDim2.fromOffset(10,122),Size=UDim2.new(1,-20,0,44),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+    end
+	button("Claim","Claim Today's Reward",daily,UDim2.new(1,-280,1,-56),UDim2.fromOffset(280,54),function() request("DailyAction","Claim") end)
+	UI.Label("Resets at 00:00 UTC\n\nMissing a day resets your streak\nThe cycle repeats after day 7",14,{Position=UDim2.new(0,0,1,-54),Size=UDim2.new(1,-300,0,54),Parent=daily})
 	local codes=UI.New("Frame",{Name="Codes",Position=UDim2.fromOffset(0,110),Size=UDim2.new(1,0,0,345),BackgroundTransparency=1,Parent=panel})
 	UI.Label("Enter a code for Gems, chests or boosts\nEach code can be redeemed once and has an expiry date",18,{Size=UDim2.new(1,0,0,75),Parent=codes})
 	local input=UI.New("TextBox",{Name="Input",Position=UDim2.fromOffset(0,105),Size=UDim2.new(1,-180,0,56),Text="",PlaceholderText="Enter Code",ClearTextOnFocus=false,TextSize=22,Font=Enum.Font.GothamBold,TextColor3=UI.Colors.Text,BackgroundColor3=UI.Colors.Card,Parent=codes},{UI.Corner(10),UI.Padding(10)})
@@ -57,7 +62,7 @@ function Controller.Start()
 		for key,b in tabButtons do UI.SetButtonColor(b,tab==key and UI.Colors.Purple or UI.Colors.Slate) end
 		if dailyState then
 			summary.Text="Login streak "..dailyState.streak.." days • Today: day "..dailyState.day.."/7 • "..(dailyState.claimed and "Claimed" or "Ready to Claim")
-			for i,r in Daily.Rewards do rows[i].Text="  days "..i.." • "..r.label..(i==dailyState.day and (dailyState.claimed and " ✓" or " ← Today") or "") end
+			for i,r in Daily.Rewards do rows[i].Text=r.label..(i==dailyState.day and (dailyState.claimed and " • Claimed" or " • TODAY") or "");UI.Skin(cards[i],"cards",i==dailyState.day and "today" or "product") end
 		end
 		if boardState then
 			mode.Text="Season "..boardState.season.." • "..(scope=="Server" and "This server • Actual values" or "Global ≈ • "..boardState.status)..(boardState.studio and " • Studio uses a separate store" or "")

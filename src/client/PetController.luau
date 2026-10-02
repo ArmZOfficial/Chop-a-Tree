@@ -24,14 +24,21 @@ end
 function Controller.Start()
 	local player=Players.LocalPlayer
 	local gui=UI.New("ScreenGui",{Name="PetHUD",ResetOnSpawn=false,DisplayOrder=9,Parent=player:WaitForChild("PlayerGui")})
-	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(780,570),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
+	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
 	UI.Label("Eggs & Pets",22,{Parent=panel})
-	local message=UI.Label("Hatch eggs, raise pets and protect your base",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
+	local message=UI.Label("Hatch eggs, raise pets and protect your base",14,{Name="Message",Position=UDim2.fromOffset(72,40),Size=UDim2.new(1,-72,0,20),Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-270),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
 	local detail=UI.Label("",14,{Name="Detail",Position=UDim2.new(0,0,1,-149),Size=UDim2.new(1,0,0,40),Parent=panel})
 	local bar=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.new(0,0,1,-98),Size=UDim2.new(1,0,0,96),Parent=panel})
 	local state;local tab="Incubator";local slot=1;local eggUid;local selected={};local releasePending;local busy=false
 	local render
+	local gridMode,layoutMode
+	local function layoutRows(mode)
+	 if layoutMode==mode then return end;layoutMode=mode;gridMode=mode=="Incubator" or mode=="Eggs" or mode=="Pets"
+	 local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
+	 if gridMode then UI.Grid(mode=="Incubator" and 3 or 4,mode=="Incubator" and 310 or 205,12).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+	end
+
 	local function call(remote,action,arg)
 		if busy then return end;busy=true
 		task.spawn(function()
@@ -60,7 +67,28 @@ function Controller.Start()
 	end
 	local function sweep(parent) for _,v in parent:GetChildren() do if v:IsA("GuiObject") and not keep[parent][v.Name] then v:Destroy() end end end
 	local function row(name,text,color,callback)
-		order+=1;local b=reuse(list,name,text,color,UDim2.new(),UDim2.new(1,-7,0,58),callback);b.LayoutOrder=order;return b
+		order+=1;local b=reuse(list,name,text,color,UDim2.new(),UDim2.new(1,-7,0,58),callback);b.LayoutOrder=order;b:SetAttribute("ArtCard",gridMode)
+        local label=b.Button:FindFirstChildWhichIsA("TextLabel",true)
+        if gridMode then
+         UI.Skin(b.Button,"cards",color==UI.Colors.Teal and "selected" or "common");label.Position=UDim2.new(0,10,1,-72);label.Size=UDim2.new(1,-20,0,65);label.TextSize=14
+         local index=tonumber(name:match("^Slot(%d+)$"));local egg=index and state.incubator[tostring(index)]
+         local p=state.pets[name:gsub("^Pet_","")]
+         local atlas=p and "pets" or "incubation"
+         local sprite=p and p.id or (index and (egg and (egg.done and "cradleReady" or "cradleGrowing") or "cradleEmpty") or "eggGrowing")
+         local art=b.Button:FindFirstChild("Illustration")
+         if art and art:GetAttribute("Sprite")~=sprite then art:Destroy();art=nil end
+         if not art then art=UI.Art(b.Button,atlas,sprite,{Position=UDim2.fromOffset(14,8),Size=UDim2.new(1,-28,1,-82)});if art then art:SetAttribute("Sprite",sprite) end end
+         if p and not art and not b.Button:FindFirstChild("PetPreview") then
+          local view=UI.New("ViewportFrame",{Name="PetPreview",BackgroundTransparency=1,Position=UDim2.fromOffset(14,8),Size=UDim2.new(1,-28,1,-82),Ambient=Color3.new(1,1,1),Parent=b.Button})
+          local world=Instance.new("WorldModel");world.Parent=view
+          local model=Visual.Pet(p.id,1);model.Parent=world
+          local cf,size=model:GetBoundingBox();local camera=Instance.new("Camera");camera.FieldOfView=35;camera.CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,3)*1.45),cf.Position);camera.Parent=view;view.CurrentCamera=camera
+         end
+        else
+         local art=b.Button:FindFirstChild("Illustration");if art then art:Destroy() end
+         label.Position=UDim2.new();label.Size=UDim2.fromScale(1,1)
+        end
+        return b
 	end
 	local function actions(defs)
 		local top=math.min(4,#defs)
@@ -74,7 +102,7 @@ function Controller.Start()
 	local draw
 	render=function()
 		if not panel.Visible or not state then return end
-		keep[list],keep[bar],order={},{},0
+		layoutRows(tab);keep[list],keep[bar],order={},{},0
 		draw();sweep(list);sweep(bar)
 	end
 	draw=function()
@@ -164,7 +192,7 @@ function Controller.Start()
 	for i,t in TABS do local target=t[1]
 		button("Tab"..target,t[2],UI.Colors.Pink,panel,UDim2.new((i-1)/#TABS,0,0,64),UDim2.new(1/#TABS,-8,0,42),function() tab=target;releasePending=nil;render() end)
 	end
-	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(780,size.X-28),math.min(570,size.Y-56)) end
+	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(960,size.X-28),math.min(650,size.Y-56)) end
 	local function show(target)
 		for _,name in {"InventoryHUD","GardenHUD"} do local other=player.PlayerGui:FindFirstChild(name);if other and other:FindFirstChild("Panel") then other.Panel.Visible=false end end
 		if target then tab=target end;panel.Visible=true;releasePending=nil;resize();render();pet("Sync")

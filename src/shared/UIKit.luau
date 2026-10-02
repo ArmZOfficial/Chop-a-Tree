@@ -5,6 +5,7 @@
 local TweenService = game:GetService("TweenService")
 
 local UIKit = {}
+local Art = require(script.Parent.UIArt)
 
 UIKit.Colors = table.freeze({
 	Outline = Color3.fromRGB(49, 30, 20),
@@ -38,6 +39,7 @@ type Props = { [string]: any }
 
 function UIKit.New(className: string, props: Props?, children: { Instance }?): any
 	local inst = Instance.new(className)
+	if inst:IsA("GuiObject") then inst.ZIndex=3 end
 	if props then
 		for k, v in props do
 			if k ~= "Parent" then
@@ -119,6 +121,37 @@ function UIKit.Label(text: string, size: number, props: Props?): TextLabel
 	return label
 end
 
+
+function UIKit.Art(parent: Instance, atlas: string, sprite: string, props: Props?): ImageLabel?
+ local data=Art.Data[atlas];if not data or not data.sprites[sprite] then return nil end
+ local asset=Art.Assets[atlas]
+ local gui=Art.Create("ImageLabel",atlas,sprite,asset.id,asset.size,parent)
+ gui.Name="Illustration";gui.Active=false;gui.ZIndex=3
+ if props then for k,v in props do (gui :: any)[k]=v end end
+ return gui
+end
+function UIKit.Skin(parent: GuiObject, atlas: string, sprite: string): ImageLabel?
+ local old=parent:FindFirstChild("SurfaceArt")
+ if old and old:GetAttribute("Sprite")==atlas.."/"..sprite then return old :: ImageLabel end
+ if old then old:Destroy() end
+ local image=UIKit.Art(parent,atlas,sprite,{Name="SurfaceArt",ZIndex=2,Size=UDim2.fromScale(1,1),ScaleType=Enum.ScaleType.Stretch})
+ if image then
+  image:SetAttribute("Sprite",atlas.."/"..sprite)
+  parent.BackgroundTransparency=1
+  local stroke=parent:FindFirstChildOfClass("UIStroke");if stroke then stroke.Enabled=false end
+  local gradient=parent:FindFirstChildOfClass("UIGradient");if gradient then gradient.Enabled=false end
+  local pad=parent:FindFirstChildOfClass("UIPadding")
+  if pad then image.Position=UDim2.fromOffset(-pad.PaddingLeft.Offset,-pad.PaddingTop.Offset);image.Size=UDim2.new(1,pad.PaddingLeft.Offset+pad.PaddingRight.Offset,1,pad.PaddingTop.Offset+pad.PaddingBottom.Offset) end
+ end
+ return image
+end
+local function buttonSprite(color: Color3): string
+ if color==C.Disabled or color==C.Slate then return "buttonDisabled" end
+ if color==C.Red then return "buttonRed" end
+ if color==C.Orange then return "buttonGold" end
+ return "buttonGreen"
+end
+
 export type ButtonOptions = {
 	text: string,
 	sub: string?,
@@ -195,6 +228,7 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 			Parent = button,
 		})
 	end
+	UIKit.Skin(button,"controls",buttonSprite(color));base.Visible=false
 	local pressed = false
 	button.MouseButton1Down:Connect(function()
 		pressed = true
@@ -224,6 +258,7 @@ function UIKit.SetButtonColor(holder: Frame, color: Color3, textColor: Color3?)
 		return
 	end
 	button.BackgroundColor3 = color
+	if not holder:GetAttribute("ArtCard") then UIKit.Skin(button,"controls",buttonSprite(color)) end
 	for _, d in button:GetDescendants() do
 		if d:IsA("TextLabel") and textColor then
 			d.TextColor3 = textColor
@@ -311,20 +346,16 @@ function UIKit.Icon(parent: Instance, id: string, props: Props?): ImageLabel?
  return New("ImageLabel",p)
 end
 function UIKit.Window(panel: GuiObject, title: string?, symbol: string?)
- if panel:FindFirstChild("WindowRim") then return end
- panel.BackgroundColor3=C.Panel
- for _,child in panel:GetChildren() do if child:IsA("GuiObject") then child.ZIndex=math.max(2,child.ZIndex) end end
- New("Frame",{Name="WindowRim",BackgroundTransparency=1,Position=UDim2.fromOffset(5,5),Size=UDim2.new(1,-10,1,-10),ZIndex=1,Parent=panel},{UIKit.Corner(13),UIKit.Stroke(6,Color3.fromRGB(183,108,71))})
- for i=1,7 do
-  New("Frame",{Name="Grain",BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(222,151,105),BackgroundTransparency=.92,Position=UDim2.new(0,3,i/8,0),Size=UDim2.new(1,-6,0,2),Rotation=i%2==0 and 3 or -2,ZIndex=1,Parent=panel})
- end
+ if panel:FindFirstChild("SurfaceArt") then return end
+ local surface=UIKit.Skin(panel,"window","wideWindow");if surface then surface.ZIndex=1 end
  if not title then return end
  local original=panel:FindFirstChild("Title") or panel:FindFirstChildWhichIsA("TextLabel")
  if original then original.Visible=false end
- local heading=UIKit.Label(title,30,{Name="WindowHeading",Position=UDim2.fromOffset(58,-19),Size=UDim2.new(1,-125,0,44),TextColor3=Color3.fromRGB(255,217,111),ZIndex=5,Parent=panel});UIKit.TextStroke(3).Parent=heading
+ local heading=UIKit.Label(title,30,{Name="WindowHeading",Position=UDim2.fromOffset(70,0),Size=UDim2.new(1,-125,0,44),TextColor3=Color3.fromRGB(255,217,111),ZIndex=5,Parent=panel});UIKit.TextStroke(3).Parent=heading
  if original then original:GetPropertyChangedSignal("Text"):Connect(function() heading.Text=original.Text end) end
- UIKit.Icon(panel,symbol or "book",{Position=UDim2.fromOffset(-5,-29),Size=UDim2.fromOffset(60,60),ZIndex=5})
- local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(54,54),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.Position=UDim2.new(1,-42,0,-27);close.ZIndex=6;close.Parent=panel
+ UIKit.Icon(panel,symbol or "book",{Position=UDim2.fromOffset(4,-8),Size=UDim2.fromOffset(60,60),ZIndex=5})
+ local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(54,54),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.Position=UDim2.new(1,-42,0,-20);close.ZIndex=6;close.Parent=panel
+ UIKit.Skin(close.Button,"controls","close");close.Button:FindFirstChildWhichIsA("TextLabel",true).Visible=false
  for _,v in close:GetDescendants() do if v:IsA("GuiObject") then v.ZIndex=6 end end
 end
 

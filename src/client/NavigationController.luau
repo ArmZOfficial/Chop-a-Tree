@@ -5,11 +5,11 @@ local Atlas=require(S.Config.UIIcons)
 local Navigation={}
 local Lighting=game:GetService("Lighting")
 local specs={
-	{"InventoryHUD","Toggle","Inventory","bag",true,820,570},
-	{"PetHUD","Toggle","Pets","egg",true,780,570},
-	{"GardenHUD","Toggle","Garden","leaf",true,780,570},
-	{"ShopHUD","Toggle","Shop","shop",true,700,520},
-	{"RewardsHUD","Open","Rewards","gift",true,740,560},
+	{"InventoryHUD","Toggle","Inventory","bag",true,960,650},
+	{"PetHUD","Toggle","Pets","egg",true,960,650},
+	{"GardenHUD","Toggle","Garden","leaf",true,960,650},
+	{"ShopHUD","Toggle","Shop","shop",true,960,650},
+	{"RewardsHUD","Open","Rewards","gift",true,960,650},
 	{"StoryHUD","Toggle","Quests","book",false,780,570},
 	{"SeasonHUD","Toggle","Season","season",false,760,540},
 	{"RebirthHUD","Open","Rebirth","cycle",false,720,550},
@@ -41,8 +41,7 @@ function Navigation.Start()
 		b.BackgroundColor3=Color3.fromRGB(164,98,49)
         local border=b:FindFirstChildOfClass("UIStroke");if border then border.Thickness=4;border.Color=Color3.fromRGB(31,23,16) end
         local corner=b:FindFirstChildOfClass("UICorner");if corner then corner.CornerRadius=UDim.new(0,12) end
-        UI.New("Frame",{Name="WoodRim",BackgroundTransparency=1,Position=UDim2.fromOffset(4,4),Size=UDim2.new(1,-8,1,-8),Parent=b},{UI.Corner(9),UI.Stroke(3,Color3.fromRGB(241,185,94))})
-        for _,y in {27,54} do UI.New("Frame",{Name="WoodGrain",BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(92,48,26),BackgroundTransparency=.72,Position=UDim2.new(0,7,0,y),Size=UDim2.new(1,-14,0,1),Parent=b}) end
+        UI.Skin(b,"chrome","navNormal");holder:SetAttribute("ArtCard",true)
         local t=b:FindFirstChildWhichIsA("TextLabel",true);t.Text=label;t.TextSize=20;t.TextColor3=Color3.new(1,1,1);t.Position=UDim2.new(0,-5,1,-29);t.Size=UDim2.new(1,10,0,28);UI.TextStroke(3).Parent=t
 		icon(b,id);b.Activated:Connect(function() if holder~=more and holder~=mobile then drawer.Visible=false end end)
 	end

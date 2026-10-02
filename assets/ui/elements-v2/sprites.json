@@ -32,7 +32,12 @@
             600
           ]
         }
-      }
+      },
+      "assetId": 117170756072199,
+      "uploadedSize": [
+        1023,
+        640
+      ]
     },
     "detail": {
       "file": "detail.png",
@@ -57,7 +62,12 @@
             1220
           ]
         }
-      }
+      },
+      "assetId": 135266632085202,
+      "uploadedSize": [
+        614,
+        1023
+      ]
     },
     "chrome": {
       "file": "chrome.png",
@@ -120,7 +130,12 @@
           330,
           103
         ]
-      }
+      },
+      "assetId": 76699409542728,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "controls": {
       "file": "controls.png",
@@ -183,7 +198,12 @@
           415,
           138
         ]
-      }
+      },
+      "assetId": 125186117416683,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "cards": {
       "file": "cards.png",
@@ -246,7 +266,12 @@
           368,
           360
         ]
-      }
+      },
+      "assetId": 131858903995410,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "incubation": {
       "file": "incubation.png",
@@ -291,7 +316,12 @@
           451,
           216
         ]
-      }
+      },
+      "assetId": 133173540778410,
+      "uploadedSize": [
+        1023,
+        682
+      ]
     },
     "garden": {
       "file": "garden.png",
@@ -336,7 +366,12 @@
           323,
           360
         ]
-      }
+      },
+      "assetId": 127471765910787,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "rewards": {
       "file": "rewards.png",
@@ -399,7 +434,12 @@
           318,
           322
         ]
-      }
+      },
+      "assetId": 87815605432356,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "pets": {
       "file": "pets.png",
@@ -444,7 +484,12 @@
           395,
           421
         ]
-      }
+      },
+      "assetId": 90972992642739,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     },
     "weapons": {
       "file": "weapons-spaced.png",
@@ -507,7 +552,12 @@
           214,
           268
         ]
-      }
+      },
+      "assetId": 137231366907267,
+      "uploadedSize": [
+        1024,
+        1024
+      ]
     }
   }
 }
