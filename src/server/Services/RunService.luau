@@ -32,13 +32,7 @@ end
 
 function Run.ZoneAt(player)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	if not root then return nil end
-	for _, z in Zones.List do
-		local x,zpos = (z.col-1.5)*Zones.GridStep,(z.row-0.5)*Zones.GridStep
-		local depth = z.id==8 and z.halfSize or Zones.GroundHalfDepth
-		if math.abs(root.Position.X-x)<=z.halfSize and math.abs(root.Position.Z-zpos)<=depth and math.abs(root.Position.Y-z.y)<18 then return z.id end
-	end
-	return nil
+	return root and Zones.At(root.Position)
 end
 
 function Run.CanAccess(player,zone)

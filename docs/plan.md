@@ -5,20 +5,29 @@
 
 ## 0. เกมและขอบเขต
 
-Roblox **Chop a Tree** (ชื่อ place Chop a Trees), 7 คน/เซิร์ฟ, 8 โซนในทวีปแนวนอน → เกาะ Lumora. ทิศภาพใหม่ (ArmZ 2026-10-02): **retro classic Roblox** — บล็อกหนา Plastic + Studs/Inlet, สีสด BrickColor, แสงเรียบ; VFX บล็อก/neon เรียบง่าย; เอกลักษณ์/ไอเทมของเราเอง.
+Roblox **Chop a Tree** (ชื่อ place Chop a Trees), 7 คน/เซิร์ฟ, เกาะวงกลม 8 วงไต่ขึ้นสู่ที่ราบ Lumora กลางเกาะ. ทิศภาพใหม่ (ArmZ 2026-10-02): **retro classic Roblox** — บล็อกหนา Plastic + Studs/Inlet, สีสด BrickColor, แสงเรียบ; VFX บล็อก/neon เรียบง่าย; เอกลักษณ์/ไอเทมของเราเอง.
 Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → สำรวจ/ไข่/สัตว์ → สวน/ฐาน → บอส/ปลดโซน → Rebirth.
 เรื่อง The Withering: ป่าติดราเน่า; ฟื้นศาลเจ้าและเดินทางถึง Lumora. บท 3–8 มี NPC ผู้เฝ้าโซน/บทพูด/คัตซีนศาลเจ้าแล้ว (ยังไม่ Publish).
 
-## 3. แมพ
+## 3. แมพ (เกาะวงกลม — ทำแล้ว 2026-10-02)
 
-Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/shrine/boss/nests; ป่าและ HP ใช้ร่วมเซิร์ฟ. Rebirth ต่างกัน normalized damage.
-โซน 1–7 ต่อกันแนวนอน, โซน 8 เกาะลอย; **ไม่กลับไปภูเขาเกลียว**. ผัง/asset/tag constraints: design reference §3/§6 และ [map constraints](systems.md#map).
+ภาพอ้างอิง `assets/reference/map-concept.png`. สไตล์ retro classic (Plastic + Studs/Inlet, สีสด, แสงเรียบ).
 
-**Map rework (วางแผน ArmZ 2026-10-02, ยังไม่เริ่ม):**
-- กว้างและราบ: Village + โซน 1–7 อยู่ระดับพื้นเดียว (y≈4), ขยาย GridStep/halfSize เป็นที่ราบใหญ่; ถนนราบแทนทางลาด. โซน 8 ยังลอย, ปรับเกลียวให้เริ่มจากความสูงโซน 7 ใหม่.
-- กำแพงสูง (~60 studs) รอบทวีปและระหว่างโซน แทนรั้วราเน่าเตี้ย; ช่องเปิดตรงเสา ZoneGate เดิม.
-- TreeKit: ต้นไม้ procedural retro ≥24 แบบ ผสมต่อโซน (ธีมตัวเอง ~55% / โซนข้างเคียง ~30% / สุ่ม ~15%) + biome patches/ลานโล่ง; จำนวน/tier/ระยะห่าง/route clearance เท่าเดิม, seed คงที่, Tier 6 rot veins คงไว้. แทน block/asset trees ใน MapBuilder.
-- Zones.y/ขนาดเปลี่ยน → ตรวจทุกระบบที่อ่านตำแหน่งโซน (spawn/warp/boss/navigation/forest). Tag/attribute เดิมทั้งหมดต้องอยู่ครบ (ดู SKILL).
+| วง | โซน | รัศมี (studs) | พื้น y | ต้นไม้ TreeKit (ธีม) |
+|---|---|---|---|---|
+| 1 นอกสุด | Sunny Meadow | 740–900 | 4 | Oak / RoundTree / Pine |
+| 2 | Amber Woods | 650–740 | 12 | Maple / Birch / AutumnBall |
+| 3 | Glowcap Bog | 560–650 | 20 | Mushroom / TwinShroom / GlowBulb |
+| 4 | Sakura Highlands | 470–560 | 30 | Sakura / Weeping / Layered |
+| 5 | Thunder Bamboo | 380–470 | 40 | BambooClump / BambooTall / ThunderPalm |
+| 6 | Frostvale | 290–380 | 52 | SnowPine / IceSpire / SnowRound |
+| 7 | Crystal Ridge | 200–290 | 64 | CrystalTree / Prism / Amethyst |
+| 8 กลาง | Lumora Plateau (key SkyIsles) | 0–200 | 78 | GoldenTree / LightOrb / SpiritWillow + ต้น Lumora ทอง |
+
+- **Hub Rootfall ทิศใต้** (0,4,1010) r190: ท่าเรือใต้สุด, Chest Altar กลางลาน, ร้านขวาน (UpgradeShop) ซ้าย, ร้านไม้ (Sawmill) ขวา, Seed/Egg Conveyor/Bram/Warp/Leaderboards/Arena portal, บ้านผู้เล่น 7 หลัง (กระท่อมสีหลังคาต่างกันบนฐาน), Forest Gate ทิศเหนือเข้า Meadow; กำแพง hub กันเดินอ้อมประตู.
+- ทุกวงเข้าที่แกนใต้: บันไดหิน + torii ZoneGate (ปลดเมื่อชนะบอส) + ป้ายชื่อโซน; ขอบวงบนมี RotHedge; ลานบอส + ศาลเจ้า 75° ตะวันออกของทางเข้า; tier ต้นไม้สูงขึ้นตามระยะรอบวง (ฝั่งเหนือลึกสุด); หีบ 10 + รัง 2 ต่อโซน.
+- ต้นไม้ ~1 ต้น/1600 studs² (140–260 ต่อโซน รวม 1470). Lumora: ลานบอสกลาง + Realm Gate ฝั่งเหนือ.
+- โค้ด: `Config.Zones` (inner/outer/y + `Zones.At` + `Hub`), `tools/map/MapBuilder.luau`, `tools/map/TreeKit.luau`; constraints/ผลตรวจ: [systems §Map](systems.md#map).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
@@ -39,7 +48,7 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 8a–f | Rebirth, Rewards, Index, Weather/Encounters, Merchant, Festivals, Emote/Photo | core ทดสอบแล้ว |
 | 8g | ร้าน Robux + Season Pass | Shop 34/34 รันซ้ำ + OpenTen คลิกจริง/Pass refresh/capacity ผ่าน; Season 34/34 + ซีซัน 2–3 พร้อม; ยังไม่ Publish |
 | 9 | PvP แยก Place | 9a lobby/คิว ทำแล้ว; 9b Duel/FFA Publish แล้ว; 9c Timber Clash/Egg Heist + 9d แรงก์รายเดือน/Arena Tokens Publish แล้ว (รอทดสอบหลายบัญชี); 9e ฟันหนัก/บล็อก/dash ใน Studio (ยังไม่ Publish); ด่าน Arena พื้นฐาน + 9f ท่าอาวุธตามธาตุ (ยังไม่ Publish); เหลือทดสอบหลายบัญชีแล้วเปิด PvP |
-| 10s | Sword Pack 380 + Map rework retro | วางแผนแล้ว (prompt พร้อม), ยังไม่เริ่ม; ดู §3 และ §ดาบ |
+| 10s | Sword Pack 380 + Map rework retro | Sword Pack ทำแล้ว (B); เกาะวงกลม 8 วง + TreeKit 24 ทำแล้ว (A, ยังไม่ Publish); ดู §3 และ §ดาบ |
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | Wood windows/outlined headings/red X/blur, Inventory rarity grid, Shop art cards, Index gallery, Music/SFX implemented and desktop checked; English copy; device/all-flow proof and item/world art/VFX/balance pending; not published |
 
 Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.

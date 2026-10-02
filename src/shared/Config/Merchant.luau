@@ -15,4 +15,4 @@ local offers={
 }
 local byId={};for _,v in offers do byId[v.id]=v end
 return table.freeze({Offers=offers,ById=byId,Seed=40261003,Period=3600,Offset=1800,Duration=600,Slots=4,
-	Range=16,Position=Vector3.new(-712,0,284),SummonSeconds=600,KeepSeconds=2*86400})
+	Range=16,Position=Vector3.new(36,0,1072),SummonSeconds=600,KeepSeconds=2*86400})

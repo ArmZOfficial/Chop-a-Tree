@@ -1,6 +1,6 @@
 -- Execute in Play SERVER, then execute PlayRoutes.luau in Play CLIENT.
 assert(game:GetService("RunService"):IsRunning(), "Play mode only")
-local B = require(game.ServerStorage.MapTools.MapBuilder:Clone())
+local B = loadstring(game.ServerStorage.MapTools.MapBuilder.Source)() -- MCP threads cannot require game modules
 local L = B.Layout()
 local routes = {}
 local function add(name, points, speed)

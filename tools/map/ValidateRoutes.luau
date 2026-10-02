@@ -1,5 +1,5 @@
 -- Edit-time validation. Closed progression gates are intentionally excluded.
-local B = require(game.ServerStorage.MapTools.MapBuilder:Clone())
+local B = loadstring(game.ServerStorage.MapTools.MapBuilder.Source)() -- MCP threads cannot require game modules
 local L = B.Layout()
 local params = RaycastParams.new()
 params.FilterType = Enum.RaycastFilterType.Exclude

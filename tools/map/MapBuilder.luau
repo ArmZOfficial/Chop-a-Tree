@@ -1,21 +1,36 @@
 --!nocheck
--- ตัวสร้างแมพ Chop a Tree (ใช้ตอนแก้ใน Studio เท่านั้น ไม่รันในเกม)
--- วางไว้ที่ ServerStorage.MapTools.MapBuilder แล้วเรียกจาก Command Bar:
---   local B = require(game.ServerStorage.MapTools.MapBuilder:Clone())
---   B.BuildAll()          -- หรือ B.BuildWorld(), B.BuildVillage(), B.BuildZone(1) …
--- สุ่มด้วย seed คงที่ → สร้างซ้ำได้ผลเหมือนเดิม
--- ข้อมูลโซนอ่านจาก ReplicatedStorage.Shared.Config.Zones (ไฟล์เดียวกับที่เกมใช้)
+-- Chop a Tree map builder (Studio edit-time only, never runs in game).
+-- Lives at ServerStorage.MapTools.MapBuilder (+ TreeKit). From the Command Bar / MCP:
+--   local B = loadstring(game.ServerStorage.MapTools.MapBuilder.Source)()
+--   B.BuildAll()          -- or B.BuildWorld(), B.BuildVillage(), B.BuildZone(1) …
+-- Fixed seeds → rebuilding gives the same map. Zone data: ReplicatedStorage.Shared.Config.Zones.
+-- Layout: circular island, 8 concentric rings rising to the Lumora plateau; Rootfall hub on the
+-- south edge; every ring is entered on the south axis via stairs + torii ZoneGate.
 
 local CollectionService = game:GetService("CollectionService")
 local ChangeHistoryService = game:GetService("ChangeHistoryService")
 local Lighting = game:GetService("Lighting")
 local ServerStorage = game:GetService("ServerStorage")
 
-local Zones = require(game.ReplicatedStorage.Shared.Config.Zones:Clone())
+-- MCP/command-bar threads cannot require game modules (Capabilities), so fall back to the source.
+local function load(module)
+	local ok, result = pcall(require, module:Clone())
+	if ok then return result end
+	return loadstring(module.Source)()
+end
+
+local Zones = load(game.ReplicatedStorage.Shared.Config.Zones)
+local TreeKit = load(ServerStorage.MapTools.TreeKit)
 
 local MapBuilder = {}
 
--- ========== ตัวช่วย ==========
+local SOUTH = Vector3.new(0, 0, 1)
+local INWARD = -SOUTH
+local RUN_PER_RISE = 2.5 -- stair depth per stud of height
+local GATE_HALF = 19 -- half-width of every ring opening (torii pillars end at 18.75)
+local HUB = Zones.Hub
+
+-- ========== helpers ==========
 local function rad(d)
 	return math.rad(d)
 end
@@ -24,12 +39,13 @@ local function flat(v)
 	return Vector3.new(v.X, 0, v.Z)
 end
 
+-- Retro default: Plastic, studs on top, inlets below.
 local function P(props)
 	local p = Instance.new("Part")
 	p.Anchored = true
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Material = Enum.Material.SmoothPlastic
+	p.TopSurface = Enum.SurfaceType.Studs
+	p.BottomSurface = Enum.SurfaceType.Inlet
+	p.Material = Enum.Material.Plastic
 	for k, v in props do
 		if k ~= "Parent" then
 			p[k] = v
@@ -66,20 +82,32 @@ local function tag(inst, tagName, attrs)
 	return inst
 end
 
--- จานกลมแนวนอน (Cylinder ตั้งตรง) — topY = ความสูงผิวบน
+-- Horizontal disk (upright cylinder); topY = top surface height. Studs on the top face.
 local function disk(parent, center, radius, height, topY, color, material, name)
-	return P({
+	local p = P({
 		Name = name or "Disk",
 		Shape = Enum.PartType.Cylinder,
 		Size = Vector3.new(height, radius * 2, radius * 2),
 		CFrame = CFrame.new(center.X, topY - height / 2, center.Z) * CFrame.Angles(0, 0, rad(90)),
 		Color = color,
-		Material = material or Enum.Material.SmoothPlastic,
+		Material = material or Enum.Material.Plastic,
 		Parent = parent,
 	})
+	p.RightSurface = Enum.SurfaceType.Studs
+	return p
 end
 
--- ป้ายมีข้อความ หันหน้าไปที่ lookAt
+-- Point on a circle around `center`; a = 0 is south (+Z), a = ±π north.
+local function polar(center, r, a, y)
+	return Vector3.new(center.X + math.sin(a) * r, y, center.Z + math.cos(a) * r)
+end
+
+-- Signed angle of p around center, 0 = south.
+local function angleOf(center, p)
+	return math.atan2(p.X - center.X, p.Z - center.Z)
+end
+
+-- Text sign facing lookAt.
 local function sign(parent, pos, lookAt, text, w, h, bg, fg)
 	local board = P({
 		Name = "Sign",
@@ -113,7 +141,7 @@ local function sign(parent, pos, lookAt, text, w, h, bg, fg)
 	return board
 end
 
--- เส้นทางจากจุดหลายจุด (ผิวบนอยู่ที่ y ของจุด)
+-- Flat strips through points (top surface at each point's y).
 local function pathSegments(parent, points, width, thickness, color, material, name)
 	for i = 1, #points - 1 do
 		local a = points[i] - Vector3.new(0, thickness / 2, 0)
@@ -125,9 +153,39 @@ local function pathSegments(parent, points, width, thickness, color, material, n
 				Size = Vector3.new(width, thickness, len + 3),
 				CFrame = CFrame.lookAt((a + b) / 2, b),
 				Color = color,
-				Material = material or Enum.Material.Ground,
+				Material = material or Enum.Material.Plastic,
 				Parent = parent,
 			})
+		end
+	end
+end
+
+-- Wall of straight segments around a circle with exact openings.
+-- gaps = { {angle, halfArc}, ... } (angle 0 = south, halfArc in studs along the wall).
+local function ringWall(parent, center, r, bottomY, height, thickness, color, name, gaps, segLen)
+	local cuts = {}
+	for _, g in gaps do
+		local half = g[2] / r
+		table.insert(cuts, { g[1] - half, g[1] + half })
+	end
+	table.sort(cuts, function(a, b) return a[1] < b[1] end)
+	-- Solid arcs run from the end of one opening to the start of the next (wrapping once).
+	local arcs = {}
+	for i, c in cuts do
+		local nextCut = cuts[i % #cuts + 1]
+		local stop = nextCut[1] + (i == #cuts and 2 * math.pi or 0)
+		table.insert(arcs, { c[2], stop })
+	end
+	if #cuts == 0 then arcs = { { -math.pi, math.pi } } end
+	for _, arc in arcs do
+		local span = arc[2] - arc[1]
+		local n = math.max(1, math.ceil(span * r / (segLen or 30)))
+		local step = span / n
+		for i = 0, n - 1 do
+			local a = arc[1] + (i + 0.5) * step
+			local pos = polar(center, r, a, bottomY + height / 2)
+			local len = 2 * r * math.sin(step / 2) + (i > 0 and i < n - 1 and 0.6 or 0.3)
+			P({ Name = name, Size = Vector3.new(len, height, thickness), CFrame = CFrame.lookAt(pos, Vector3.new(center.X, pos.Y, center.Z)), Color = color, Parent = parent })
 		end
 	end
 end
@@ -158,44 +216,49 @@ local function fresh(parent, name)
 	return f
 end
 
--- ========== ทวีปตัว S + รากขึ้นเกาะลอย ==========
+local function distToSegment(p, a, b)
+	local ab = flat(b - a)
+	local ap = flat(p - a)
+	local t = math.clamp(ap:Dot(ab) / math.max(ab:Dot(ab), 1e-6), 0, 1)
+	return (ap - ab * t).Magnitude
+end
+
+-- 0 at the south entry axis → 1 on the far (north) side of the ring.
+local function depthOf(p)
+	return math.abs(angleOf(Vector3.zero, p)) / math.pi
+end
+
+-- ========== layout ==========
 function MapBuilder.Layout()
 	local L = { zones = {}, roads = {} }
-	local function center(col, row, y)
-		return Vector3.new((col - 1.5) * Zones.GridStep, y, (row - 0.5) * Zones.GridStep)
-	end
-	local V = Zones.Village
-	L.village = { center = center(V.col, V.row, 0), radius = V.radius }
+	local hubNorth = HUB.center + INWARD * HUB.radius
+	L.hub = { center = HUB.center, radius = HUB.radius, gate = hubNorth + SOUTH * 4, plazaY = HUB.center.Y + 0.9 }
 	for i, z in Zones.List do
-		L.zones[i] = { def = z, y = z.y, radius = z.halfSize, halfDepth = i == 8 and z.halfSize or Zones.GroundHalfDepth, center = center(z.col, z.row, z.y) }
+		local Z = { def = z, y = z.y, inner = z.inner, outer = z.outer, center = Vector3.new(0, z.y, 0) }
+		Z.entry = i == 1 and Vector3.new(0, z.y, hubNorth.Z) or Vector3.new(0, z.y, z.outer)
+		Z.trailStart = Z.entry + INWARD * 8
+		local nextZone = Zones.List[i + 1]
+		if nextZone then
+			Z.rise = nextZone.y - z.y
+			Z.run = Z.rise * RUN_PER_RISE
+			Z.exit = Vector3.new(0, z.y, z.inner)
+			Z.stairFoot = Z.exit + SOUTH * Z.run
+			Z.trailEnd = Z.stairFoot + SOUTH * 4
+		else
+			Z.trailEnd = Vector3.new(0, z.y, 70)
+		end
+		L.zones[i] = Z
 	end
-	local previous = L.village
-	for i = 1, 7 do
-		local z = L.zones[i]
-		local dir = flat(z.center - previous.center).Unit
-		local a = previous.center + dir * (math.abs(dir.Z) > 0.5 and previous.halfDepth or previous.radius)
-		local b = z.center - dir * (math.abs(dir.Z) > 0.5 and z.halfDepth or z.radius)
-		if i == 1 then a = Vector3.new(a.X - 4, 0.9, a.Z) end
-		previous.exit, z.entry = a, b
-		z.trailStart = b + dir * 36
-		local roadStart = i == 1 and a or (a - dir * 34)
-		if i > 1 then previous.trailEnd = roadStart end
-		table.insert(L.roads, { from = i - 1, to = i, points = { roadStart, b + dir * 34 }, bridge = i == 4 })
-		previous = z
+	local z1 = L.zones[1]
+	table.insert(L.roads, { from = 0, to = 1, points = {
+		Vector3.new(0, L.hub.plazaY, HUB.center.Z - 60), Vector3.new(0, L.hub.plazaY, hubNorth.Z + 8), z1.trailStart,
+	} })
+	for i = 1, #Zones.List - 1 do
+		local Z, N = L.zones[i], L.zones[i + 1]
+		table.insert(L.roads, { from = i, to = i + 1, stairs = true, points = {
+			Z.trailEnd, Z.stairFoot, Vector3.new(0, N.y, Z.exit.Z), Vector3.new(0, N.y, Z.exit.Z - 8),
+		} })
 	end
-	local z7, z8 = L.zones[7], L.zones[8]
-	z7.exit = z7.center + Vector3.new(0, 0, z7.halfDepth)
-	z8.entry = z8.center + Vector3.new(0, 0, z8.radius - 6)
-	-- Spiral stays outside the island's solid rim until the final landing.
-	local axis = flat(z7.center) + Vector3.new(0, 0, 362)
-	local pts = { z7.exit }
-	for k = 0, 384 do
-		local t = k / 384
-		local a = math.pi + t * math.pi * 8
-		table.insert(pts, axis + Vector3.new(math.sin(a) * 96, z7.y + (z8.y - z7.y) * t, math.cos(a) * 96))
-	end
-	table.insert(pts, z8.entry)
-	table.insert(L.roads, { from = 7, to = 8, points = pts, sky = true, axis = axis })
 	return L
 end
 
@@ -203,100 +266,85 @@ function MapBuilder.RoadPoints(r)
 	return r.points
 end
 
-local function roundedGround(parent, center, halfSize, bottom, top, color, material, name, entry, halfDepth)
-	local corner = 36
-	local h = top - bottom
-	local inward = flat(center - entry).Unit
-	local tangent = Vector3.new(inward.Z, 0, -inward.X)
-	local a = entry - center - inward * 5 - tangent * 20
-	local b = entry - center + inward * 34 + tangent * 20
-	local nx0, nx1 = math.min(a.X, b.X), math.max(a.X, b.X)
-	local nz0, nz1 = math.min(a.Z, b.Z), math.max(a.Z, b.Z)
-	local function rect(x0, x1, z0, z1)
-		if x1 - x0 < 0.01 or z1 - z0 < 0.01 then return end
-		P({ Name = name, Size = Vector3.new(x1-x0, h, z1-z0), CFrame = CFrame.new(center.X+(x0+x1)/2, bottom+h/2, center.Z+(z0+z1)/2), Color = color, Material = material, Parent = parent })
+-- ========== island, sea, stairs ==========
+local STONE = Color3.fromRGB(130, 125, 118)
+
+local function stairs(parent, Z, nextY, color)
+	local steps = math.ceil(Z.rise)
+	local depth = Z.run / steps
+	for k = 1, steps do
+		local top = Z.y + Z.rise * k / steps
+		local z0 = Z.stairFoot.Z - (k - 1) * depth
+		P({ Name = "Step", Size = Vector3.new(26, top - Z.y + 1, depth + 0.05), CFrame = CFrame.new(0, (top + Z.y - 1) / 2, z0 - depth / 2), Color = k % 2 == 0 and color or color:Lerp(Color3.new(1, 1, 1), 0.12), Parent = parent })
 	end
-	-- Leave an entrance notch in BOTH soil and grass so the approach ramp
-	-- reaches the higher floor without striking a hidden vertical step.
-	for _, bounds in { {-halfSize+corner, halfSize-corner, -halfDepth, halfDepth}, {-halfSize, halfSize, -halfDepth+corner, halfDepth-corner} } do
-		local x0,x1,z0,z1 = table.unpack(bounds)
-		local ix0,ix1 = math.max(x0,nx0), math.min(x1,nx1)
-		local iz0,iz1 = math.max(z0,nz0), math.min(z1,nz1)
-		if ix0 < ix1 and iz0 < iz1 then
-			rect(x0,ix0,z0,z1); rect(ix1,x1,z0,z1)
-			rect(ix0,ix1,z0,iz0); rect(ix0,ix1,iz1,z1)
-		else rect(x0,x1,z0,z1) end
+	for _, x in { -14, 14 } do
+		P({ Name = "StairWall", Size = Vector3.new(2, Z.rise + 3, Z.run), CFrame = CFrame.new(x, Z.y + (Z.rise + 3) / 2, Z.exit.Z + Z.run / 2), Color = color:Lerp(Color3.new(0, 0, 0), 0.2), Parent = parent })
 	end
-	for _, x in { -1, 1 } do
-		for _, z in { -1, 1 } do
-			disk(parent, center + Vector3.new(x * (halfSize - corner), 0, z * (halfDepth - corner)), corner, h, top, color, material, name)
-		end
-	end
+	return nextY
 end
 
 function MapBuilder.BuildWorld()
-	withHistory("Chop a Tree: Continent", function()
+	withHistory("Chop a Tree: Island", function()
 		local L = MapBuilder.Layout()
 		local root = mapRoot()
-		local obsoleteMountain = root:FindFirstChild("Mountain")
-		if obsoleteMountain then obsoleteMountain:Destroy() end
-		local old = F(ServerStorage, "OldTemplate")
+		for _, obsolete in { "Mountain", "Hills", "Roads" } do
+			local old = root:FindFirstChild(obsolete)
+			if old then old:Destroy() end
+		end
+		local stash = F(ServerStorage, "OldTemplate")
 		for _, name in { "Baseplate", "SpawnLocation" } do
 			local inst = workspace:FindFirstChild(name)
-			if inst then inst.Parent = old end
+			if inst then inst.Parent = stash end
 		end
+		-- Wedding-cake rings: each zone = cliff cylinder + thin coloured top; inner rings sit higher.
 		local ground = fresh(root, "Ground")
-		local sx, sz = Zones.ContinentSize.X, Zones.ContinentSize.Y
-		local riverHalf = Zones.RiverWidth / 2
-		-- Two banks leave a real river channel; only the eastern bridge connects them.
-		for _, side in { -1, 1 } do
-			local depth = sz / 2 - riverHalf
-			P({ Name = "ContinentBank", Size = Vector3.new(sx, 16, depth), CFrame = CFrame.new(0, -8, side * (riverHalf + depth / 2)), Color = Color3.fromRGB(100, 155, 80), Material = Enum.Material.Grass, Parent = ground })
-			P({ Name = "RiverBank", Size = Vector3.new(sx, 12, 10), CFrame = CFrame.new(0, -6, side * (riverHalf + 5)), Color = Color3.fromRGB(115, 104, 83), Material = Enum.Material.Rock, Parent = ground })
+		for i, z in Zones.List do
+			local outer = z.outer
+			disk(ground, Vector3.zero, outer, z.y + 19, z.y - 1, z.colors.cliff, Enum.Material.Plastic, "Cliff_Z" .. i)
+			disk(ground, Vector3.zero, outer - 0.5, 1, z.y, z.colors.ground, Enum.Material.Plastic, "Top_Z" .. i)
+		end
+		disk(ground, HUB.center, HUB.radius, HUB.center.Y + 20, HUB.center.Y, Zones.List[1].colors.cliff, Enum.Material.Plastic, "HubCliff")
+		-- Rocky cliff coast (collidable, keeps players on the island) except at the hub.
+		local coast = fresh(root, "Coast")
+		local z1 = Zones.List[1]
+		local function inHub(a, r)
+			local p = polar(Vector3.zero, r, a, 0)
+			return flat(p - HUB.center).Magnitude < HUB.radius + 6
+		end
+		-- Coast opening = where the island rim enters the hub disk (law of cosines).
+		local rimR, d = z1.outer - 3, flat(HUB.center).Magnitude
+		local hubHalf = math.acos((rimR ^ 2 + d ^ 2 - (HUB.radius - 4) ^ 2) / (2 * rimR * d)) * rimR
+		ringWall(coast, Vector3.zero, rimR, z1.y - 1, 11, 6, Color3.fromRGB(110, 110, 115), "CoastRock", { { 0, hubHalf } }, 26)
+		local rng = Random.new(77)
+		for i = 0, 89 do
+			local a = i / 90 * math.pi * 2
+			if not inHub(a, z1.outer + 6) then
+				local s = rng:NextNumber(8, 16)
+				P({ Name = "Boulder", Size = Vector3.new(s * 1.4, s, s), CFrame = CFrame.new(polar(Vector3.zero, z1.outer + 5, a, z1.y - s * 0.3)) * CFrame.Angles(0, -a, rng:NextNumber(-0.2, 0.2)), Color = rng:NextNumber() < 0.5 and Color3.fromRGB(110, 110, 115) or Color3.fromRGB(140, 138, 132), Parent = coast })
+			end
 		end
 		local water = fresh(root, "Water")
-		P({ Name = "Sea", Size = Vector3.new(5000, 2, 3600), CFrame = CFrame.new(0, -7, 0), Color = Color3.fromRGB(55, 155, 195), Material = Enum.Material.Glass, Transparency = 0.25, CanCollide = false, CanQuery = false, Parent = water })
-		P({ Name = "RootRiver", Size = Vector3.new(sx, 2, Zones.RiverWidth), CFrame = CFrame.new(0, -4, 0), Color = Color3.fromRGB(65, 185, 205), Material = Enum.Material.Glass, Transparency = 0.2, CanCollide = false, CanQuery = false, Parent = water })
-		local roads = fresh(root, "Roads")
-		for _, r in L.roads do
-			local folder = F(roads, string.format("Road_%d_%d", r.from, r.to))
-			pathSegments(folder, r.points, 26, 3, r.sky and Color3.fromRGB(170, 120, 65) or Color3.fromRGB(155, 125, 90), r.sky and Enum.Material.Wood or (r.bridge and Enum.Material.WoodPlanks or Enum.Material.Ground), r.sky and "SkyRoot" or (r.bridge and "Bridge" or "Road"))
-			if r.bridge then
-				for _, offset in { -15, 15 } do
-					local rail = {}
-					for _, point in r.points do table.insert(rail, point + Vector3.new(offset, 4, 0)) end
-					pathSegments(folder, rail, 2, 2, Color3.fromRGB(110, 75, 45), Enum.Material.Wood, "BridgeRail")
-				end
-			elseif r.sky then
-				local h = L.zones[8].y - L.zones[7].y
-				P({ Name = "LightPillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 12, 12), CFrame = CFrame.new(r.axis.X, L.zones[7].y + h / 2, r.axis.Z) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(255, 225, 140), Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = false, Parent = folder })
-				for _, offset in { -14, 14 } do
-					local rail = {}
-					for i, point in r.points do
-						local nextPoint = r.points[math.min(i + 1, #r.points)]
-						local prevPoint = r.points[math.max(i - 1, 1)]
-						local dir = flat(nextPoint - prevPoint).Unit
-						table.insert(rail, point + Vector3.new(dir.Z, 0, -dir.X) * offset + Vector3.new(0, 3, 0))
-					end
-					pathSegments(folder, rail, 1.5, 1.5, Color3.fromRGB(105, 75, 50), Enum.Material.Wood, "RootRail")
-				end
+		for _, x in { -2048, 0, 2048 } do
+			for _, z in { -1700, 348, 2396 } do
+				P({ Name = "Sea", Size = Vector3.new(2048, 2, 2048), CFrame = CFrame.new(x, -7, z), Color = Color3.fromRGB(45, 150, 210), Material = Enum.Material.Glass, Transparency = 0.2, CanCollide = false, CanQuery = false, TopSurface = Enum.SurfaceType.Smooth, Parent = water })
 			end
 		end
-		-- Low hills along the coast, clear of playable routes and trees.
-		local hills = fresh(root, "Hills")
-		for _, side in { -1, 1 } do
-			for x = -900, 900, 300 do
-				P({ Name = "CoastalHill", Shape = Enum.PartType.Ball, Size = Vector3.new(70, 16, 40), CFrame = CFrame.new(x, -3, side * 530), Color = Color3.fromRGB(104, 164, 80), Material = Enum.Material.Grass, Parent = hills })
-			end
+		-- Stairs between rings on the south axis.
+		local stairsFolder = fresh(root, "Stairs")
+		for i = 1, #Zones.List - 1 do
+			local Z = L.zones[i]
+			stairs(F(stairsFolder, string.format("Stairs_%d_%d", i, i + 1)), Z, L.zones[i + 1].y, STONE)
 		end
-		pcall(function() Lighting.Technology = Enum.Technology.Future end)
+		-- Flat retro lighting.
+		pcall(function() Lighting.Technology = Enum.Technology.Voxel end)
 		Lighting.ClockTime = 14
-		Lighting.Brightness = 2.5
-		Lighting.OutdoorAmbient = Color3.fromRGB(140, 140, 140)
-		Lighting.EnvironmentDiffuseScale = 0.6
-		Lighting.EnvironmentSpecularScale = 0.6
+		Lighting.Brightness = 2
+		Lighting.GlobalShadows = true
+		Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 150)
+		Lighting.EnvironmentDiffuseScale = 0
+		Lighting.EnvironmentSpecularScale = 0
 		local atmo = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
-		atmo.Density, atmo.Offset, atmo.Haze, atmo.Glare = 0.2, 0.3, 0.3, 0.1
+		atmo.Density, atmo.Offset, atmo.Haze, atmo.Glare = 0.15, 0.25, 0.2, 0
 		atmo.Color = Color3.fromRGB(205, 225, 245)
 		atmo.Decay = Color3.fromRGB(150, 170, 200)
 		atmo.Parent = Lighting
@@ -304,15 +352,15 @@ function MapBuilder.BuildWorld()
 	end)
 end
 
--- ========== หมู่บ้าน Rootfall ==========
+-- ========== Rootfall hub ==========
 local function stall(parent, cf, label, roofColor)
 	local m = M(parent, label)
-	P({ Name = "Floor", Size = Vector3.new(16, 1, 12), CFrame = cf * CFrame.new(0, 0.5, 0), Color = Color3.fromRGB(150, 110, 70), Material = Enum.Material.WoodPlanks, Parent = m })
+	P({ Name = "Floor", Size = Vector3.new(16, 1, 12), CFrame = cf * CFrame.new(0, 0.5, 0), Color = Color3.fromRGB(150, 110, 70), Parent = m })
 	for _, o in { { -7, -5 }, { 7, -5 }, { -7, 5 }, { 7, 5 } } do
-		P({ Name = "Post", Size = Vector3.new(1, 10, 1), CFrame = cf * CFrame.new(o[1], 5.5, o[2]), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = m })
+		P({ Name = "Post", Size = Vector3.new(1, 10, 1), CFrame = cf * CFrame.new(o[1], 5.5, o[2]), Color = Color3.fromRGB(110, 75, 45), Parent = m })
 	end
 	P({ Name = "Roof", Size = Vector3.new(18, 1.5, 14), CFrame = cf * CFrame.new(0, 11, 0) * CFrame.Angles(rad(8), 0, 0), Color = roofColor, Parent = m })
-	P({ Name = "Counter", Size = Vector3.new(14, 4, 2), CFrame = cf * CFrame.new(0, 3, -4.5), Color = Color3.fromRGB(170, 125, 80), Material = Enum.Material.WoodPlanks, Parent = m })
+	P({ Name = "Counter", Size = Vector3.new(14, 4, 2), CFrame = cf * CFrame.new(0, 3, -4.5), Color = Color3.fromRGB(170, 125, 80), Parent = m })
 	local front = (cf * CFrame.new(0, 0, -20)).Position
 	sign(m, (cf * CFrame.new(0, 13.5, -6)).Position, front, label, 14, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(253, 230, 138))
 	m.PrimaryPart = m.Floor
@@ -321,8 +369,8 @@ end
 
 local function warpStone(parent, pos, zoneId, accent)
 	local m = M(parent, "WarpStone")
-	P({ Name = "Base", Size = Vector3.new(7, 1.5, 7), CFrame = CFrame.new(pos + Vector3.new(0, 0.75, 0)), Color = Color3.fromRGB(110, 110, 120), Material = Enum.Material.Slate, Parent = m })
-	local pillar = P({ Name = "Pillar", Size = Vector3.new(4, 10, 4), CFrame = CFrame.new(pos + Vector3.new(0, 6.5, 0)) * CFrame.Angles(0, rad(45), 0), Color = Color3.fromRGB(90, 95, 110), Material = Enum.Material.Slate, Parent = m })
+	P({ Name = "Base", Size = Vector3.new(7, 1.5, 7), CFrame = CFrame.new(pos + Vector3.new(0, 0.75, 0)), Color = Color3.fromRGB(110, 110, 120), Parent = m })
+	local pillar = P({ Name = "Pillar", Size = Vector3.new(4, 10, 4), CFrame = CFrame.new(pos + Vector3.new(0, 6.5, 0)) * CFrame.Angles(0, rad(45), 0), Color = Color3.fromRGB(90, 95, 110), Parent = m })
 	local rune = P({ Name = "Rune", Size = Vector3.new(4.2, 1.2, 4.2), CFrame = CFrame.new(pos + Vector3.new(0, 9, 0)) * CFrame.Angles(0, rad(45), 0), Color = accent, Material = Enum.Material.Neon, CanCollide = false, Parent = m })
 	local light = Instance.new("PointLight")
 	light.Color = accent
@@ -334,15 +382,16 @@ local function warpStone(parent, pos, zoneId, accent)
 	return m
 end
 
+local ROOFS = { Color3.fromRGB(196, 40, 28), Color3.fromRGB(13, 105, 172), Color3.fromRGB(107, 50, 124), Color3.fromRGB(40, 127, 71), Color3.fromRGB(218, 133, 65), Color3.fromRGB(18, 144, 140), Color3.fromRGB(245, 205, 48) }
+
 local function playerBase(parent, index, cf)
 	local m = M(parent, "Base" .. index)
-	local slab = P({ Name = "Slab", Size = Vector3.new(56, 1.2, 56), CFrame = cf * CFrame.new(0, 0.6, 0), Color = Color3.fromRGB(170, 120, 75), Material = Enum.Material.WoodPlanks, Parent = m })
+	local slab = P({ Name = "Slab", Size = Vector3.new(56, 1.2, 56), CFrame = cf * CFrame.new(0, 0.6, 0), Color = Color3.fromRGB(170, 120, 75), Parent = m })
 	m.PrimaryPart = slab
-	-- ขอบฐาน
 	for _, e in { { 0, -28, 56, 1 }, { 0, 28, 56, 1 }, { -28, 0, 1, 56 }, { 28, 0, 1, 56 } } do
-		P({ Name = "Edge", Size = Vector3.new(e[3] + 1, 1.6, e[4] + 1), CFrame = cf * CFrame.new(e[1], 0.8, e[2]), Color = Color3.fromRGB(120, 80, 50), Material = Enum.Material.Wood, Parent = m })
+		P({ Name = "Edge", Size = Vector3.new(e[3] + 1, 1.6, e[4] + 1), CFrame = cf * CFrame.new(e[1], 0.8, e[2]), Color = Color3.fromRGB(120, 80, 50), Parent = m })
 	end
-	-- แปลงสวน (หลังฐาน) 6 ช่อง
+	-- Garden (back) 6 slots.
 	local garden = M(m, "GardenPlot")
 	for row = 0, 1 do
 		for col = 0, 2 do
@@ -351,32 +400,38 @@ local function playerBase(parent, index, cf)
 				Size = Vector3.new(8, 0.8, 8),
 				CFrame = cf * CFrame.new((col - 1) * 10, 1.6, 10 + row * 10),
 				Color = Color3.fromRGB(110, 72, 45),
-				Material = Enum.Material.Ground,
 				Parent = garden,
 			})
 			tag(slot, "GardenSlot", { BaseIndex = index, SlotIndex = row * 3 + col + 1 })
 		end
 	end
-	-- ตู้ฟักไข่ (หน้าซ้าย)
+	-- Incubator (front left).
 	local inc = M(m, "Incubator")
-	P({ Name = "Stand", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2, 8, 8), CFrame = cf * CFrame.new(-16, 2.2, -12) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(200, 200, 210), Material = Enum.Material.Metal, Parent = inc })
+	P({ Name = "Stand", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2, 8, 8), CFrame = cf * CFrame.new(-16, 2.2, -12) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(200, 200, 210), Parent = inc })
 	P({ Name = "Dome", Shape = Enum.PartType.Ball, Size = Vector3.new(7, 7, 7), CFrame = cf * CFrame.new(-16, 5, -12), Color = Color3.fromRGB(180, 230, 255), Material = Enum.Material.Glass, Transparency = 0.5, CanCollide = false, Parent = inc })
 	tag(inc, "Incubator", { BaseIndex = index })
-	-- คอกสัตว์ (หน้าขวา) รั้ว
+	-- Pet pen (front right).
 	local pen = M(m, "PetPen")
 	local pc = cf * CFrame.new(14, 0, -10)
 	for i = 0, 11 do
 		local a = i / 12 * math.pi * 2
-		P({ Name = "Fence", Size = Vector3.new(1, 3, 4.5), CFrame = pc * CFrame.new(math.sin(a) * 8, 2.7, math.cos(a) * 8) * CFrame.Angles(0, a, 0), Color = Color3.fromRGB(220, 200, 160), Material = Enum.Material.Wood, Parent = pen })
+		P({ Name = "Fence", Size = Vector3.new(1, 3, 4.5), CFrame = pc * CFrame.new(math.sin(a) * 8, 2.7, math.cos(a) * 8) * CFrame.Angles(0, a, 0), Color = Color3.fromRGB(220, 200, 160), Parent = pen })
 	end
 	tag(pen, "PetPen", { BaseIndex = index })
-	-- ป้ายเจ้าของ (ขอบหน้า หันไปลานกลาง)
+	-- Cosy hut (back left corner), roof colour per base.
+	local hut = M(m, "Hut")
+	local hc = cf * CFrame.new(-20, 1.2, 19)
+	P({ Name = "Walls", Size = Vector3.new(9, 7, 8), CFrame = hc * CFrame.new(0, 3.5, 0), Color = Color3.fromRGB(215, 190, 150), Parent = hut })
+	for _, s in { -1, 1 } do
+		P({ Name = "Roof", Size = Vector3.new(10.5, 1, 6), CFrame = hc * CFrame.new(0, 8.4, s * 2.2) * CFrame.Angles(s * rad(35), 0, 0), Color = ROOFS[index] or ROOFS[1], Parent = hut })
+	end
+	P({ Name = "Door", Size = Vector3.new(2.6, 4.4, 0.4), CFrame = hc * CFrame.new(0, 2.2, -4.1), Color = Color3.fromRGB(105, 64, 40), CanCollide = false, Parent = hut })
+	-- Owner sign (front edge, facing the plaza).
 	local front = (cf * CFrame.new(0, 0, -60)).Position
-	P({ Name = "SignPost", Size = Vector3.new(1, 8, 1), CFrame = cf * CFrame.new(0, 4.6, -26), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = m })
+	P({ Name = "SignPost", Size = Vector3.new(1, 8, 1), CFrame = cf * CFrame.new(0, 4.6, -26), Color = Color3.fromRGB(110, 75, 45), Parent = m })
 	local s = sign(m, (cf * CFrame.new(0, 9, -26)).Position, front, "Base " .. index .. " · Empty", 12, 3.2)
 	s.Name = "OwnerSign"
 	tag(s, "OwnerSign", { BaseIndex = index })
-	-- บาเรียร์ล็อกฐาน (ปิดอยู่)
 	local barrier = P({ Name = "LockBarrier", Size = Vector3.new(58, 30, 58), CFrame = cf * CFrame.new(0, 15, 0), Color = Color3.fromRGB(96, 165, 250), Material = Enum.Material.ForceField, Transparency = 1, CanCollide = false, CanQuery = false, Parent = m })
 	barrier:SetAttribute("Active", false)
 	local spawnPoint = P({ Name = "BaseSpawn", Size = Vector3.new(4, 1, 4), CFrame = cf * CFrame.new(0, 1.7, -18), Transparency = 1, CanCollide = false, Parent = m })
@@ -385,55 +440,58 @@ local function playerBase(parent, index, cf)
 	return m
 end
 
+-- Hub angle a: 0 = north (towards the island centre), positive = east.
+local function hubPoint(a, r, dy)
+	local V = HUB.center
+	return Vector3.new(V.X + math.sin(rad(a)) * r, V.Y + (dy or 0), V.Z - math.cos(rad(a)) * r)
+end
+
 function MapBuilder.BuildVillage()
 	withHistory("Chop a Tree: Village", function()
 		local L = MapBuilder.Layout()
-		local v = L.village
-		local V = v.center
+		local V = HUB.center
+		local Y = V.Y
 		local village = fresh(mapRoot(), "Village")
-		disk(village, V, v.radius, 1.2, 0.9, Color3.fromRGB(120, 182, 82), Enum.Material.Grass, "Plaza")
-		disk(village, V, 70, 0.4, 1.1, Color3.fromRGB(200, 190, 170), Enum.Material.Slate, "InnerPlaza")
-
-		local z1 = L.zones[1]
-		local gateDir = flat(z1.entry - V).Unit
-		local gateAngle = math.atan2(gateDir.X, gateDir.Z)
-
-		-- ฐานผู้เล่น 7 ฐาน (เว้นช่องตรงประตูป่า)
-		local bases = F(village, "Bases")
-		for i = 1, 7 do
-			local a = gateAngle + rad(40 + (i - 1) * (280 / 6))
-			local pos = V + Vector3.new(math.sin(a), 0, math.cos(a)) * 128
-			playerBase(bases, i, CFrame.lookAt(Vector3.new(pos.X, 0.3, pos.Z), Vector3.new(V.X, 0.3, V.Z)))
+		disk(village, V, HUB.radius - 1, 1.2, Y + 0.9, Color3.fromRGB(120, 182, 82), Enum.Material.Plastic, "Plaza")
+		disk(village, V, 34, 0.4, Y + 1.1, Color3.fromRGB(226, 200, 150), Enum.Material.Plastic, "InnerPlaza")
+		pathSegments(village, { hubPoint(180, HUB.radius - 2, 1.05), hubPoint(0, HUB.radius - 2, 1.05) }, 22, 0.3, Color3.fromRGB(226, 200, 150), Enum.Material.Plastic, "MainPath")
+		local function face(pos)
+			return CFrame.lookAt(pos, Vector3.new(V.X, pos.Y, V.Z))
 		end
 
-		-- แท่นเปิดหีบ (กลางลาน)
+		-- 7 player bases (houses) east ×4 / west ×3, clear of the gate and dock axis.
+		local bases = F(village, "Bases")
+		for i, a in { 40, 75, 110, 145, -40, -75, -110 } do
+			playerBase(bases, i, face(hubPoint(a, 140, 0.3)))
+		end
+
+		-- Chest Altar in the plaza centre.
 		local altar = M(village, "ChestAltar")
-		disk(altar, V, 11, 2, 3.1, Color3.fromRGB(235, 235, 240), Enum.Material.Marble, "Step1")
-		disk(altar, V, 8, 3, 6.1, Color3.fromRGB(245, 245, 250), Enum.Material.Marble, "Step2")
-		local rim = disk(altar, V, 8.4, 0.6, 6.4, Color3.fromRGB(255, 214, 79), Enum.Material.Neon, "Rim")
+		disk(altar, V, 11, 2, Y + 3.1, Color3.fromRGB(235, 235, 240), Enum.Material.Plastic, "Step1")
+		disk(altar, V, 8, 3, Y + 6.1, Color3.fromRGB(245, 245, 250), Enum.Material.Plastic, "Step2")
+		local rim = disk(altar, V, 8.4, 0.6, Y + 6.4, Color3.fromRGB(255, 214, 79), Enum.Material.Neon, "Rim")
 		rim.CanCollide = false
 		altar.PrimaryPart = altar.Step2
 		tag(altar, "ChestAltar")
 
-		-- วงในรอบแท่น: ร้าน, NPC, กระดานผู้นำ, พอร์ทัล, หินวาร์ป
+		-- Services: axe shop left (west), wood shop right (east) of the altar.
 		local services = F(village, "Services")
 		local ring = {
-			{ "SeedShop", "Seed Shop", Color3.fromRGB(76, 175, 80) },
-			{ "EggConveyor", "Egg Conveyor", nil },
-			{ "UpgradeShop", "Upgrades", Color3.fromRGB(29, 78, 216) },
-			{ "Sawmill", "Sawmill (Sell Wood)", Color3.fromRGB(180, 83, 9) },
-			{ "NPC_Bram", "Grandpa Bram", nil },
-			{ "Leaderboards", "Leaderboards", nil },
-			{ "ArenaPortal", "Chop Arena (PvP)", nil },
-			{ "WarpHub", "Warp Stone", nil },
+			{ "UpgradeShop", -55, 62, "Axe Shop", Color3.fromRGB(29, 78, 216) },
+			{ "Sawmill", 55, 62, "Wood Shop · Sell", Color3.fromRGB(180, 83, 9) },
+			{ "SeedShop", -110, 72, "Seed Shop", Color3.fromRGB(76, 175, 80) },
+			{ "EggConveyor", 110, 72 },
+			{ "NPC_Bram", -22, 62 },
+			{ "WarpHub", 22, 62 },
+			{ "Leaderboards", -145, 140 },
+			{ "ArenaPortal", -150, 95 },
 		}
-		for i, item in ring do
-			local a = gateAngle + rad(25) + (i - 1) * (math.pi * 2 / #ring)
-			local pos = V + Vector3.new(math.sin(a), 0, math.cos(a)) * 52
-			local cf = CFrame.lookAt(Vector3.new(pos.X, 1.1, pos.Z), Vector3.new(V.X, 1.1, V.Z))
+		for _, item in ring do
 			local id = item[1]
-			if item[3] then
-				local s = stall(services, cf, item[2], item[3])
+			local pos = hubPoint(item[2], item[3], 1.1)
+			local cf = face(pos)
+			if item[5] then
+				local s = stall(services, cf, item[4], item[5])
 				s.Name = id
 				tag(s, "Shop", { ShopType = id })
 			elseif id == "EggConveyor" then
@@ -468,85 +526,88 @@ function MapBuilder.BuildVillage()
 				local pc = cf * CFrame.new(0, 9, 0)
 				for k = 0, 15 do
 					local a2 = k / 16 * math.pi * 2
-					P({ Name = "Ring", Size = Vector3.new(2, 3.4, 2), CFrame = pc * CFrame.new(math.cos(a2) * 8, math.sin(a2) * 8, 0) * CFrame.Angles(0, 0, a2), Color = Color3.fromRGB(109, 40, 217), Material = Enum.Material.Slate, Parent = m })
+					P({ Name = "Ring", Size = Vector3.new(2, 3.4, 2), CFrame = pc * CFrame.new(math.cos(a2) * 8, math.sin(a2) * 8, 0) * CFrame.Angles(0, 0, a2), Color = Color3.fromRGB(109, 40, 217), Parent = m })
 				end
 				local inner = P({ Name = "Portal", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 14, 14), CFrame = pc * CFrame.Angles(0, rad(90), 0), Color = Color3.fromRGB(168, 85, 247), Material = Enum.Material.Neon, Transparency = 0.35, CanCollide = false, Parent = m })
 				sign(m, (cf * CFrame.new(0, 20, 0)).Position, V, "Chop Arena · PvP", 14, 3, Color3.fromRGB(30, 36, 51), Color3.fromRGB(216, 180, 254))
 				m.PrimaryPart = inner
 				tag(m, "ArenaPortal")
 			elseif id == "WarpHub" then
-				warpStone(services, Vector3.new(pos.X, 1.1, pos.Z), 0, Color3.fromRGB(96, 165, 250))
+				warpStone(services, pos, 0, Color3.fromRGB(96, 165, 250))
 			end
 		end
 
-		-- จุดเกิด
-		local spawnPos = V + gateDir * 30
+		-- Spawn north of the altar, facing the forest gate.
+		local spawnPos = hubPoint(0, 30, 1.6)
 		local spawn = Instance.new("SpawnLocation")
 		spawn.Name = "VillageSpawn"
 		spawn.Anchored = true
 		spawn.Size = Vector3.new(12, 1, 12)
-		spawn.CFrame = CFrame.new(spawnPos.X, 1.6, spawnPos.Z)
-		spawn.Material = Enum.Material.Slate
+		spawn.CFrame = CFrame.new(spawnPos)
+		spawn.Material = Enum.Material.Plastic
+		spawn.TopSurface = Enum.SurfaceType.Studs
 		spawn.Color = Color3.fromRGB(200, 190, 170)
 		spawn.Neutral = true
 		spawn.Duration = 0
 		local decal = spawn:FindFirstChildOfClass("Decal")
-		if decal then
-			decal:Destroy()
-		end
+		if decal then decal:Destroy() end
 		spawn.Parent = village
 
-		-- ประตูสู่ป่า
+		-- Forest gate (north edge) → Sunny Meadow.
 		local gate = M(village, "ForestGate")
-		local gatePos = V + gateDir * (v.radius - 4)
-		local gcf = CFrame.lookAt(Vector3.new(gatePos.X, 0, gatePos.Z), Vector3.new(gatePos.X, 0, gatePos.Z) + gateDir)
+		local gatePos = Vector3.new(L.hub.gate.X, Y, L.hub.gate.Z)
+		local gcf = CFrame.lookAt(gatePos, gatePos + INWARD)
 		for _, x in { -15, 15 } do
-			P({ Name = "Pillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(24, 4, 4), CFrame = gcf * CFrame.new(x, 12, 0) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(115, 78, 46), Material = Enum.Material.Wood, Parent = gate })
+			P({ Name = "Pillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(24, 4, 4), CFrame = gcf * CFrame.new(x, 12, 0) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(115, 78, 46), Parent = gate })
 		end
-		P({ Name = "Beam", Size = Vector3.new(38, 3, 3.5), CFrame = gcf * CFrame.new(0, 23, 0), Color = Color3.fromRGB(95, 62, 38), Material = Enum.Material.Wood, Parent = gate })
-		sign(gate, (gcf * CFrame.new(0, 27, 0)).Position, V, "Forest Gate → Sunlit Meadow", 30, 4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(190, 242, 100))
+		P({ Name = "Beam", Size = Vector3.new(38, 3, 3.5), CFrame = gcf * CFrame.new(0, 23, 0), Color = Color3.fromRGB(95, 62, 38), Parent = gate })
+		sign(gate, (gcf * CFrame.new(0, 27, 0)).Position, V, "Forest Gate → Sunny Meadow", 30, 4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(190, 242, 100))
 		local trigger = P({ Name = "RunTrigger", Size = Vector3.new(30, 20, 4), CFrame = gcf * CFrame.new(0, 10, 0), Transparency = 1, CanCollide = false, Parent = gate })
 		tag(trigger, "ForestGate")
 		gate.PrimaryPart = trigger
 
-		-- โคมไฟรอบลาน
+		-- Hub wall: openings at the forest gate (north) and the dock (south).
 		local decor = F(village, "Decor")
-		for i = 0, 13 do
-			local a = gateAngle + rad(14) + i / 14 * math.pi * 2
-			local pos = V + Vector3.new(math.sin(a), 0, math.cos(a)) * 182
-			if math.abs(math.deg((a - gateAngle + math.pi) % (2 * math.pi) - math.pi)) > 12 then
-				P({ Name = "LampPost", Size = Vector3.new(1, 12, 1), CFrame = CFrame.new(pos + Vector3.new(0, 6.9, 0)), Color = Color3.fromRGB(60, 60, 70), Material = Enum.Material.Metal, Parent = decor })
-				local lamp = P({ Name = "Lamp", Size = Vector3.new(2, 2, 2), CFrame = CFrame.new(pos + Vector3.new(0, 13.5, 0)), Color = Color3.fromRGB(255, 220, 150), Material = Enum.Material.Neon, CanCollide = false, Parent = decor })
-				local light = Instance.new("PointLight")
-				light.Color = Color3.fromRGB(255, 210, 150)
-				light.Range = 22
-				light.Brightness = 1.2
-				light.Parent = lamp
+		ringWall(decor, V, HUB.radius - 2.5, Y, 10, 4, Color3.fromRGB(150, 140, 125), "HubWall", { { math.pi, 17 }, { 0, 12 } }, 20)
+
+		-- Dock (south).
+		local dock = M(village, "Dock")
+		local dz0 = V.Z + HUB.radius - 6
+		P({ Name = "Deck", Size = Vector3.new(20, 1, 80), CFrame = CFrame.new(V.X, Y + 0.4, dz0 + 40), Color = Color3.fromRGB(160, 110, 65), Parent = dock })
+		for z = 8, 78, 14 do
+			for _, x in { -9, 9 } do
+				P({ Name = "Post", Size = Vector3.new(1.6, 16, 1.6), CFrame = CFrame.new(V.X + x, Y - 5, dz0 + z), Color = Color3.fromRGB(105, 70, 42), Parent = dock })
+			end
+		end
+		for _, x in { -9, 9 } do
+			local lamp = P({ Name = "Lantern", Size = Vector3.new(1.6, 1.6, 1.6), CFrame = CFrame.new(V.X + x, Y + 4.2, dz0 + 78), Color = Color3.fromRGB(255, 200, 90), Material = Enum.Material.Neon, CanCollide = false, Parent = dock })
+			local light = Instance.new("PointLight")
+			light.Color = lamp.Color
+			light.Range = 18
+			light.Parent = lamp
+		end
+		dock.PrimaryPart = dock.Deck
+
+		-- Lamps along the main path.
+		for z = -150, 170, 40 do
+			if math.abs(z) > 40 then
+				for _, x in { -16, 16 } do
+					local pos = Vector3.new(V.X + x, Y + 0.9, V.Z + z)
+					P({ Name = "LampPost", Size = Vector3.new(1, 12, 1), CFrame = CFrame.new(pos + Vector3.new(0, 6, 0)), Color = Color3.fromRGB(60, 60, 70), Parent = decor })
+					local lamp = P({ Name = "Lamp", Size = Vector3.new(2, 2, 2), CFrame = CFrame.new(pos + Vector3.new(0, 12.6, 0)), Color = Color3.fromRGB(255, 220, 150), Material = Enum.Material.Neon, CanCollide = false, Parent = decor })
+					local light = Instance.new("PointLight")
+					light.Color = Color3.fromRGB(255, 210, 150)
+					light.Range = 22
+					light.Brightness = 1.2
+					light.Parent = lamp
+				end
 			end
 		end
 	end)
 end
 
--- ========== โซน ==========
--- Vetted Creator Store prototypes (tools/map/AssetPrototypes.luau) live in
--- ServerStorage.MapAssets.Trees.<ZoneKey>; zones without them keep the block trees.
-local function assetVariants(zone)
-	local root = ServerStorage:FindFirstChild("MapAssets")
-	local folder = root and root:FindFirstChild("Trees") and root.Trees:FindFirstChild(zone.key)
-	local list = folder and folder:GetChildren() or {}
-	return #list > 0 and list or nil
-end
-
-local function placeAsset(parent, proto, pos, height, rng)
-	local look = proto:Clone()
-	look.Name = "Look"
-	look:ScaleTo(height * proto:GetAttribute("HeightScale") / proto:GetAttribute("Height"))
-	look:PivotTo(CFrame.new(pos) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
-	look.Parent = parent
-	return look
-end
-
-local function rotVeins(m, zone, pos, tw, trunkH, rng, trunk)
+-- ========== zones ==========
+local function rotVeins(m, pos, tw, trunkH, rng, trunk)
 	for i = 1, 3 do
 		local a = i / 3 * math.pi * 2
 		P({
@@ -566,68 +627,12 @@ local function rotVeins(m, zone, pos, tw, trunkH, rng, trunk)
 	light.Parent = trunk
 end
 
--- Asset tree: an invisible trunk collider stays the PrimaryPart so TreeService,
--- hit raycasts and health bars work unchanged; the asset clone is visual only.
-local function assetTree(parent, zone, tier, pos, rng, tagName, variants)
-	local m = Instance.new("Model")
-	m.Name = "Tree_T" .. tier
-	local h = 10 + tier * 6
-	local tw = 1.4 + tier * 0.45
-	local trunkH = h * 0.55
-	local trunk = P({
-		Name = "Trunk",
-		Size = Vector3.new(tw, trunkH, tw),
-		CFrame = CFrame.new(pos + Vector3.new(0, trunkH / 2, 0)),
-		Transparency = 1,
-		Parent = m,
-	})
-	placeAsset(m, variants[rng:NextInteger(1, #variants)], pos, h, rng)
-	if tier == 6 then rotVeins(m, zone, pos, tw, trunkH, rng, trunk) end
-	m.PrimaryPart = trunk
-	m:SetAttribute("Zone", zone.id)
-	m:SetAttribute("Tier", tier)
-	CollectionService:AddTag(m, tagName or "Tree")
-	m.Parent = parent
-	return m
-end
-
 local function makeTree(parent, zone, tier, pos, rng, tagName)
-	local variants = assetVariants(zone)
-	if variants then
-		return assetTree(parent, zone, tier, pos, rng, tagName, variants)
-	end
-	local m = Instance.new("Model")
-	m.Name = "Tree_T" .. tier
-	local h = 10 + tier * 6
-	local tw = 1.4 + tier * 0.45
-	local trunkH = h * 0.55
-	local trunk = P({
-		Name = "Trunk",
-		Size = Vector3.new(tw, trunkH, tw),
-		CFrame = CFrame.new(pos + Vector3.new(0, trunkH / 2, 0)) * CFrame.Angles(0, rng:NextNumber(0, math.pi), 0),
-		Color = zone.colors.trunk,
-		Material = Enum.Material.Wood,
-		Parent = m,
-	})
-	local leaves = zone.colors.leaves
-	local cs = 4 + tier * 2.6
-	for i = 1, 3 do
-		local s = cs * (1 - (i - 1) * 0.22)
-		local off = Vector3.new(rng:NextNumber(-0.25, 0.25) * cs, trunkH + (i - 1) * s * 0.45, rng:NextNumber(-0.25, 0.25) * cs)
-		P({
-			Name = "Leaves",
-			Size = Vector3.new(s, s * 0.8, s),
-			CFrame = CFrame.new(pos + off) * CFrame.Angles(rng:NextNumber(-0.3, 0.3), rng:NextNumber(0, math.pi), rng:NextNumber(-0.3, 0.3)),
-			Color = leaves[rng:NextInteger(1, #leaves)],
-			CanCollide = false,
-			Parent = m,
-		})
-	end
+	local m = TreeKit.Build(TreeKit.Pick(zone.id, rng), pos, tier, rng)
 	if tier == 6 then
-		-- ต้นราเน่า: เส้นสีม่วงเรืองแสง
-		rotVeins(m, zone, pos, tw, trunkH, rng, trunk)
+		local h = 10 + tier * 6
+		rotVeins(m, pos, 1.4 + tier * 0.45, h * 0.55, rng, m.PrimaryPart)
 	end
-	m.PrimaryPart = trunk
 	m:SetAttribute("Zone", zone.id)
 	m:SetAttribute("Tier", tier)
 	CollectionService:AddTag(m, tagName or "Tree")
@@ -635,22 +640,19 @@ local function makeTree(parent, zone, tier, pos, rng, tagName)
 	return m
 end
 
-local function distToSegment(p, a, b)
-	local ab = flat(b - a)
-	local ap = flat(p - a)
-	local t = math.clamp(ap:Dot(ab) / math.max(ab:Dot(ab), 1e-6), 0, 1)
-	return (ap - ab * t).Magnitude
-end
-
-local function gate(parent, pos, dir, fromZone, toZone, accent)
+-- Torii ZoneGate at the top of the stairs; RotBarrier blocks until the player unlocks toZone.
+local function gate(parent, pos, fromZone, toZone, accent)
 	local m = M(parent, "ZoneGate")
-	local cf = CFrame.lookAt(Vector3.new(pos.X, pos.Y, pos.Z), Vector3.new(pos.X, pos.Y, pos.Z) + flat(dir).Unit)
-	for _, x in { -18, 18 } do
-		P({ Name = "Pillar", Size = Vector3.new(5, 26, 5), CFrame = cf * CFrame.new(x, 13, 0), Color = Color3.fromRGB(70, 60, 80), Material = Enum.Material.Slate, Parent = m })
+	local cf = CFrame.lookAt(pos, pos + SOUTH)
+	local red = Color3.fromRGB(196, 40, 28)
+	for _, x in { -17, 17 } do
+		P({ Name = "Pillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(26, 3.5, 3.5), CFrame = cf * CFrame.new(x, 13, 0) * CFrame.Angles(0, 0, rad(90)), Color = red, Parent = m })
 	end
-	P({ Name = "Beam", Size = Vector3.new(40, 4, 5), CFrame = cf * CFrame.new(0, 27, 0), Color = Color3.fromRGB(60, 50, 70), Material = Enum.Material.Slate, Parent = m })
-	local barrier = P({ Name = "RotBarrier", Size = Vector3.new(31, 24, 1), CFrame = cf * CFrame.new(0, 12, 0), Color = Zones.RotColor, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = true, Parent = m })
-	sign(m, (cf * CFrame.new(0, 31.5, 0)).Position, (cf * CFrame.new(0, 0, 30)).Position, "Rot Gate • Defeat Boss to Unlock → Zone " .. toZone, 30, 3.5, Color3.fromRGB(30, 20, 40), Color3.fromRGB(216, 180, 254))
+	P({ Name = "Kasagi", Size = Vector3.new(46, 3, 5), CFrame = cf * CFrame.new(0, 27.5, 0), Color = Color3.fromRGB(27, 42, 53), Parent = m })
+	P({ Name = "Nuki", Size = Vector3.new(40, 2, 3), CFrame = cf * CFrame.new(0, 22, 0), Color = red, Parent = m })
+	P({ Name = "Gem", Size = Vector3.new(3, 3, 1), CFrame = cf * CFrame.new(0, 24.5, -1.6), Color = accent, Material = Enum.Material.Neon, CanCollide = false, Parent = m })
+	local barrier = P({ Name = "RotBarrier", Size = Vector3.new(31, 20, 1), CFrame = cf * CFrame.new(0, 10, 0), Color = Zones.RotColor, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = true, Parent = m })
+	sign(m, (cf * CFrame.new(0, 32, 0)).Position, (cf * CFrame.new(0, 0, -30)).Position, "Rot Gate • Defeat Boss to Unlock → " .. Zones.List[toZone].name, 32, 3.5, Color3.fromRGB(30, 20, 40), Color3.fromRGB(216, 180, 254))
 	m.PrimaryPart = barrier
 	tag(m, "ZoneGate", { FromZone = fromZone, ToZone = toZone, Open = false })
 	return m
@@ -658,11 +660,11 @@ end
 
 local function shrine(parent, pos, zoneId, accent)
 	local m = M(parent, "Shrine")
-	disk(m, pos, 9, 1.5, pos.Y + 1.5, Color3.fromRGB(150, 150, 155), Enum.Material.Slate, "Base")
+	disk(m, pos, 9, 1.5, pos.Y + 1.5, Color3.fromRGB(150, 150, 155), Enum.Material.Plastic, "Base")
 	for _, o in { { -5, -5 }, { 5, -5 }, { -5, 5 }, { 5, 5 } } do
-		P({ Name = "Post", Size = Vector3.new(1.4, 10, 1.4), CFrame = CFrame.new(pos + Vector3.new(o[1], 6.5, o[2])), Color = Color3.fromRGB(160, 40, 40), Material = Enum.Material.Wood, Parent = m })
+		P({ Name = "Post", Size = Vector3.new(1.4, 10, 1.4), CFrame = CFrame.new(pos + Vector3.new(o[1], 6.5, o[2])), Color = Color3.fromRGB(160, 40, 40), Parent = m })
 	end
-	P({ Name = "Roof", Size = Vector3.new(16, 1.6, 16), CFrame = CFrame.new(pos + Vector3.new(0, 12, 0)), Color = Color3.fromRGB(60, 50, 50), Material = Enum.Material.Slate, Parent = m })
+	P({ Name = "Roof", Size = Vector3.new(16, 1.6, 16), CFrame = CFrame.new(pos + Vector3.new(0, 12, 0)), Color = Color3.fromRGB(60, 50, 50), Parent = m })
 	local crystal = P({ Name = "Crystal", Size = Vector3.new(2.5, 4, 2.5), CFrame = CFrame.new(pos + Vector3.new(0, 4.5, 0)) * CFrame.Angles(0, rad(45), 0), Color = Color3.fromRGB(90, 90, 100), Material = Enum.Material.Glass, Parent = m })
 	crystal:SetAttribute("LitColor", accent)
 	m.PrimaryPart = crystal
@@ -670,23 +672,16 @@ local function shrine(parent, pos, zoneId, accent)
 	return m
 end
 
-local function bossArena(parent, pos, zone, trailStart, trailEnd)
+local function bossArena(parent, pos, zone, guardianOffset)
 	local m = M(parent, "BossArena")
 	local c = zone.colors.ground
-	disk(m, pos, 40, 0.6, pos.Y + 0.3, Color3.new(c.R * 0.85, c.G * 0.85, c.B * 0.85), Enum.Material.Slate, "Floor")
+	disk(m, pos, 40, 0.6, pos.Y + 0.3, Color3.new(c.R * 0.85, c.G * 0.85, c.B * 0.85), Enum.Material.Plastic, "Floor")
 	for k = 0, 15 do
 		local a = k / 16 * math.pi * 2
-		local stonePos = pos + Vector3.new(math.sin(a) * 42, 3, math.cos(a) * 42)
-		if distToSegment(stonePos, trailStart, trailEnd) > 18 then
-			P({ Name = "Stone", Size = Vector3.new(3, 5 + (k % 3) * 2, 3), CFrame = CFrame.new(stonePos) * CFrame.Angles(0, a, 0.1), Color = Color3.fromRGB(110, 105, 100), Material = Enum.Material.Slate, Parent = m })
-		end
+		P({ Name = "Stone", Size = Vector3.new(3, 5 + (k % 3) * 2, 3), CFrame = CFrame.new(pos + Vector3.new(math.sin(a) * 38, 3, math.cos(a) * 38)) * CFrame.Angles(0, a, 0.1), Color = STONE, Parent = m })
 	end
 	m.PrimaryPart = m.Floor
-	-- Keep the guardian's collidable trunk/roots clear of the through trail.
-	local direction = flat(trailEnd - trailStart).Unit
-	local side = Vector3.new(direction.Z, 0, -direction.X)
-	if flat(pos - trailStart):Dot(side) < 0 then side = -side end
-	m:SetAttribute("GuardianOffset", zone.id == #Zones.List and Vector3.new(26, 0, 0) or side * 26)
+	m:SetAttribute("GuardianOffset", guardianOffset)
 	tag(m, "BossArena", { Zone = zone.id, Boss = zone.boss })
 	return m
 end
@@ -695,7 +690,7 @@ local function nest(parent, pos, zone, index)
 	local m = M(parent, "Nest" .. index)
 	for k = 0, 9 do
 		local a = k / 10 * math.pi * 2
-		P({ Name = "Twig", Size = Vector3.new(1, 1, 4), CFrame = CFrame.new(pos + Vector3.new(math.sin(a) * 4, 0.6, math.cos(a) * 4)) * CFrame.Angles(0, a + 1.4, 0.2), Color = Color3.fromRGB(120, 85, 50), Material = Enum.Material.Wood, CanCollide = false, Parent = m })
+		P({ Name = "Twig", Size = Vector3.new(1, 1, 4), CFrame = CFrame.new(pos + Vector3.new(math.sin(a) * 4, 0.6, math.cos(a) * 4)) * CFrame.Angles(0, a + 1.4, 0.2), Color = Color3.fromRGB(120, 85, 50), CanCollide = false, Parent = m })
 	end
 	local base = disk(m, pos, 3.6, 0.6, pos.Y + 0.4, Color3.fromRGB(150, 110, 70), Enum.Material.Fabric, "Bed")
 	for k = 1, 3 do
@@ -707,64 +702,70 @@ local function nest(parent, pos, zone, index)
 	return m
 end
 
-local function decorZone(folder, zone, center, radius, rng, avoid)
-	local function spot(minR)
-		for _ = 1, 30 do
-			local r = math.sqrt(rng:NextNumber()) * (radius - minR)
-			local a = rng:NextNumber(0, math.pi * 2)
-			local p = center + Vector3.new(math.sin(a) * r, 0, math.cos(a) * r)
-			if avoid(p, 6) then
-				return p
-			end
-		end
-		return nil
-	end
-	local rocks = zone.id == 2 and 25 or 15
-	for _ = 1, rocks do
+-- Small non-collidable dressing; spot(minR) returns a free ground point or nil.
+local function decorZone(folder, zone, rng, spot)
+	local y = zone.y
+	for _ = 1, 16 do
 		local p = spot(10)
 		if p then
 			local s = rng:NextNumber(2, 6)
-			P({ Name = "Rock", Size = Vector3.new(s * 1.3, s, s), CFrame = CFrame.new(p + Vector3.new(0, s * 0.35, 0)) * CFrame.Angles(rng:NextNumber(-0.4, 0.4), rng:NextNumber(0, 3), rng:NextNumber(-0.4, 0.4)), Color = Color3.fromRGB(130, 125, 118), Material = Enum.Material.Slate, Parent = folder })
+			P({ Name = "Rock", Size = Vector3.new(s * 1.3, s, s), CFrame = CFrame.new(p + Vector3.new(0, s * 0.35, 0)) * CFrame.Angles(rng:NextNumber(-0.4, 0.4), rng:NextNumber(0, 3), rng:NextNumber(-0.4, 0.4)), Color = STONE, Parent = folder })
+		end
+	end
+	local function scatter(count, minR, fn)
+		for _ = 1, count do
+			local p = spot(minR)
+			if p then fn(Vector3.new(p.X, y, p.Z)) end
 		end
 	end
 	if zone.id == 1 then
 		local petals = { Color3.fromRGB(255, 99, 99), Color3.fromRGB(255, 214, 79), Color3.fromRGB(255, 255, 255), Color3.fromRGB(196, 132, 252) }
-		for _ = 1, 70 do
-			local p = spot(6)
-			if p then
-				P({ Name = "Flower", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, 1.4, 1.4), CFrame = CFrame.new(p + Vector3.new(0, 0.3, 0)) * CFrame.Angles(0, 0, rad(90)), Color = petals[rng:NextInteger(1, #petals)], CanCollide = false, CanQuery = false, Parent = folder })
-			end
-		end
-		for _ = 1, 14 do
-			local p = spot(8)
-			if p then
-				local s = rng:NextNumber(3, 5)
-				P({ Name = "Bush", Shape = Enum.PartType.Ball, Size = Vector3.new(s * 1.4, s, s * 1.4), CFrame = CFrame.new(p + Vector3.new(0, s * 0.35, 0)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], CanCollide = false, Parent = folder })
-			end
-		end
-	elseif assetVariants(zone) then
-		-- Small themed props from the same vetted prototypes (no collision, not choppable).
-		local variants = assetVariants(zone)
-		for _ = 1, 28 do
-			local p = spot(8)
-			if p then placeAsset(folder, variants[rng:NextInteger(1, #variants)], p, rng:NextNumber(3, 7), rng) end
-		end
-	end
-	if zone.id == 2 then
-		for _ = 1, 12 do
-			local p = spot(10)
-			if p then
-				local l = rng:NextNumber(8, 14)
-				P({ Name = "FallenLog", Shape = Enum.PartType.Cylinder, Size = Vector3.new(l, 2.4, 2.4), CFrame = CFrame.new(p + Vector3.new(0, 1.1, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), 0), Color = zone.colors.trunk, Material = Enum.Material.Wood, Parent = folder })
-			end
-		end
-		for _ = 1, 40 do
-			local p = spot(6)
-			if p then
-				local s = rng:NextNumber(3, 6)
-				P({ Name = "LeafPile", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, s, s * 0.8), CFrame = CFrame.new(p + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), rad(90)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], CanCollide = false, CanQuery = false, Parent = folder })
-			end
-		end
+		scatter(70, 6, function(p)
+			P({ Name = "Flower", Size = Vector3.new(1.2, 0.6, 1.2), CFrame = CFrame.new(p + Vector3.new(0, 0.3, 0)), Color = petals[rng:NextInteger(1, #petals)], CanCollide = false, CanQuery = false, Parent = folder })
+		end)
+		scatter(20, 8, function(p)
+			local s = rng:NextNumber(3, 5)
+			P({ Name = "Bush", Size = Vector3.new(s * 1.4, s, s * 1.4), CFrame = CFrame.new(p + Vector3.new(0, s * 0.4, 0)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], CanCollide = false, Parent = folder })
+		end)
+	elseif zone.id == 2 then
+		scatter(12, 10, function(p)
+			local l = rng:NextNumber(8, 14)
+			P({ Name = "FallenLog", Size = Vector3.new(l, 2.4, 2.4), CFrame = CFrame.new(p + Vector3.new(0, 1.2, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), 0), Color = zone.colors.trunk, Parent = folder })
+		end)
+		scatter(40, 6, function(p)
+			local s = rng:NextNumber(3, 6)
+			P({ Name = "LeafPile", Size = Vector3.new(s, 0.4, s * 0.8), CFrame = CFrame.new(p + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), 0), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], CanCollide = false, CanQuery = false, Parent = folder })
+		end)
+	elseif zone.id == 3 then
+		scatter(30, 6, function(p)
+			local s = rng:NextNumber(1, 2.5)
+			P({ Name = "GlowShroom", Shape = Enum.PartType.Ball, Size = Vector3.new(s, s * 0.7, s), CFrame = CFrame.new(p + Vector3.new(0, s * 0.3, 0)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], Material = Enum.Material.Neon, CanCollide = false, CanQuery = false, Parent = folder })
+		end)
+	elseif zone.id == 4 then
+		scatter(12, 8, function(p)
+			P({ Name = "StoneLantern", Size = Vector3.new(2, 5, 2), CFrame = CFrame.new(p + Vector3.new(0, 2.5, 0)), Color = STONE, Parent = folder })
+			P({ Name = "LanternLight", Size = Vector3.new(1.4, 1.4, 1.4), CFrame = CFrame.new(p + Vector3.new(0, 5.7, 0)), Color = Color3.fromRGB(255, 200, 120), Material = Enum.Material.Neon, CanCollide = false, Parent = folder })
+		end)
+	elseif zone.id == 5 then
+		scatter(25, 6, function(p)
+			local h = rng:NextNumber(4, 9)
+			P({ Name = "Shoot", Size = Vector3.new(0.8, h, 0.8), CFrame = CFrame.new(p + Vector3.new(0, h / 2, 0)), Color = zone.colors.trunk, CanCollide = false, Parent = folder })
+		end)
+	elseif zone.id == 6 then
+		scatter(25, 8, function(p)
+			local s = rng:NextNumber(4, 8)
+			P({ Name = "SnowMound", Size = Vector3.new(s * 1.4, s * 0.5, s), CFrame = CFrame.new(p + Vector3.new(0, s * 0.15, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), 0), Color = Color3.fromRGB(248, 250, 255), CanCollide = false, Parent = folder })
+		end)
+	elseif zone.id == 7 then
+		scatter(25, 6, function(p)
+			local h = rng:NextNumber(3, 8)
+			P({ Name = "Shard", Size = Vector3.new(1.5, h, 1.5), CFrame = CFrame.new(p + Vector3.new(0, h / 2 - 0.5, 0)) * CFrame.Angles(rng:NextNumber(-0.3, 0.3), rng:NextNumber(0, 3), rng:NextNumber(-0.3, 0.3)), Color = zone.colors.leaves[rng:NextInteger(1, #zone.colors.leaves)], Material = Enum.Material.Neon, CanCollide = false, Parent = folder })
+		end)
+	elseif zone.id == 8 then
+		scatter(16, 8, function(p)
+			P({ Name = "GoldLamp", Size = Vector3.new(1.4, 6, 1.4), CFrame = CFrame.new(p + Vector3.new(0, 3, 0)), Color = Color3.fromRGB(245, 205, 48), Parent = folder })
+			P({ Name = "GoldLight", Size = Vector3.new(2, 2, 2), CFrame = CFrame.new(p + Vector3.new(0, 7, 0)), Color = Color3.fromRGB(255, 240, 170), Material = Enum.Material.Neon, CanCollide = false, Parent = folder })
+		end)
 	end
 end
 
@@ -773,6 +774,7 @@ function MapBuilder.BuildZone(index)
 		local L = MapBuilder.Layout()
 		local Z = L.zones[index]
 		local zone = Z.def
+		local y = Z.y
 		local wilds = F(mapRoot(), "Wilds")
 		local zoneName = string.format("Zone%d_%s", index, zone.key)
 		for _, old in wilds:GetChildren() do
@@ -780,214 +782,160 @@ function MapBuilder.BuildZone(index)
 		end
 		local root = fresh(wilds, zoneName)
 		root:SetAttribute("Zone", index)
-		local C = Z.center
-		local E = Z.entry
-		local X = Z.exit
 		local rng = Random.new(1000 + index)
 		local folders = {}
 		for _, name in { "Ground", "Trees", "ChestSpots", "Nests", "Shrine", "BossArena", "ZoneGate", "WarpStone", "Spawn", "Boundary", "Decor", "Secrets" } do
 			folders[name] = F(root, name)
 		end
+		local mid = (Z.inner + Z.outer) / 2
 
-		-- พื้น + หน้าผา
-		local groundMat = index == 6 and Enum.Material.Snow or (index == 8 and Enum.Material.Sand or Enum.Material.Grass)
-		if index == 8 then
-			disk(folders.Ground, C, Z.radius, 10, Z.y, zone.colors.ground, groundMat, "SkyIsland")
-			disk(folders.Ground, C, Z.radius * 0.9, 70, Z.y - 10, zone.colors.cliff, Enum.Material.Rock, "FloatingCliff")
-		else
-			roundedGround(folders.Ground, C, Z.radius, -8, Z.y - 1, zone.colors.cliff, Enum.Material.Rock, "Soil", E, Z.halfDepth)
-			roundedGround(folders.Ground, C, Z.radius, Z.y - 1, Z.y, zone.colors.ground, groundMat, "Meadow", E, Z.halfDepth)
-		end
-
-		-- ทางเดินจากทางเข้าไปทางออก
-		local inward = flat(C - E).Unit
-		local trailEnd = Z.trailEnd or X or (C + Vector3.new(inward.Z, 0, -inward.X) * 80)
-		local trail = {}
-		for s = 0, 8 do
-			local p = (Z.trailStart or E):Lerp(trailEnd, s / 8)
-			table.insert(trail, Vector3.new(p.X, Z.y + 0.25, p.Z))
-		end
+		-- Trail along the south axis.
 		local gc = zone.colors.ground
-		pathSegments(folders.Ground, trail, 14, 0.5, Color3.new(gc.R * 0.7, gc.G * 0.6, gc.B * 0.5), Enum.Material.Ground, "Trail")
+		local trailColor = Color3.new(gc.R * 0.75, gc.G * 0.65, gc.B * 0.55)
+		local lift = Vector3.new(0, 0.25, 0)
+		pathSegments(folders.Ground, { Z.trailStart + lift, Z.trailEnd + lift }, 14, 0.5, trailColor, Enum.Material.Plastic, "Trail")
 
-		-- จุดเกิดโซน + หินวาร์ป + ป้ายต้อนรับ
-		local spawnPos = (Z.trailStart or E) + inward * 22
-		local sp = P({ Name = "ZoneSpawn", Size = Vector3.new(8, 1, 8), CFrame = CFrame.new(spawnPos.X, Z.y + 0.5, spawnPos.Z), Transparency = 1, CanCollide = false, Parent = folders.Spawn })
+		-- Spawn + warp stone + welcome sign.
+		local spawnPos = Z.trailStart + INWARD * 14
+		local side = Vector3.xAxis
+		local sp = P({ Name = "ZoneSpawn", Size = Vector3.new(8, 1, 8), CFrame = CFrame.new(spawnPos + Vector3.new(0, 0.5, 0)), Transparency = 1, CanCollide = false, Parent = folders.Spawn })
 		tag(sp, "ZoneSpawn", { Zone = index })
-		local side = Vector3.new(inward.Z, 0, -inward.X)
-		warpStone(folders.WarpStone, Vector3.new(spawnPos.X, Z.y, spawnPos.Z) + side * 18, index, zone.colors.accent)
-		local signPos = (Z.trailStart or E) + inward * 12 - side * 16
-		P({ Name = "SignPost", Size = Vector3.new(1, 10, 1), CFrame = CFrame.new(signPos.X, Z.y + 5, signPos.Z), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = folders.Decor })
-		local welcome = zone.built and string.format("Zone %d · %s", index, zone.name)
-			or string.format("Zone %d · %s\n(Available in Phase 7)", index, zone.name)
-		sign(folders.Decor, Vector3.new(signPos.X, Z.y + 12, signPos.Z), E - inward * 40, welcome, 16, 7)
+		local warpPos = spawnPos + side * 18
+		warpStone(folders.WarpStone, warpPos, index, zone.colors.accent)
+		local signPos = Z.trailStart + INWARD * 4 - side * 16
+		P({ Name = "SignPost", Size = Vector3.new(1, 10, 1), CFrame = CFrame.new(signPos + Vector3.new(0, 5, 0)), Color = Color3.fromRGB(110, 75, 45), Parent = folders.Decor })
+		sign(folders.Decor, signPos + Vector3.new(0, 12, 0), Z.entry + SOUTH * 40, string.format("Zone %d · %s", index, zone.name), 16, 7)
 
-		-- Visible rot hedges with exact openings aligned to the gate pillars.
-		if index < 8 then
-			for _, edge in { {1, 0}, {-1, 0}, {0, 1}, {0, -1} } do
-				local normal = Vector3.new(edge[1], 0, edge[2])
-				local tangent = Vector3.new(normal.Z, 0, -normal.X)
-				local edgeDepth = math.abs(normal.Z) > 0.5 and Z.halfDepth or Z.radius
-				local edgeLength = math.abs(normal.Z) > 0.5 and Z.radius or Z.halfDepth
-				local middle = C + normal * edgeDepth
-				local openings = {}
-				for _, point in { E, X } do
-					if math.abs(flat(point - middle):Dot(normal)) < 2 then
-						local t = flat(point - middle):Dot(tangent)
-						table.insert(openings, { t - 20, t + 20 })
-					end
-				end
-				table.sort(openings, function(a, b) return a[1] < b[1] end)
-				table.insert(openings, { edgeLength, edgeLength })
-				local cursor = -edgeLength
-				for _, hole in openings do
-					local length = hole[1] - cursor
-					if length > 0 then
-						local pos = middle + tangent * (cursor + length / 2) + Vector3.new(0, 6, 0)
-						P({ Name = "RotHedge", Size = Vector3.new(length, 12, 5), CFrame = CFrame.lookAt(pos, pos + normal), Color = Zones.RotColor:Lerp(zone.colors.cliff, 0.65), Material = Enum.Material.Wood, Parent = folders.Boundary })
-						for t = cursor + 8, hole[1] - 8, 24 do
-							local thorn = middle + tangent * t + Vector3.new(0, 12, 0)
-							P({ Name = "RotThorn", Size = Vector3.new(2, 5, 2), CFrame = CFrame.new(thorn) * CFrame.Angles(0.4, t, 0.3), Color = Zones.RotColor, Material = Enum.Material.Wood, CanCollide = false, Parent = folders.Boundary })
-						end
-					end
-					cursor = hole[2]
-				end
-			end
+		-- Hedge along the outer rim (meadow: coast wall in BuildWorld), opening at the south gate.
+		if index > 1 then
+			ringWall(folders.Boundary, Vector3.zero, Z.outer - 2.5, y - 0.5, 8.5, 5, Zones.RotColor:Lerp(zone.colors.cliff, 0.65), "RotHedge", { { 0, GATE_HALF } }, 30)
 		end
 
-		-- ลานบอส (ใกล้ทางออก) + ศาลเจ้า + ประตูโซนถัดไป
-		local arenaPos
+		-- Gate to the next ring at the top of the stairs.
+		if Z.exit then
+			local N = L.zones[index + 1]
+			gate(folders.ZoneGate, Vector3.new(0, N.y, Z.exit.Z - 3), index, index + 1, zone.colors.accent)
+		end
+
+		-- Boss arena east of the trail (Lumora plateau: centre), shrine beside it.
+		local arenaPos, shrinePos, offset
 		if index == #Zones.List then
-			arenaPos = Vector3.new(C.X, Z.y, C.Z)
+			arenaPos = Vector3.new(0, y, 0)
+			shrinePos = polar(Vector3.zero, 70, rad(70), y)
+			offset = Vector3.new(26, 0, 0)
 		else
-			arenaPos = X + flat(C - X).Unit * 58
-			arenaPos = Vector3.new(arenaPos.X, Z.y, arenaPos.Z)
+			local a = rad(75)
+			arenaPos = polar(Vector3.zero, mid, a, y)
+			shrinePos = polar(Vector3.zero, mid, a + 58 / mid, y)
+			offset = (polar(Vector3.zero, mid, a - 0.1, y) - arenaPos).Unit * 22
 		end
-		bossArena(folders.BossArena, arenaPos, zone, Z.trailStart or E, trailEnd)
-		local perp = Vector3.new(inward.Z, 0, -inward.X)
-		local shrinePos = arenaPos + perp * 55
-		if flat(shrinePos - C).Magnitude > Z.radius - 14 then
-			shrinePos = arenaPos - perp * 55
-		end
-		shrine(folders.Shrine, Vector3.new(shrinePos.X, Z.y, shrinePos.Z), index, zone.colors.accent)
-		if X then
-			gate(folders.ZoneGate, Vector3.new(X.X, Z.y, X.Z), flat(X - C), index, index + 1, zone.colors.accent)
-		end
+		bossArena(folders.BossArena, arenaPos, zone, offset)
+		shrine(folders.Shrine, shrinePos, index, zone.colors.accent)
 
-		-- โซนบนสุด: ต้น Lumora + ประตูมิติ (ไว้อนาคต)
+		-- Lumora tree + Realm Gate on the plateau.
 		if index == #Zones.List then
 			local lum = M(folders.Decor, "Lumora")
-			P({ Name = "Trunk", Size = Vector3.new(12, 80, 12), CFrame = CFrame.new(C + Vector3.new(0, 40, 0)), Color = zone.colors.trunk, Material = Enum.Material.Wood, Parent = lum })
-			for k = 1, 4 do
-				P({ Name = "Crown", Size = Vector3.new(70 - k * 10, 18, 70 - k * 10), CFrame = CFrame.new(C + Vector3.new(0, 70 + k * 12, 0)) * CFrame.Angles(0, k * 0.4, 0), Color = zone.colors.leaves[1], Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = lum })
+			P({ Name = "Trunk", Size = Vector3.new(14, 80, 14), CFrame = CFrame.new(0, y + 40, 0), Color = zone.colors.trunk, Parent = lum })
+			for k = 1, 3 do
+				P({ Name = "Root", Size = Vector3.new(4, 4, 22), CFrame = CFrame.new(0, y + 2, 0) * CFrame.Angles(0, k * 2.1, 0) * CFrame.new(0, 0, 12), Color = zone.colors.trunk, Parent = lum })
 			end
+			for k = 1, 4 do
+				P({ Name = "Crown", Size = Vector3.new(76 - k * 12, 16, 76 - k * 12), CFrame = CFrame.new(0, y + 72 + k * 11, 0) * CFrame.Angles(0, k * 0.4, 0), Color = k % 2 == 0 and zone.colors.leaves[2] or zone.colors.leaves[1], CanCollide = false, Parent = lum })
+			end
+			local glow = P({ Name = "Glow", Shape = Enum.PartType.Ball, Size = Vector3.new(10, 10, 10), CFrame = CFrame.new(0, y + 125, 0), Color = Color3.fromRGB(255, 240, 170), Material = Enum.Material.Neon, CanCollide = false, Parent = lum })
+			local light = Instance.new("PointLight")
+			light.Color = glow.Color
+			light.Range = 60
+			light.Brightness = 2
+			light.Parent = glow
 			tag(lum, "Lumora")
-			local far = C + inward * (Z.radius - 20) -- ฝั่งตรงข้ามทางเข้า
+			local far = polar(Vector3.zero, Z.outer - 22, math.pi, y + 16)
 			local rg = M(folders.Secrets, "RealmGate")
-			local rcf = CFrame.lookAt(Vector3.new(far.X, Z.y + 16, far.Z), Vector3.new(C.X, Z.y + 16, C.Z))
+			local rcf = CFrame.lookAt(far, Vector3.new(0, far.Y, 0))
 			for k = 0, 19 do
 				local a = k / 20 * math.pi * 2
 				P({ Name = "Ring", Size = Vector3.new(2.5, 4.5, 2.5), CFrame = rcf * CFrame.new(math.cos(a) * 13, math.sin(a) * 13, 0) * CFrame.Angles(0, 0, a), Color = Color3.fromRGB(255, 215, 100), Material = Enum.Material.Neon, Parent = rg })
 			end
-			sign(rg, (rcf * CFrame.new(0, 19, 0)).Position, C, "Realm Gate · Realm 2 (Coming Soon)", 22, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(255, 230, 150))
+			sign(rg, (rcf * CFrame.new(0, 19, 0)).Position, Vector3.zero, "Realm Gate · Realm 2 (Coming Soon)", 22, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(255, 230, 150))
 			tag(rg, "RealmGate", { Realm = 2, Open = false })
 		end
 
-		-- พื้นที่ห้ามวาง
-		local blocked = {
-			{ E, 40 }, { arenaPos, 52 }, { shrinePos, 18 }, { spawnPos + side * 18, 10 }, { signPos, 6 },
-		}
-		if X then
-			table.insert(blocked, { X, 40 })
-		end
+		-- Free-space test for trees/chests/nests/decor.
+		local blocked = { { Z.entry, 40 }, { arenaPos, 52 }, { shrinePos, 18 }, { warpPos, 10 }, { signPos, 6 } }
+		if Z.exit then table.insert(blocked, { Z.stairFoot, 40 }) end
+		if index == #Zones.List then table.insert(blocked, { polar(Vector3.zero, Z.outer - 22, math.pi, y), 22 }) end
 		local trees = {}
 		local function free(p, margin)
+			local r = flat(p).Magnitude
+			if r < Z.inner + margin + 3 or r > Z.outer - margin - 6 then return false end
+			if flat(p - HUB.center).Magnitude < HUB.radius + margin + 8 then return false end
 			for _, b in blocked do
-				if flat(p - b[1]).Magnitude < b[2] + margin then
-					return false
-				end
+				if flat(p - b[1]).Magnitude < b[2] + margin then return false end
 			end
-			if distToSegment(p, Z.trailStart or E, trailEnd) < 12 + margin then
-				return false
-			end
+			if distToSegment(p, Z.entry, Z.trailEnd) < 12 + margin then return false end
 			for _, t in trees do
-				if flat(p - t.p).Magnitude < t.r + margin then
-					return false
-				end
+				if flat(p - t.p).Magnitude < t.r + margin then return false end
 			end
 			return true
 		end
+		local function ringPoint()
+			local r = math.sqrt(rng:NextNumber() * (Z.outer ^ 2 - Z.inner ^ 2) + Z.inner ^ 2)
+			local a = rng:NextNumber(-math.pi, math.pi)
+			return polar(Vector3.zero, r, a, y)
+		end
 
-		if zone.built then
-			-- ต้นไม้ ~160 ต้น (ArmZ เลือกให้แน่นขึ้น) ระดับสูงขึ้นตามระยะจากทางเข้า
-			local target = 160
-			local tries = 0
-			while #trees < target and tries < 9000 do
-				tries += 1
-				local r = math.sqrt(rng:NextNumber()) * (Z.radius - 14)
-				local a = rng:NextNumber(0, math.pi * 2)
-				local p = C + Vector3.new(math.sin(a) * r, 0, math.cos(a) * r)
-				local depth = flat(p - E).Magnitude / (Z.radius * 2)
-				local tier = math.clamp(math.floor(depth * 6 * 1.15 + rng:NextNumber(-0.8, 0.8)) + 1, 1, 6)
-				local size = 4 + tier * 1.6
-				if free(p, size) then
-					makeTree(folders.Trees, zone, tier, Vector3.new(p.X, Z.y, p.Z), rng)
-					table.insert(trees, { p = p, r = size })
-				end
-			end
-			-- จุดหีบ 10 จุด (ลึก = ดีกว่า)
-			local chests = {}
-			tries = 0
-			while #chests < 10 and tries < 3000 do
-				tries += 1
-				local r = math.sqrt(rng:NextNumber()) * (Z.radius - 20)
-				local a = rng:NextNumber(0, math.pi * 2)
-				local p = C + Vector3.new(math.sin(a) * r, 0, math.cos(a) * r)
-				local okSpacing = true
-				for _, c in chests do
-					if flat(p - c).Magnitude < 34 then
-						okSpacing = false
-					end
-				end
-				if okSpacing and free(p, 3) then
-					table.insert(chests, p)
-					local mk = disk(folders.ChestSpots, p, 3, 0.3, Z.y + 0.3, Color3.fromRGB(255, 214, 79), Enum.Material.Neon, "ChestSpot" .. #chests)
-					mk.Transparency = 0.5
-					mk.CanCollide = false
-					tag(mk, "ChestSpot", { Zone = index, Depth = math.clamp(flat(p - E).Magnitude / (Z.radius * 2), 0, 1) })
-				end
-			end
-			-- รังไข่ 2 รัง (ลึกครึ่งหลัง)
-			local nests = 0
-			tries = 0
-			while nests < 2 and tries < 3000 do
-				tries += 1
-				local r = math.sqrt(rng:NextNumber()) * (Z.radius - 24)
-				local a = rng:NextNumber(0, math.pi * 2)
-				local p = C + Vector3.new(math.sin(a) * r, 0, math.cos(a) * r)
-				if flat(p - E).Magnitude > Z.radius and free(p, 8) then
-					nests += 1
-					nest(folders.Nests, Vector3.new(p.X, Z.y, p.Z), zone, nests)
-					table.insert(trees, { p = p, r = 14 })
-				end
-			end
-			decorZone(folders.Decor, zone, Vector3.new(C.X, Z.y, C.Z), Z.radius - 6, rng, free)
-		else
-			-- โซนโครง: ต้นตัวอย่างโชว์ธีม (ยังฟันไม่ได้)
-			local tries = 0
-			while #trees < 14 and tries < 2000 do
-				tries += 1
-				local r = math.sqrt(rng:NextNumber()) * (Z.radius - 14)
-				local a = rng:NextNumber(0, math.pi * 2)
-				local p = C + Vector3.new(math.sin(a) * r, 0, math.cos(a) * r)
-				local tier = rng:NextInteger(1, 6)
-				local size = 4 + tier * 1.6
-				if free(p, size) then
-					makeTree(folders.Decor, zone, tier, Vector3.new(p.X, Z.y, p.Z), rng, "PreviewTree")
-					table.insert(trees, { p = p, r = size })
-				end
+		-- Trees: ~1 per 1600 studs² (140–260), tier rises with distance around the ring.
+		local area = math.pi * (Z.outer ^ 2 - Z.inner ^ 2)
+		local target = math.clamp(math.floor(area / 1600), 140, 260)
+		local tries = 0
+		while #trees < target and tries < 20000 do
+			tries += 1
+			local p = ringPoint()
+			local tier = math.clamp(math.floor(depthOf(p) * 6 * 1.15 + rng:NextNumber(-0.8, 0.8)) + 1, 1, 6)
+			local size = 4 + tier * 1.6
+			if free(p, size) then
+				makeTree(folders.Trees, zone, tier, p, rng)
+				table.insert(trees, { p = p, r = size })
 			end
 		end
+		-- 10 chest spots (deeper = better).
+		local chests = {}
+		tries = 0
+		while #chests < 10 and tries < 5000 do
+			tries += 1
+			local p = ringPoint()
+			local okSpacing = true
+			for _, c in chests do
+				if flat(p - c).Magnitude < 34 then okSpacing = false end
+			end
+			if okSpacing and free(p, 3) then
+				table.insert(chests, p)
+				local mk = disk(folders.ChestSpots, p, 3, 0.3, y + 0.3, Color3.fromRGB(255, 214, 79), Enum.Material.Neon, "ChestSpot" .. #chests)
+				mk.Transparency = 0.5
+				mk.CanCollide = false
+				tag(mk, "ChestSpot", { Zone = index, Depth = depthOf(p) })
+			end
+		end
+		-- 2 nests in the far half.
+		local nests = 0
+		tries = 0
+		while nests < 2 and tries < 5000 do
+			tries += 1
+			local p = ringPoint()
+			if depthOf(p) > 0.4 and free(p, 8) then
+				nests += 1
+				nest(folders.Nests, p, zone, nests)
+				table.insert(trees, { p = p, r = 14 })
+			end
+		end
+		decorZone(folders.Decor, zone, rng, function(minR)
+			for _ = 1, 30 do
+				local p = ringPoint()
+				if free(p, minR * 0.5) then return p end
+			end
+			return nil
+		end)
+		root:SetAttribute("TreeTarget", target)
 	end)
 end
 
@@ -1003,7 +951,7 @@ function MapBuilder.BuildAll()
 	MapBuilder.BuildAllZones()
 end
 
--- สรุปจำนวนของในแมพ
+-- Tag counts + part totals (overall and per zone).
 function MapBuilder.Report()
 	local out = {}
 	for _, t in { "Tree", "PreviewTree", "ChestSpot", "Nest", "ZoneGate", "WarpStone", "ZoneSpawn", "BossArena", "Shrine", "PlayerBase", "GardenSlot", "Shop", "NPC", "ForestGate", "ArenaPortal", "RealmGate", "Lumora", "Leaderboard", "ChestAltar" } do
@@ -1013,13 +961,21 @@ function MapBuilder.Report()
 		end
 		table.insert(out, t .. "=" .. count)
 	end
-	local parts = 0
-	for _, d in mapRoot():GetDescendants() do
-		if d:IsA("BasePart") then
-			parts += 1
+	local function parts(folder)
+		local n = 0
+		for _, d in folder:GetDescendants() do
+			if d:IsA("BasePart") then n += 1 end
 		end
+		return n
 	end
-	table.insert(out, "Parts=" .. parts)
+	table.insert(out, "Parts=" .. parts(mapRoot()))
+	for _, child in mapRoot():GetChildren() do
+		table.insert(out, child.Name .. "=" .. parts(child))
+	end
+	local wilds = mapRoot():FindFirstChild("Wilds")
+	for _, z in (wilds and wilds:GetChildren() or {}) do
+		table.insert(out, z.Name .. "=" .. parts(z))
+	end
 	return table.concat(out, ", ")
 end
 

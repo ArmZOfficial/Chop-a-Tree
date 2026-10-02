@@ -16,14 +16,7 @@ local PRESETS={
 }
 
 -- Same zone footprint as RunService.ZoneAt.
-function Ambience.ZoneAt(pos)
-	for _,z in Zones.List do
-		local x,zpos=(z.col-1.5)*Zones.GridStep,(z.row-.5)*Zones.GridStep
-		local depth=z.id==8 and z.halfSize or Zones.GroundHalfDepth
-		if math.abs(pos.X-x)<=z.halfSize and math.abs(pos.Z-zpos)<=depth and math.abs(pos.Y-z.y)<18 then return z.id end
-	end
-	return nil
-end
+Ambience.ZoneAt=Zones.At
 
 function Ambience.Start()
 	local player=Players.LocalPlayer

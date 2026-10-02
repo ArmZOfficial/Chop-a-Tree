@@ -6,6 +6,8 @@
 
 ## Master prompt run 2026-10-02
 
+**แทร็ก A เสร็จ (เกาะวงกลม 8 วง, ยังไม่ Publish):** ตาม `assets/reference/map-concept.png` — วง 1 Meadow นอกสุด → 8 Lumora กลาง (y 4→78), Hub ใต้ (ท่าเรือ, Chest Altar, ร้านขวานซ้าย/ร้านไม้ขวา, บ้าน 7 หลัง), บันได+torii บนแกนใต้, TreeKit 24 แบบ, retro Plastic/Studs. `Zones.At` เป็น footprint เดียว (RunService/ZoneAmbience), Merchant ย้ายเข้า hub; Studio Zones WIP "ทวีปราบ" ถูกแทนแล้ว. ตรวจ: tags ครบ (Tree 1280→1470, อื่นเท่าเดิม), Parts 18,103→10,127, ValidateRoutes Edit 263/0 + Play เดิน 16/16, Zones.At ตรง tag 1598/1598, Play Run.ZoneAt 8/8 + hub nil, leak probe ประตู 0, console ไม่มี error; source 6 ไฟล์ = repo (hash). ไม่มี DATA_VERSION ใหม่. ค้าง: playtest เดินเองครบ/ฟัน/บอสทุกโซนบนผังใหม่, mobile FPS, hub อยู่นอกวงเกาะ (ทรงรูกุญแจ) ต่างจาก concept เล็กน้อย. ผัง: [plan §3](plan.md#3-แมพ-เกาะวงกลม--ทำแล้ว-2026-10-02).
+
 **แทร็ก B เสร็จ (Studio = repo checksum ยกเว้น Zones WIP/ProfileStore):** ดาบ 380 ชื่อ EN/TH ไม่มีเลขท้าย, LegacyWeaponMap 100→100 (1:1, rarity เดิม, power ไม่ลด สูงสุด +22.7%, ธาตุตรง 61/100) ตาราง [sword-pack-migration](sword-pack-migration.md); DATA_VERSION 2. ผลตรวจ Studio Play: migratetest ผ่าน (v0/v1 → v2, 100 legacy id, 300 ชิ้น, equip/giant/locked/ซ้ำ/unknown/Index union/idempotent/step ล้มแล้วข้อมูลไม่เปลี่ยน), catalog 380+100 (110/95/80/60/35), WeaponVisual 760 tools ≤9 parts + trail ครบ, Loot 2000/2000 swd และปิด flag ได้ wpn 500/500; python `tools/tests/test_sword_pack.py` 4/4; luau-compile 169 ไฟล์ 0 error. **หมายเหตุ:** Studio Play ใช้ DataStore จริง → เซฟ ArmZKubfu ถูก migrate v1→v2 แล้ว (อาวุธ 0 ชิ้นอยู่แล้ว, Index wpn 3 → +swd 3; ไม่มีอะไรหาย). ยังไม่ Publish.
 
 ### สำรวจก่อนแก้ (§1)
@@ -14,7 +16,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 **ของที่มี (Studio = repo ยกเว้นที่ระบุ):** 49 shared/config, 29 services, 20 admin command modules, 18 client controllers; ProfileStore ใน Studio ≠ repo (ห้าม overwrite). แมพปัจจุบัน = ทวีปตัว S ราบ (Zones halfSize 350, GridStep 700 ใน Studio; repo ยังเป็น 250/500 แบบขั้นบันได) + Sky Isles y=364; Workspace 18,798 parts (Zone8 7,719, Road_7_8 1,159). Tags: Tree 1280, ChestSpot 80, Nest 16, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena 8, Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 7, ForestGate/ArenaPortal/RealmGate/Lumora/ChestAltar 1, Leaderboard 2.
 
-**ของที่ค้าง (WIP ใน Studio ไม่อยู่ใน repo):** `Config.SwordPack` (380 ดาบสร้างตอนรัน ชื่อมีเลขท้าย เช่น "Inferno Katana 37") + `Config.WeaponCatalog` = ดาบอย่างเดียว → 100 อาวุธเก่า `wpn_*` หาไม่เจอ = "Retired item"; 10 สคริปต์ require WeaponCatalog แล้ว (Loot, CollectionMath, WeaponService, QuestService, EmoteService, ArenaService, WeaponCommands, StoryCommands, StoryController, InventoryController fallback); WeaponVisual มี sword builder (SmoothPlastic, ไม่มี trail). ไม่มี LegacyWeaponMap/migration, DATA_VERSION=1. MapBuilder/Zones ใน Studio เป็นงาน "ทวีปราบ" ครึ่งทาง.
+**ของที่ค้าง (WIP ใน Studio ไม่อยู่ใน repo):** `Config.SwordPack` (380 ดาบสร้างตอนรัน ชื่อมีเลขท้าย เช่น "Inferno Katana 37") + `Config.WeaponCatalog` = ดาบอย่างเดียว → 100 อาวุธเก่า `wpn_*` หาไม่เจอ = "Retired item"; 10 สคริปต์ require WeaponCatalog แล้ว (Loot, CollectionMath, WeaponService, QuestService, EmoteService, ArenaService, WeaponCommands, StoryCommands, StoryController, InventoryController fallback); WeaponVisual มี sword builder (SmoothPlastic, ไม่มี trail). ไม่มี LegacyWeaponMap/migration, DATA_VERSION=1. MapBuilder/Zones ใน Studio เป็นงาน "ทวีปราบ" ครึ่งทาง (แทนแล้วโดยแทร็ก A).
 
 **ของที่ขาด:** LegacyWeaponMap + migration v2, flag SwordPack, Config.Movement/Sprint, Shared.Locale/Strings (ไทย), ChestBuilder/ChestIconRenderer/Opening Stage, เกาะวงกลม 8 โซน, TreeKit, elements-v3, ภาพ concept แมพ และ `assets/reference/chest-open/` (ไม่มีในโฟลเดอร์ → ทำตามสเปก, รอ reference).
 
@@ -43,7 +45,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 ## งานถัดไป / ค้าง
 
-0. Sword Pack 380 + Map rework retro (ดูสถานะบน) — เริ่มเมื่อ ArmZ สั่ง; บันทึก Report() ก่อนสร้างใหม่เพื่อเทียบ.
+0. Master prompt ที่เหลือ (ตามลำดับ): D+E ChestBuilder/props/elements-v3 → H Sprint → I Locale EN+TH → C UI audit → J chest cinematic → F+G → regression. ดู `prompts/cli-continue.md`.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.

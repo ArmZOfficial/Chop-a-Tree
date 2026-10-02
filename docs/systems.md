@@ -5,10 +5,11 @@
 
 ## Map
 
-- PlaceId 93479990217075; GameId 10768831527. ทวีป 2100×1100, โซนล่าง 500×480/grid500 ชิดกัน, แม่น้ำ20/สะพานตะวันออก; เกาะ300เหนือโซน7. ทั้ง8 built=true.
-- Workspace.Map.Village + Wilds.ZoneN_Key. Trunk โปร่งใส PrimaryPart/collider; Look ไม่ชน. Prototype ServerStorage.MapAssets.Trees.ZoneKey; AssetPrototypes Sources → AssetStaging → Build/Report scripts=0.
-- Boss GuardianOffset26 studs ห่างทางเดิน (โซน8ด้านข้าง Lumora). ValidateRoutes ใน Edit+Play; ZoneAmbience ใช้ Run.ZoneAt footprint ไม่เปลี่ยน Lighting/mutation.
-- Route เดิม 2048 samples/16 walks; Phase7 23 checks. ผังภูเขาเลิกใช้. หลังเปลี่ยนภูมิประเทศตรวจใหม่ ไม่อ้างรายงานเดิมแทนผลใหม่.
+- PlaceId 93479990217075; GameId 10768831527. **เกาะวงกลม 8 วง (2026-10-02)**: ศูนย์ (0,0), ใต้ = +Z; วง `inner/outer/y` อยู่ใน `Config.Zones` (1 Meadow 740–900 y4 → 7 Crystal 200–290 y64, 8 Lumora ที่ราบ r200 y78). Hub Rootfall = `Zones.Hub` (0,4,1010) r190 นอกโซน. ทั้ง 8 built=true.
+- ตำแหน่งโซนอ่านผ่าน `Zones.At(pos)` ที่เดียว (RunService.ZoneAt + ZoneAmbience); ห้ามคำนวณ footprint เอง. Merchant.Position อยู่ใน hub (36,0,1072).
+- MapBuilder (`tools/map/MapBuilder.luau`, Studio `ServerStorage.MapTools`) + `TreeKit.luau` (24 แบบ ≤7 parts + rot veins 3 ที่ tier 6; ผสม 55/30/15). Trunk = PrimaryPart/collider ที่มองเห็น. ทุกวงเข้าทางแกนใต้: บันไดขั้นละ ≤1 stud + torii ZoneGate (RotBarrier) + RotHedge สูง 8 บนขอบวงบน (ช่องเปิด ±19 พอดีเสา); หน้าผา 8–14 + hedge = กระโดดข้ามไม่ได้. Hub มีกำแพง 10 (ช่อง ForestGate เหนือ, ท่าเรือใต้), ชายฝั่ง CoastRock. MapAssets (Creator Store) ไม่ใช้แล้ว.
+- MCP เรียก require โมดูลเกมไม่ได้: Edit ใช้ `loadstring(MapBuilder.Source)()` (MapBuilder fallback เองสำหรับ Zones/TreeKit); Play server ไม่มี loadstring → ใช้ test Script ชั่วคราวใน ServerScriptService. หลัง BuildZone ต้องรัน `BuildZoneKeepers.luau` ซ้ำ.
+- ผลตรวจ 2026-10-02: tags ครบ (Tree 1470, ChestSpot 80, Nest 16, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena/Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 7, อื่น 1–2), Parts 10,127 (เดิม 18,103); ValidateRoutes Edit 263 samples/0, Play เดิน 16/16 routes; Zones.At ตรง tag 1598/1598; Play `Run.ZoneAt` 8/8 + hub=nil; leak probe ประตู 0. หลังเปลี่ยนภูมิประเทศตรวจใหม่ ไม่อ้างรายงานเดิมแทนผลใหม่.
 
 ## Run / weapons
 
