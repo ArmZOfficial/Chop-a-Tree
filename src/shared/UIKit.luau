@@ -387,6 +387,10 @@ function UIKit.Window(panel: GuiObject, title: string?, symbol: string?, opts: P
  else
   UIKit.Symbol(panel,symbol or "book",{Name="TitleIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,30-px,.105,-py-2),Size=UDim2.fromOffset(78,78),ZIndex=5})
   heading=UIKit.Label(title,46,{Name="WindowHeading",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,112-px,.105,-py-2),Size=UDim2.new(.62,-112,0,64),TextColor3=Heading,TextWrapped=false,TextTruncate=Enum.TextTruncate.AtEnd,ZIndex=5,Parent=panel})
+  heading.TextScaled=true -- after TextWrapped=false (setting that clears TextScaled)
+  -- Small windows: use the whole title strip up to the close button; shrink long/Thai titles instead of cutting them.
+  local width=panel.Size.X.Offset;if width>0 and width<700 then heading.Size=UDim2.new(1,2*px-190,0,64) end
+  New("UITextSizeConstraint",{MaxTextSize=46,MinTextSize=18,Parent=heading})
  end
  heading:FindFirstChildOfClass("UIStroke").Thickness=4
  if original then original:GetPropertyChangedSignal("Text"):Connect(function() heading.Text=original.Text end) end

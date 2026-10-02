@@ -35,7 +35,8 @@ function Inventory.Start()
 	local rarityLabel=UI.Label("",19,{Size=UDim2.fromScale(1,1),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,Parent=rarity})
 	local powerBar,powerLabel=UI.InfoBar(selection,"Power",{Name="Power",Position=UDim2.fromOffset(26,304),Size=UDim2.new(1,-52,0,50)},"axe")
 	local powerValue=UI.Label("",26,{Name="PowerValue",Position=UDim2.new(0,0,0,0),Size=UDim2.new(1,-16,1,0),TextXAlignment=Enum.TextXAlignment.Right,TextWrapped=false,ZIndex=3,Parent=powerBar})
-	local details=UI.Label("",15,{Name="Details",FontFace=UI.FontBold,Position=UDim2.fromOffset(28,356),Size=UDim2.new(1,-56,0,40),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=UI.Colors.TextDim,Parent=selection})
+	local details=UI.Label("",15,{Name="Details",FontFace=UI.FontBold,Position=UDim2.fromOffset(28,356),Size=UDim2.new(1,-56,0,40),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=UI.Colors.TextDim,RichText=true,TextScaled=true,Parent=selection})
+	UI.New("UITextSizeConstraint",{MaxTextSize=15,MinTextSize=9,Parent=details})
 	local equippedBadge=UI.Badge(selection,"✓ Equipped","ready",{Name="Equipped",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,398),Size=UDim2.fromOffset(150,38)})
 	local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.new(0,8,1,-56),Size=UDim2.new(1,-16,0,62),Parent=selection})
 	-- Right: tabs, grid, info.
@@ -207,9 +208,10 @@ function Inventory.Start()
 				local flags=game.ReplicatedStorage.FeatureFlags
 				local luck=CollectionMath.Luck(Data.Get(),flags:GetAttribute("Rebirth")==true,flags:GetAttribute("IndexBonuses")==true,os.time(),game.ReplicatedStorage:GetAttribute("ServerLuckUntil"))
 				local odds,giant=Loot.Odds(chosen.rarity,chosen.level,luck);local out={}
-				for j,v in odds do if v>0 then table.insert(out,string.sub(Rarities.Order[j],1,4).." "..string.format("%.1f%%",v*100)) end end
+				-- One short line in rarity colours (C/R/E/L/M + %) so all five odds fit the detail box in any language.
+				for j,v in odds do if v>0 then local name=Rarities.Order[j];table.insert(out,string.format('<font color="#%s">%s %.1f%%</font>',(Rarities.Color[name] or Color3.new(1,1,1)):Lerp(Color3.new(1,1,1),.35):ToHex(),name:sub(1,1),v*100)) end end
 				powerBar.Visible=true;powerLabel.Text="Owned";powerValue.Text="×"..chosen.count
-				details.Text="IL "..chosen.zone.." • Giant "..string.format("%.1f%%",giant*100).."\n"..table.concat(out," / ")
+				details.Text="IL "..chosen.zone.." • Giant "..string.format("%.1f%%",giant*100).."\n"..table.concat(out,"  ")
 			else setActions(nil);nameLabel.Text="No chests";details.Text="Clear trees around a chest spot, then End Run" end
 		end
 		details.TextSize=#details.Text>70 and 13 or 15

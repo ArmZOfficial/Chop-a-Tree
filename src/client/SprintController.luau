@@ -51,10 +51,12 @@ function Sprint.Start()
 	UIS.InputEnded:Connect(function(input)
 		if KEYS[input.KeyCode] and Sprint.Mode()~="Toggle" then want=false;push() end
 	end)
-	-- Touch: one toggle button above the jump button.
+	-- Touch: one toggle button just left of Roblox's jump button (small screens: 70px jump at bottom-right corner).
 	local gui=UI.New("ScreenGui",{Name="SprintHUD",ResetOnSpawn=false,DisplayOrder=4,Parent=player.PlayerGui})
 	button=UI.Button({text="RUN",textSize=20,color=UI.Colors.Blue,size=UDim2.fromOffset(84,60),onClick=function() want=not want;push() end})
-	button.Name="SprintButton";button.AnchorPoint=Vector2.new(1,1);button.Position=UDim2.new(1,-170,1,-120);button.Parent=gui
+	button.Name="SprintButton";button.AnchorPoint=Vector2.new(1,1);button.Parent=gui
+	local function place() local v=workspace.CurrentCamera.ViewportSize;button.Position=math.min(v.X,v.Y)<=500 and UDim2.new(1,-105,1,-22) or UDim2.new(1,-170,1,-120) end
+	place();workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(place)
 	local function showButton() gui.Enabled=UIS.TouchEnabled and flags:GetAttribute("Sprint")==true end
 	showButton();flags:GetAttributeChangedSignal("Sprint"):Connect(function() showButton();push() end)
 	player:GetAttributeChangedSignal("AdminFly"):Connect(push)

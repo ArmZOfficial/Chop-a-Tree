@@ -4,6 +4,8 @@ local S=game.ReplicatedStorage.Shared;local UI=require(S.UIKit)
 local Atlas=require(S.Config.UIIcons)
 local Navigation={}
 local Lighting=game:GetService("Lighting")
+local GuiService=game:GetService("GuiService")
+local UIS=game:GetService("UserInputService")
 local specs={
 	{"InventoryHUD","Toggle","Inventory","bag",true,960,650},
 	{"PetHUD","Toggle","Pets","egg",true,960,650},
@@ -35,7 +37,7 @@ function Navigation.Start()
 	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(490,400),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
 	UI.Label("Choose a Menu",24,{Parent=drawer})
 	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,45),Size=UDim2.new(1,0,1,-45),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12)})
-	local records,panels={},{};local compact=false;local layout
+	local records,panels={},{};local compact=false;local layout;local hidBackpack=false
     local blur=UI.New("BlurEffect",{Name="MenuBlur",Size=0,Parent=Lighting})
     UI.Window(drawer,"Choose a Menu","book")
 	local more=UI.Button({text="More",color=UI.Colors.Orange,size=UDim2.fromOffset(94,100),onClick=function()
@@ -49,12 +51,25 @@ function Navigation.Start()
         local border=b:FindFirstChildOfClass("UIStroke");if border then border.Thickness=4;border.Color=Color3.fromRGB(31,23,16) end
         local corner=b:FindFirstChildOfClass("UICorner");if corner then corner.CornerRadius=UDim.new(0,12) end
         UI.Skin(b,"chrome","navNormal");holder:SetAttribute("ArtCard",true)
-        local t=b:FindFirstChildWhichIsA("TextLabel",true);t.Text=label;t.TextSize=20;t.TextColor3=Color3.new(1,1,1);t.Position=UDim2.new(0,-5,1,-29);t.Size=UDim2.new(1,10,0,28);UI.TextStroke(3).Parent=t
+        local t=b:FindFirstChildWhichIsA("TextLabel",true);t.Text=label;t.TextSize=20;t.TextScaled=true;UI.New("UITextSizeConstraint",{MaxTextSize=20,MinTextSize=11,Parent=t});t.TextColor3=Color3.new(1,1,1);t.Position=UDim2.new(0,-5,1,-29);t.Size=UDim2.new(1,10,0,28);UI.TextStroke(3).Parent=t
 		icon(b,id);b.Activated:Connect(function() if holder~=more and holder~=mobile then drawer.Visible=false end end)
 	end
 	dress(more,"More","menu");dress(mobile,"Menu","menu");mobile:FindFirstChild("Button").Icon.Size=UDim2.fromOffset(42,35);mobile.Button.Icon.Position=UDim2.new(.5,-21,0,3)
 	local function fit(panel,w,h,primary)
 		local v=workspace.CurrentCamera.ViewportSize;local scale=panel:FindFirstChildOfClass("UIScale") or UI.New("UIScale",{Parent=panel})
+		local owner=panel:FindFirstAncestorWhichIsA("ScreenGui")
+		if compact and owner and (primary or panel.Name=="Panel" or panel.Name=="Settings") then
+			-- Phone: use the full screen height (the window may cover the topbar strip) and stay right of
+			-- Roblox's top-left buttons; +40 keeps the corner close button on screen.
+			local area=owner.AbsoluteSize;local inset=GuiService:GetGuiInset().Y
+			local ok,bar=pcall(function() return GuiService.TopbarInset end);local left=ok and bar and math.max(0,bar.Min.X) or 0
+			local beside=math.min(1,(area.X-left-12)/(w+40),(area.Y+inset-8)/(h+40))
+			local below=math.min(1,(area.X-12)/(w+40),(area.Y-8)/(h+40)) -- narrow phones: under the topbar instead
+			local s=math.max(beside,below)
+			panel.Size=UDim2.fromOffset(w,h);scale.Scale=s;panel.AnchorPoint=Vector2.new(.5,.5)
+			panel.Position=beside>=below and UDim2.new(0,left+(area.X-left)/2,.5,-inset/2+6*s) or UDim2.new(.5,0,.5,6*s)
+			return s
+		end
 		local rail=primary and not compact and RAIL or 0
 		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24-rail)/w,(v.Y-68)/h)
 		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*scale.Scale,.5,8*scale.Scale) end
@@ -67,7 +82,8 @@ function Navigation.Start()
 		local shade=panel.Name=="Panel" and owner:FindFirstChild("Shade")
 		if not shade then shade=UI.New("TextButton",{Name="NavigationShade_"..panel.Name,Text="",AutoButtonColor=false,Size=UDim2.fromScale(1,1),BackgroundColor3=UI.Colors.Outline,BackgroundTransparency=.45,Visible=false,Parent=owner});shade.ZIndex=0;shade.Activated:Connect(function() panel.Visible=false end) end
 		-- Clicks on empty window areas must not fall through to the shade (which closes the window).
-		UI.New("TextButton",{Name="ClickBlocker",Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ZIndex=0,Parent=panel})
+		UI.New("TextButton",{Name="ClickBlocker",Text="",AutoButtonColor=false,Selectable=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ZIndex=0,Parent=panel})
+		if shade:IsA("GuiButton") then shade.Selectable=false end
 		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade,primary=primary});panel:SetAttribute("NavigationPanel",true)
 		panel:GetPropertyChangedSignal("Visible"):Connect(function()
 			shade.Visible=panel.Visible
@@ -105,14 +121,16 @@ function Navigation.Start()
             s.Volume=0
         elseif volumes[s]~=nil then s.Volume=volumes[s];volumes[s]=nil end
     end
+    -- NavigationHUD uses Global ZIndex: lift toggles (and their skin art) above the row background.
+    local function lift(t) for _,d in t:GetDescendants() do if d:IsA("GuiObject") then d.ZIndex+=2 end end end
     for i,key in {"Music","SFX"} do
         local row=UI.New("Frame",{Name=key,Position=UDim2.fromOffset(0,50+(i-1)*66),Size=UDim2.new(1,0,0,58),BackgroundColor3=UI.Colors.PanelDark,Parent=settings},{UI.Corner(12),UI.Stroke(2,UI.Colors.Rail)})
         UI.Label(key,26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-120,1,-16),Parent=row})
         local toggle
-        toggle=UI.Button({text="ON",textSize=24,color=UI.Colors.Green,size=UDim2.fromOffset(88,46),onClick=function()
+        toggle=UI.Button({text="ON",textSize=24,color=UI.Colors.Green,size=UDim2.fromOffset(88,52),onClick=function()
             muteState[key]=not muteState[key];for _,s in game:GetDescendants() do sound(s) end
             toggle.Button:FindFirstChildWhichIsA("TextLabel",true).Text=muteState[key] and "OFF" or "ON";UI.SetButtonColor(toggle,muteState[key] and UI.Colors.Red or UI.Colors.Green)
-        end});toggle.Name="Toggle";toggle.Position=UDim2.new(1,-98,0,6);toggle.Parent=row
+        end});toggle.Name="Toggle";toggle.Position=UDim2.new(1,-98,0,3);toggle.Parent=row;lift(toggle)
     end
     game.DescendantAdded:Connect(function(s) task.defer(sound,s) end)
     do -- Sprint mode (Hold / Toggle); saved in Settings.SprintMode by the server
@@ -121,8 +139,8 @@ function Navigation.Start()
         UI.Label("Sprint",26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-170,1,-16),Parent=row})
         local toggle
         local function refresh() local t=toggle.Button:FindFirstChildWhichIsA("TextLabel",true);if t then t.Text=string.upper(Sprint.Mode()) end end
-        toggle=UI.Button({text="HOLD",textSize=22,color=UI.Colors.Blue,size=UDim2.fromOffset(138,46),onClick=function() Sprint.SetMode(Sprint.Mode()=="Toggle" and "Hold" or "Toggle") end})
-        toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,6);toggle.Parent=row
+        toggle=UI.Button({text="HOLD",textSize=22,color=UI.Colors.Blue,size=UDim2.fromOffset(138,52),onClick=function() Sprint.SetMode(Sprint.Mode()=="Toggle" and "Hold" or "Toggle") end})
+        toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,3);toggle.Parent=row;lift(toggle)
         refresh();require(script.Parent.ClientData).Changed:Connect(function(path) if path=="" or path=="Settings.SprintMode" or path=="Settings" then refresh() end end)
     end
     do -- Language: AUTO (Roblox locale) / ENGLISH / ไทย; saved in Settings.Language by the server
@@ -131,8 +149,8 @@ function Navigation.Start()
         UI.Label("Language",26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-170,1,-16),Parent=row})
         local toggle
         local function refresh() local t=toggle.Button:FindFirstChildWhichIsA("TextLabel",true);if t then t.Text=LocaleController.Label() end end
-        toggle=UI.Button({text="AUTO",textSize=22,color=UI.Colors.Blue,size=UDim2.fromOffset(138,46),onClick=function() LocaleController.Cycle() end})
-        toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,6);toggle.Parent=row
+        toggle=UI.Button({text="AUTO",textSize=22,color=UI.Colors.Blue,size=UDim2.fromOffset(138,52),onClick=function() LocaleController.Cycle() end})
+        toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,3);toggle.Parent=row;lift(toggle)
         refresh();require(script.Parent.ClientData).Changed:Connect(function(path) if path=="" or path=="Settings.Language" or path=="Settings" then refresh() end end)
     end
 	local settingButton=UI.Button({text="Settings",color=UI.Colors.Blue,onClick=function() settings.Visible=true end});settingButton.Name="SettingsMenu";settingButton.LayoutOrder=98;dress(settingButton,"Settings","gear");table.insert(records,{holder=settingButton,owner=gui,primary=false})
@@ -146,6 +164,8 @@ function Navigation.Start()
 		fit(drawer,490,400)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
+        -- Roblox's hotbar would sit on top of window footers.
+        if obscured~=hidBackpack then hidBackpack=obscured;pcall(game:GetService("StarterGui").SetCoreGuiEnabled,game:GetService("StarterGui"),Enum.CoreGuiType.Backpack,not obscured) end
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
 		if currencies then currencies.Visible=not obscured end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end
@@ -163,6 +183,30 @@ function Navigation.Start()
 		if tracker then tracker.Visible=not obscured;tracker.AnchorPoint=Vector2.new(1,0);tracker.Position=UDim2.new(1,-12,0,92);tracker.Size=UDim2.fromOffset(compact and 190 or 240,90) end
 	end
 	drawer:GetPropertyChangedSignal("Visible"):Connect(function() if layout then layout() end end)
+	-- Gamepad: Select (Roblox default) enters UI navigation; B closes the open window/menu;
+	-- opening a window moves the selection into it. Gold outline marks the selected control.
+	local highlight=UI.New("Frame",{Name="GamepadSelection",BackgroundTransparency=1,Size=UDim2.fromScale(1,1)},{UI.Corner(12),UI.New("UIStroke",{Thickness=4,Color=Color3.fromRGB(255,213,92),ApplyStrokeMode=Enum.ApplyStrokeMode.Border})})
+	pg.SelectionImageObject=highlight
+	local function gamepad() local v=UIS:GetLastInputType().Value;return v>=Enum.UserInputType.Gamepad1.Value and v<=Enum.UserInputType.Gamepad8.Value end
+	local function first(frame) -- top-left visible control, never the close button or full-size click catchers
+		local best,by,bx
+		for _,d in frame:GetDescendants() do
+			if d:IsA("GuiButton") and d.Selectable and d.Visible and d.AbsoluteSize.X>4 and not d:FindFirstAncestor("WindowClose") then
+				local ok,p=true,d.Parent;while p and p~=frame do if p:IsA("GuiObject") and not p.Visible then ok=false;break end;p=p.Parent end
+				local a=d.AbsolutePosition
+				if ok and (not best or a.Y<by-4 or (math.abs(a.Y-by)<=4 and a.X<bx)) then best,by,bx=d,a.Y,a.X end
+			end
+		end
+		return best
+	end
+	local function focus(frame) if gamepad() then task.defer(function() if frame.Visible then local b=first(frame);if b then GuiService.SelectedObject=b else GuiService:Select(frame) end end end) end end
+	for _,r in panels do r.panel:GetPropertyChangedSignal("Visible"):Connect(function() if r.panel.Visible then focus(r.panel) end end) end
+	drawer:GetPropertyChangedSignal("Visible"):Connect(function() if drawer.Visible then focus(drawer) end end)
+	UIS.InputBegan:Connect(function(input)
+		if input.KeyCode~=Enum.KeyCode.ButtonB then return end
+		for _,r in panels do if r.panel.Visible and r.owner.Enabled then r.panel.Visible=false;GuiService.SelectedObject=nil;return end end
+		if drawer.Visible then drawer.Visible=false;GuiService.SelectedObject=nil end
+	end)
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(layout);layout()
 end
 return Navigation

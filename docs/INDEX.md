@@ -14,6 +14,7 @@
 | [localization glossary](localization-glossary.md) | คำศัพท์ไทย/อังกฤษ + ขั้นตอนเพิ่มข้อความ |
 | [balance report](balance_report.txt) | ผลจำลอง; regenerateด้วย tools/balance_sim.py |
 | [sword-pack-migration](sword-pack-migration.md) | ตาราง legacy wpn → swd (แทร็ก B) |
+| [UX audit](../assets/ui/UX-audit.md) | ผลตรวจ UI 4 ขนาดจอ/จอย/ไทย + สิ่งที่ค้าง (แทร็ก C) |
 | [elements-v3](../assets/ui/elements-v3/README.md) | หีบ 5 ระดับ/ไอคอน/บันได asset 2D (แทร็ก D/E) |
 
 Config/Service/Scenarioใน src/ และ tools/tests/ เป็น implementation/วิธีตรวจ. IDจริงดู Config/Products.
