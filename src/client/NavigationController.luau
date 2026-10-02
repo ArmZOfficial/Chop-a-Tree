@@ -105,6 +105,7 @@ function Navigation.Start()
 		-- Clicks on empty window areas must not fall through to the shade (which closes the window).
 		UI.New("TextButton",{Name="ClickBlocker",Text="",AutoButtonColor=false,Selectable=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ZIndex=0,Parent=panel})
 		if shade:IsA("GuiButton") then shade.Selectable=false end
+		if owner:GetAttribute("BaseDisplayOrder")==nil then owner:SetAttribute("BaseDisplayOrder",owner.DisplayOrder) end
 		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade,primary=primary});panel:SetAttribute("NavigationPanel",true)
 		panel:GetPropertyChangedSignal("Visible"):Connect(function()
 			-- Owner ScreenGuis respect the top-bar inset (0 until the top bar loads, so read it on open);
@@ -203,6 +204,10 @@ function Navigation.Start()
 		fit(drawer,490,400)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
+        -- Lift the open window's ScreenGui above every HUD (compass 22, event/zone banners 5...) so its
+        -- shade covers them; Blur only affects the 3D view, never GUI.
+        local raised={};for _,r in panels do if r.panel.Visible and r.owner.Enabled then raised[r.owner]=true end end
+        for _,r in panels do r.owner.DisplayOrder=raised[r.owner] and 30 or r.owner:GetAttribute("BaseDisplayOrder") end
         -- The tool hotbar would sit on top of window footers: StarterGui.ToolHotbar when installed
         -- (it turns Roblox's backpack bar off for good), Roblox's own bar otherwise.
         local hotbar=pg:FindFirstChild("ToolHotbar")

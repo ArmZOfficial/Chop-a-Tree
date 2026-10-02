@@ -258,7 +258,9 @@ function Controller.Start()
 		local pos=goal and (goal:IsA("BasePart") and goal.Position or goal:GetPivot().Position)
 		-- The map consumes the existing quest resolver, including streamed-out/blocked targets.
 		beamFolder:SetAttribute("TargetPosition",pos)
-		if hr and pos and (pos-hr.Position).Magnitude>14 then
+		-- The distance billboard is GUI (never blurred): hide it while a menu blurs the world.
+		local menuBlur=game.Lighting:FindFirstChild("MenuBlur")
+		if hr and pos and (pos-hr.Position).Magnitude>14 and not (menuBlur and menuBlur.Size>0) then
 			a0.Parent=hr;local flatDir=Vector3.new(pos.X-hr.Position.X,0,pos.Z-hr.Position.Z).Unit
 			anchor.Position=hr.Position+flatDir*10+Vector3.new(0,-1.5,0);beam.Enabled=true;guideBill.Enabled=true
 			guideLabel.Text=math.floor((pos-hr.Position).Magnitude).." studs"
