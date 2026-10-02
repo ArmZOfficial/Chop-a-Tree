@@ -16,9 +16,9 @@ if not studio and (game.PrivateServerId=="" or game.PrivateServerOwnerId~=0) the
 	Players.PlayerAdded:Connect(function(p) task.wait(2);home({p},"เข้า Arena ผ่านพอร์ทัลในหมู่บ้าน") end)
 	return
 end
-local mode,ranked
+local mode,ranked,skillHints
 local function arrive(p)
-	if not mode then local data=p:GetJoinData().TeleportData;mode=M.Mode(data) or (studio and "FFA") or "";ranked=type(data)=="table" and data.ranked==true end
+	if not mode then local data=p:GetJoinData().TeleportData;mode=M.Mode(data) or (studio and "FFA") or "";ranked=type(data)=="table" and data.ranked==true;skillHints=type(data)=="table" and type(data.skills)=="table" and data.skills or {} end
 	M.Say(p,"รอผู้เล่น…")
 end
 Players.PlayerAdded:Connect(arrive);for _,p in Players:GetPlayers() do arrive(p) end
@@ -32,7 +32,7 @@ if rules.teams and #fighters%2==1 then task.spawn(home,{table.remove(fighters)},
 if #fighters<rules.min then home(fighters,"ผู้เล่นไม่ครบ กลับหมู่บ้าน");return end
 Players.PlayerAdded:Connect(function(p) task.defer(home,{p},"แมตช์เริ่มไปแล้ว") end)
 local teamOf=rules.teams and M.Split(fighters) or {}
-local alive,characters,charTeam,trees,scores={},{},{},{},{0,0}
+local alive,characters,charTeam,trees,scores,shapes={},{},{},{},{0,0},{}
 local result,egg,carrier
 local function dropEgg(at)
 	carrier=nil;if not egg then return end
@@ -66,6 +66,11 @@ if mode=="EggHeist" then
 		local w=Instance.new("WeldConstraint");w.Part0=egg;w.Part1=root;w.Parent=egg
 	end)
 end
+local function targetsFor(team)
+	local targets={};if team and trees[team] then table.insert(targets,trees[team]) end -- each team fells its own tree
+	for _,q in alive do table.insert(targets,characters[q]) end
+	return targets
+end
 local function spawn(i,p)
 	if p.Parent~=Players or result~=nil then return end
 	p:LoadCharacter();local c=p.Character;if not c then return end;M.Equip(c)
@@ -73,6 +78,8 @@ local function spawn(i,p)
 	local at=team and Vector3.new(M.Teams[team].x,5,(i%3-1)*6) or Vector3.new(math.cos(angle)*30,5,math.sin(angle)*30)
 	c:PivotTo(CFrame.lookAt(at,Vector3.new(0,5,0)))
 	characters[p]=c;charTeam[c]=team
+	local hint=skillHints[tostring(p.UserId)];hint=type(hint)=="table" and hint or {} -- cosmetic hint: name/shape only, damage is equal
+	shapes[p]=M.SkillShape(hint.element);p:SetAttribute("ArenaSkill",type(hint.name)=="string" and hint.name~="" and string.sub(hint.name,1,40) or "Spin")
 	if not table.find(alive,p) then table.insert(alive,p) end
 	c:FindFirstChildOfClass("Humanoid").Died:Connect(function()
 		if carrier==p then dropEgg(c:GetPivot().Position) end
@@ -84,17 +91,17 @@ local function spawn(i,p)
 	tool.Activated:Connect(function() pressed=os.clock() end) -- Activated/Deactivated replicate; the server times the charge and decides the hit
 	tool.Deactivated:Connect(function()
 		local heavy=pressed~=nil and os.clock()-pressed>=M.Heavy.charge;pressed=nil
-		local targets={};if team and trees[team] then table.insert(targets,trees[team]) end -- each team fells its own tree
-		for _,q in alive do table.insert(targets,characters[q]) end
-		if tool.Parent==c then M.Attack(c,targets,os.clock(),charTeam,heavy) end
+		if tool.Parent==c then M.Attack(c,targetsFor(team),os.clock(),charTeam,heavy) end
 	end)
 	tool.Parent=p.Backpack
 end
 for i,p in fighters do spawn(i,p) end
 action.OnServerEvent:Connect(function(p,kind,on)
-	if kind=="Block" and type(on)=="boolean" and characters[p] and characters[p]==p.Character then M.SetBlock(p.Character,on) end
+	local c=characters[p];if not c or c~=p.Character then return end
+	if kind=="Block" and type(on)=="boolean" then M.SetBlock(c,on)
+	elseif kind=="Skill" then M.UseSkill(c,targetsFor(teamOf[p]),os.clock(),charTeam,shapes[p]) end
 end)
-for _,p in fighters do M.Say(p,"สู้! คลิกฟัน • กดค้างฟันหนัก • Q Dash • F บล็อก") end
+for _,p in fighters do M.Say(p,"สู้! คลิกฟัน • กดค้างฟันหนัก • E ท่าอาวุธ • Q Dash • F บล็อก") end
 -- Team result: a side with nobody left loses; otherwise the first to finish its goal wins, and at time-out the side further along wins.
 local function teamResult(final)
 	local present={0,0};for _,p in alive do present[teamOf[p]]+=1 end

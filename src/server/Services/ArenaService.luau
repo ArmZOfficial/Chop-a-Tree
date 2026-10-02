@@ -5,7 +5,7 @@ local Teleport=game:GetService("TeleportService")
 local S=game.ReplicatedStorage.Shared
 local C=require(S.Config.Arena);local Net=require(S.Net)
 local D=require(script.Parent.DataService);local F=require(script.Parent.FeatureService)
-local P=require(script.Parent.PetService)
+local P=require(script.Parent.PetService);local W=require(script.Parent.WeaponService);local Weapons=require(S.Config.Weapons)
 local A={};local queued,transferring,last={},{},{}
 local testTransport,testPlace
 local function mode(id) for _,m in C.Modes do if m.id==id then return m end end end
@@ -59,7 +59,9 @@ function A.Step(now)
 		if n<m.min or (#group<m.max and now-queued[group[1]].at<C.FillSeconds and m.id~="Duel") then continue end
 		while #group>n do table.remove(group) end
 		local options=Instance.new("TeleportOptions");options.ShouldReserveServer=true
-		options:SetTeleportData({mode=m.id,ranked=ranked}) -- hints only; destination validates the reserved match
+		local skills={} -- equipped weapon move name/element: Arena uses them for skill style only
+		for _,p in group do local item=W.Equipped(p);local def=item and Weapons.ById[item.id];skills[tostring(p.UserId)]={name=def and (def.move or def.name) or "",element=def and def.element or ""} end
+		options:SetTeleportData({mode=m.id,ranked=ranked,skills=skills}) -- hints only; destination validates the reserved match
 		local placeId=target()
 		for _,p in group do queued[p]=nil;transferring[p]={mode=m.id,ranked=ranked,placeId=placeId,options=options,untilTime=now+C.TransferTimeout};send(p) end
 		local ok,err=pcall(function()

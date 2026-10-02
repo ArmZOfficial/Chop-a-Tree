@@ -32,7 +32,7 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 2–7 | Run/อาวุธ/สวน/สัตว์/เนื้อเรื่อง/8 โซน | core ทดสอบแล้ว; narrative/art บางส่วนค้าง |
 | 8a–f | Rebirth, Rewards, Index, Weather/Encounters, Merchant, Festivals, Emote/Photo | core ทดสอบแล้ว |
 | 8g | ร้าน Robux + Season Pass | Shop 34/34 รันซ้ำ + OpenTen คลิกจริง/Pass refresh/capacity ผ่าน; Season 34/34 + ซีซัน 2–3 พร้อม; ยังไม่ Publish |
-| 9 | PvP แยก Place | 9a lobby/คิว ทำแล้ว; 9b Duel/FFA Publish แล้ว; 9c Timber Clash/Egg Heist + 9d แรงก์รายเดือน/Arena Tokens Publish แล้ว (รอทดสอบหลายบัญชี); 9e ฟันหนัก/บล็อก/dash ใน Studio (ยังไม่ Publish); ด่าน Arena พื้นฐาน; ท่าเฉพาะอาวุธ ค้าง |
+| 9 | PvP แยก Place | 9a lobby/คิว ทำแล้ว; 9b Duel/FFA Publish แล้ว; 9c Timber Clash/Egg Heist + 9d แรงก์รายเดือน/Arena Tokens Publish แล้ว (รอทดสอบหลายบัญชี); 9e ฟันหนัก/บล็อก/dash ใน Studio (ยังไม่ Publish); ด่าน Arena พื้นฐาน + 9f ท่าอาวุธตามธาตุ (ยังไม่ Publish); เหลือทดสอบหลายบัญชีแล้วเปิด PvP |
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | รอปรับและตรวจ |
 
 Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.

@@ -17,7 +17,7 @@ return function(serviceSource,configSource)
 	local events={};local action={};local Net={Function=function() return action end,Event=function(name)
 		events[name]=events[name] or {FireClient=function() end};return events[name]
 	end}
-	local shared={Config={Arena=C},Net=Net};local services={DataService=D,FeatureService=F,PetService=P}
+	local shared={Config={Arena=C,Weapons={ById={}}},Net=Net};local services={DataService=D,FeatureService=F,PetService=P,WeaponService={Equipped=function() return nil end}}
 	local env=setmetatable({game={PlaceId=10,RunService={IsStudio=function() return studio end},ReplicatedStorage={Shared=shared,FeatureFlags={GetAttributeChangedSignal=function() return signal() end}},GetService=function(_,id) return ({Players=Players,CollectionService=Collection,TeleportService=Teleport})[id] end},script={Parent=services},workspace={},require=function(value) return value end,warn=function() end,Instance={new=function(class)
 		assert(class=="TeleportOptions");return {SetTeleportData=function(self,data) self.data=data end}
 	end}},{__index=getfenv()})

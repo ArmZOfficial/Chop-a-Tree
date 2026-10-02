@@ -4,8 +4,12 @@ M.Modes={Duel={min=2,max=2},FFA={min=2,max=7},TimberClash={min=4,max=6,teams=tru
 M.Respawn=5;M.TreeHealth=300;M.EggGoal=3
 -- Hold the swing to charge a heavy hit; it breaks blocks. Blocking from the front cuts light hits and slows the blocker.
 M.Heavy={damage=25,range=9,cooldown=1.5,charge=.8};M.BlockFactor=.3;M.BlockSpeed=8
+-- Weapon skill (E): the element picks the shape only; every shape has a similar budget so Ranked stays equal.
+M.Skill={cooldown=8,Burst={radius=8,damage=15},Cone={range=12,dot=.5,damage=20},Pierce={range=16,width=2.5,damage=25}}
+local shapeOf={["ไฟ"]="Cone",["ลม"]="Cone",["แสง"]="Cone",["สายฟ้า"]="Pierce",["เงา"]="Pierce"}
+function M.SkillShape(element) return shapeOf[element] or "Burst" end
 M.Teams={{name="ทีมแดง",color=BrickColor.new("Bright red"),x=-60},{name="ทีมน้ำเงิน",color=BrickColor.new("Bright blue"),x=60}}
-local ready={}
+local ready,skillReady={},{}
 function M.Mode(data) return type(data)=="table" and type(data.mode)=="string" and M.Modes[data.mode] and data.mode or nil end
 function M.Split(list) local t={};for i,p in list do t[p]=(i-1)%2+1 end;return t end
 -- Ranked and Casual both use equal stats until Casual caps exist.
@@ -31,13 +35,30 @@ function M.Attack(attacker,targets,now,teamOf,heavy)
 			if d<=range and (d<.1 or root.CFrame.LookVector:Dot(off.Unit)>.3) and (not dist or d<dist) then best,dist=t,d end
 		end
 	end
-	if best then
-		local damage=heavy and M.Heavy.damage or M.Damage
-		local br=best:FindFirstChild("HumanoidRootPart")
-		if not heavy and best:GetAttribute("Blocking") and br.CFrame.LookVector:Dot((root.Position-br.Position).Unit)>.3 then damage*=M.BlockFactor end
-		best:FindFirstChildOfClass("Humanoid"):TakeDamage(damage)
-	end
+	if best then M.Hit(root,best,heavy and M.Heavy.damage or M.Damage,heavy) end
 	return best
+end
+-- Applies damage; a front block cuts it unless the hit breaks blocks.
+function M.Hit(root,target,damage,breaks)
+	local tr=target:FindFirstChild("HumanoidRootPart")
+	if not breaks and target:GetAttribute("Blocking") and tr.CFrame.LookVector:Dot((root.Position-tr.Position).Unit)>.3 then damage*=M.BlockFactor end
+	target:FindFirstChildOfClass("Humanoid"):TakeDamage(damage)
+end
+function M.UseSkill(attacker,targets,now,teamOf,shape)
+	local root=attacker:FindFirstChild("HumanoidRootPart");local h=attacker:FindFirstChildOfClass("Humanoid");local s=M.Skill[shape]
+	if not s or not root or not h or h.Health<=0 or attacker:GetAttribute("Blocking") or (skillReady[attacker] or 0)>now then return nil end
+	skillReady[attacker]=now+M.Skill.cooldown
+	local look=root.CFrame.LookVector;local hits={}
+	for _,t in targets do
+		local tr=t:FindFirstChild("HumanoidRootPart");local th=t:FindFirstChildOfClass("Humanoid")
+		if t~=attacker and tr and th and th.Health>0 and not (teamOf and teamOf[t] and teamOf[t]==teamOf[attacker]) then
+			local off=tr.Position-root.Position;local d=off.Magnitude;local along=look:Dot(off)
+			local inside=shape=="Burst" and d<=s.radius or shape=="Cone" and d<=s.range and (d<.1 or look:Dot(off.Unit)>=s.dot)
+				or shape=="Pierce" and along>=0 and along<=s.range and (off-look*along).Magnitude<=s.width
+			if inside then M.Hit(root,t,s.damage,false);table.insert(hits,t) end
+		end
+	end
+	return hits
 end
 -- Timber Clash tree: a Humanoid model so swings reuse Attack; the low root keeps it in melee range.
 function M.Tree(i)

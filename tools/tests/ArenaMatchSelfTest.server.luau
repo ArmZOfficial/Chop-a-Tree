@@ -1,4 +1,4 @@
--- Phase 9b-9d arena rules. Add to the Chop Arena place ServerScriptService in Edit, press Play, read workspace ArenaMatchResults, then delete it.
+-- Phase 9b-9f arena rules. Add to the Chop Arena place ServerScriptService in Edit, press Play, read workspace ArenaMatchResults, then delete it.
 assert(game:GetService("RunService"):IsStudio())
 local M=require(game.ServerScriptService.Arena.ArenaMatch)
 local results={}
@@ -32,6 +32,17 @@ local ok,err=xpcall(function()
 	y:PivotTo(CFrame.lookAt(Vector3.new(40,50,5),Vector3.new(40,50,10)));before=hp(y)
 	check("Block does not cover the back",M.Attack(x,{y},440)==y and hp(y)==before-M.Damage)
 	M.SetBlock(y,false);check("Releasing block restores speed",y.Humanoid.WalkSpeed==M.Speed and y:GetAttribute("Blocking")==nil)
+	check("Elements map to skill shapes",M.SkillShape("ไฟ")=="Cone" and M.SkillShape("สายฟ้า")=="Pierce" and M.SkillShape("น้ำ")=="Burst" and M.SkillShape(nil)=="Burst")
+	local caster=rig(Vector3.new(80,50,0),Vector3.new(80,50,10));local near=rig(Vector3.new(80,50,-6));local side=rig(Vector3.new(85,50,5));local line=rig(Vector3.new(80,50,15))
+	for _,m in {caster,near,side,line} do M.Equip(m) end
+	local burst=M.UseSkill(caster,{near,side,line},500,nil,"Burst")
+	check("Burst hits all around within its radius",#burst==2 and hp(near)==M.Health-M.Skill.Burst.damage and hp(side)==M.Health-M.Skill.Burst.damage and hp(line)==M.Health)
+	check("Skill cooldown blocks a second cast",M.UseSkill(caster,{near},500+M.Skill.cooldown/2,nil,"Burst")==nil)
+	local pierce=M.UseSkill(caster,{near,side,line},600,nil,"Pierce")
+	check("Pierce hits only along the facing line",#pierce==1 and pierce[1]==line and hp(line)==M.Health-M.Skill.Pierce.damage)
+	local cone=M.UseSkill(caster,{near,side,line},700,{[caster]=1,[side]=1},"Cone")
+	check("Cone skips allies and targets behind",#cone==0 and hp(side)==M.Health-M.Skill.Burst.damage)
+	M.SetBlock(near,true);check("Blockers cannot cast",M.UseSkill(near,{caster},800,nil,"Burst")==nil);M.SetBlock(near,false)
 	local s1,s2,s3,s4={},{},{},{};local split=M.Split({s1,s2,s3,s4})
 	check("Teams split evenly in join order",split[s1]==1 and split[s2]==2 and split[s3]==1 and split[s4]==2)
 	behind.Humanoid.Health=M.Health;local ally=rig(Vector3.new(20,50,4));local b=rig(Vector3.new(20,50,0),Vector3.new(20,50,10));M.Equip(ally);M.Equip(b)

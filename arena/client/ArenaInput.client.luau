@@ -1,4 +1,4 @@
--- Chop Arena input: Q/ButtonB dashes (client-owned movement), F/ButtonL1 holds block (server applies it).
+-- Chop Arena input: Q/ButtonB dashes (client-owned movement), F/ButtonL1 holds block, E/ButtonX weapon skill (server applies both).
 local CAS=game:GetService("ContextActionService")
 local player=game:GetService("Players").LocalPlayer
 local remote=game:GetService("ReplicatedStorage"):WaitForChild("ArenaAction")
@@ -18,4 +18,10 @@ CAS:BindAction("ArenaBlock",function(_,state)
 	if state==Enum.UserInputState.Begin then remote:FireServer("Block",true) elseif state==Enum.UserInputState.End then remote:FireServer("Block",false) end
 	return Enum.ContextActionResult.Sink
 end,true,Enum.KeyCode.F,Enum.KeyCode.ButtonL1)
+CAS:BindAction("ArenaSkill",function(_,state)
+	if state==Enum.UserInputState.Begin then remote:FireServer("Skill") end
+	return Enum.ContextActionResult.Sink
+end,true,Enum.KeyCode.E,Enum.KeyCode.ButtonX)
 CAS:SetTitle("ArenaDash","Dash");CAS:SetTitle("ArenaBlock","Block")
+local function skillTitle() CAS:SetTitle("ArenaSkill",player:GetAttribute("ArenaSkill") or "Skill") end
+player:GetAttributeChangedSignal("ArenaSkill"):Connect(skillTitle);skillTitle()
