@@ -92,7 +92,8 @@ function Navigation.Start()
 		end
 		local rail=primary and not compact and RAIL or 0
 		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24-rail)/w,(v.Y-68)/h)
-		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*scale.Scale,.5,8*scale.Scale) end
+		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*scale.Scale,.5,8*scale.Scale)
+		elseif panel.Name=="Panel" or panel.Name=="Settings" then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.fromScale(.5,.5) end -- undo the phone placement
 		return scale.Scale
 	end
 	local function bindPanel(panel,owner,w,h,primary)
@@ -208,8 +209,8 @@ function Navigation.Start()
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end
         -- The event banner sits above the hint line (desktop) or in its place (phones), never over PLAY.
         local event=pg:FindFirstChild("WorldEventHUD") and pg.WorldEventHUD:FindFirstChild("Event");if event then event.Position=UDim2.new(.5,0,1,compact and -150 or -196) end
-        -- Minimap/compass (MapHUD, DisplayOrder 22) would draw over open windows: drop it below them.
-        local map=pg:FindFirstChild("MapHUD");if map then map.DisplayOrder=(obscured and not (map:FindFirstChild("Panel") and map.Panel.Visible)) and 7 or 22 end
+        -- The compass (MapHUD, DisplayOrder 22 for the boat ride) would draw over open windows: drop it below them.
+        local map=pg:FindFirstChild("MapHUD");if map then map.DisplayOrder=obscured and 7 or 22 end
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
             if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not compact and not forest.RunPanel.Visible end

@@ -429,26 +429,21 @@ Settings,Settings,ตั้งค่า,LocaleController,
 Unknown chest rarity,Unknown chest rarity,ไม่รู้จักความหายากของหีบ,Loot,
 HUD,HUD,HUD,Main.client,
 Compass {1}° • N  E  S  W,Compass {1}° • N  E  S  W,เข็มทิศ {1}° • เหนือ ตะวันออก ใต้ ตะวันตก,MapController,
-Defeat boss and light shrine in Zone {1},Defeat boss and light shrine in Zone {1},ชนะบอสและจุดศาลเจ้าในโซน {1},MapController,
-Destination: {1},Destination: {1},ปลายทาง: {1},MapController,
+Defeat boss and light shrine in Zone {1},Defeat boss and light shrine in Zone {1},ชนะบอสและจุดศาลเจ้าในโซน {1},MapController,unused
+Destination: {1},Destination: {1},ปลายทาง: {1},MapController,unused
 Event,Event,Event,MapController,dev
 Event target,Event target,อีเวนต์,MapController,
-Explored {1}/{2},Explored {1}/{2},สำรวจ {1}/{2},MapController,
-Home,Home,บ้าน,MapController,
-Hub,Hub,หมู่บ้าน,MapController,
-Map,Map,แผนที่,MapController,
-Marker,Marker,หมุด,MapController,
-North / Camera,North / Camera,ทิศเหนือ / กล้อง,MapController,
+Explored {1}/{2},Explored {1}/{2},สำรวจ {1}/{2},MapController,unused
+Hub,Hub,หมู่บ้าน,MapController,unused
+Map,Map,แผนที่,MapController,unused
+Marker,Marker,หมุด,MapController,unused
+North / Camera,North / Camera,ทิศเหนือ / กล้อง,MapController,unused
 Quest,Quest,Quest,MapController,dev
 Quest target,Quest target,ภารกิจ,MapController,
-Rootfall,Rootfall,รูทฟอลล์,MapController,
-Select a zone to travel,Select a zone to travel,เลือกโซนเพื่อเดินทาง,MapController,
-Shrine,Shrine,ศาลเจ้า,MapController,
+Select a zone to travel,Select a zone to travel,เลือกโซนเพื่อเดินทาง,MapController,unused
 Skip boat ride,Skip boat ride,ข้ามการนั่งเรือ,MapController,
-Travel,Travel,เดินทาง,MapController,
-Travel unavailable,Travel unavailable,เดินทางไม่ได้,MapController,
-World Map,World Map,แผนที่โลก,MapController,
-Zone{1},Zone{1},Zone{1},MapController,dev
+World Map,World Map,แผนที่โลก,MapController,unused
+Zone{1},Zone{1},Zone{1},MapController,unused
 {1} {2} • {3},{1} {2} • {3},{1} {2} • {3},MapController,manual
 {1}Target,{1}Target,{1}Target,MapController,dev
 Mini-chest,Mini-chest,หีบสำรวจ,MapSystems,manual
@@ -1153,6 +1148,11 @@ Your collection stays after Rebirth","ค้นพบ: +1 เพชร • ส�
 GUARDIAN,GUARDIAN,ผู้พิทักษ์,StoryController,
 Guardian cleansed!,Guardian cleansed!,ชำระล้างผู้พิทักษ์แล้ว!,StoryController,
 Harvests,Harvests,การเก็บเกี่ยว,StoryController,
+Home,Home,บ้าน,StoryController,
+"Home
+Return to your base","Home
+Return to your base","บ้าน
+กลับไปที่ฐานของคุณ",StoryController,
 Incomplete,Incomplete,ยังไม่ครบ,StoryController,
 Index,Index,สมุดสะสม,StoryController,
 Main,Main,หลัก,StoryController,
@@ -1171,6 +1171,7 @@ End your current run and return home","Rootfall Village
 End your current run and return home","หมู่บ้านรูทฟอลล์
 จบรอบปัจจุบันแล้วกลับบ้าน",StoryController,
 Select Title,Select Title,เลือกฉายา,StoryController,
+Shrine,Shrine,ศาลเจ้า,StoryController,
 Step{1},Step{1},Step{1},StoryController,
 Story,Story,เนื้อเรื่อง,StoryController,
 System disabled,System disabled,ระบบปิดอยู่,StoryController,
@@ -1221,8 +1222,11 @@ Destination unavailable,Destination unavailable,ปลายทางไม่�
 Invalid destination,Invalid destination,จุดหมายไม่ถูกต้อง,TravelService,
 Leave the Arena queue before travelling,Leave the Arena queue before travelling,ออกจากคิวอารีน่าก่อนเดินทาง,TravelService,
 Move closer to the dock,Move closer to the dock,เข้าไปใกล้ท่าเรืออีกนิด,TravelService,
+Rootfall,Rootfall,รูทฟอลล์,TravelService,
 Sunny Meadow,Sunny Meadow,ทุ่งหญ้าแสงแดด,TravelService,config
+Travel,Travel,เดินทาง,TravelService,
 Travel complete,Travel complete,เดินทางสำเร็จ,TravelService,
+Travel unavailable,Travel unavailable,เดินทางไม่ได้,TravelService,
 Use at a warp stone only,Use at a warp stone only,ใช้ได้ที่หินวาร์ปเท่านั้น,TravelService,
 Visit this zone before fast travel,Visit this zone before fast travel,สำรวจโซนนี้ก่อนเดินทางด่วน,TravelService,
 Warp unavailable,Warp unavailable,วาร์ปยังไม่พร้อม,TravelService,

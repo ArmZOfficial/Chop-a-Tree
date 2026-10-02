@@ -186,6 +186,7 @@ function Controller.Start()
 		else
 			local unlocked=Data.Get("Progress.UnlockedZones") or {1}
 			row("Warp0","Rootfall Village\nEnd your current run and return home",UI.Colors.Green,function() call("Warp",0) end)
+			row("WarpHome","Home\nReturn to your base",UI.Colors.Green,function() call("Warp","Home") end) -- was on the removed world map
 			for _,z in Zones.List do local id=z.id;local open=table.find(unlocked,id)~=nil and z.built
 				row("Warp"..id,"Zone "..id.." • "..z.name.."\n"..(open and "Warp and start a run" or (not z.built and "Available in Phase 7" or "🔒 Defeat the previous boss and light its shrine")),open and UI.Colors.Teal or UI.Colors.Disabled,function() if open then call("Warp",id) end end)
 			end

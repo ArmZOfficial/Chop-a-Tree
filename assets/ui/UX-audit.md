@@ -32,6 +32,9 @@ applies it when the window is shown, re-applies it for parts built later, and re
 | 666x374 | TH | same | 0 | 0 | **0** |
 | 1115x675 after returning from phone size | TH | 0.93 | 0 | 0 | 0 (189 tracked parts all restored) |
 
+(2026-10-03 later: the minimap, Map button and world map window were removed entirely; small windows that kept their
+phone position on desktop are re-centred.)
+
 Also fixed: phone HUD overlap (minimap + Map button moved to the left column beside Menu, compass text dropped,
 compass targets under the currencies, forecast 190 px, hint line hidden); world-event banner no longer covers PLAY
 (desktop too); desktop Shop buy / Quests tabs / Season close / Arena lobby buttons raised to >= 44 px; Pets and

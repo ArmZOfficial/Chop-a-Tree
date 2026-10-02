@@ -4,6 +4,10 @@
 
 ## สถานะล่าสุด
 
+## เอาแผนที่/minimap ออก (2026-10-03, ArmZ สั่ง, ยังไม่ Publish)
+
+ลบหน้าต่าง World Map, minimap, ปุ่ม Map และปุ่มลัด M/จอย ออกจาก `MapController` (เหลือเข็มทิศ + เป้า quest/event + ฉากเรือ). การวาร์ปใช้แท็บ Warp ใน Quests; เพิ่มแถว "Home" ที่เดิมมีเฉพาะบนแผนที่ (ทดสอบแล้ว วาร์ปไปฐานได้). ฝั่ง server (TravelService/Explorer/Zones) ไม่เปลี่ยน. แก้บั๊กที่เจอระหว่างทาง: หน้าต่าง Quests/Season/Rebirth/Arena/Settings บนจอใหญ่หลุดไปทางซ้าย (ค้างตำแหน่งแบบมือถือ) — วัดแล้ว 10 หน้าต่างอยู่ในจอครบที่ 1115×675.
+
 ## Tool hotbar จาก Creator Store (2026-10-03, ยังไม่ Publish)
 
 ArmZ ขอเพิ่ม "Full Custom Inventory System" (@supdoggyDev, asset 73852738603629). ตรวจสคริปต์แล้วปลอดภัย (client ล้วน). ติดตั้งที่ `StarterGui.ToolHotbar` แทนแถบ backpack ของ Roblox ธีมไม้ ช่อง 56px; ปิดช่องเก็บของ/ปุ่มเปิด/ช่องค้นหาไว้เพราะเกมมี Tool ไม่เกิน 2 ชิ้น (เปิดกลับได้ใน `SETTINGS`). **อยู่ใน Studio เท่านั้น ไม่อยู่ใน repo/checksum** — รายการแก้ทั้งหมด: [vendor/tool-hotbar](../vendor/tool-hotbar/README.md). Navigation ซ่อน hotbar ตอนเปิดหน้าต่าง; ToolTip บัวรดน้ำเป็น "Watering Can". ยังไม่ตรวจ: ปุ่มเลข, ลากสลับช่อง, จอย, ช่องอาวุธ (mock profile ไม่มีอาวุธ).
