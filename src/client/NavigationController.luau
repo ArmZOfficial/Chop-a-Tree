@@ -107,6 +107,9 @@ function Navigation.Start()
 		if shade:IsA("GuiButton") then shade.Selectable=false end
 		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade,primary=primary});panel:SetAttribute("NavigationPanel",true)
 		panel:GetPropertyChangedSignal("Visible"):Connect(function()
+			-- Owner ScreenGuis respect the top-bar inset (0 until the top bar loads, so read it on open);
+			-- stretch the shade over it so the dim covers the full screen.
+			local inset=GuiService:GetGuiInset().Y;shade.Position=UDim2.fromOffset(0,-inset);shade.Size=UDim2.new(1,0,1,inset)
 			shade.Visible=panel.Visible
 			if panel.Visible then for _,r in panels do if r.panel~=panel then r.panel.Visible=false;r.shade.Visible=false end end;drawer.Visible=false end
 			if layout then layout() end
