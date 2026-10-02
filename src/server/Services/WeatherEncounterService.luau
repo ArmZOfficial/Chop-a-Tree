@@ -55,16 +55,16 @@ function E.SpawnMeteor()
  part.Material=Enum.Material.Neon;part.Color=Color3.fromRGB(180,130,255);part.Anchored=true;part.CanCollide=false
  part.Position=Vector3.new(at.X+4,Zones.List[zone].y+2,at.Z);part.Parent=folder
  local light=Instance.new("PointLight");light.Color=part.Color;light.Range=10;light.Parent=part
- local prompt=Instance.new("ProximityPrompt");prompt.Name="CollectStardust";prompt.ActionText="เก็บ +"..C.MeteorDust.." Stardust";prompt.ObjectText="METEOR";prompt.MaxActivationDistance=C.PickupRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
+ local prompt=Instance.new("ProximityPrompt");prompt.Name="CollectStardust";prompt.ActionText="Collect +"..C.MeteorDust.." Stardust";prompt.ObjectText="METEOR";prompt.MaxActivationDistance=C.PickupRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
  pickups[part]={zone=zone,key=state.eventKey,expires=os.clock()+C.PickupSeconds}
  prompt.Triggered:Connect(function(p) E.Collect(p,part) end);return part
 end
 function E.Exchange(p)
- if not enabled() or not F.IsEnabled("Chests") or not D.IsLoaded(p) or not W.AtAltar(p) then return false,"แลก Stardust ที่แท่นหีบในหมู่บ้าน" end
- if D.Get(p,"Currencies.Stardust")<C.ChestDust then return false,"ต้องการ "..C.ChestDust.." Stardust" end
+ if not enabled() or not F.IsEnabled("Chests") or not D.IsLoaded(p) or not W.AtAltar(p) then return false,"Exchange Stardust at the village chest station" end
+ if D.Get(p,"Currencies.Stardust")<C.ChestDust then return false,"Requires "..C.ChestDust.." Stardust" end
  D.AddCurrency(p,"Stardust",-C.ChestDust)
  W.GrantChest(p,"Rare",1,1,1,D.Get(p,"Meta.AdminTouched")==true)
- return true,"แลก Stardust เป็นหีบ Rare แล้ว"
+ return true,"Exchanged Stardust for a Rare chest"
 end
 local function clearWorld()
  if world then world.model:Destroy();world=nil;Boss.Suppress(1,false) end
@@ -78,11 +78,11 @@ local function fell(b)
    local award=Math.Payout(entry.share)
    if award.gems>0 then
     D.AddCurrency(p,"Gems",award.gems);D.AddCurrency(p,"Stardust",award.dust);D.Increment(p,"Stats.WorldBossKills",1)
-    notify(p,"บอสโลก: +"..award.gems.." Gems / +"..award.dust.." Stardust")
+    notify(p,"World Boss: +"..award.gems.." Gems / +"..award.dust.." Stardust")
    end
   end
  end
- Net.Event("BossEvent"):FireAllClients({kind="defeated",zone=1,name="จ้าวแห่งราเน่า"})
+ Net.Event("BossEvent"):FireAllClients({kind="defeated",zone=1,name="Rot Master"})
 end
 function E.Hit(p,model)
  local b=world;local state=WX.State();local hr=root(p)
@@ -126,7 +126,7 @@ function E.Update()
   world=Boss.CreateWorld()
   if world then
    worldKey=state.eventKey;completed[worldKey]=state.endsAt;world.model:SetAttribute("WorldHPFactor",C.WorldHP)
-   Net.Event("BossEvent"):FireAllClients({kind="intro",zone=1,name="จ้าวแห่งราเน่า"})
+   Net.Event("BossEvent"):FireAllClients({kind="intro",zone=1,name="Rot Master"})
   end
  end
  for key,ends in completed do if ends<os.time()-86400 then completed[key]=nil end end
@@ -134,9 +134,9 @@ end
 function E.Init()
  folder=Instance.new("Folder");folder.Name="WeatherEncounters";folder.Parent=workspace
  Net.Function("EncounterAction").OnServerInvoke=function(p,action)
-  if not D.IsLoaded(p) then return false,"ยังโหลดข้อมูลไม่เสร็จ" end
-  local now=os.clock();if now-(lastAction[p] or -math.huge)<.35 then return false,"รอสักครู่" end;lastAction[p]=now
-  if action=="Exchange" then return E.Exchange(p) end;return false,"คำสั่งไม่ถูกต้อง"
+  if not D.IsLoaded(p) then return false,"Data still loading" end
+  local now=os.clock();if now-(lastAction[p] or -math.huge)<.35 then return false,"Please wait" end;lastAction[p]=now
+  if action=="Exchange" then return E.Exchange(p) end;return false,"Invalid command"
  end
  Net.Event("ForestAction").OnServerEvent:Connect(function(p,action,model) if action=="Hit" then E.Hit(p,model) end end)
  Players.PlayerRemoving:Connect(function(p) cooldowns[p]=nil;lastAction[p]=nil;if world then world.contributors[p]=nil end end)

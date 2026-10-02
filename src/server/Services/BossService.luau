@@ -66,7 +66,7 @@ end
 function Boss.CreateWorld()
 	local b=bosses[1];if not b then return nil end
 	Boss.Suppress(1,true);local world=build(b.model.Parent,1);world.model.Name="RotWorldBoss"
-	world.model:SetAttribute("BossName","จ้าวแห่งราเน่า");world.model:SetAttribute("WorldBoss",true)
+	world.model:SetAttribute("BossName","Rot Master");world.model:SetAttribute("WorldBoss",true)
 	return world
 end
 local function reward(p,zone,first)
@@ -76,7 +76,7 @@ local function reward(p,zone,first)
 	Run.Award(p,zone,6,false,Balance.Get("BossRewardMult"))
 	Run.CollectChest(p,nil,0,first and "Epic" or "Rare")
 	if first then Data.AddCurrency(p,"Gems",Story.BossGems*zone) end
-	notify(p,first and ("ล้ม "..Zones.List[zone].boss.." ครั้งแรก! +"..(Story.BossGems*zone).." Gems — ไปจุดศาลเจ้า") or ("ล้ม "..Zones.List[zone].boss.." แล้ว! ได้หีบ Rare"))
+	notify(p,first and ("Defeat "..Zones.List[zone].boss.." First time! +"..(Story.BossGems*zone).." Gems — Visit the shrine") or ("Defeat "..Zones.List[zone].boss.." complete! Received a Rare chest"))
 end
 local function fell(b)
 	b.model:SetAttribute("Alive",false);b.model:SetAttribute("HealthRatio",0)

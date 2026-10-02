@@ -373,7 +373,7 @@ local function playerBase(parent, index, cf)
 	-- ป้ายเจ้าของ (ขอบหน้า หันไปลานกลาง)
 	local front = (cf * CFrame.new(0, 0, -60)).Position
 	P({ Name = "SignPost", Size = Vector3.new(1, 8, 1), CFrame = cf * CFrame.new(0, 4.6, -26), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = m })
-	local s = sign(m, (cf * CFrame.new(0, 9, -26)).Position, front, "ฐาน " .. index .. " · ว่าง", 12, 3.2)
+	local s = sign(m, (cf * CFrame.new(0, 9, -26)).Position, front, "Base " .. index .. " · Empty", 12, 3.2)
 	s.Name = "OwnerSign"
 	tag(s, "OwnerSign", { BaseIndex = index })
 	-- บาเรียร์ล็อกฐาน (ปิดอยู่)
@@ -418,14 +418,14 @@ function MapBuilder.BuildVillage()
 		-- วงในรอบแท่น: ร้าน, NPC, กระดานผู้นำ, พอร์ทัล, หินวาร์ป
 		local services = F(village, "Services")
 		local ring = {
-			{ "SeedShop", "ร้านเมล็ด", Color3.fromRGB(76, 175, 80) },
-			{ "EggConveyor", "สายพานไข่", nil },
-			{ "UpgradeShop", "ร้านอัปเกรด", Color3.fromRGB(29, 78, 216) },
-			{ "Sawmill", "โรงเลื่อย (ขาย Wood)", Color3.fromRGB(180, 83, 9) },
-			{ "NPC_Bram", "ปู่ Bram", nil },
-			{ "Leaderboards", "กระดานผู้นำ", nil },
+			{ "SeedShop", "Seed Shop", Color3.fromRGB(76, 175, 80) },
+			{ "EggConveyor", "Egg Conveyor", nil },
+			{ "UpgradeShop", "Upgrades", Color3.fromRGB(29, 78, 216) },
+			{ "Sawmill", "Sawmill (Sell Wood)", Color3.fromRGB(180, 83, 9) },
+			{ "NPC_Bram", "Grandpa Bram", nil },
+			{ "Leaderboards", "Leaderboards", nil },
 			{ "ArenaPortal", "Chop Arena (PvP)", nil },
-			{ "WarpHub", "หินวาร์ป", nil },
+			{ "WarpHub", "Warp Stone", nil },
 		}
 		for i, item in ring do
 			local a = gateAngle + rad(25) + (i - 1) * (math.pi * 2 / #ring)
@@ -442,7 +442,7 @@ function MapBuilder.BuildVillage()
 				for k = -2, 2 do
 					P({ Name = "Stripe", Size = Vector3.new(1, 0.2, 6.2), CFrame = cf * CFrame.new(k * 5, 1.7, 0), Color = Color3.fromRGB(250, 204, 21), Material = Enum.Material.Neon, CanCollide = false, Parent = m })
 				end
-				sign(m, (cf * CFrame.new(0, 7, 2)).Position, V, "สายพานไข่", 14, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(253, 230, 138))
+				sign(m, (cf * CFrame.new(0, 7, 2)).Position, V, "Egg Conveyor", 14, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(253, 230, 138))
 				m.PrimaryPart = belt
 				tag(m, "Shop", { ShopType = id })
 			elseif id == "NPC_Bram" then
@@ -451,12 +451,12 @@ function MapBuilder.BuildVillage()
 				P({ Name = "Head", Shape = Enum.PartType.Ball, Size = Vector3.new(3, 3, 3), CFrame = cf * CFrame.new(0, 7.6, 0), Color = Color3.fromRGB(240, 200, 160), Parent = m })
 				P({ Name = "Beard", Size = Vector3.new(2.6, 2.4, 1), CFrame = cf * CFrame.new(0, 6.4, -1.2), Color = Color3.fromRGB(245, 245, 245), Parent = m })
 				P({ Name = "Hat", Size = Vector3.new(3.6, 1, 3.6), CFrame = cf * CFrame.new(0, 9.4, 0), Color = Color3.fromRGB(60, 120, 60), Parent = m })
-				sign(m, (cf * CFrame.new(0, 12, 0)).Position, V, "ปู่ Bram", 8, 2.4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(253, 230, 138))
+				sign(m, (cf * CFrame.new(0, 12, 0)).Position, V, "Grandpa Bram", 8, 2.4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(253, 230, 138))
 				m.PrimaryPart = body
 				tag(m, "NPC", { NpcId = "Bram" })
 			elseif id == "Leaderboards" then
 				local m = M(services, id)
-				for k, title in { "ต้นไม้ที่ฟัน", "ดาเมจสูงสุด" } do
+				for k, title in { "Trees Cut", "Highest Damage" } do
 					local bpos = (cf * CFrame.new((k - 1.5) * 12, 7, 0)).Position
 					local b = sign(m, bpos, V, title, 10, 12, Color3.fromRGB(23, 28, 41), Color3.fromRGB(250, 204, 21))
 					b.CanCollide = true
@@ -504,7 +504,7 @@ function MapBuilder.BuildVillage()
 			P({ Name = "Pillar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(24, 4, 4), CFrame = gcf * CFrame.new(x, 12, 0) * CFrame.Angles(0, 0, rad(90)), Color = Color3.fromRGB(115, 78, 46), Material = Enum.Material.Wood, Parent = gate })
 		end
 		P({ Name = "Beam", Size = Vector3.new(38, 3, 3.5), CFrame = gcf * CFrame.new(0, 23, 0), Color = Color3.fromRGB(95, 62, 38), Material = Enum.Material.Wood, Parent = gate })
-		sign(gate, (gcf * CFrame.new(0, 27, 0)).Position, V, "ประตูสู่ป่า → ทุ่งหญ้าแสงแดด", 30, 4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(190, 242, 100))
+		sign(gate, (gcf * CFrame.new(0, 27, 0)).Position, V, "Forest Gate → Sunlit Meadow", 30, 4, Color3.fromRGB(30, 36, 51), Color3.fromRGB(190, 242, 100))
 		local trigger = P({ Name = "RunTrigger", Size = Vector3.new(30, 20, 4), CFrame = gcf * CFrame.new(0, 10, 0), Transparency = 1, CanCollide = false, Parent = gate })
 		tag(trigger, "ForestGate")
 		gate.PrimaryPart = trigger
@@ -650,7 +650,7 @@ local function gate(parent, pos, dir, fromZone, toZone, accent)
 	end
 	P({ Name = "Beam", Size = Vector3.new(40, 4, 5), CFrame = cf * CFrame.new(0, 27, 0), Color = Color3.fromRGB(60, 50, 70), Material = Enum.Material.Slate, Parent = m })
 	local barrier = P({ Name = "RotBarrier", Size = Vector3.new(31, 24, 1), CFrame = cf * CFrame.new(0, 12, 0), Color = Zones.RotColor, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = true, Parent = m })
-	sign(m, (cf * CFrame.new(0, 31.5, 0)).Position, (cf * CFrame.new(0, 0, 30)).Position, "ประตูราเน่า · ล้มบอสเพื่อเปิด → โซน " .. toZone, 30, 3.5, Color3.fromRGB(30, 20, 40), Color3.fromRGB(216, 180, 254))
+	sign(m, (cf * CFrame.new(0, 31.5, 0)).Position, (cf * CFrame.new(0, 0, 30)).Position, "Rot Gate • Defeat Boss to Unlock → Zone " .. toZone, 30, 3.5, Color3.fromRGB(30, 20, 40), Color3.fromRGB(216, 180, 254))
 	m.PrimaryPart = barrier
 	tag(m, "ZoneGate", { FromZone = fromZone, ToZone = toZone, Open = false })
 	return m
@@ -818,8 +818,8 @@ function MapBuilder.BuildZone(index)
 		warpStone(folders.WarpStone, Vector3.new(spawnPos.X, Z.y, spawnPos.Z) + side * 18, index, zone.colors.accent)
 		local signPos = (Z.trailStart or E) + inward * 12 - side * 16
 		P({ Name = "SignPost", Size = Vector3.new(1, 10, 1), CFrame = CFrame.new(signPos.X, Z.y + 5, signPos.Z), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood, Parent = folders.Decor })
-		local welcome = zone.built and string.format("โซน %d · %s\n%s", index, zone.thai, zone.name)
-			or string.format("โซน %d · %s\n(สร้างเต็มใน Phase 7)", index, zone.thai)
+		local welcome = zone.built and string.format("Zone %d · %s", index, zone.name)
+			or string.format("Zone %d · %s\n(Available in Phase 7)", index, zone.name)
 		sign(folders.Decor, Vector3.new(signPos.X, Z.y + 12, signPos.Z), E - inward * 40, welcome, 16, 7)
 
 		-- Visible rot hedges with exact openings aligned to the gate pillars.
@@ -889,7 +889,7 @@ function MapBuilder.BuildZone(index)
 				local a = k / 20 * math.pi * 2
 				P({ Name = "Ring", Size = Vector3.new(2.5, 4.5, 2.5), CFrame = rcf * CFrame.new(math.cos(a) * 13, math.sin(a) * 13, 0) * CFrame.Angles(0, 0, a), Color = Color3.fromRGB(255, 215, 100), Material = Enum.Material.Neon, Parent = rg })
 			end
-			sign(rg, (rcf * CFrame.new(0, 19, 0)).Position, C, "ประตูมิติ · Realm 2 (เร็วๆ นี้)", 22, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(255, 230, 150))
+			sign(rg, (rcf * CFrame.new(0, 19, 0)).Position, C, "Realm Gate · Realm 2 (Coming Soon)", 22, 3.5, Color3.fromRGB(30, 36, 51), Color3.fromRGB(255, 230, 150))
 			tag(rg, "RealmGate", { Realm = 2, Open = false })
 		end
 

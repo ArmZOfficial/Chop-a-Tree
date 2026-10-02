@@ -36,7 +36,7 @@ function Forest.Start()
 	local summary=UI.New("Frame",{Name="Summary",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(360,250),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(18)})
 	UI.Label("RUN COMPLETE!",25,{TextXAlignment=Enum.TextXAlignment.Center,Parent=summary})
 	local summaryText=UI.Label("",17,{Name="Rewards",Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,0,115),TextXAlignment=Enum.TextXAlignment.Center,Parent=summary})
-	local close=UI.Button({text="กลับไปเล่น",color=UI.Colors.Green,size=UDim2.new(1,0,0,48),onClick=function() summary.Visible=false end})
+	local close=UI.Button({text="Back to Game",color=UI.Colors.Green,size=UDim2.new(1,0,0,48),onClick=function() summary.Visible=false end})
 	close.Position=UDim2.new(0,0,1,-48); close.Parent=summary
 	local function hitNearest()
 		if not state.active then return end
@@ -55,9 +55,11 @@ function Forest.Start()
 	end
 	local chop=UI.Button({text="CHOP 🪓",color=UI.Colors.Orange,size=UDim2.fromOffset(150,52),onClick=hitNearest})
 	chop.Name="Chop"; chop.AnchorPoint=Vector2.new(0.5,1); chop.Position=UDim2.new(0.5,0,1,-105); chop.Visible=false; chop.Parent=gui
-	local hint=UI.Label("เดินผ่านประตูสู่ป่าเพื่อเริ่ม Run",18,{Name="Hint",AnchorPoint=Vector2.new(0.5,1),Position=UDim2.new(0.5,0,1,-20),Size=UDim2.fromOffset(390,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=gui})
+	local hint=UI.Label("Ready to explore the forest?",18,{Name="Hint",AnchorPoint=Vector2.new(0.5,1),Position=UDim2.new(0.5,0,1,-156),Size=UDim2.fromOffset(390,32),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=Color3.new(1,1,1),Parent=gui})
 	UI.TextStroke(2).Parent=hint
-	local invite=UI.Button({text="ชวนเพื่อน +10%",color=UI.Colors.Teal,size=UDim2.fromOffset(178,48),onClick=function()
+	local play=UI.Button({text="PLAY",color=Color3.fromRGB(123,244,28),textColor=Color3.new(1,1,1),textSize=44,stroke=4,radius=12,size=UDim2.fromOffset(290,76),onClick=function() summary.Visible=false;Net.Event("ForestAction"):FireServer("Play") end})
+	UI.TextStroke(3).Parent=play.Button:FindFirstChildWhichIsA("TextLabel",true);play.Name="Play";play.AnchorPoint=Vector2.new(.5,1);play.Position=UDim2.new(.5,0,1,-68);play.Parent=gui
+	local invite=UI.Button({text="Invite Friends +10%",color=UI.Colors.Teal,size=UDim2.fromOffset(178,48),onClick=function()
 		pcall(function() game:GetService("SocialService"):PromptGameInvite(player) end)
 	end})
 	invite.Name="InviteFriends"; invite.Position=UDim2.fromOffset(16,185); invite.Parent=gui
@@ -99,6 +101,7 @@ function Forest.Start()
 	end
 	Net.Event("RunState").OnClientEvent:Connect(function(nextState)
 		state=nextState
+		play.Visible=not state.active
 		panel.Visible=state.active; top.Visible=state.active; chop.Visible=state.active; hint.Visible=not state.active and not state.summary
 		buttonText(attack,"Auto Attack: "..(state.autoAttack and "ON" or "OFF"))
 		buttonText(cut,"Auto Cut: "..(state.autoCut and "ON" or "OFF"))
@@ -107,7 +110,7 @@ function Forest.Start()
 		earnings.Text="Wood +"..NF.Short(state.wood).."  Coins +"..NF.Short(state.coins).."  Friends +"..math.floor((state.friendBoost-1)*100+0.5).."%"
 		expFill.Size=UDim2.fromScale(math.clamp(state.exp/state.nextExp,0,1),1)
 		for _,child in chests:GetChildren() do if child:IsA("TextLabel") then child:Destroy() end end
-		if #state.chests==0 then UI.Label("เคลียร์ต้นไม้รอบจุดหีบ",14,{TextColor3=UI.Colors.TextDim,Parent=chests}) end
+		if #state.chests==0 then UI.Label("Clear trees around a chest spot",14,{TextColor3=UI.Colors.TextDim,Parent=chests}) end
 		for i,c in state.chests do UI.Label(c.rarity.." • LEVEL "..c.level.."  ×"..c.count,15,{LayoutOrder=i,Parent=chests}) end
 		if state.summary then
 			local s=state.summary; local count=0; for _,c in s.chests do count+=c.count end
@@ -121,7 +124,10 @@ function Forest.Start()
 		if not camera then return end
 		local width,height=camera.ViewportSize.X,camera.ViewportSize.Y
 		local scale=math.min(1,height/480,width/980)
-		panel.Size=UDim2.fromOffset(math.clamp(width*0.23,180,226),math.min(460,height-35))
+		local compact=width<700 or height<500
+		panel.Size=UDim2.fromOffset(compact and 176 or 216,math.min(350,height-190))
+		panel.AnchorPoint=Vector2.new(1,0);panel.Position=UDim2.new(1,-12,0,compact and 175 or 200)
+		top.AnchorPoint=Vector2.new(.5,1);top.Position=UDim2.new(.5,0,1,-170);top.Size=UDim2.fromOffset(math.min(390,width-24),92)
 		for _,frame in {top,summary} do
 			local s=frame:FindFirstChildOfClass("UIScale") or Instance.new("UIScale")
 			s.Scale=math.max(0.8,scale); s.Parent=frame

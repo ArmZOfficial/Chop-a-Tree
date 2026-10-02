@@ -10,8 +10,8 @@ local Mutations=require(S.Config.Mutations)
 local Data=require(script.Parent.ClientData)
 local Progression=require(S.Config.Progression);local CollectionMath=require(S.CollectionMath)
 local Controller={}
-local TABS={{"Main","เควสหลัก"},{"Daily","รายวัน"},{"Weekly","รายสัปดาห์"},{"Index","Index"},{"Achievements","ความสำเร็จ"},{"Warp","วาร์ป"}}
-local CATS={{"weapons","อาวุธ"},{"pets","สัตว์เลี้ยง"},{"seeds","ต้นไม้/เมล็ด"},{"mutations","Mutation"}}
+local TABS={{"Main","Main Quests"},{"Daily","Daily"},{"Weekly","Weekly"},{"Index","Index"},{"Achievements","Achievements"},{"Warp","Warp"}}
+local CATS={{"weapons","Weapons"},{"pets","Pets"},{"seeds","Trees / Seeds"},{"mutations","Mutation"}}
 
 local function tagged(tag,attr,value)
 	for _,x in Collection:GetTagged(tag) do if x:IsDescendantOf(workspace) and x:GetAttribute(attr)==value then return x end end
@@ -79,9 +79,9 @@ function Controller.Start()
 	local line=UI.Label("",17,{Name="Line",Position=UDim2.fromOffset(0,28),Size=UDim2.new(1,0,0,60),TextWrapped=true,Parent=dialog})
 	local lines,lineIndex={},1
 	local function showLine() line.Text=lines[lineIndex] or "";dialog.Visible=lines[lineIndex]~=nil end
-	local nextButton=UI.Button({text="ต่อไป",color=UI.Colors.Green,size=UDim2.fromOffset(140,40),onClick=function() lineIndex+=1;showLine() end})
+	local nextButton=UI.Button({text="Next",color=UI.Colors.Green,size=UDim2.fromOffset(140,40),onClick=function() lineIndex+=1;showLine() end})
 	nextButton.Name="Next";nextButton.AnchorPoint=Vector2.new(1,1);nextButton.Position=UDim2.new(1,-150,1,0);nextButton.Parent=dialog
-	local skipButton=UI.Button({text="ข้าม",color=UI.Colors.Slate,size=UDim2.fromOffset(140,40),onClick=function() dialog.Visible=false end})
+	local skipButton=UI.Button({text="Skip",color=UI.Colors.Slate,size=UDim2.fromOffset(140,40),onClick=function() dialog.Visible=false end})
 	skipButton.Name="Skip";skipButton.AnchorPoint=Vector2.new(1,1);skipButton.Position=UDim2.new(1,0,1,0);skipButton.Parent=dialog
 	local function talk(name,list) speaker.Text=name;lines=list;lineIndex=1;showLine() end
 
@@ -94,7 +94,7 @@ function Controller.Start()
 
 	-- Panel (quests / Index / warp).
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(780,570),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("เควส • Index • วาร์ป",22,{Parent=panel})
+	UI.Label("Quests • Index • Warp",22,{Parent=panel})
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
 	local tab="Main";local busy=false;local render
@@ -102,7 +102,7 @@ function Controller.Start()
 		if busy then return end;busy=true
 		task.spawn(function()
 			local ok,success,msg=pcall(function() return Net.Function(remote or "StoryAction"):InvokeServer(action,arg) end)
-			message.Text=ok and (msg or "") or "ติดต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่"
+			message.Text=ok and (msg or "") or "Could not reach the server. Try again"
 			message.TextColor3=ok and success and UI.Colors.Text or UI.Colors.Accent
 			if ok and success and action=="Warp" then panel.Visible=false end
 			task.wait(.32);busy=false;render()
@@ -119,9 +119,9 @@ function Controller.Start()
 	end
 	local function none() end
 	local function sideRows(rows,kind,ends)
-		row("Reset_"..kind,(kind=="daily" and "เควสรายวัน" or "เควสรายสัปดาห์").." • รีเซ็ตอีก "..math.max(0,math.floor((ends-os.time())/3600)).." ชม.",UI.Colors.Slate,none)
+		row("Reset_"..kind,(kind=="daily" and "Daily Quests" or "Weekly Quests").." • Resets in "..math.max(0,math.floor((ends-os.time())/3600)).." hrs",UI.Colors.Slate,none)
 		for _,q in rows do local id=q.id
-			row(kind.."_"..id,q.text.." • "..q.have.."/"..q.need.."\n"..(q.claimed and "รับรางวัลแล้ว" or (q.have>=q.need and "กดรับ +"..q.gems.." Gems" or "รางวัล "..q.gems.." Gems")),
+			row(kind.."_"..id,q.text.." • "..q.have.."/"..q.need.."\n"..(q.claimed and "Reward claimed" or (q.have>=q.need and "Claim +"..q.gems.." Gems" or "Rewards "..q.gems.." Gems")),
 				q.claimed and UI.Colors.Disabled or (q.have>=q.need and UI.Colors.Green or UI.Colors.Blue),function() call("Claim",{kind=kind,id=id}) end)
 		end
 	end
@@ -131,39 +131,39 @@ function Controller.Start()
 		if tab=="Main" then
 			row("Chapter",quest.title,UI.Colors.Purple,none)
 			for i,s in quest.steps do row("Step"..i,(s.done and "✓ " or (i==#quest.steps+1 and "" or "• "))..s.text,s.done and UI.Colors.Green or UI.Colors.Slate,none) end
-			if quest.current then row("Current","ตอนนี้: "..quest.current.text..(quest.current.need>1 and " ("..quest.current.have.."/"..quest.current.need..")" or "")..(quest.current.blocked and "\nโซนนี้สร้างเต็มใน Phase 7" or ""),UI.Colors.Orange,none) end
+			if quest.current then row("Current","Now: "..quest.current.text..(quest.current.need>1 and " ("..quest.current.have.."/"..quest.current.need..")" or "")..(quest.current.blocked and "\nZone available in Phase 7" or ""),UI.Colors.Orange,none) end
 		elseif tab=="Daily" then sideRows(quest.daily,"daily",quest.dailyEnds)
 		elseif tab=="Weekly" then sideRows(quest.weekly,"weekly",quest.weeklyEnds)
 		elseif tab=="Index" then
 			local idx=Data.Get("Index") or {}
 			for _,c in CATS do local cat=c[1];local n=quest.index[cat]
 				local unlocked=idx.done and idx.done[cat];local effect=Progression.Index[cat].text
-				row("Cat_"..cat,c[2].." • "..n.have.."/"..n.total..(unlocked and " • โบนัสปลดแล้ว" or "").."\n"..effect..(game.ReplicatedStorage.FeatureFlags:GetAttribute("IndexBonuses")~=true and " (บัฟปิด)" or ""),unlocked and UI.Colors.Green or UI.Colors.Teal,none)
+				row("Cat_"..cat,c[2].." • "..n.have.."/"..n.total..(unlocked and " • Bonus unlocked" or "").."\n"..effect..(game.ReplicatedStorage.FeatureFlags:GetAttribute("IndexBonuses")~=true and " (Bonus disabled)" or ""),unlocked and UI.Colors.Green or UI.Colors.Teal,none)
 			end
-			row("IndexRewards","ของใหม่ +1 Gem • ครบหมวด +50 Gems • ไม่นับของแอดมิน\nบัฟที่ปลดแล้วคงผ่าน Rebirth และการเพิ่มของสะสมใหม่",UI.Colors.Slate,none)
+			row("IndexRewards","New discovery: +1 Gem • Complete a category: +50 Gems • Admin items excluded\nUnlocked bonuses persist through Rebirth and new collection items",UI.Colors.Slate,none)
 			local function names(cat,listDefs,label)
 				local have,missing=0,{};for _,d in listDefs do if idx[cat] and idx[cat][d.id] then have+=1 else table.insert(missing,d.name) end end
-				row("Missing_"..cat,label.." ที่ยังไม่มี: "..(#missing==0 and "-" or table.concat(missing,", ")),UI.Colors.Slate,none)
+				row("Missing_"..cat,label.." Missing: "..(#missing==0 and "-" or table.concat(missing,", ")),UI.Colors.Slate,none)
 			end
-			names("pets",Pets.List,"สัตว์");names("seeds",Seeds.List,"เมล็ด")
+			names("pets",Pets.List,"Pets");names("seeds",Seeds.List,"Seeds")
 			local muts={};for id in Mutations.Values do table.insert(muts,{id=id,name=id}) end;for id in Pets.Mutations do if not Mutations.Values[id] then table.insert(muts,{id=id,name=id}) end end
 			table.sort(muts,function(a,b) return a.id<b.id end);names("mutations",muts,"Mutation")
 			local rarity={};for _,w in Weapons.List do rarity[w.rarity]=rarity[w.rarity] or {0,0};rarity[w.rarity][2]+=1;if idx.weapons and idx.weapons[w.id] then rarity[w.rarity][1]+=1 end end
 			local parts={};for _,r in {"Common","Rare","Epic","Legendary","Mythic"} do if rarity[r] then table.insert(parts,r.." "..rarity[r][1].."/"..rarity[r][2]) end end
-			row("WeaponRarity","อาวุธตามความหายาก: "..table.concat(parts," • "),UI.Colors.Slate,none)
+			row("WeaponRarity","Weapons by rarity: "..table.concat(parts," • "),UI.Colors.Slate,none)
 		elseif tab=="Achievements" then
 			local d=Data.Get();local enabled=game.ReplicatedStorage.FeatureFlags:GetAttribute("Achievements")==true
-			row("TitleNone","ถอดฉายาที่แสดงบนหัว",UI.Colors.Slate,function() call("Equip","","AchievementAction") end)
+			row("TitleNone","Remove your displayed title",UI.Colors.Slate,function() call("Equip","","AchievementAction") end)
 			for _,def in Progression.Achievements do local a=def;local claimed=d.Achievements.claimed[a.id];local have=CollectionMath.AchievementProgress(d,a)
 				local equipped=d.Achievements.equipped==a.id
-				local text=a.name.." • "..NF.Short(have).."/"..NF.Short(a.need).." • "..a.gems.." Gems\n"..a.title.." • "..(not enabled and "ระบบปิด" or (claimed and (equipped and "กำลังใช้ฉายา" or "กดเลือกฉายา") or (have>=a.need and "กดรับรางวัล + ฉายา" or "ยังทำไม่ครบ")))
+				local text=a.name.." • "..NF.Short(have).."/"..NF.Short(a.need).." • "..a.gems.." Gems\n"..a.title.." • "..(not enabled and "System disabled" or (claimed and (equipped and "Title Equipped" or "Select Title") or (have>=a.need and "Claim reward & title" or "Incomplete")))
 				row("Achievement_"..a.id,text,equipped and UI.Colors.Purple or (claimed or have>=a.need) and UI.Colors.Green or UI.Colors.Slate,function() if enabled then call(claimed and "Equip" or "Claim",a.id,"AchievementAction") end end)
 			end
 		else
 			local unlocked=Data.Get("Progress.UnlockedZones") or {1}
-			row("Warp0","หมู่บ้าน Rootfall\nจบ Run (ถ้ามี) แล้วกลับหมู่บ้าน",UI.Colors.Green,function() call("Warp",0) end)
+			row("Warp0","Rootfall Village\nEnd your current run and return home",UI.Colors.Green,function() call("Warp",0) end)
 			for _,z in Zones.List do local id=z.id;local open=table.find(unlocked,id)~=nil and z.built
-				row("Warp"..id,"โซน "..id.." • "..z.thai.."\n"..(open and "วาร์ปแล้วเริ่ม Run ทันที" or (not z.built and "สร้างเต็มใน Phase 7" or "🔒 ล้มบอสและจุดศาลเจ้าโซนก่อนหน้า")),open and UI.Colors.Teal or UI.Colors.Disabled,function() if open then call("Warp",id) end end)
+				row("Warp"..id,"Zone "..id.." • "..z.name.."\n"..(open and "Warp and start a run" or (not z.built and "Available in Phase 7" or "🔒 Defeat the previous boss and light its shrine")),open and UI.Colors.Teal or UI.Colors.Disabled,function() if open then call("Warp",id) end end)
 			end
 		end
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") and not keep[v.Name] then v:Destroy() end end
@@ -172,14 +172,14 @@ function Controller.Start()
 		local b=UI.Button({text=t[2],color=UI.Colors.Purple,size=UDim2.new(1/#TABS,-8,0,42),onClick=function() tab=target;message.Text="";render() end})
 		b.Name="Tab"..target;b.Position=UDim2.new((i-1)/#TABS,0,0,64);b.Parent=panel
 	end
-	local close=UI.Button({text="ปิด",color=UI.Colors.Slate,size=UDim2.new(1,0,0,42),onClick=function() panel.Visible=false end})
+	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,42),onClick=function() panel.Visible=false end})
 	close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
 	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(780,size.X-28),math.min(570,size.Y-56)) end
 	local function show(target)
 		for _,name in {"InventoryHUD","GardenHUD","PetHUD"} do local other=player.PlayerGui:FindFirstChild(name);if other and other:FindFirstChild("Panel") then other.Panel.Visible=false end end
 		if target then tab=target end;panel.Visible=true;resize();render()
 	end
-	local toggle=UI.Button({text="เควส & Index",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})
+	local toggle=UI.Button({text="Quests & Index",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})
 	toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(16,417);toggle.Parent=gui
 	local flags=game.ReplicatedStorage:WaitForChild("FeatureFlags")
 	local function feature()
@@ -197,7 +197,7 @@ function Controller.Start()
 		quest=packet;tracker.Visible=packet.enabled;feature()
 		trackTitle.Text=packet.title
 		local cur=packet.current
-		trackStep.Text=cur and (cur.text..(cur.need>1 and " "..cur.have.."/"..cur.need or "")..(cur.blocked and " (Phase 7)" or "")) or "จบบทหลักแล้ว"
+		trackStep.Text=cur and (cur.text..(cur.need>1 and " "..cur.have.."/"..cur.need or "")..(cur.blocked and " (Phase 7)" or "")) or "Main Story Complete"
 		trackFill.Size=UDim2.fromScale(cur and math.clamp(cur.have/cur.need,0,1) or 1,1)
 		render()
 	end)
@@ -213,13 +213,13 @@ function Controller.Start()
 				Tween:Create(cam,TweenInfo.new(3,Enum.EasingStyle.Sine),{CFrame=CFrame.lookAt(pos+Vector3.new(28,10,-8),pos)}):Play()
 				task.delay(3,function() cam.CameraType=Enum.CameraType.Custom end)
 			end
-			showBanner(msg.title,"",Color3.fromRGB(120,255,160));talk("ศาลเจ้า",msg.lines)
+			showBanner(msg.title,"",Color3.fromRGB(120,255,160));talk("Shrine",msg.lines)
 		elseif msg.kind=="warp" then show("Warp") end
 	end)
 	Net.Event("BossEvent").OnClientEvent:Connect(function(msg)
 		local boss=tagged("Boss","Zone",msg.zone);local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		if msg.kind=="defeated" and boss and hr and (hr.Position-boss:GetPivot().Position).Magnitude<160 then
-			showBanner(msg.name,"ผู้พิทักษ์ถูกชำระแล้ว!",Color3.fromRGB(120,255,160))
+			showBanner(msg.name,"Guardian cleansed!",Color3.fromRGB(120,255,160))
 			local cam=workspace.CurrentCamera;local fov=cam.FieldOfView
 			Tween:Create(cam,TweenInfo.new(.25),{FieldOfView=fov+18}):Play();task.delay(.6,function() Tween:Create(cam,TweenInfo.new(.8),{FieldOfView=fov}):Play() end)
 		end
@@ -245,10 +245,10 @@ function Controller.Start()
 				local weather=game.ReplicatedStorage:FindFirstChild("WeatherState");local health=weather and weather:GetAttribute("HealthMult") or 1
 				local hp=Balance.BossHP(zone,rb)*health;local req=Balance.BossRequiredPower(zone,rb)*health;local ratio=boss:GetAttribute("HealthRatio") or 1
 				if boss:GetAttribute("WorldBoss") then hp=Balance.BossHP(zone,rb)*(boss:GetAttribute("WorldHPFactor") or 1);req=0 end
-				bossName.Text=boss:GetAttribute("BossName").." • "..(power<req and ("🔒 ต้องการ Power "..NF.Short(req)) or (NF.Short(hp*ratio).." / "..NF.Short(hp)))
+				bossName.Text=boss:GetAttribute("BossName").." • "..(power<req and ("🔒 Requires Power "..NF.Short(req)) or (NF.Short(hp*ratio).." / "..NF.Short(hp)))
 				bossName.TextColor3=power<req and UI.Colors.Red or UI.Colors.Text
 				bossFill.Size=UDim2.fromScale(math.clamp(ratio,0,1),1)
-				if not introduced[boss] then introduced[boss]=true;showBanner(string.upper(boss:GetAttribute("BossName")),(boss:GetAttribute("WorldBoss") and "WORLD BOSS" or "GUARDIAN").." • "..Zones.List[zone].thai,Color3.fromRGB(220,130,255)) end
+				if not introduced[boss] then introduced[boss]=true;showBanner(string.upper(boss:GetAttribute("BossName")),(boss:GetAttribute("WorldBoss") and "WORLD BOSS" or "GUARDIAN").." • "..Zones.List[zone].name,Color3.fromRGB(220,130,255)) end
 			end
 		end
 		bossBar.Visible=shown

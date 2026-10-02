@@ -232,10 +232,10 @@ end
 local function handleRun(admin: Player, request: any): any
 	local level = AdminService.GetLevel(admin)
 	if level < LEVELS.Tester then
-		return { ok = false, msg = "ไม่มีสิทธิ์" }
+		return { ok = false, msg = "Permission denied" }
 	end
 	if type(request) ~= "table" or type(request.id) ~= "string" then
-		return { ok = false, msg = "คำขอไม่ถูกต้อง" }
+		return { ok = false, msg = "Invalid request" }
 	end
 	if request.id == "__init" then
 		local players = {}
@@ -251,30 +251,30 @@ local function handleRun(admin: Player, request: any): any
 		}
 	end
 	if rateLimited(admin) then
-		return { ok = false, msg = "กดเร็วเกินไป รอสักครู่" }
+		return { ok = false, msg = "Too fast. Please wait" }
 	end
 	local cmd = commands[request.id]
 	if not cmd then
-		return { ok = false, msg = "ไม่รู้จักคำสั่ง " .. tostring(request.id) }
+		return { ok = false, msg = "Unknown command " .. tostring(request.id) }
 	end
 	if level < LEVELS[cmd.minLevel or "Admin"] then
-		return { ok = false, msg = "ยศไม่พอ (ต้องเป็น " .. (cmd.minLevel or "Admin") .. ")" }
+		return { ok = false, msg = "Insufficient role (requires " .. (cmd.minLevel or "Admin") .. ")" }
 	end
 	local confirmNeeded = cmd.confirm or 0
 	if confirmNeeded > 0 and request.confirmed ~= confirmNeeded then
-		return { ok = false, msg = "ต้องกดยืนยัน " .. confirmNeeded .. " ชั้น" }
+		return { ok = false, msg = "Confirm " .. confirmNeeded .. " floors" }
 	end
 	local args = type(request.args) == "table" and request.args or {}
 	local targets = cmd.usesTarget and resolveTargets(admin, request.target) or { admin }
 	if cmd.usesTarget and #targets == 0 then
-		return { ok = false, msg = "ไม่พบผู้เล่นเป้าหมาย" }
+		return { ok = false, msg = "Target player not found" }
 	end
 	if cmd.singleTarget and #targets ~= 1 then
-		return { ok = false, msg = "ต้องเลือกผู้เล่น 1 คน" }
+		return { ok = false, msg = "Select one player" }
 	end
 	-- Tester ใช้ได้เฉพาะใน Studio / เซิร์ฟส่วนตัว
 	if level == LEVELS.Tester and not RunService:IsStudio() and game.PrivateServerId == "" then
-		return { ok = false, msg = "Tester ใช้ได้เฉพาะเซิร์ฟทดสอบ" }
+		return { ok = false, msg = "Tester access requires a test server" }
 	end
 	local ok, success, msg, payload = pcall(cmd.run, {
 		admin = admin,
@@ -284,7 +284,7 @@ local function handleRun(admin: Player, request: any): any
 	})
 	if not ok then
 		warn("[Admin] " .. cmd.id .. " error: " .. tostring(success))
-		return { ok = false, msg = "เกิดข้อผิดพลาด: " .. tostring(success) }
+		return { ok = false, msg = "Error: " .. tostring(success) }
 	end
 	if success and cmd.marksTarget and DataService then
 		for _, t in targets do
@@ -300,7 +300,7 @@ local function handleRun(admin: Player, request: any): any
 		end
 	end
 	AdminService.Log(admin, cmd.id, cmd.usesTarget and targets or {}, detail .. (success and "OK" or "FAIL"))
-	return { ok = success, msg = msg or (success and "เรียบร้อย" or "ไม่สำเร็จ"), data = payload }
+	return { ok = success, msg = msg or (success and "Done" or "Failed"), data = payload }
 end
 
 -- ส่ง UI ให้แอดมิน
@@ -324,7 +324,7 @@ end
 -- Owner ตั้ง/ถอดยศให้ผู้เล่นในเซิร์ฟ; มีผลทันทีที่นี่ และเซิร์ฟอื่นตอนผู้เล่นเข้าใหม่
 local function setGranted(target: Player, name: string?): (boolean, string?)
 	if not grantStore then
-		return false, "DataStore ใช้ไม่ได้"
+		return false, "DataStore Unavailable"
 	end
 	local ok, err = pcall(grantStore.UpdateAsync, grantStore, "users", function(users)
 		users = type(users) == "table" and users or {}
@@ -332,7 +332,7 @@ local function setGranted(target: Player, name: string?): (boolean, string?)
 		return users
 	end)
 	if not ok then
-		return false, "บันทึกไม่สำเร็จ: " .. tostring(err)
+		return false, "Save failed: " .. tostring(err)
 	end
 	levelCache[target] = nil
 	local level = AdminService.GetLevel(target)
@@ -342,7 +342,7 @@ local function setGranted(target: Player, name: string?): (boolean, string?)
 	elseif level >= LEVELS.Tester and not panel then
 		task.spawn(giveUI, target)
 	end
-	return true, target.Name .. " ตอนนี้เป็น " .. levelName(level)
+	return true, target.Name .. " now set to " .. levelName(level)
 end
 
 local function registerGrantCommands()
@@ -350,8 +350,8 @@ local function registerGrantCommands()
 		AdminService.Register({
 			id = "admin.grant" .. name,
 			tab = "mod",
-			label = "ตั้งเป็น " .. name,
-			sub = "ผู้เล่นที่เลือก • เก็บถาวร",
+			label = "Set to " .. name,
+			sub = "Selected Player • Permanent",
 			color = "Purple",
 			order = 90 + i,
 			minLevel = "Owner",
@@ -366,8 +366,8 @@ local function registerGrantCommands()
 	AdminService.Register({
 		id = "admin.revoke",
 		tab = "mod",
-		label = "ถอดยศแอดมิน",
-		sub = "ยศจาก Config/กลุ่มถอดที่นี่ไม่ได้",
+		label = "Remove Admin Role",
+		sub = "Config/group roles cannot be removed here",
 		color = "Red",
 		order = 94,
 		minLevel = "Owner",
@@ -381,23 +381,23 @@ local function registerGrantCommands()
 	AdminService.Register({
 		id = "admin.list",
 		tab = "mod",
-		label = "รายชื่อแอดมินที่ตั้งจากเมนู",
+		label = "Assigned Admin Roles",
 		order = 95,
 		minLevel = "Owner",
 		run = function()
 			if not grantStore then
-				return false, "DataStore ใช้ไม่ได้"
+				return false, "DataStore Unavailable"
 			end
 			local ok, users = pcall(grantStore.GetAsync, grantStore, "users")
 			if not ok then
-				return false, "อ่านไม่สำเร็จ"
+				return false, "Read failed"
 			end
 			local lines = {}
 			for userId, name in (type(users) == "table" and users or {}) do
 				local okName, userName = pcall(Players.GetNameFromUserIdAsync, Players, tonumber(userId))
 				table.insert(lines, (okName and userName or userId) .. " = " .. tostring(name))
 			end
-			return true, #lines == 0 and "ยังไม่มี" or table.concat(lines, ", ")
+			return true, #lines == 0 and "None yet" or table.concat(lines, ", ")
 		end,
 	})
 end

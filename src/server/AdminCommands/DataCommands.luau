@@ -7,7 +7,7 @@ return function(Admin, DataService)
 	local function single(ctx): (Player?, string?)
 		local t = ctx.targets[1]
 		if not t or not DataService.IsLoaded(t) then
-			return nil, "ผู้เล่นยังโหลดเซฟไม่เสร็จ"
+			return nil, "Player save still loading"
 		end
 		return t, nil
 	end
@@ -15,7 +15,7 @@ return function(Admin, DataService)
 	Admin.Register({
 		id = "data.save",
 		tab = "data",
-		label = "บันทึกทันที",
+		label = "Save Now",
 		color = "Green",
 		order = 1,
 		usesTarget = true,
@@ -26,13 +26,13 @@ return function(Admin, DataService)
 					n += 1
 				end
 			end
-			return true, "สั่งบันทึก " .. n .. " คน (สถานะ DataStore: " .. DataService.DataStoreState() .. ")"
+			return true, "Save requested for " .. n .. " players (Status DataStore: " .. DataService.DataStoreState() .. ")"
 		end,
 	})
 	Admin.Register({
 		id = "data.backup",
 		tab = "data",
-		label = "สำรองเซฟ",
+		label = "Back Up Save",
 		color = "Blue",
 		order = 2,
 		usesTarget = true,
@@ -48,7 +48,7 @@ return function(Admin, DataService)
 	Admin.Register({
 		id = "data.restore",
 		tab = "data",
-		label = "คืนเซฟจากสำรอง",
+		label = "Restore Backup",
 		color = "Orange",
 		order = 3,
 		usesTarget = true,
@@ -67,7 +67,7 @@ return function(Admin, DataService)
 		id = "data.export",
 		tab = "data",
 		label = "Export JSON",
-		sub = "ก๊อปเซฟออกมาดู",
+		sub = "Export Save",
 		color = "Purple",
 		order = 4,
 		usesTarget = true,
@@ -78,14 +78,14 @@ return function(Admin, DataService)
 				return false, err
 			end
 			local json = DataService.ExportJSON(t)
-			return true, "Export เซฟของ " .. t.Name .. " แล้ว (" .. #json .. " ตัวอักษร)", { text = json }
+			return true, "Export Save for " .. t.Name .. " done (" .. #json .. " characters)", { text = json }
 		end,
 	})
 	Admin.Register({
 		id = "data.import",
 		tab = "data",
 		label = "Import JSON",
-		sub = "วางในช่องข้อความก่อน",
+		sub = "Paste in the text box first",
 		color = "Teal",
 		order = 5,
 		usesTarget = true,
@@ -100,10 +100,10 @@ return function(Admin, DataService)
 			end
 			local json = ctx.args.json
 			if type(json) ~= "string" or #json < 2 then
-				return false, "วาง JSON ในช่องข้อความก่อน"
+				return false, "Paste JSON in the text box first"
 			end
 			if #json > 3_000_000 then
-				return false, "JSON ใหญ่เกินไป"
+				return false, "JSON too large"
 			end
 			return DataService.ImportJSON(t, json)
 		end,
@@ -111,27 +111,27 @@ return function(Admin, DataService)
 	Admin.Register({
 		id = "data.migratetest",
 		tab = "data",
-		label = "ทดสอบ Migration",
-		sub = "แปลงเซฟ v0 ตัวอย่าง",
+		label = "Test Migration",
+		sub = "Migrate Sample v0 Save",
 		color = "Slate",
 		order = 6,
 		run = function()
 			local sample = { Coins = 12345, Wood = 678, Gems = 9 } -- เซฟ v0 (เงินอยู่ที่ root)
 			local ok, result, log = pcall(DataService.Migrate, sample)
 			if not ok then
-				return false, "Migration พัง: " .. tostring(result)
+				return false, "Migration Failed: " .. tostring(result)
 			end
 			local good = result.Currencies.Coins == 12345 and result.Currencies.Wood == 678 and result.Coins == nil
 			local text = HttpService:JSONEncode(result)
 			return good,
-				(good and "Migration ผ่าน: " or "Migration ผิด: ") .. table.concat(log, ", "),
+				(good and "Migration Passed: " or "Migration Invalid: ") .. table.concat(log, ", "),
 				{ text = text }
 		end,
 	})
 	Admin.Register({
 		id = "data.view",
 		tab = "data",
-		label = "ดูสรุปเซฟ",
+		label = "View Save Summary",
 		color = "Blue",
 		order = 7,
 		usesTarget = true,
@@ -143,21 +143,21 @@ return function(Admin, DataService)
 			end
 			local d = DataService.GetData(t)
 			local lines = {
-				"ผู้เล่น: " .. t.Name .. " (" .. t.UserId .. ")",
+				"Player: " .. t.Name .. " (" .. t.UserId .. ")",
 				"DataVersion: " .. tostring(d.DataVersion),
-				"เข้าเกม: " .. d.Meta.Joins .. " ครั้ง, เล่นไป " .. math.floor(d.Stats.PlaySeconds / 60) .. " นาที",
-				"โดนแอดมินแก้: " .. tostring(d.Meta.AdminTouched),
-				"เงิน: " .. HttpService:JSONEncode(d.Currencies),
-				"โซน: " .. d.Progress.Zone .. ", Rebirth: " .. d.Progress.Rebirth,
+				"Joined: " .. d.Meta.Joins .. " times, played " .. math.floor(d.Stats.PlaySeconds / 60) .. " min",
+				"Admin modified: " .. tostring(d.Meta.AdminTouched),
+				"Currency: " .. HttpService:JSONEncode(d.Currencies),
+				"Zone: " .. d.Progress.Zone .. ", Rebirth: " .. d.Progress.Rebirth,
 			}
-			return true, "สรุปเซฟของ " .. t.Name, { text = table.concat(lines, "\n") }
+			return true, "Save summary for " .. t.Name, { text = table.concat(lines, "\n") }
 		end,
 	})
 	Admin.Register({
 		id = "data.reset",
 		tab = "data",
-		label = "รีเซ็ตเซฟ",
-		sub = "ยืนยัน 2 ชั้น",
+		label = "Reset Save",
+		sub = "Confirm 2",
 		color = "Red",
 		order = 20,
 		usesTarget = true,
@@ -171,7 +171,7 @@ return function(Admin, DataService)
 			end
 			DataService.Backup(t)
 			DataService.ResetData(t)
-			return true, "รีเซ็ตเซฟของ " .. t.Name .. " แล้ว (สำรองอัตโนมัติไว้ก่อนรีเซ็ต)"
+			return true, "Reset save for " .. t.Name .. " complete (automatically backed up before reset)"
 		end,
 	})
 end

@@ -11,15 +11,15 @@ local testTransport,testPlace
 local function mode(id) for _,m in C.Modes do if m.id==id then return m end end end
 local function target() return testPlace or C.PlaceId end
 local function eligible(p)
-	if not F.IsEnabled("PvP") or not D.IsLoaded(p) or p.Parent~=Players then return false,"Arena ยังไม่เปิด" end
+	if not F.IsEnabled("PvP") or not D.IsLoaded(p) or p.Parent~=Players then return false,"Arena Unavailable" end
 	local character=p.Character;local h=character and character:FindFirstChildOfClass("Humanoid")
 	local root=character and character:FindFirstChild("HumanoidRootPart")
-	if not h or h.Health<=0 or not root then return false,"ตัวละครยังไม่พร้อม" end
-	if D.Get(p,"Run.Active") or p:GetAttribute("CarryingEgg") or P.Mounted(p) then return false,"จบ Run และวางไข่/ลงจากสัตว์ก่อน" end
+	if not h or h.Health<=0 or not root then return false,"Character not ready" end
+	if D.Get(p,"Run.Active") or p:GetAttribute("CarryingEgg") or P.Mounted(p) then return false,"End your run, put down your egg and dismount first" end
 	for _,portal in Collection:GetTagged("ArenaPortal") do
 		if portal:IsDescendantOf(workspace) and (portal:GetPivot().Position-root.Position).Magnitude<=C.PortalRange then return true end
 	end
-	return false,"เดินไปที่พอร์ทัล Chop Arena ก่อน"
+	return false,"Go to the Chop Arena portal first"
 end
 function A.State(p)
 	local counts={};for _,m in C.Modes do counts[m.id]=0 end
@@ -31,21 +31,21 @@ end
 local function send(p) if p.Parent==Players then Net.Event("ArenaState"):FireClient(p,A.State(p)) end end
 local function broadcast() for _,p in Players:GetPlayers() do send(p) end end
 function A.Leave(p)
-	if transferring[p] then return false,"กำลังส่งเข้าสนาม" end
-	queued[p]=nil;broadcast();return true,"ออกจากคิวแล้ว"
+	if transferring[p] then return false,"Joining arena" end
+	queued[p]=nil;broadcast();return true,"Left queue"
 end
 function A.Join(p,id,ranked)
-	if not mode(id) or type(ranked)~="boolean" then return false,"โหมดไม่ถูกต้อง" end
+	if not mode(id) or type(ranked)~="boolean" then return false,"Invalid mode" end
 	local ok,msg=eligible(p);if not ok then return false,msg end
-	if target()<=0 or target()==game.PlaceId then return false,"สนาม Arena ยังไม่พร้อม" end
-	if transferring[p] then return false,"กำลังส่งเข้าสนาม" end
-	if queued[p] then return false,"ออกจากคิวเดิมก่อน" end
-	queued[p]={mode=id,ranked=ranked,at=os.clock()};broadcast();return true,"เข้าคิว "..mode(id).name
+	if target()<=0 or target()==game.PlaceId then return false,"Arena not ready" end
+	if transferring[p] then return false,"Joining arena" end
+	if queued[p] then return false,"Leave your current queue first" end
+	queued[p]={mode=id,ranked=ranked,at=os.clock()};broadcast();return true,"Queue "..mode(id).name
 end
 function A.TransferFailed(p,placeId,options)
 	local t=transferring[p]
 	if not t or t.placeId~=placeId or t.options~=options then return false end
-	transferring[p]=nil;send(p);if p.Parent==Players then Net.Event("Notify"):FireClient(p,"เข้า Arena ไม่สำเร็จ กรุณาเข้าคิวใหม่") end
+	transferring[p]=nil;send(p);if p.Parent==Players then Net.Event("Notify"):FireClient(p,"Arena transfer failed. Please queue again") end
 	return true
 end
 function A.Step(now)
@@ -82,17 +82,17 @@ function A.SetTestTransport(callback,placeId)
 end
 function A.Init()
 	Net.Function("ArenaAction").OnServerInvoke=function(p,action,id,ranked)
-		local now=os.clock();if now<(last[p] or 0) then return false,"รอสักครู่" end;last[p]=now+.35
+		local now=os.clock();if now<(last[p] or 0) then return false,"Please wait" end;last[p]=now+.35
 		if action=="State" then return true,"",A.State(p) end
 		if action=="Join" then return A.Join(p,id,ranked) elseif action=="Leave" then return A.Leave(p) end
-		return false,"คำสั่งไม่ถูกต้อง"
+		return false,"Invalid command"
 	end
 	Players.PlayerRemoving:Connect(function(p) queued[p]=nil;transferring[p]=nil;last[p]=nil;broadcast() end)
 	Teleport.TeleportInitFailed:Connect(function(p,_,_,placeId,options) A.TransferFailed(p,placeId,options) end)
 	local function attach(portal)
 		local part=portal:IsA("Model") and portal.PrimaryPart or portal:IsA("BasePart") and portal
 		if not part or part:FindFirstChild("ArenaPrompt") then return end
-		local prompt=Instance.new("ProximityPrompt");prompt.Name="ArenaPrompt";prompt.ActionText="เลือกโหมด";prompt.ObjectText="Chop Arena";prompt.MaxActivationDistance=C.PortalRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
+		local prompt=Instance.new("ProximityPrompt");prompt.Name="ArenaPrompt";prompt.ActionText="Choose Mode";prompt.ObjectText="Chop Arena";prompt.MaxActivationDistance=C.PortalRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
 		prompt.Triggered:Connect(function(p) if eligible(p) then Net.Event("ArenaShow"):FireClient(p) end end)
 	end
 	for _,portal in Collection:GetTagged("ArenaPortal") do attach(portal) end

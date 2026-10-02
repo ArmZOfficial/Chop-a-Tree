@@ -74,23 +74,23 @@ local function shopZone(p)
 end
 Garden.ShopZone=shopZone
 function Garden.Buy(p,id)
-	if not enabled(p) or not Seeds.ById[id] or not near(p,shopPart(),Config.ShopRange) then return false,"ซื้อเมล็ดที่ร้านในหมู่บ้าน" end
+	if not enabled(p) or not Seeds.ById[id] or not near(p,shopPart(),Config.ShopRange) then return false,"Buy seeds at the village shop" end
 	local stock,epoch=Garden.Shop(os.time());local data=Data.Get(p,"Garden")
 	if data.shopEpoch~=epoch then data.shopEpoch=epoch;data.bought={} end
-	if (data.bought[id] or 0)>=stock[id] then return false,"เมล็ดหมด รอรีสต็อก" end
+	if (data.bought[id] or 0)>=stock[id] then return false,"Out of stock. Wait for restock" end
 	local zone=shopZone(p);local price=Math.SeedPrice(id,zone)
-	if Data.GetCurrency(p,"Coins")<price then return false,"Coins ไม่พอ" end
+	if Data.GetCurrency(p,"Coins")<price then return false,"Coins Not enough" end
 	Data.AddCurrency(p,"Coins",-price);data.bought[id]=(data.bought[id] or 0)+1;Data.Set(p,"Garden",data)
 	Garden.GrantSeed(p,id,zone,Data.Get(p,"Progress.Rebirth"),1,false)
-	return true,"ซื้อเมล็ดแล้ว"
+	return true,"Seed purchased"
 end
 function Garden.Plant(p,index,uid)
-	if not enabled(p) or type(index)~="number" or index%1~=0 or index<1 or index>Garden.Slots(p) or not Garden.NearSlot(p,index) then return false,"ไปที่ช่องสวนของตัวเองก่อน" end
+	if not enabled(p) or type(index)~="number" or index%1~=0 or index<1 or index>Garden.Slots(p) or not Garden.NearSlot(p,index) then return false,"Go to your own garden plot first" end
 	local data=Data.Get(p,"Garden");local key=tostring(index);local inv=Data.Get(p,"Inventory.Seeds");local seed=type(uid)=="string" and inv[uid]
-	if data.plots[key] or not seed or seed.count<1 then return false,"ช่องไม่ว่างหรือไม่มีเมล็ด" end
+	if data.plots[key] or not seed or seed.count<1 then return false,"Plot occupied or no seed available" end
 	data.plots[key]={id=seed.id,zone=seed.zone,rebirthDrop=seed.rebirthDrop,progress=0,updatedAt=os.time(),mature=false,watered=false,nextFruitAt=0,mutations={},admin_spawned=seed.admin_spawned}
 	seed.count-=1;if seed.count==0 then inv[uid]=nil end
-	Data.Set(p,"Inventory.Seeds",inv);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.SeedsPlanted",1);return true,"ปลูกแล้ว"
+	Data.Set(p,"Inventory.Seeds",inv);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.SeedsPlanted",1);return true,"Planted"
 end
 function Garden.Advance(p,now,online)
 	local data=Data.Get(p,"Garden");if not data then return end
@@ -109,50 +109,50 @@ function Garden.Advance(p,now,online)
 	end
 end
 function Garden.Water(p,index)
-	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"อยู่ใกล้ต้นไม้ในสวนตัวเองก่อน" end
+	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"Move closer to your garden tree first" end
 	Garden.Advance(p,os.time(),true)
 	local data=Data.Get(p,"Garden");local plot=data.plots[tostring(index)]
-	if not plot or plot.mature or plot.watered then return false,"รดได้ครั้งเดียวก่อนโตเต็ม" end
-	plot.watered=true;Data.Set(p,"Garden",data);return true,"รดน้ำแล้ว — โตไว +10%"
+	if not plot or plot.mature or plot.watered then return false,"Water once before fully grown" end
+	plot.watered=true;Data.Set(p,"Garden",data);return true,"Watered. Growth +10%"
 end
 function Garden.Harvest(p,index)
-	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"เก็บจากสวนตัวเองเท่านั้น" end
+	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"Harvest only from your own garden" end
 	Garden.Advance(p,os.time(),true)
 	local data=Data.Get(p,"Garden");local plot=data.plots[tostring(index)]
-	if not plot or not plot.mature or plot.nextFruitAt>os.time() then return false,"ผลยังไม่พร้อม" end
+	if not plot or not plot.mature or plot.nextFruitAt>os.time() then return false,"Fruit not ready" end
 	local fruits=Data.Get(p,"Inventory.Fruits");local count=0;local match
 	for uid,f in fruits do count+=1;if f.id==plot.id and f.zone==plot.zone and f.rebirthDrop==plot.rebirthDrop and Math.Key(f.mutations)==Math.Key(plot.mutations) and f.admin_spawned==plot.admin_spawned then match=uid end end
-	if not match and count>=Config.MaxFruitStacks then return false,"กระเป๋าผลเต็ม — ขายผลก่อน" end
+	if not match and count>=Config.MaxFruitStacks then return false,"Fruit bag full. Sell fruit first" end
 	local def=Seeds.ById[plot.id]
 	if match then fruits[match].count+=def.yield else fruits[Http:GenerateGUID(false)]={id=plot.id,zone=plot.zone,rebirthDrop=plot.rebirthDrop,mutations=table.clone(plot.mutations),count=def.yield,admin_spawned=plot.admin_spawned} end
 	plot.nextFruitAt=os.time()+def.fruitTime;plot.mutations={}
 	Data.Set(p,"Inventory.Fruits",fruits);Data.Set(p,"Garden",data);Data.Increment(p,"Stats.Harvests",1)
-	if (Data.Get(p,"Purchases.passes") or {}).AutoSell then local _,msg=Garden.Sell(p,true);return true,"เก็บผลแล้ว • "..msg end
-	return true,"เก็บผลแล้ว ต้นเดิมจะออกผลใหม่"
+	if (Data.Get(p,"Purchases.passes") or {}).AutoSell then local _,msg=Garden.Sell(p,true);return true,"Harvested • "..msg end
+	return true,"Harvested. This tree will grow more fruit"
 end
 function Garden.Sell(p,anywhere)
-	if not enabled(p) or not (anywhere or near(p,shopPart(),Config.ShopRange)) then return false,"ขายผลที่ร้านเมล็ดในหมู่บ้าน" end
+	if not enabled(p) or not (anywhere or near(p,shopPart(),Config.ShopRange)) then return false,"Sell fruit at the village seed shop" end
 	local fruits=Data.Get(p,"Inventory.Fruits");local data=Data.Get(p,"Garden");local day=os.time()//86400
 	if data.sellDay~=day then data.sellDay=day;data.sold={} end
 	local total,sold=Math.SellQuote(fruits,data.sold)
-	if total<=0 then return false,"ยังไม่มีผลให้ขาย" end
-	data.sold=sold;Data.Set(p,"Garden",data);Data.Set(p,"Inventory.Fruits",{});Data.AddCurrency(p,"Coins",total);return true,"ขายผลแล้ว +"..total.." Coins"
+	if total<=0 then return false,"No fruit to sell" end
+	data.sold=sold;Data.Set(p,"Garden",data);Data.Set(p,"Inventory.Fruits",{});Data.AddCurrency(p,"Coins",total);return true,"Fruit sold +"..total.." Coins"
 end
 function Garden.Cut(p,index)
-	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"อยู่ใกล้สวนตัวเองก่อน" end
+	if not enabled(p) or not Garden.NearSlot(p,index) then return false,"Move closer to your garden first" end
 	Garden.Advance(p,os.time(),true);local data=Data.Get(p,"Garden");local plot=data.plots[tostring(index)]
-	if not plot or not plot.mature then return false,"ตัดได้เมื่อต้นโตเต็มเท่านั้น" end
+	if not plot or not plot.mature then return false,"The tree must be fully grown before cutting" end
 	local wood=Seeds.ById[plot.id].wood*Balance.ZoneScale(plot.zone)*Balance.Rot(plot.rebirthDrop)
 	data.plots[tostring(index)]=nil;Data.Set(p,"Garden",data);Data.AddCurrency(p,"Wood",wood)
 	if rng:NextNumber()<Config.CutSeedChance then Garden.GrantSeed(p,Garden.RollSeed(6),plot.zone,plot.rebirthDrop,1,plot.admin_spawned) end
-	return true,"ตัดต้นไม้แล้ว +"..wood.." Wood"
+	return true,"Tree cut +"..wood.." Wood"
 end
 function Garden.Upgrade(p)
-	if not enabled(p) or not Garden.NearBase(p) then return false,"อัปเกรดที่ฐานตัวเอง" end
+	if not enabled(p) or not Garden.NearBase(p) then return false,"Upgrade at your own base" end
 	local data=Data.Get(p,"Garden");local price=Math.UpgradeCost(data.slots)
-	if Garden.Slots(p)>=Config.MaxSlots then return false,"สูงสุด 30 ช่องแล้ว" end
-	if Data.GetCurrency(p,"Wood")<price then return false,"Wood ไม่พอ" end
-	Data.AddCurrency(p,"Wood",-price);data.slots=math.min(Config.MaxSlots,data.slots+Config.UpgradeStep);Data.Set(p,"Garden",data);return true,"เพิ่มช่องสวนแล้ว"
+	if Garden.Slots(p)>=Config.MaxSlots then return false,"Max 30 slots reached" end
+	if Data.GetCurrency(p,"Wood")<price then return false,"Wood Not enough" end
+	Data.AddCurrency(p,"Wood",-price);data.slots=math.min(Config.MaxSlots,data.slots+Config.UpgradeStep);Data.Set(p,"Garden",data);return true,"Garden slots added"
 end
 function Garden.ExpBuff()
 	if not Features.IsEnabled("Garden") then return 1 end
@@ -178,7 +178,7 @@ local function actor(p,index,plot,part)
 	end
 	m.PrimaryPart=trunk
 	local b=Instance.new("BillboardGui");b.Size=UDim2.fromOffset(145,38);b.StudsOffset=Vector3.new(0,4.4,0);b.MaxDistance=50;b.Parent=trunk
-	local l=Instance.new("TextLabel");l.Size=UDim2.fromScale(1,1);l.BackgroundTransparency=1;l.TextColor3=Color3.new(1,1,1);l.TextStrokeTransparency=0;l.TextSize=13;l.Text=def.name.."\n"..(plot.mature and (plot.nextFruitAt<=os.time() and "เก็บผลได้ • "..Math.Key(plot.mutations) or "รอผลรอบใหม่") or (math.floor(scale*100).."%"));l.Parent=b
+	local l=Instance.new("TextLabel");l.Size=UDim2.fromScale(1,1);l.BackgroundTransparency=1;l.TextColor3=Color3.new(1,1,1);l.TextStrokeTransparency=0;l.TextSize=13;l.Text=def.name.."\n"..(plot.mature and (plot.nextFruitAt<=os.time() and "Ready to Harvest • "..Math.Key(plot.mutations) or "Waiting for new fruit") or (math.floor(scale*100).."%"));l.Parent=b
 end
 function Garden.Render(p)
 	local data=Data.Get(p,"Garden");local id=owners[p];if not id or not data then return end
@@ -213,7 +213,7 @@ end
 local function wateringTool(p)
 	local bag=p:FindFirstChildOfClass("Backpack");if not bag then return end
 	if bag:FindFirstChild("WateringCan") or (p.Character and p.Character:FindFirstChild("WateringCan")) then return end
-	local tool=Instance.new("Tool");tool.Name="WateringCan";tool.CanBeDropped=false;tool.ToolTip="รดน้ำต้นอ่อนในสวน +10%";tool:SetAttribute("GardenWater",true)
+	local tool=Instance.new("Tool");tool.Name="WateringCan";tool.CanBeDropped=false;tool.ToolTip="Water Seedlings +10%";tool:SetAttribute("GardenWater",true)
 	local h=Instance.new("Part");h.Name="Handle";h.Size=Vector3.new(1.2,1.1,1);h.Color=Color3.fromRGB(54,189,178);h.CanCollide=false;h.Massless=true;h.Parent=tool;tool.Parent=bag
 end
 function Garden.Assign(p)
@@ -222,12 +222,12 @@ function Garden.Assign(p)
 		owners[p]=id;b:SetAttribute("OwnerUserId",p.UserId);p:SetAttribute("BaseIndex",id)
 		local folder=Instance.new("Folder");folder.Name="GardenPlants";folder.Parent=b;visuals[p]=folder;signatures[p]={}
 		for _,part in slots[id] do part:SetAttribute("OwnerUserId",p.UserId) end
-		for _,l in b.OwnerSign:GetDescendants() do if l:IsA("TextLabel") then l.Text="สวน "..p.DisplayName end end
+		for _,l in b.OwnerSign:GetDescendants() do if l:IsA("TextLabel") then l.Text="Garden "..p.DisplayName end end
 		return
 	end end
 end
 function Garden.Release(p)
-	local id=owners[p];if id then local b=bases[id];b:SetAttribute("OwnerUserId",0);for _,part in slots[id] do part:SetAttribute("OwnerUserId",0) end;for _,l in b.OwnerSign:GetDescendants() do if l:IsA("TextLabel") then l.Text="ฐาน "..id.." · ว่าง" end end end
+	local id=owners[p];if id then local b=bases[id];b:SetAttribute("OwnerUserId",0);for _,part in slots[id] do part:SetAttribute("OwnerUserId",0) end;for _,l in b.OwnerSign:GetDescendants() do if l:IsA("TextLabel") then l.Text="Base "..id.." · Empty" end end end
 	if visuals[p] then visuals[p]:Destroy() end;owners[p]=nil;visuals[p]=nil;signatures[p]=nil;lastAction[p]=nil
 end
 function Garden.Init()
@@ -239,11 +239,11 @@ function Garden.Init()
 			local part=Instance.new("Part");part.Name="Slot"..i;part.Size=Vector3.new(3.5,.8,3.5);part.CFrame=b.PrimaryPart.CFrame*CFrame.new(((i-1)%6-2.5)*7.8,.8,6+math.floor((i-1)/6)*3.8);part.Color=Color3.fromRGB(112,74,42);part.Material=Enum.Material.Ground;part.Anchored=true;part.CanCollide=false;part.Transparency=i<=6 and 0 or .7
 			part:SetAttribute("BaseIndex",id);part:SetAttribute("SlotIndex",i);part:SetAttribute("OwnerUserId",0);part:SetAttribute("RuntimeGarden",true);part.Parent=grid;Collection:AddTag(part,"GardenSlot");slots[id][i]=part
 		end
-		local prompt=Instance.new("ProximityPrompt");prompt.Name="GardenPrompt";prompt.ActionText="สวนของฉัน";prompt.ObjectText="GARDEN";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=24;prompt.Parent=b.BaseSpawn
+		local prompt=Instance.new("ProximityPrompt");prompt.Name="GardenPrompt";prompt.ActionText="My Garden";prompt.ObjectText="GARDEN";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=24;prompt.Parent=b.BaseSpawn
 		prompt.Triggered:Connect(function(p) if owners[p]==id and enabled(p) then Net.Event("GardenShow"):FireClient(p,"Garden");Garden.Send(p) end end)
 	end end
 	local shop=shopPart();if shop then
-		local prompt=Instance.new("ProximityPrompt");prompt.Name="SeedShopPrompt";prompt.ActionText="ซื้อเมล็ด / ขายผล";prompt.ObjectText="SEED SHOP";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.ShopRange;prompt.Parent=shop
+		local prompt=Instance.new("ProximityPrompt");prompt.Name="SeedShopPrompt";prompt.ActionText="Buy Seeds / Sell Fruit";prompt.ObjectText="SEED SHOP";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.ShopRange;prompt.Parent=shop
 		prompt.Triggered:Connect(function(p) if enabled(p) then Net.Event("GardenShow"):FireClient(p,"Shop");Garden.Send(p) end end)
 	end
 	Data.PlayerLoaded:Connect(function(p)
@@ -255,10 +255,10 @@ function Garden.Init()
 	Data.Changed:Connect(function(p,path) if path=="" then task.defer(function() Garden.Advance(p,os.time(),false);signatures[p]={};Garden.Send(p) end) end end)
 	Players.PlayerRemoving:Connect(function(p) if Data.IsLoaded(p) then Garden.Advance(p,os.time(),true);Data.Set(p,"Garden",Data.Get(p,"Garden")) end;Garden.Release(p) end)
 	Net.Function("GardenAction").OnServerInvoke=function(p,action,arg)
-		if not enabled(p) then return false,"ระบบสวนยังไม่เปิด" end
-		local now=os.clock();if now-(lastAction[p] or -math.huge)<.3 then return false,"รอสักครู่" end;lastAction[p]=now
-		local ok,msg=false,"คำสั่งไม่ถูกต้อง"
-		if action=="Sync" then Garden.Advance(p,os.time(),true);ok=true;msg="สวนพร้อมแล้ว"
+		if not enabled(p) then return false,"Garden unavailable" end
+		local now=os.clock();if now-(lastAction[p] or -math.huge)<.3 then return false,"Please wait" end;lastAction[p]=now
+		local ok,msg=false,"Invalid command"
+		if action=="Sync" then Garden.Advance(p,os.time(),true);ok=true;msg="Garden ready"
 		elseif action=="Buy" and type(arg)=="string" then ok,msg=Garden.Buy(p,arg)
 		elseif action=="Plant" and type(arg)=="table" then ok,msg=Garden.Plant(p,arg.slot,arg.seed)
 		elseif action=="Water" and type(arg)=="number" then ok,msg=Garden.Water(p,arg)

@@ -38,7 +38,7 @@ function Visual.Build(def,item,preview)
 		part("Guard",Vector3.new(1.3,.2,.4),Vector3.new(0,1.1,0))
 	end
 	if preview then model.PrimaryPart=handle else
-		model.CanBeDropped=false;model.ToolTip=def.thai;model:SetAttribute("ForestAxe",true);model:SetAttribute("WeaponId",def.id)
+		model.CanBeDropped=false;model.ToolTip=def.name;model:SetAttribute("ForestAxe",true);model:SetAttribute("WeaponId",def.id)
 		model.Grip=CFrame.Angles(0,0,math.rad(-15))
 	end
 	return model

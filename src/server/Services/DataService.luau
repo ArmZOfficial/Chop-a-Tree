@@ -261,10 +261,10 @@ end
 function DataService.ImportJSON(player: Player, json: string): (boolean, string)
 	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, json)
 	if not ok or type(decoded) ~= "table" then
-		return false, "JSON ไม่ถูกต้อง"
+		return false, "Invalid JSON"
 	end
 	local log = DataService.ReplaceData(player, decoded)
-	return true, #log > 0 and ("แปลงเวอร์ชัน " .. table.concat(log, ", ")) or "นำเข้าแล้ว"
+	return true, #log > 0 and ("Migrate Version " .. table.concat(log, ", ")) or "Imported"
 end
 
 function DataService.Backup(player: Player): (boolean, string)
@@ -278,7 +278,7 @@ function DataService.Backup(player: Player): (boolean, string)
 		end)
 	end
 	memoryBackups[player.UserId] = payload
-	return true, "สำรองแล้ว " .. stamp .. (ok and "" or " (เก็บในเซิร์ฟนี้ชั่วคราว — DataStore ใช้ไม่ได้)")
+	return true, "Backed up " .. stamp .. (ok and "" or " (Stored temporarily in this server; DataStore unavailable)")
 end
 
 function DataService.Restore(player: Player): (boolean, string)
@@ -290,11 +290,11 @@ function DataService.Restore(player: Player): (boolean, string)
 	end
 	payload = payload or memoryBackups[player.UserId]
 	if not payload then
-		return false, "ยังไม่มีเซฟสำรอง"
+		return false, "No backup yet"
 	end
 	local decoded = HttpService:JSONDecode(payload :: string)
 	local ok, msg = DataService.ImportJSON(player, decoded.data)
-	return ok, ok and ("คืนเซฟจาก " .. decoded.at) or msg
+	return ok, ok and ("Restored save from " .. decoded.at) or msg
 end
 
 function DataService.DataStoreState(): string
@@ -308,7 +308,7 @@ local function onPlayerAdded(player: Player)
 		end,
 	})
 	if profile == nil then
-		player:Kick("โหลดเซฟไม่สำเร็จ กรุณาเข้าเกมใหม่อีกครั้ง")
+		player:Kick("Could not load your save. Please rejoin")
 		return
 	end
 	profile:AddUserId(player.UserId)
@@ -322,7 +322,7 @@ local function onPlayerAdded(player: Player)
 	profile:Reconcile()
 	profile.OnSessionEnd:Connect(function()
 		profiles[player] = nil
-		player:Kick("เซฟถูกเปิดจากที่อื่น กรุณาเข้าเกมใหม่")
+		player:Kick("Your save is open in another session. Please rejoin")
 	end)
 	if player.Parent ~= Players then
 		profile:EndSession()

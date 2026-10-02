@@ -8,7 +8,7 @@ M.Heavy={damage=25,range=9,cooldown=1.5,charge=.8};M.BlockFactor=.3;M.BlockSpeed
 M.Skill={cooldown=8,Burst={radius=8,damage=15},Cone={range=12,dot=.5,damage=20},Pierce={range=16,width=2.5,damage=25}}
 local shapeOf={["ไฟ"]="Cone",["ลม"]="Cone",["แสง"]="Cone",["สายฟ้า"]="Pierce",["เงา"]="Pierce"}
 function M.SkillShape(element) return shapeOf[element] or "Burst" end
-M.Teams={{name="ทีมแดง",color=BrickColor.new("Bright red"),x=-60},{name="ทีมน้ำเงิน",color=BrickColor.new("Bright blue"),x=60}}
+M.Teams={{name="Red Team",color=BrickColor.new("Bright red"),x=-60},{name="Blue Team",color=BrickColor.new("Bright blue"),x=60}}
 local ready,skillReady={},{}
 function M.Mode(data) return type(data)=="table" and type(data.mode)=="string" and M.Modes[data.mode] and data.mode or nil end
 function M.Split(list) local t={};for i,p in list do t[p]=(i-1)%2+1 end;return t end

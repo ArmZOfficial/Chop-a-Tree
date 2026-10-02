@@ -42,36 +42,36 @@ local function nearest(p)
 	return best
 end
 function D.Place(p,id,r)
-	if not enabled(p) then return false,"ระบบตกแต่งยังไม่เปิด" end
-	local def=type(id)=="string" and C.ById[id];if not def then return false,"ไม่มีของชิ้นนี้" end
-	if def.zone and not Data.Get(p,"Progress.Shrines")[tostring(def.zone)] then return false,"ปลดล็อกโดยจุดศาลเจ้าโซน "..def.zone end
-	local fest=Weather.Festival();if def.festival and not (fest and fest.id==def.festival) then return false,"ซื้อได้เฉพาะช่วงเทศกาล" end
-	local x,z=cellOf(p);if not x then return false,"ยืนบนพื้นฐานของตัวเองก่อน" end
+	if not enabled(p) then return false,"Decorations unavailable" end
+	local def=type(id)=="string" and C.ById[id];if not def then return false,"Item not owned" end
+	if def.zone and not Data.Get(p,"Progress.Shrines")[tostring(def.zone)] then return false,"Unlock by lighting the shrine in zone "..def.zone end
+	local fest=Weather.Festival();if def.festival and not (fest and fest.id==def.festival) then return false,"Available only during the festival" end
+	local x,z=cellOf(p);if not x then return false,"Stand on your own base floor first" end
 	local d=Data.Get(p,"Decor");local count=0
-	for _,it in d.items do count+=1;if it.x==x and it.z==z then return false,"ช่องนี้มีของแล้ว" end end
-	if count>=C.MaxItems then return false,"วางได้สูงสุด "..C.MaxItems.." ชิ้น" end
-	if Data.GetCurrency(p,"Wood")<def.price then return false,"Wood ไม่พอ" end
+	for _,it in d.items do count+=1;if it.x==x and it.z==z then return false,"Slot already occupied" end end
+	if count>=C.MaxItems then return false,"Placement limit "..C.MaxItems.." items" end
+	if Data.GetCurrency(p,"Wood")<def.price then return false,"Wood Not enough" end
 	Data.AddCurrency(p,"Wood",-def.price);d.next+=1
 	d.items["d"..d.next]={id=id,x=x,z=z,r=(type(r)=="number" and r%1==0 and r>=0 and r<=3) and r or 0}
-	Data.Set(p,"Decor",d);D.Build(p);return true,"วาง "..def.name.." แล้ว"
+	Data.Set(p,"Decor",d);D.Build(p);return true,"Place "..def.name.." done"
 end
 function D.Rotate(p)
-	if not enabled(p) then return false,"ระบบตกแต่งยังไม่เปิด" end
-	local uid=nearest(p);if not uid then return false,"ยืนใกล้ของตกแต่งของคุณก่อน" end
-	local d=Data.Get(p,"Decor");d.items[uid].r=(d.items[uid].r+1)%4;Data.Set(p,"Decor",d);D.Build(p);return true,"หมุนแล้ว"
+	if not enabled(p) then return false,"Decorations unavailable" end
+	local uid=nearest(p);if not uid then return false,"Stand near your decoration first" end
+	local d=Data.Get(p,"Decor");d.items[uid].r=(d.items[uid].r+1)%4;Data.Set(p,"Decor",d);D.Build(p);return true,"Rotated"
 end
 function D.Remove(p)
-	if not enabled(p) then return false,"ระบบตกแต่งยังไม่เปิด" end
-	local uid=nearest(p);if not uid then return false,"ยืนใกล้ของตกแต่งของคุณก่อน" end
+	if not enabled(p) then return false,"Decorations unavailable" end
+	local uid=nearest(p);if not uid then return false,"Stand near your decoration first" end
 	local d=Data.Get(p,"Decor");local def=C.ById[d.items[uid].id];d.items[uid]=nil;Data.Set(p,"Decor",d)
 	local refund=def and math.floor(def.price*C.Refund) or 0;if refund>0 then Data.AddCurrency(p,"Wood",refund) end
-	D.Build(p);return true,"เก็บแล้ว คืน "..refund.." Wood"
+	D.Build(p);return true,"Stored. Refunded "..refund.." Wood"
 end
 function D.Init()
 	Net.Function("DecorAction").OnServerInvoke=function(p,action,arg)
-		local now=os.clock();if now-(last[p] or -math.huge)<.3 then return false,"รอสักครู่" end;last[p]=now
+		local now=os.clock();if now-(last[p] or -math.huge)<.3 then return false,"Please wait" end;last[p]=now
 		if action=="Place" then return D.Place(p,arg) elseif action=="Rotate" then return D.Rotate(p) elseif action=="Remove" then return D.Remove(p) end
-		return false,"คำสั่งไม่ถูกต้อง"
+		return false,"Invalid command"
 	end
 	Data.PlayerLoaded:Connect(function(p) task.defer(D.Build,p) end) -- after GardenService assigns the base
 	Data.Changed:Connect(function(p,path) if path=="" then task.defer(D.Build,p) end end)

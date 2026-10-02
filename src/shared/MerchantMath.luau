@@ -30,8 +30,8 @@ function M.Price(id,zone)
 end
 function M.Name(id)
 	local o=C.ById[id]
-	if o.kind=="seed" then return "เมล็ด "..Seeds.ById[o.item].name end
+	if o.kind=="seed" then return "Seeds "..Seeds.ById[o.item].name end
 	if o.kind=="egg" then return Eggs.ById[o.item].name end
-	return "หีบ "..o.item.." LEVEL "..o.level
+	return "Chests "..o.item.." LEVEL "..o.level
 end
 return M

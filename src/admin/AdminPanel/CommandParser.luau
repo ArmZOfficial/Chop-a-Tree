@@ -49,7 +49,7 @@ local function applyTarget(word: string?, state): (boolean, string?)
 	else
 		local p = findPlayer(word)
 		if not p then
-			return false, "ไม่พบผู้เล่น " .. word
+			return false, "Player not found " .. word
 		end
 		state.target = { mode = "player", userId = p.UserId, name = p.Name }
 	end
@@ -67,7 +67,7 @@ return function(text: string, state, run): (boolean, string)
 		local currency = findCurrency(words[2] or "")
 		local amount = NumberFormat.Parse(words[3] or "")
 		if not currency or not amount then
-			return false, "ใช้แบบนี้: /" .. cmd .. " coins 1e15 me"
+			return false, "Usage: /" .. cmd .. " coins 1e15 me"
 		end
 		local ok, err = target(4)
 		if not ok then
@@ -95,7 +95,7 @@ return function(text: string, state, run): (boolean, string)
 		local n = tonumber(words[2])
 		local id = n and ("player.speed" .. n)
 		if not id or not state.byId[id] then
-			return false, "ความเร็วที่มี: 16, 32, 64, 120"
+			return false, "Available Speeds: 16, 32, 64, 120"
 		end
 		local ok, err = target(3)
 		if not ok then
@@ -118,5 +118,5 @@ return function(text: string, state, run): (boolean, string)
 		run("mod.announce", { text = message })
 		return true, ""
 	end
-	return false, "ไม่รู้จักคำสั่ง /" .. cmd .. " (มี: give set rich poor fly noclip god speed tp bring spawn reset save backup export kick announce)"
+	return false, "Unknown command /" .. cmd .. " (Owned: give set rich poor fly noclip god speed tp bring spawn reset save backup export kick announce)"
 end

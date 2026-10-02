@@ -12,14 +12,14 @@ local MAX = 1e300
 local function readArgs(ctx): (string?, number?, string?)
 	local id = ctx.args.currency
 	if type(id) ~= "string" or not Currencies.ById[id] then
-		return nil, nil, "ไม่รู้จักสกุลเงิน"
+		return nil, nil, "Unknown currency"
 	end
 	local amount = ctx.args.amount
 	if type(amount) == "string" then
 		amount = NumberFormat.Parse(amount)
 	end
 	if type(amount) ~= "number" or amount ~= amount or amount < 0 then
-		return nil, nil, "จำนวนไม่ถูกต้อง"
+		return nil, nil, "Invalid amount"
 	end
 	return id, math.min(amount, MAX), nil
 end
@@ -39,7 +39,7 @@ return function(Admin, DataService)
 	Admin.Register({
 		id = "money.add",
 		tab = "money",
-		label = "เสกเงิน",
+		label = "Grant Currency",
 		hidden = true,
 		usesTarget = true,
 		marksTarget = true,
@@ -57,7 +57,7 @@ return function(Admin, DataService)
 	Admin.Register({
 		id = "money.set",
 		tab = "money",
-		label = "ตั้งค่าเงิน",
+		label = "Set Currency",
 		hidden = true,
 		usesTarget = true,
 		marksTarget = true,
@@ -69,14 +69,14 @@ return function(Admin, DataService)
 			eachLoaded(ctx, function(p)
 				DataService.SetCurrency(p, id, amount)
 			end)
-			return true, string.format("ตั้ง %s = %s", Currencies.ById[id :: string].label, NumberFormat.Short(amount :: number))
+			return true, string.format("Set %s = %s", Currencies.ById[id :: string].label, NumberFormat.Short(amount :: number))
 		end,
 	})
 	Admin.Register({
 		id = "money.rich",
 		tab = "money",
-		label = "รวยทันที",
-		sub = "ทุกสกุลเงิน = 1Qi",
+		label = "Set Rich",
+		sub = "All currencies = 1Qi",
 		color = "Orange",
 		order = 1,
 		usesTarget = true,
@@ -87,14 +87,14 @@ return function(Admin, DataService)
 					DataService.SetCurrency(p, c.id, 1e18)
 				end
 			end)
-			return true, "ทุกสกุลเงิน = 1Qi"
+			return true, "All currencies = 1Qi"
 		end,
 	})
 	Admin.Register({
 		id = "money.zero",
 		tab = "money",
-		label = "จนทันที",
-		sub = "ทุกสกุลเงิน = 0",
+		label = "Set Poor",
+		sub = "All currencies = 0",
 		color = "Red",
 		order = 2,
 		usesTarget = true,
@@ -105,7 +105,7 @@ return function(Admin, DataService)
 					DataService.SetCurrency(p, c.id, 0)
 				end
 			end)
-			return true, "ทุกสกุลเงิน = 0"
+			return true, "All currencies = 0"
 		end,
 	})
 end

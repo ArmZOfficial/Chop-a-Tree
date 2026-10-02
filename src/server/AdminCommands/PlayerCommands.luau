@@ -42,7 +42,7 @@ local function applyCharacterState(player: Player)
 end
 
 local function onOff(v: boolean): string
-	return v and "เปิด" or "ปิด"
+	return v and "Open" or "Close"
 end
 
 return function(Admin)
@@ -68,7 +68,7 @@ return function(Admin)
 	Admin.Register({
 		id = "player.fly",
 		tab = "player",
-		label = "บินได้",
+		label = "Fly",
 		sub = "WASD + Space/Shift",
 		color = "Blue",
 		order = 1,
@@ -78,13 +78,13 @@ return function(Admin)
 			each(ctx, function(p)
 				state = toggleAttr(p, "AdminFly")
 			end)
-			return true, "บิน: " .. onOff(state)
+			return true, "Fly: " .. onOff(state)
 		end,
 	})
 	Admin.Register({
 		id = "player.noclip",
 		tab = "player",
-		label = "ทะลุกำแพง",
+		label = "Noclip",
 		color = "Teal",
 		order = 2,
 		usesTarget = true,
@@ -93,13 +93,13 @@ return function(Admin)
 			each(ctx, function(p)
 				state = toggleAttr(p, "AdminNoclip")
 			end)
-			return true, "ทะลุกำแพง: " .. onOff(state)
+			return true, "Noclip: " .. onOff(state)
 		end,
 	})
 	Admin.Register({
 		id = "player.god",
 		tab = "player",
-		label = "อมตะ",
+		label = "God Mode",
 		color = "Green",
 		order = 3,
 		usesTarget = true,
@@ -114,14 +114,14 @@ return function(Admin)
 				end
 				applyCharacterState(p)
 			end)
-			return true, "อมตะ: " .. onOff(state)
+			return true, "God Mode: " .. onOff(state)
 		end,
 	})
 	for i, speed in { 16, 32, 64, 120 } do
 		Admin.Register({
 			id = "player.speed" .. speed,
 			tab = "player",
-			label = speed == 16 and "ความเร็วปกติ" or ("วิ่งเร็ว ×" .. speed / 16),
+			label = speed == 16 and "Normal Speed" or ("Speed ×" .. speed / 16),
 			sub = "WalkSpeed " .. speed,
 			color = "Purple",
 			order = 10 + i,
@@ -131,14 +131,14 @@ return function(Admin)
 					p:SetAttribute("AdminSpeed", speed)
 					applyCharacterState(p)
 				end)
-				return true, "ความเร็ว " .. speed
+				return true, "Speed " .. speed
 			end,
 		})
 	end
 	Admin.Register({
 		id = "player.invisible",
 		tab = "player",
-		label = "ล่องหน",
+		label = "Invisible",
 		color = "Slate",
 		order = 20,
 		usesTarget = true,
@@ -148,14 +148,14 @@ return function(Admin)
 				state = toggleAttr(p, "AdminInvisible")
 				applyCharacterState(p)
 			end)
-			return true, "ล่องหน: " .. onOff(state)
+			return true, "Invisible: " .. onOff(state)
 		end,
 	})
 	Admin.Register({
 		id = "player.goto",
 		tab = "player",
-		label = "วาร์ปไปหาผู้เล่น",
-		sub = "เลือกผู้เล่น 1 คน",
+		label = "Warp to Player",
+		sub = "Select One Player",
 		color = "Orange",
 		order = 30,
 		usesTarget = true,
@@ -165,16 +165,16 @@ return function(Admin)
 			local target = ctx.targets[1]
 			local from, to = root(ctx.admin), root(target)
 			if not from or not to then
-				return false, "ไม่พบตัวละคร"
+				return false, "Character not found"
 			end
 			from.CFrame = to.CFrame * CFrame.new(0, 0, 4)
-			return true, "วาร์ปไปหา " .. target.Name
+			return true, "Warped to " .. target.Name
 		end,
 	})
 	Admin.Register({
 		id = "player.bring",
 		tab = "player",
-		label = "ดึงผู้เล่นมาหา",
+		label = "Bring Player",
 		color = "Orange",
 		order = 31,
 		usesTarget = true,
@@ -182,7 +182,7 @@ return function(Admin)
 		run = function(ctx)
 			local me = root(ctx.admin)
 			if not me then
-				return false, "ไม่พบตัวละครของคุณ"
+				return false, "Your character was not found"
 			end
 			local n = 0
 			for i, t in ctx.targets do
@@ -192,13 +192,13 @@ return function(Admin)
 					n += 1
 				end
 			end
-			return true, "ดึงมา " .. n .. " คน"
+			return true, "Brought " .. n .. " players"
 		end,
 	})
 	Admin.Register({
 		id = "player.spawn",
 		tab = "player",
-		label = "วาร์ปไปจุดเกิด",
+		label = "Warp to Spawn",
 		color = "Blue",
 		order = 32,
 		usesTarget = true,
@@ -211,13 +211,13 @@ return function(Admin)
 					r.CFrame = cf
 				end
 			end)
-			return true, "วาร์ปไปจุดเกิดแล้ว"
+			return true, "Warped to spawn"
 		end,
 	})
 	Admin.Register({
 		id = "player.reset",
 		tab = "player",
-		label = "รีเซ็ตตัวละคร",
+		label = "Respawn Character",
 		color = "Red",
 		order = 40,
 		usesTarget = true,
@@ -225,14 +225,14 @@ return function(Admin)
 			each(ctx, function(p)
 				p:LoadCharacter()
 			end)
-			return true, "รีเซ็ตแล้ว"
+			return true, "Reset"
 		end,
 	})
 	Admin.Register({
 		id = "player.clearall",
 		tab = "player",
-		label = "ปิดทุกโหมดแอดมิน",
-		sub = "บิน/ทะลุ/อมตะ/ความเร็ว/ล่องหน",
+		label = "Disable All Admin Modes",
+		sub = "Fly / Noclip / God Mode / Speed / Invisible",
 		color = "Slate",
 		order = 41,
 		usesTarget = true,
@@ -248,7 +248,7 @@ return function(Admin)
 				end
 				applyCharacterState(p)
 			end)
-			return true, "ปิดทุกโหมดแล้ว"
+			return true, "All modes disabled"
 		end,
 	})
 end

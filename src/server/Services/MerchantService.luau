@@ -39,15 +39,15 @@ function M.State(p)
 end
 function M.Buy(p,id)
 	local visit=M.Visit();local o=C.ById[id]
-	if not visit or not D.IsLoaded(p) then return false,"พ่อค้าเร่ยังไม่มา" end
-	if not o or not table.find(Math.Stock(visit.seed),id) then return false,"รอบนี้ไม่มีของชิ้นนี้" end
-	if not F.IsEnabled(FEATURE[o.kind]) then return false,"ระบบนี้ปิดอยู่" end
-	if not near(p) then return false,"ไปคุยกับพ่อค้าเร่ในหมู่บ้าน (นอก Run)" end
+	if not visit or not D.IsLoaded(p) then return false,"Merchant not here yet" end
+	if not o or not table.find(Math.Stock(visit.seed),id) then return false,"Item unavailable this visit" end
+	if not F.IsEnabled(FEATURE[o.kind]) then return false,"System disabled" end
+	if not near(p) then return false,"Visit the traveling merchant in the village outside a run" end
 	local marks=D.Get(p,"Merchant.bought");local row=marks[visit.key] or {at=os.time(),n={}}
-	if (row.n[id] or 0)>=o.limit then return false,"ซื้อครบจำนวนรอบนี้แล้ว" end
-	if o.kind=="egg" and P.EggRoom(p)<=0 then return false,"ไข่เต็มกระเป๋า" end
+	if (row.n[id] or 0)>=o.limit then return false,"Purchase limit reached for this visit" end
+	if o.kind=="egg" and P.EggRoom(p)<=0 then return false,"Egg bag full" end
 	local zone=G.ShopZone(p);local currency,price=Math.Price(id,zone)
-	if D.GetCurrency(p,currency)<price then return false,currency.." ไม่พอ" end
+	if D.GetCurrency(p,currency)<price then return false,currency.." Not enough" end
 	-- Validated; marker, debit and grant commit together without yielding.
 	for key,r in marks do if r.at<os.time()-C.KeepSeconds then marks[key]=nil end end
 	row.n[id]=(row.n[id] or 0)+1;marks[visit.key]=row;D.Set(p,"Merchant.bought",marks);D.AddCurrency(p,currency,-price)
@@ -55,12 +55,12 @@ function M.Buy(p,id)
 	if o.kind=="seed" then G.GrantSeed(p,o.item,zone,rb,1,admin)
 	elseif o.kind=="egg" then P.GrantEgg(p,{id=o.item,rebirthDrop=rb,admin_spawned=admin})
 	else W.GrantChest(p,o.item,o.level,zone,1,admin) end
-	return true,"ซื้อ "..Math.Name(id).." แล้ว"
+	return true,"Buy "..Math.Name(id).." done"
 end
 function M.Update()
 	local visit=M.Visit();local key=visit and visit.key
 	if model then model.Parent=visit and workspace or nil end
-	if key and key~=shownKey then Net.Event("Notify"):FireAllClients({text="พ่อค้าเร่กระรอกมาถึงหมู่บ้านแล้ว! อยู่ 10 นาที"}) end
+	if key and key~=shownKey then Net.Event("Notify"):FireAllClients({text="The squirrel merchant has arrived! Leaves in 10 min"}) end
 	shownKey=key
 end
 function M.GetModel() return model end
@@ -78,7 +78,7 @@ local function build()
 	part("Tail",Vector3.new(1.6,4,1.6),Vector3.new(0,ground+3,1.9),Color3.fromRGB(150,86,40),true)
 	part("Stall",Vector3.new(7,1,4),Vector3.new(0,ground+.5,-3),Color3.fromRGB(120,82,48))
 	m.PrimaryPart=body
-	local prompt=Instance.new("ProximityPrompt");prompt.Name="MerchantPrompt";prompt.ActionText="ดูของ";prompt.ObjectText="พ่อค้าเร่กระรอก"
+	local prompt=Instance.new("ProximityPrompt");prompt.Name="MerchantPrompt";prompt.ActionText="View Items";prompt.ObjectText="Squirrel Merchant"
 	prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=C.Range-2;prompt.Parent=body
 	prompt.Triggered:Connect(function(p) if M.Visit() then Net.Event("GardenShow"):FireClient(p,"Merchant");G.Send(p) end end)
 	return m

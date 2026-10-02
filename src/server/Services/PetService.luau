@@ -18,7 +18,7 @@ local Garden=require(script.Parent.GardenService)
 local Pet={}
 local rng=Random.new()
 local mounts,lastAction,penSig={},{},{}
-Pet.OnForeignIncubator=function() return false,"ระบบขโมยไข่ยังไม่เปิด" end -- set by StealService
+Pet.OnForeignIncubator=function() return false,"Egg theft unavailable" end -- set by StealService
 
 local function enabled(p) return Data.IsLoaded(p) and Features.IsEnabled("Eggs") end
 local function root(p)
@@ -99,16 +99,16 @@ function Pet.Advance(p,now,online)
 end
 
 function Pet.Place(p,uid,slot)
-	if not enabled(p) or not Pet.NearIncubator(p) then return false,"วางไข่ที่ตู้ฟักในฐานตัวเอง" end
-	if type(slot)~="number" or slot%1~=0 or slot<1 or slot>Config.IncubatorSlots then return false,"ช่องตู้ฟักไม่ถูกต้อง" end
+	if not enabled(p) or not Pet.NearIncubator(p) then return false,"Place eggs in your own base incubator" end
+	if type(slot)~="number" or slot%1~=0 or slot<1 or slot>Config.IncubatorSlots then return false,"Invalid incubator slot" end
 	Pet.Advance(p,os.time(),true)
 	local d=Data.Get(p,"Pets");local key=tostring(slot);local inv=Data.Get(p,"Inventory.Eggs");local egg=type(uid)=="string" and inv[uid]
-	if d.incubator[key] or not egg then return false,"ช่องไม่ว่างหรือไม่มีไข่" end
+	if d.incubator[key] or not egg then return false,"Slot occupied or no egg available" end
 	inv[uid]=nil;egg.updatedAt=os.time();egg.done=false;d.incubator[key]=egg
-	Data.Set(p,"Inventory.Eggs",inv);Data.Set(p,"Pets",d);return true,"วางไข่แล้ว"
+	Data.Set(p,"Inventory.Eggs",inv);Data.Set(p,"Pets",d);return true,"Egg placed"
 end
 function Pet.Hatch(p)
-	if not enabled(p) or not Pet.NearIncubator(p) then return false,"ฟักไข่ที่ตู้ฟักในฐานตัวเอง" end
+	if not enabled(p) or not Pet.NearIncubator(p) then return false,"Hatch eggs at your own base incubator" end
 	Pet.Advance(p,os.time(),true)
 	local d=Data.Get(p,"Pets");local inv=Data.Get(p,"Inventory.Pets");local hatched,names={},{}
 	local keys={};for key in d.incubator do table.insert(keys,key) end;table.sort(keys)
@@ -120,38 +120,38 @@ function Pet.Hatch(p)
 			table.insert(names,Pets.ById[id].name..(egg.mutation and " ("..egg.mutation..")" or ""))
 		end
 	end
-	if #hatched==0 then return false,"ยังไม่มีไข่ที่ฟักเสร็จ" end
+	if #hatched==0 then return false,"No hatched eggs yet" end
 	local room=Pet.PenCap(p)-placedIn(inv,"pen");for _,pet in hatched do if room>0 then pet.place="pen";room-=1 end end
 	Data.Set(p,"Inventory.Pets",inv);Data.Set(p,"Pets",d);Data.Increment(p,"Stats.EggsHatched",#hatched)
 	for _,pet in hatched do local r=Pets.ById[pet.id].rarity
-		if r=="Mythic" or r=="Secret" then Net.Event("Notify"):FireAllClients({text=p.DisplayName.." ฟักได้ "..r.." "..Pets.ById[pet.id].name.."!",color="Accent"}) end
+		if r=="Mythic" or r=="Secret" then Net.Event("Notify"):FireAllClients({text=p.DisplayName.." Hatchable "..r.." "..Pets.ById[pet.id].name.."!",color="Accent"}) end
 	end
-	Pet.Refresh(p);return true,"ฟักได้ "..table.concat(names,", "),hatched
+	Pet.Refresh(p);return true,"Hatchable "..table.concat(names,", "),hatched
 end
 function Pet.SetPlace(p,uid,place)
-	if not enabled(p) then return false,"ระบบสัตว์ยังไม่เปิด" end
-	if place~="" and place~="pen" and place~="equip" then return false,"คำสั่งไม่ถูกต้อง" end
+	if not enabled(p) then return false,"Pets unavailable" end
+	if place~="" and place~="pen" and place~="equip" then return false,"Invalid command" end
 	Pet.Advance(p,os.time(),true)
 	local inv=Data.Get(p,"Inventory.Pets");local pet=type(uid)=="string" and inv[uid]
-	if not pet then return false,"ไม่พบสัตว์" end
-	if pet.place==place then return true,"อยู่ที่นั่นแล้ว" end
-	if place=="pen" and placedIn(inv,"pen")>=Pet.PenCap(p) then return false,"คอกเต็ม — อัปเกรดคอกด้วย Wood" end
-	if place=="equip" and placedIn(inv,"equip")>=Pet.EquipCap(p) then return false,"พกได้สูงสุด "..Pet.EquipCap(p).." ตัว" end
+	if not pet then return false,"Pet not found" end
+	if pet.place==place then return true,"Already there" end
+	if place=="pen" and placedIn(inv,"pen")>=Pet.PenCap(p) then return false,"Pen full. Upgrade it with Wood" end
+	if place=="equip" and placedIn(inv,"equip")>=Pet.EquipCap(p) then return false,"Carry limit "..Pet.EquipCap(p).." pets" end
 	pet.place=place;Data.Set(p,"Inventory.Pets",inv);Pet.Refresh(p)
-	return true,({[""]="เก็บเข้ากระเป๋าแล้ว",pen="ใส่คอกแล้ว",equip="พกติดตัวแล้ว"})[place]
+	return true,({[""]="Added to inventory",pen="Added to pen",equip="Pet carried"})[place]
 end
 function Pet.Fuse(p,uids)
-	if not enabled(p) then return false,"ระบบสัตว์ยังไม่เปิด" end
-	if type(uids)~="table" or #uids~=3 then return false,"เลือกสัตว์ตัวเดียวกัน 3 ตัว" end
+	if not enabled(p) then return false,"Pets unavailable" end
+	if type(uids)~="table" or #uids~=3 then return false,"Select 3 matching pets" end
 	Pet.Advance(p,os.time(),true)
 	local inv=Data.Get(p,"Inventory.Pets");local seen={};local first
 	for _,uid in uids do
 		local pet=type(uid)=="string" and inv[uid]
-		if not pet or seen[uid] then return false,"สัตว์ไม่ครบหรือเลือกซ้ำ" end
+		if not pet or seen[uid] then return false,"Missing or duplicate pets" end
 		seen[uid]=true;first=first or pet
-		if pet.id~=first.id or pet.zone~=first.zone or pet.rebirthDrop~=first.rebirthDrop or pet.tier~=first.tier then return false,"ต้องเป็นสัตว์ชนิด/โซน/ขั้นเดียวกัน" end
+		if pet.id~=first.id or pet.zone~=first.zone or pet.rebirthDrop~=first.rebirthDrop or pet.tier~=first.tier then return false,"Pets must match species, zone and tier" end
 	end
-	if first.tier>=Pets.MaxTier then return false,"ขั้นสูงสุดแล้ว" end
+	if first.tier>=Pets.MaxTier then return false,"Max tier reached" end
 	local out=table.clone(first);out.tier+=1
 	for _,uid in uids do local pet=inv[uid]
 		if Math.MutationMult(pet.mutation)>Math.MutationMult(out.mutation) then out.mutation=pet.mutation end
@@ -160,53 +160,53 @@ function Pet.Fuse(p,uids)
 	end
 	for _,uid in uids do inv[uid]=nil end;inv[uids[1]]=out
 	Data.Set(p,"Inventory.Pets",inv);Pet.Refresh(p)
-	return true,"หลอมเป็นขั้น "..out.tier,{uid=uids[1],pet=table.clone(out)}
+	return true,"Fused to tier "..out.tier,{uid=uids[1],pet=table.clone(out)}
 end
 function Pet.Release(p,uid)
-	if not enabled(p) then return false,"ระบบสัตว์ยังไม่เปิด" end
+	if not enabled(p) then return false,"Pets unavailable" end
 	Pet.Advance(p,os.time(),true)
-	local inv=Data.Get(p,"Inventory.Pets");if type(uid)~="string" or not inv[uid] then return false,"ไม่พบสัตว์" end
+	local inv=Data.Get(p,"Inventory.Pets");if type(uid)~="string" or not inv[uid] then return false,"Pet not found" end
 	inv[uid]=nil;if mounts[p]==uid then mounts[p]=nil end
-	Data.Set(p,"Inventory.Pets",inv);Pet.Refresh(p);return true,"ปล่อยสัตว์แล้ว"
+	Data.Set(p,"Inventory.Pets",inv);Pet.Refresh(p);return true,"Pet released"
 end
 function Pet.Collect(p)
-	if not enabled(p) or not Pet.NearPen(p) then return false,"เก็บเงินที่คอกสัตว์ในฐานตัวเอง" end
+	if not enabled(p) or not Pet.NearPen(p) then return false,"Collect income at your own base pen" end
 	Pet.Advance(p,os.time(),true)
 	local d=Data.Get(p,"Pets");local amount=math.floor(d.bank)
-	if amount<=0 then return false,"ยังไม่มีเงินในคอก" end
+	if amount<=0 then return false,"No pen income yet" end
 	d.bank-=amount;Data.Set(p,"Pets",d);Data.AddCurrency(p,"Coins",amount)
-	return true,"เก็บเงินคอก +"..amount.." Coins"
+	return true,"Collect Pen Income +"..amount.." Coins"
 end
 function Pet.Upgrade(p,kind)
-	if not enabled(p) or not Garden.NearBase(p) then return false,"อัปเกรดที่ฐานตัวเอง" end
-	if not Math.MaxLevel(kind) then return false,"คำสั่งไม่ถูกต้อง" end
+	if not enabled(p) or not Garden.NearBase(p) then return false,"Upgrade at your own base" end
+	if not Math.MaxLevel(kind) then return false,"Invalid command" end
 	Pet.Advance(p,os.time(),true)
 	local d=Data.Get(p,"Pets");local level=d.upgrades[kind] or 0
-	if level>=Math.MaxLevel(kind) then return false,"อัปเกรดสูงสุดแล้ว" end
+	if level>=Math.MaxLevel(kind) then return false,"Upgrade maxed" end
 	local cost=Math.UpgradeCost(kind,level)
-	if Data.GetCurrency(p,"Wood")<cost then return false,"Wood ไม่พอ" end
+	if Data.GetCurrency(p,"Wood")<cost then return false,"Wood Not enough" end
 	Data.AddCurrency(p,"Wood",-cost);d.upgrades[kind]=level+1;Data.Set(p,"Pets",d);Pet.Refresh(p)
-	return true,"อัปเกรดแล้ว (เลเวล "..(level+1)..")"
+	return true,"Upgraded (level "..(level+1)..")"
 end
 function Pet.Buy(p,epoch)
 	local belt=conveyor()
-	if not enabled(p) or not belt or not near(p,belt,Config.PenRange) then return false,"ซื้อไข่ที่สายพานในหมู่บ้าน" end
-	if type(epoch)~="number" then return false,"ไข่นี้ไม่อยู่บนสายพานแล้ว" end
+	if not enabled(p) or not belt or not near(p,belt,Config.PenRange) then return false,"Buy eggs at the village conveyor" end
+	if type(epoch)~="number" then return false,"This egg is no longer on the conveyor" end
 	local row;for _,r in Math.BeltWindow(os.time()) do if r.epoch==epoch then row=r end end
-	if not row then return false,"ไข่นี้ไม่อยู่บนสายพานแล้ว" end
+	if not row then return false,"This egg is no longer on the conveyor" end
 	local d=Data.Get(p,"Pets");local key=tostring(epoch)
-	if d.beltBought[key] then return false,"ซื้อไข่ใบนี้ไปแล้ว" end
+	if d.beltBought[key] then return false,"This egg was already purchased" end
 	local def=Eggs.ById[row.id]
-	if not table.find(Data.Get(p,"Progress.UnlockedZones"),def.zone) then return false,"ต้องปลดล็อกโซน "..def.zone.." ก่อน" end
-	if Pet.EggRoom(p)<=0 then return false,"ไข่เต็มกระเป๋า" end
+	if not table.find(Data.Get(p,"Progress.UnlockedZones"),def.zone) then return false,"Unlock zone "..def.zone.." first" end
+	if Pet.EggRoom(p)<=0 then return false,"Egg bag full" end
 	local price=Math.EggPrice(row.id)
-	if Data.GetCurrency(p,"Coins")<price then return false,"Coins ไม่พอ" end
+	if Data.GetCurrency(p,"Coins")<price then return false,"Coins Not enough" end
 	-- No yields: consume Coins, mark the belt egg and grant it together.
 	Data.AddCurrency(p,"Coins",-price)
 	for k in d.beltBought do if tonumber(k)<epoch-20 then d.beltBought[k]=nil end end
 	d.beltBought[key]=true;Data.Set(p,"Pets",d)
 	Pet.GrantEgg(p,{id=row.id,rebirthDrop=Data.Get(p,"Progress.Rebirth")})
-	return true,"ซื้อ "..def.name.." แล้ว"
+	return true,"Buy "..def.name.." done"
 end
 function Pet.ChestDrop(p,chest)
 	if not enabled(p) or rng:NextNumber()>=Config.ChestEggChance then return end
@@ -215,12 +215,12 @@ function Pet.ChestDrop(p,chest)
 end
 
 function Pet.Mount(p,uid)
-	if not enabled(p) then return false,"ระบบสัตว์ยังไม่เปิด" end
+	if not enabled(p) then return false,"Pets unavailable" end
 	local pet=type(uid)=="string" and Data.Get(p,"Inventory.Pets")[uid]
-	if not pet or not Pets.ById[pet.id].rideable then return false,"สัตว์ตัวนี้ขี่ไม่ได้" end
-	if p:GetAttribute("CarryingEgg") then return false,"ขี่ไม่ได้ขณะถือไข่" end
-	if Features.IsEnabled("Story") and (Data.Get(p,"Progress.StoryChapter") or 1)<Config.MountChapter then return false,"ปลดล็อกการขี่ในบทที่ "..Config.MountChapter end
-	mounts[p]=uid;Pet.Refresh(p);return true,"ขี่ "..Pets.ById[pet.id].name.." แล้ว"
+	if not pet or not Pets.ById[pet.id].rideable then return false,"This pet cannot be ridden" end
+	if p:GetAttribute("CarryingEgg") then return false,"Cannot mount while carrying an egg" end
+	if Features.IsEnabled("Story") and (Data.Get(p,"Progress.StoryChapter") or 1)<Config.MountChapter then return false,"Mounting unlocks in chapter "..Config.MountChapter end
+	mounts[p]=uid;Pet.Refresh(p);return true,"Mount "..Pets.ById[pet.id].name.." done"
 end
 function Pet.Dismount(p) if mounts[p] then mounts[p]=nil;Pet.Refresh(p) end end
 function Pet.Mounted(p) return mounts[p] end
@@ -289,17 +289,17 @@ function Pet.WeatherOffer(p)
 	return {id=id,price=Eggs.ById[id].price,bought=Data.Get(p,"Pets.weatherBought")[s.eventKey]~=nil}
 end
 function Pet.BuyWeather(p)
-	local offer=Pet.WeatherOffer(p);if not offer then return false,"ไม่มีไข่ออโรราในขณะนี้" end
-	if not near(p,conveyor(),Config.PenRange) then return false,"ซื้อไข่ที่สายพานในหมู่บ้าน" end
-	if offer.bought then return false,"ซื้อไข่รอบอากาศนี้แล้ว" end
-	if not table.find(Data.Get(p,"Progress.UnlockedZones"),1) or Pet.EggRoom(p)<=0 then return false,"ไข่เต็มหรือยังไม่ปลดล็อกโซน" end
-	if Data.Get(p,"Currencies.Coins")<offer.price then return false,"Coins ไม่พอ" end
+	local offer=Pet.WeatherOffer(p);if not offer then return false,"No Aurora egg available" end
+	if not near(p,conveyor(),Config.PenRange) then return false,"Buy eggs at the village conveyor" end
+	if offer.bought then return false,"Egg already purchased for this weather event" end
+	if not table.find(Data.Get(p,"Progress.UnlockedZones"),1) or Pet.EggRoom(p)<=0 then return false,"Egg bag full or zone locked" end
+	if Data.Get(p,"Currencies.Coins")<offer.price then return false,"Coins Not enough" end
 	local s=Weather.State();local marks=Data.Get(p,"Pets.weatherBought")
 	for key,at in marks do if type(at)=="number" and at<os.time()-7*86400 then marks[key]=nil end end
 	-- Validate first; marker, debit and egg are committed together without yielding.
 	marks[s.eventKey]=os.time();Data.Set(p,"Pets.weatherBought",marks);Data.AddCurrency(p,"Coins",-offer.price)
 	Pet.GrantEgg(p,{id=offer.id,rebirthDrop=Data.Get(p,"Progress.Rebirth"),admin_spawned=Data.Get(p,"Meta.AdminTouched")==true})
-	return true,"ซื้อไข่ออโรราแล้ว"
+	return true,"Aurora egg purchased"
 end
 function Pet.Send(p)
 	if not Data.IsLoaded(p) or not p.Parent then return end
@@ -320,7 +320,7 @@ function Pet.Init()
 		local id=b:GetAttribute("BaseIndex");local inc=b:FindFirstChild("Incubator");local pen=b:FindFirstChild("PetPen")
 		local dome=inc and (inc:FindFirstChild("Dome") or inc:FindFirstChildWhichIsA("BasePart"))
 		if dome then
-			local prompt=Instance.new("ProximityPrompt");prompt.Name="IncubatorPrompt";prompt.ActionText="ตู้ฟักไข่";prompt.ObjectText="INCUBATOR";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.IncubatorRange;prompt.HoldDuration=.25;prompt.Parent=dome
+			local prompt=Instance.new("ProximityPrompt");prompt.Name="IncubatorPrompt";prompt.ActionText="Egg Incubator";prompt.ObjectText="INCUBATOR";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.IncubatorRange;prompt.HoldDuration=.25;prompt.Parent=dome
 			prompt.Triggered:Connect(function(p)
 				if not enabled(p) then return end
 				if Garden.BaseIndex(p)==id then Net.Event("PetShow"):FireClient(p,"Incubator");Pet.Send(p)
@@ -329,7 +329,7 @@ function Pet.Init()
 		end
 		if pen then
 			local post=Instance.new("Part");post.Name="PenPromptAnchor";post.Size=Vector3.new(1,1,1);post.Transparency=1;post.Anchored=true;post.CanCollide=false;post.CanQuery=false;post.CFrame=CFrame.new(pen:GetPivot().Position+Vector3.new(0,2,0));post.Parent=pen
-			local prompt=Instance.new("ProximityPrompt");prompt.Name="PenPrompt";prompt.ActionText="เก็บเงินคอก";prompt.ObjectText="PET PEN";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.PenRange;prompt.Parent=post
+			local prompt=Instance.new("ProximityPrompt");prompt.Name="PenPrompt";prompt.ActionText="Collect Pen Income";prompt.ObjectText="PET PEN";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.PenRange;prompt.Parent=post
 			prompt.Triggered:Connect(function(p)
 				if enabled(p) and Garden.BaseIndex(p)==id then local ok,msg=Pet.Collect(p);Net.Event("Notify"):FireClient(p,{text=msg});Net.Event("PetShow"):FireClient(p,"Pets");Pet.Send(p) end
 			end)
@@ -337,7 +337,7 @@ function Pet.Init()
 	end end
 	local belt=conveyor()
 	if belt and belt.PrimaryPart then
-		local prompt=Instance.new("ProximityPrompt");prompt.Name="EggBeltPrompt";prompt.ActionText="ซื้อไข่";prompt.ObjectText="EGG CONVEYOR";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.PenRange;prompt.Parent=belt.PrimaryPart
+		local prompt=Instance.new("ProximityPrompt");prompt.Name="EggBeltPrompt";prompt.ActionText="Buy Egg";prompt.ObjectText="EGG CONVEYOR";prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.PenRange;prompt.Parent=belt.PrimaryPart
 		prompt.Triggered:Connect(function(p) if enabled(p) then Net.Event("PetShow"):FireClient(p,"Belt");Pet.Send(p) end end)
 	end
 	Data.PlayerLoaded:Connect(function(p)
@@ -353,10 +353,10 @@ function Pet.Init()
 	end)
 	game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal("Eggs"):Connect(function() for _,p in Players:GetPlayers() do Pet.Refresh(p) end end)
 	Net.Function("PetAction").OnServerInvoke=function(p,action,arg)
-		if not enabled(p) then return false,"ระบบไข่และสัตว์ยังไม่เปิด" end
-		local now=os.clock();if now-(lastAction[p] or -math.huge)<.3 then return false,"รอสักครู่" end;lastAction[p]=now
-		local ok,msg,extra=false,"คำสั่งไม่ถูกต้อง",nil
-		if action=="Sync" then Pet.Advance(p,os.time(),true);ok,msg=true,"พร้อมแล้ว"
+		if not enabled(p) then return false,"Eggs and pets unavailable" end
+		local now=os.clock();if now-(lastAction[p] or -math.huge)<.3 then return false,"Please wait" end;lastAction[p]=now
+		local ok,msg,extra=false,"Invalid command",nil
+		if action=="Sync" then Pet.Advance(p,os.time(),true);ok,msg=true,"Ready"
 		elseif action=="Place" and type(arg)=="table" then ok,msg=Pet.Place(p,arg.egg,arg.slot)
 		elseif action=="Hatch" then ok,msg,extra=Pet.Hatch(p)
 		elseif action=="Equip" then ok,msg=Pet.SetPlace(p,arg,"equip")
@@ -369,7 +369,7 @@ function Pet.Init()
 		elseif action=="Buy" then ok,msg=Pet.Buy(p,arg)
 		elseif action=="BuyWeather" then ok,msg=Pet.BuyWeather(p)
 		elseif action=="Mount" then ok,msg=Pet.Mount(p,arg)
-		elseif action=="Dismount" then Pet.Dismount(p);ok,msg=true,"ลงจากหลังแล้ว" end
+		elseif action=="Dismount" then Pet.Dismount(p);ok,msg=true,"Dismounted" end
 		Pet.Send(p);return ok,msg,extra
 	end
 end

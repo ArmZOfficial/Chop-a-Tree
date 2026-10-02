@@ -7,25 +7,25 @@ local TweenService = game:GetService("TweenService")
 local UIKit = {}
 
 UIKit.Colors = table.freeze({
-	Outline = Color3.fromRGB(11, 15, 24),
-	Panel = Color3.fromRGB(30, 36, 51),
-	PanelDark = Color3.fromRGB(20, 25, 37),
-	Rail = Color3.fromRGB(23, 28, 41),
-	Card = Color3.fromRGB(39, 48, 68),
-	Input = Color3.fromRGB(15, 20, 32),
-	Text = Color3.fromRGB(255, 255, 255),
-	TextDim = Color3.fromRGB(203, 213, 225),
+	Outline = Color3.fromRGB(49, 30, 20),
+	Panel = Color3.fromRGB(255, 242, 208),
+	PanelDark = Color3.fromRGB(219, 187, 134),
+	Rail = Color3.fromRGB(120, 78, 45),
+	Card = Color3.fromRGB(249, 220, 163),
+	Input = Color3.fromRGB(255, 251, 235),
+	Text = Color3.fromRGB(62, 38, 23),
+	TextDim = Color3.fromRGB(126, 92, 62),
 	TextDark = Color3.fromRGB(26, 26, 26),
-	Accent = Color3.fromRGB(250, 204, 21),
-	AccentText = Color3.fromRGB(253, 230, 138),
-	Green = Color3.fromRGB(21, 128, 61),
-	Blue = Color3.fromRGB(29, 78, 216),
-	Red = Color3.fromRGB(185, 28, 28),
-	Purple = Color3.fromRGB(109, 40, 217),
-	Orange = Color3.fromRGB(180, 83, 9),
-	Teal = Color3.fromRGB(15, 118, 110),
-	Pink = Color3.fromRGB(157, 23, 77),
-	Slate = Color3.fromRGB(51, 65, 85),
+	Accent = Color3.fromRGB(57, 121, 45),
+	AccentText = Color3.fromRGB(57, 121, 45),
+	Green = Color3.fromRGB(105, 198, 52),
+	Blue = Color3.fromRGB(81, 165, 235),
+	Red = Color3.fromRGB(239, 108, 82),
+	Purple = Color3.fromRGB(180, 133, 231),
+	Orange = Color3.fromRGB(241, 170, 64),
+	Teal = Color3.fromRGB(72, 189, 163),
+	Pink = Color3.fromRGB(232, 142, 169),
+	Slate = Color3.fromRGB(173, 153, 123),
 	Disabled = Color3.fromRGB(71, 85, 105),
 })
 local C = UIKit.Colors
@@ -153,11 +153,13 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 	local button = New("TextButton", {
 		Name = "Button",
 		AutoButtonColor = false,
+		Selectable = true,
 		BackgroundColor3 = color,
 		Size = UDim2.new(1, 0, 1, -shadow),
 		Text = "",
 		Parent = holder,
 	}, { UIKit.Corner(radius), UIKit.Stroke(o.stroke or 3) })
+	New("UIGradient", {Rotation=90,Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.fromRGB(194,178,153))}),Parent=button})
 	local textColor = o.textColor or C.Text
 	if o.sub then
 		New("Frame", {
@@ -277,11 +279,11 @@ function UIKit.Toast(parent: Instance, text: string, color: Color3?)
 		Position = UDim2.new(0.5, 0, 1, -16),
 		Size = UDim2.fromOffset(0, 40),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = C.Input,
+		BackgroundColor3 = C.Outline,
 		Text = text,
 		TextSize = 16,
 		FontFace = UIKit.FontBody,
-		TextColor3 = C.Text,
+		TextColor3 = Color3.new(1,1,1),
 		ZIndex = 50,
 		Parent = parent,
 	}, {

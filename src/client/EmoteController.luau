@@ -8,8 +8,8 @@ local StarterGui=game:GetService("StarterGui")
 local S=game.ReplicatedStorage.Shared
 local Net=require(S.Net);local UI=require(S.UIKit)
 local Emote={}
-local EMOTES={{"wave","โบกมือ"},{"dance","เต้น"},{"dance2","เต้น 2"},{"cheer","ดีใจ"},{"laugh","หัวเราะ"},{"sit","นั่ง"},{"showcase","โชว์อาวุธ"}}
-local FILTERS={{"ปกติ",{}},{"อนิเมะ",{Saturation=.45,Contrast=.15,Brightness=.03}},{"ซีเปีย",{Saturation=-.7,TintColor=Color3.fromRGB(255,222,175)}},{"กลางคืน",{Brightness=-.12,Saturation=-.2,TintColor=Color3.fromRGB(150,170,255)}}}
+local EMOTES={{"wave","Wave"},{"dance","Dance"},{"dance2","Dance 2"},{"cheer","Cheer"},{"laugh","Laugh"},{"sit","Sit"},{"showcase","Show Weapon"}}
+local FILTERS={{"Normal",{}},{"Anime",{Saturation=.45,Contrast=.15,Brightness=.03}},{"Sepia",{Saturation=-.7,TintColor=Color3.fromRGB(255,222,175)}},{"Night",{Brightness=-.12,Saturation=-.2,TintColor=Color3.fromRGB(150,170,255)}}}
 local function enabled() return game.ReplicatedStorage.FeatureFlags:GetAttribute("Emotes")~=false end
 function Emote.Start()
 	local player=Players.LocalPlayer;local camera=workspace.CurrentCamera
@@ -42,7 +42,7 @@ function Emote.Start()
 	UI.New("Frame",{Name="Frame",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Parent=photo},{UI.Stroke(10,Color3.fromRGB(255,255,255))})
 	UI.TextStroke(2).Parent=UI.Label("CHOP A TREE",28,{Name="Title",AnchorPoint=Vector2.new(1,1),Position=UDim2.new(1,-28,1,-22),Size=UDim2.fromOffset(300,40),TextXAlignment=Enum.TextXAlignment.Right,Parent=photo})
 	local bar=UI.New("Frame",{Name="Bar",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,24),Size=UDim2.fromOffset(620,96),BackgroundTransparency=1,Parent=photo})
-	local tip=UI.Label("WASD/QE เลื่อนกล้อง • คลิกขวาค้างหมุน • Shift เร็ว • H ซ่อนปุ่ม • P ออก",13,{Name="Tip",Position=UDim2.fromOffset(0,52),Size=UDim2.new(1,0,0,22),TextXAlignment=Enum.TextXAlignment.Center,Parent=bar});UI.TextStroke(1.5).Parent=tip
+	local tip=UI.Label("WASD/QE: Move • Hold right-click: Rotate • Shift: Fast • H: Hide UI • P: Exit",13,{Name="Tip",Position=UDim2.fromOffset(0,52),Size=UDim2.new(1,0,0,22),TextXAlignment=Enum.TextXAlignment.Center,Parent=bar});UI.TextStroke(1.5).Parent=tip
 	local cc=Instance.new("ColorCorrectionEffect");cc.Name="PhotoFilter";cc.Enabled=false;cc.Parent=camera
 	local saved,active,yaw,pitch={},false,0,0
 	local function filter(props)
@@ -54,7 +54,7 @@ function Emote.Start()
 		local b=UI.Button({text=f[1],color=UI.Colors.Slate,size=UDim2.fromOffset(110,44),onClick=function() filter(props) end})
 		b.Name="Filter"..i;b.Position=UDim2.fromOffset((i-1)*124,0);b.Parent=bar
 	end
-	local exitButton=UI.Button({text="ออก",color=UI.Colors.Red,size=UDim2.fromOffset(110,44),onClick=function() exitPhoto() end});exitButton.Name="Exit";exitButton.Position=UDim2.fromOffset(4*124,0);exitButton.Parent=bar
+	local exitButton=UI.Button({text="Exit",color=UI.Colors.Red,size=UDim2.fromOffset(110,44),onClick=function() exitPhoto() end});exitButton.Name="Exit";exitButton.Position=UDim2.fromOffset(4*124,0);exitButton.Parent=bar
 	local function sink() return Enum.ContextActionResult.Sink end
 	local free=not UIS.TouchEnabled -- ponytail: touch keeps the orbit camera; free cam needs a keyboard
 	local function enter()
@@ -84,9 +84,9 @@ function Emote.Start()
 		local rot=CFrame.fromEulerAnglesYXZ(pitch,yaw,0);local speed=UIS:IsKeyDown(Enum.KeyCode.LeftShift) and 60 or 20
 		camera.CFrame=CFrame.new(camera.CFrame.Position+rot:VectorToWorldSpace(move)*speed*dt)*rot
 	end)
-	local emoteButton=UI.Button({text="ท่าทาง (G)",color=UI.Colors.Teal,size=UDim2.fromOffset(130,48),onClick=function() if enabled() then wheel.Visible=not wheel.Visible end end})
+	local emoteButton=UI.Button({text="Emotes (G)",color=UI.Colors.Teal,size=UDim2.fromOffset(130,48),onClick=function() if enabled() then wheel.Visible=not wheel.Visible end end})
 	emoteButton.Name="EmoteToggle";emoteButton.Position=UDim2.fromOffset(200,245);emoteButton.Parent=gui
-	local photoButton=UI.Button({text="ถ่ายรูป (P)",color=UI.Colors.Blue,size=UDim2.fromOffset(130,48),onClick=enter})
+	local photoButton=UI.Button({text="Photo (P)",color=UI.Colors.Blue,size=UDim2.fromOffset(130,48),onClick=enter})
 	photoButton.Name="PhotoToggle";photoButton.Position=UDim2.fromOffset(200,305);photoButton.Parent=gui
 	UIS.InputBegan:Connect(function(input,processed)
 		if processed then return end

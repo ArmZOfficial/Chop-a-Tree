@@ -52,12 +52,12 @@ function Quest.Check(p)
 			Data.AddCurrency(p,"Gems",Story.ChapterGems*chapter)
 			q.step=1;Data.Set(p,"Quests.main",q);Data.Set(p,"Progress.StoryChapter",chapter+1);startStep(p)
 			local nextChapter=Story.Chapters[chapter+1]
-			Net.Event("StoryShow"):FireClient(p,{kind="banner",title=c.title.." จบแล้ว!",sub=(nextChapter and nextChapter.title or "จบบทหลัก — วัฏจักรใหม่รอใน Rebirth").." • +"..Story.ChapterGems*chapter.." Gems"})
+			Net.Event("StoryShow"):FireClient(p,{kind="banner",title=c.title.." Complete!",sub=(nextChapter and nextChapter.title or "Main story complete. Start a new cycle with Rebirth").." • +"..Story.ChapterGems*chapter.." Gems"})
 		else
 			local have,need=Quest.Progress(p,s)
 			if have<need then return end
 			Data.AddCurrency(p,"Gems",Story.StepGems*chapter);q.step+=1;Data.Set(p,"Quests.main",q);startStep(p)
-			notify(p,"เควสสำเร็จ: "..s.text.." +"..Story.StepGems*chapter.." Gems")
+			notify(p,"Quest Complete: "..s.text.." +"..Story.StepGems*chapter.." Gems")
 		end
 	end
 end
@@ -98,16 +98,16 @@ local function sideRows(p,kind)
 	return rows,(d.key+1)*(kind=="daily" and 86400 or 604800)-(kind=="weekly" and 259200 or 0)
 end
 function Quest.Claim(p,kind,id)
-	if not Features.IsEnabled("Story") then return false,"ระบบเควสยังไม่เปิด" end
-	if kind~="daily" and kind~="weekly" then return false,"คำสั่งไม่ถูกต้อง" end
+	if not Features.IsEnabled("Story") then return false,"Quests unavailable" end
+	if kind~="daily" and kind~="weekly" then return false,"Invalid command" end
 	local d=Quest.Side(p,kind)
-	if not table.find(d.ids,id) then return false,"ไม่พบเควสนี้" end
-	if d.claimed[id] then return false,"รับรางวัลไปแล้ว" end
+	if not table.find(d.ids,id) then return false,"Quest not found" end
+	if d.claimed[id] then return false,"Reward already claimed" end
 	local q=dailyById[id];local need=q.count*(kind=="weekly" and Story.WeeklyScale or 1)
-	if stat(p,q.stat)-d.base[id]<need then return false,"ยังทำเควสไม่ครบ" end
+	if stat(p,q.stat)-d.base[id]<need then return false,"Quest not complete" end
 	local gems=kind=="weekly" and Story.WeeklyGems or Story.DailyGems
 	d.claimed[id]=true;Data.Set(p,"Quests."..kind,d);Data.AddCurrency(p,"Gems",gems)
-	return true,"รับรางวัลเควส +"..gems.." Gems"
+	return true,"Quest reward claimed +"..gems.." Gems"
 end
 
 -- Index records owned non-admin items; each new entry pays Gems once.
@@ -122,7 +122,7 @@ function Quest.ScanIndex(p)
 	for _,f in inv.Fruits do if not f.admin_spawned then for m in f.mutations or {} do if mutationIds[m] then add("mutations",m) end end end end
 	local gems=gained*Story.IndexGem;local completed=0;local counts=CollectionMath.Counts(Data.GetData(p))
 	for cat,total in totals do
-		if counts[cat].have>=total and not idx.done[cat] then idx.done[cat]=true;completed+=1;gems+=Story.IndexCompleteGems;notify(p,"Index หมวด "..cat.." ครบ! +"..Story.IndexCompleteGems.." Gems") end
+		if counts[cat].have>=total and not idx.done[cat] then idx.done[cat]=true;completed+=1;gems+=Story.IndexCompleteGems;notify(p,"Index Category "..cat.." Complete! +"..Story.IndexCompleteGems.." Gems") end
 	end
 	if gained==0 and completed==0 then return 0 end
 	Data.Set(p,"Index",idx);Data.AddCurrency(p,"Gems",gems)
@@ -136,7 +136,7 @@ function Quest.Send(p,force)
 	if s then local have,need=Quest.Progress(p,s);current={text=s.text,kind=s.kind,stat=s.stat,zone=s.zone or c.zone,npc=s.npc,have=have,need=need,blocked=Quest.Blocked(s)} end
 	local steps={};if c then for i,step in c.steps do steps[i]={text=step.text,done=i<Data.Get(p,"Quests.main.step")} end end
 	local daily,dailyEnds=sideRows(p,"daily");local weekly,weeklyEnds=sideRows(p,"weekly")
-	local packet={enabled=Features.IsEnabled("Story"),chapter=Data.Get(p,"Progress.StoryChapter"),title=c and c.title or "จบบทหลักแล้ว",steps=steps,current=current,
+	local packet={enabled=Features.IsEnabled("Story"),chapter=Data.Get(p,"Progress.StoryChapter"),title=c and c.title or "Main Story Complete",steps=steps,current=current,
 		daily=daily,dailyEnds=dailyEnds,weekly=weekly,weeklyEnds=weeklyEnds,index=Quest.IndexCounts(p)}
 	local json=Http:JSONEncode(packet)
 	if force or lastPacket[p]~=json then lastPacket[p]=json;Net.Event("QuestState"):FireClient(p,packet) end

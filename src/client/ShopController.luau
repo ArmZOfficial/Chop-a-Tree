@@ -12,7 +12,7 @@ function Shop.Start()
 	local flags=game.ReplicatedStorage.FeatureFlags
 	local gui=UI.New("ScreenGui",{Name="ShopHUD",ResetOnSpawn=false,DisplayOrder=12,Parent=player:WaitForChild("PlayerGui")})
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(700,520),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("ร้าน Robux • สายฟรีก็ได้ของเท่ากัน แค่ช้ากว่า",20,{Parent=panel})
+	UI.Label("Robux Shop • Free players can reach the same goals",20,{Parent=panel})
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,30),Size=UDim2.new(1,0,0,24),TextColor3=UI.Colors.Accent,Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,6)})
 	local tab,prices,render="Passes",{},nil
@@ -27,7 +27,7 @@ function Shop.Start()
 	local function request(action,key)
 		task.spawn(function()
 			local ok,success,msg=pcall(function() return Net.Function("ShopAction"):InvokeServer(action,key) end)
-			message.Text=ok and (msg or "") or "ติดต่อเซิร์ฟเวอร์ไม่ได้";message.TextColor3=ok and success and UI.Colors.Accent or UI.Colors.Red
+			message.Text=ok and (msg or "") or "Could not reach the server";message.TextColor3=ok and success and UI.Colors.Accent or UI.Colors.Red
 		end)
 	end
 	local function row(name,text,color,callback)
@@ -39,8 +39,8 @@ function Shop.Start()
 		local owned=Data.Get("Purchases.passes") or {}
 		if tab=="Passes" then
 			for _,pass in C.Passes do local key=pass.key
-				if owned[key] and key=="Teleport" then row("Pass_"..key,pass.name.." ✓ • กดเพื่อเปิดเมนูวาร์ป\n"..pass.desc,UI.Colors.Green,function() request("Warp") end)
-				elseif owned[key] then row("Pass_"..key,pass.name.." ✓ มีแล้ว\n"..pass.desc,UI.Colors.Slate,function() end)
+				if owned[key] and key=="Teleport" then row("Pass_"..key,pass.name.." ✓ • Click to open Warp\n"..pass.desc,UI.Colors.Green,function() request("Warp") end)
+				elseif owned[key] then row("Pass_"..key,pass.name.." ✓ Owned\n"..pass.desc,UI.Colors.Slate,function() end)
 				else row("Pass_"..key,pass.name.." • "..price(pass.id,Enum.InfoType.GamePass).."\n"..pass.desc,UI.Colors.Purple,function() request("Prompt",key) end) end
 			end
 		else
@@ -49,12 +49,12 @@ function Shop.Start()
 			end
 		end
 	end
-	for i,t in {{"Passes","Game Pass (ถาวร)"},{"Products","ไอเทม (ซื้อซ้ำได้)"}} do local id=t[1]
+	for i,t in {{"Passes","Game Pass (Permanent)"},{"Products","Repeatable Products"}} do local id=t[1]
 		local b=UI.Button({text=t[2],color=UI.Colors.Teal,size=UDim2.new(.5,-8,0,42),onClick=function() tab=id;render() end})
 		b.Name="Tab"..id;b.Position=UDim2.new((i-1)/2,0,0,62);b.Parent=panel
 	end
-	local close=UI.Button({text="ปิด",color=UI.Colors.Slate,size=UDim2.new(1,0,0,44),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
-	local toggle=UI.Button({text="ร้าน Robux",color=UI.Colors.Orange,size=UDim2.fromOffset(130,48),onClick=function()
+	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,44),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
+	local toggle=UI.Button({text="Robux Shop",color=UI.Colors.Orange,size=UDim2.fromOffset(130,48),onClick=function()
 		panel.Visible=not panel.Visible;message.Text="";render()
 	end});toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(200,365);toggle.Parent=gui
 	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(700,size.X-28),math.min(520,size.Y-60)) end

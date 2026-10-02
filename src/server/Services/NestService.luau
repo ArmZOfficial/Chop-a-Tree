@@ -35,21 +35,21 @@ local function release(p)
 end
 
 function Nest.Take(p,spot)
-	if not Features.IsEnabled("Eggs") or not Data.IsLoaded(p) then return false,"ระบบไข่ยังไม่เปิด" end
+	if not Features.IsEnabled("Eggs") or not Data.IsLoaded(p) then return false,"Eggs unavailable" end
 	local s=spots[spot]
-	if not s or not s.ready then return false,"รังนี้ยังไม่มีไข่" end
+	if not s or not s.ready then return false,"No egg in this nest yet" end
 	local weatherKey=spot:GetAttribute("WeatherKey")
-	if weatherKey and (not Features.IsEnabled("WeatherEncounters") or require(script.Parent.WeatherService).State().eventKey~=weatherKey) then return false,"รอบอากาศนี้จบแล้ว" end
-	if not Data.Get(p,"Run.Active") then return false,"หยิบไข่ในป่าได้ระหว่าง Run" end
-	if not table.find(Data.Get(p,"Progress.UnlockedZones"),s.zone) then return false,"ยังไม่ปลดล็อกโซนนี้" end
-	if carriers[p] or p:GetAttribute("CarryingEgg") then return false,"ถือไข่ได้ทีละ 1 ใบ" end
-	if Pet.EggRoom(p)<=0 then return false,"ไข่เต็มกระเป๋า" end
-	local hr=root(p);if not hr or (hr.Position-spot.Position).Magnitude>12 then return false,"เข้าใกล้รังก่อน" end
+	if weatherKey and (not Features.IsEnabled("WeatherEncounters") or require(script.Parent.WeatherService).State().eventKey~=weatherKey) then return false,"Weather event ended" end
+	if not Data.Get(p,"Run.Active") then return false,"Collect forest eggs during a run" end
+	if not table.find(Data.Get(p,"Progress.UnlockedZones"),s.zone) then return false,"Zone not unlocked yet" end
+	if carriers[p] or p:GetAttribute("CarryingEgg") then return false,"You can carry only one egg at a time" end
+	if Pet.EggRoom(p)<=0 then return false,"Egg bag full" end
+	local hr=root(p);if not hr or (hr.Position-spot.Position).Magnitude>12 then return false,"Move closer to the nest first" end
 	show(s,false);s.generation+=1
 	carriers[p]={spot=spot,def=s.def,zone=s.zone}
 	local g=guardians[s.nest];if g then g.alarmUntil=os.clock()+Config.BurstSeconds end
 	Pet.SetCarry(p,s.def.color,Config.NestSlow,nil)
-	return true,"ได้ไข่! วิ่งไปหินวาร์ปหรือกด End Run — ผู้พิทักษ์ไล่ตามอยู่!"
+	return true,"Egg secured! Reach the warp stone or press End Run. The guardian is chasing you!"
 end
 -- Egg returns to its nest (caught, death, leaving, cancelled run).
 function Nest.Drop(p,reason)
@@ -64,7 +64,7 @@ function Nest.Secure(p)
 	local s=spots[c.spot];local eggs=Data.Get(p,"Run.Eggs") or {}
 	table.insert(eggs,{id=c.def.id,rebirthDrop=Data.Get(p,"Progress.Rebirth"),admin_spawned=Data.Get(p,"Meta.AdminTouched")==true})
 	Data.Set(p,"Run.Eggs",eggs);if s.retired then spots[c.spot]=nil;c.spot:Destroy() else refill(s) end
-	notify(p,"ไข่ปลอดภัยแล้ว! ("..c.def.name..") ได้รับเมื่อจบ Run")
+	notify(p,"Egg secured! ("..c.def.name..") Received when your run ends")
 	return true
 end
 function Nest.Carrying(p) return carriers[p] end
@@ -73,7 +73,7 @@ function Nest.Guardian(nest) return guardians[nest] end
 function Nest.AddSpot(spot,def)
 	local nest=spot.Parent;if not guardians[nest] or spots[spot] then return false end
 	local v=Visual.Egg(def.color,.85);v:PivotTo(spot.CFrame);v.Parent=spot
-	local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="หยิบไข่";prompt.ObjectText=def.thai;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
+	local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="Take Egg";prompt.ObjectText=def.name;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
 	local s={spot=spot,nest=nest,def=def,zone=nest:GetAttribute("Zone"),ready=true,visual=v,prompt=prompt,generation=0};spots[spot]=s;show(s,true)
 	prompt.Triggered:Connect(function(p) local ok,msg=Nest.Take(p,spot);notify(p,msg,not ok) end);return true
 end
@@ -88,7 +88,7 @@ local function guardian(nest)
 	local m=Visual.Pet("pet_boar",2.4);m.Name="NestGuardian"
 	for _,part in m:GetDescendants() do if part:IsA("BasePart") and part.Name~="Eye" then part.Color=part.Name=="Tusk" and Color3.fromRGB(240,235,215) or Color3.fromRGB(86,112,62) end end
 	local b=Instance.new("BillboardGui");b.Size=UDim2.fromOffset(140,26);b.StudsOffset=Vector3.new(0,5,0);b.MaxDistance=80;b.Parent=m.PrimaryPart
-	local l=Instance.new("TextLabel");l.Size=UDim2.fromScale(1,1);l.BackgroundTransparency=1;l.TextColor3=Color3.fromRGB(255,220,120);l.TextStrokeTransparency=0;l.TextSize=14;l.Text="ผู้พิทักษ์รัง";l.Parent=b
+	local l=Instance.new("TextLabel");l.Size=UDim2.fromScale(1,1);l.BackgroundTransparency=1;l.TextColor3=Color3.fromRGB(255,220,120);l.TextStrokeTransparency=0;l.TextSize=14;l.Text="Nest Guardian";l.Parent=b
 	local lift=2.9
 	local g={model=m,home=home.Position,pos=home.Position,lift=lift,alarmUntil=0,ground=nest.Parent.Parent:FindFirstChild("Ground")}
 	m:PivotTo(CFrame.new(home.Position+Vector3.new(0,lift,0)));m.Parent=nest
@@ -108,7 +108,7 @@ function Nest.Init()
 			for _,spot in nest:GetChildren() do if spot.Name=="EggSpot" and spot:IsA("BasePart") then
 				spot.Transparency=1
 				local v=Visual.Egg(def.color,.85);v:PivotTo(spot.CFrame);v.Parent=spot
-				local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="หยิบไข่";prompt.ObjectText=def.thai;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
+				local prompt=Instance.new("ProximityPrompt");prompt.Name="TakeEggPrompt";prompt.ActionText="Take Egg";prompt.ObjectText=def.name;prompt.HoldDuration=.3;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=10;prompt.Parent=spot
 				local s={spot=spot,nest=nest,def=def,zone=nest:GetAttribute("Zone"),ready=true,visual=v,prompt=prompt,generation=0}
 				spots[spot]=s;show(s,true)
 				prompt.Triggered:Connect(function(p) local ok,msg=Nest.Take(p,spot);notify(p,msg,not ok) end)
@@ -146,7 +146,7 @@ function Nest.Start()
 				g.model:PivotTo(CFrame.lookAt(g.pos+Vector3.new(0,g.lift,0),g.pos+Vector3.new(0,g.lift,0)+to.Unit))
 			end
 			if chased then local hr=root(chased)
-				if hr and flat(hr.Position,g.pos)<=Config.CatchRadius and math.abs(hr.Position.Y-g.pos.Y)<8 then Nest.Drop(chased,"ผู้พิทักษ์จับได้! ไข่กลับรังแล้ว") end
+				if hr and flat(hr.Position,g.pos)<=Config.CatchRadius and math.abs(hr.Position.Y-g.pos.Y)<8 then Nest.Drop(chased,"Guardian caught you! Egg returned to nest") end
 			end
 		end
 		task.wait(dt)

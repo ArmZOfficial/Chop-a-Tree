@@ -20,13 +20,13 @@ function Live.Write(event,source,publisher)
  local ok,value=pcall(function() return (source or store):UpdateAsync("current",function(old)
   local nextEvent=table.clone(event);nextEvent.revision=(old and old.revision or 0)+1;return nextEvent
  end,C.TTL) end)
- if not ok then return false,"บริการ Live Event ยังไม่พร้อม" end
+ if not ok then return false,"Live Event service not ready" end
  if not source then Live.Accept(value) end
  local notified=pcall(function() if publisher then publisher(value.revision) else messaging:PublishAsync(topic,{revision=value.revision}) end end)
- return true,notified and "บันทึกและประกาศ Live Event แล้ว" or "บันทึกแล้ว; เซิร์ฟอื่นรับผ่านการตรวจทุก 30 วิ",value
+ return true,notified and "Live Event saved and announced" or "Saved. Other servers check every 30 sec",value
 end
 function Live.StartEvent(sequence)
- if not F.IsEnabled("LiveEvents") or not F.IsEnabled("Weather") then return false,"ระบบอีเวนต์หรืออากาศปิด" end
+ if not F.IsEnabled("LiveEvents") or not F.IsEnabled("Weather") then return false,"Events or weather disabled" end
  local event,msg=Math.Build(sequence or C.Sequence,C.Message,os.time(),game.CreatorId);if not event then return false,msg end
  return Live.Write(event)
 end

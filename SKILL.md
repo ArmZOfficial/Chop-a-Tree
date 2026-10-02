@@ -23,6 +23,8 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - เปลี่ยนสูตร/ตัวเลขรัน `tools/balance_sim.py`; ทดสอบส่วนที่กระทบและบันทึกสิ่งที่ยังไม่พิสูจน์. ใช้ RegressionHarness.Prepare/Finish ครอบ scenario เก่า (baseline ไม่มี Pass/boost); คืนข้อมูลแม้ test fail. Festival query เวลาอนาคตต้องไม่ล้าง preview ปัจจุบัน. ระบบใหม่เพิ่ม AdminService.Register และ Feature Flag.
 - Auto Cut ฟรี; permanent bonus ชนิดเดียวกันใช้ค่าสูงสุด/เพดานร่วมกับทางฟรี. ใช้ seam Run.Award/Pet.Mult/Balance; รายละเอียด cap อ่าน validation ของระบบ.
 
+- Player-facing text must be English (ArmZ 2026-10-02): menus, NPC dialogue, map signs, prompts, notifications, Admin and Arena. Keep legacy `.thai` metadata and Thai element keys for compatibility; display `.name`. Do not translate player names or stable IDs. Phase 10 artwork: `assets/ui/woodland-icons-v2.png`, imported image `121083844656821`; use per-icon bounds in Config/UIIcons (uploaded 1024 texture), never source-size grid guesses. Check actual Play screenshots, contrast/cropping/overlap and clicks before claiming visual completion.
+
 ## Creator Store / ภาพ
 
 - ArmZ อนุญาตเลือกและใช้ asset ที่เข้าถึงได้ตามงาน (2026-10-01), ปรับให้เข้าธีม; ตรวจผู้สร้าง/ID/descendants/scripts ใน staging ก่อนใช้งาน.

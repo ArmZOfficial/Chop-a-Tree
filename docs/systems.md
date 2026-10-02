@@ -113,3 +113,10 @@ Place setup: main Place `93479990217075`, GameId `10768831527`. Arena was publis
 ## Admin roles
 
 Owner grants Tester/Moderator/Admin from the panel tab "จัดการผู้เล่น" (`admin.grantTester/Moderator/Admin`, `admin.revoke`, `admin.list`; Owner only, confirm 1, target one player in the server). Grants live in DataStore `AdminUsers_v1` key `users` (Studio uses `AdminUsers_v1_Studio`), so no Publish is needed; AdminService takes the highest of creator, Config.Admins, group rank and grant. Effect is immediate in that server (cache reset, panel given/removed) and on next join elsewhere. Owner cannot be granted from the menu; Config/group roles cannot be revoked there. Proof 2026-10-02: Studio remote round-trip (confirm required, grant/list/revoke/list) passed, no errors; Studio treats everyone as Owner, so a real non-owner grant still needs a live check.
+
+## Phase 10 UI
+
+- Shared UIKit: cream panels, wood/gold navigation tiles, outlined readable HUD numbers; NavigationController reuses existing button callbacks. Primary Inventory/Pets/Garden/Shop/Rewards + More, compact Menu, one modal, outside-click close, local sound settings.
+- Image `121083844656821`, source `assets/ui/woodland-icons-v2.png`; uploaded texture 1024, individual padded crop bounds Config/UIIcons. Source grid1254 caused tiny/mixed icons; Play screenshots confirmed corrected art. Live English labels, legacy `.thai` metadata/internal element IDs retained.
+- 2026-10-02 proof: main source checksums79/79, Luau129 compile, startup clean, Inventory/More/Settings/outside-close real clicks, icons12/12, PlayerGui Thai0. Inventory opening hides tracker/forecast/PLAY/hint, closing restores. Run.Play guards10/10 isolated actual-source test (Run.Begin stubbed); full entry/integration not proven by this test.
+- Pending: every flow, mobile/gamepad, full world art/VFX/audio/balance, paid Player purchase/reconnect and multi-account Arena. No Publish in this UI work.

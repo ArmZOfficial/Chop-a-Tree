@@ -7,8 +7,8 @@ local function rewards(free,premium)
 	return out
 end
 local G=function(n) return {gems=n,label=n.." Gems"} end
-local B=function(kind,min) return {boost={kind=kind,seconds=min*60},label=kind.." ×2 • "..min.." นาที"} end
-local CH=function(rarity,level) return {chest={rarity=rarity,level=level,count=1},label="หีบ "..rarity.." Lv."..level} end
+local B=function(kind,min) return {boost={kind=kind,seconds=min*60},label=kind.." ×2 • "..min.." min"} end
+local CH=function(rarity,level) return {chest={rarity=rarity,level=level,count=1},label="Chests "..rarity.." Lv."..level} end
 local levels=rewards({
 	G(10),B("Wood",15),G(15),CH("Rare",5),G(20),B("Coins",15),G(25),CH("Rare",8),G(30),CH("Epic",10),
 	G(30),B("Exp",15),G(35),CH("Rare",10),G(40),B("Luck",15),G(45),CH("Epic",15),G(50),CH("Epic",20),
@@ -20,9 +20,9 @@ local levels=rewards({
 })
 return table.freeze({
 	Seasons={
-		{id="s1_2026_10",name="ซีซัน 1 • ป่าแรกผลิ",startsAt=1790812800,endsAt=1793491200}, -- 2026-10-01 → 2026-11-01 UTC
-		{id="s2_2026_11",name="ซีซัน 2 • ป่าแสงจันทร์",startsAt=1793491200,endsAt=1796083200}, -- 2026-11-01 → 2026-12-01 UTC
-		{id="s3_2026_12",name="ซีซัน 3 • ป่าหิมะเงิน",startsAt=1796083200,endsAt=1798761600}, -- 2026-12-01 → 2027-01-01 UTC
+		{id="s1_2026_10",name="Season 1 • First Bloom",startsAt=1790812800,endsAt=1793491200}, -- 2026-10-01 → 2026-11-01 UTC
+		{id="s2_2026_11",name="Season 2 • Moonlit Forest",startsAt=1793491200,endsAt=1796083200}, -- 2026-11-01 → 2026-12-01 UTC
+		{id="s3_2026_12",name="Season 3 • Silver Snow Forest",startsAt=1796083200,endsAt=1798761600}, -- 2026-12-01 → 2027-01-01 UTC
 	},
 	XpPerLevel=1000,
 	Levels=levels,

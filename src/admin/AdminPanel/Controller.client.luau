@@ -43,18 +43,18 @@ local AMOUNTS = { { "1K", 1e3 }, { "1M", 1e6 }, { "1B", 1e9 }, { "1T", 1e12 }, {
 
 -- ปุ่มลัด: ชี้ไปคำสั่งจริง (cmds = รันต่อกันหลายคำสั่ง) / phase = ยังไม่มา
 local QUICK = {
-	{ label = "รวยทันที", sub = "ทุกสกุลเงิน = 1Qi", color = "Orange", cmds = { "money.rich" } },
-	{ label = "บิน + อมตะ", sub = "สลับเปิด/ปิด", color = "Blue", cmds = { "player.fly", "player.god" } },
-	{ label = "บันทึกเซฟ", sub = "ของเป้าหมาย", color = "Green", cmds = { "data.save" } },
-	{ label = "กลับจุดเกิด", sub = "วาร์ปทันที", color = "Teal", cmds = { "player.spawn" } },
-	{ label = "ตรวจสูตร Balance", sub = "เทียบ balance_sim", color = "Purple", cmds = { "debug.balancetest" } },
-	{ label = "ปิดทุกโหมดแอดมิน", sub = "บิน/ทะลุ/อมตะ/ความเร็ว", color = "Slate", cmds = { "player.clearall" } },
-	{ label = "เลเวลรอบ 50", sub = "มาใน Phase 2", phase = 2 },
-	{ label = "เสกหีบ Mythic ×10", sub = "มาใน Phase 3", phase = 3 },
-	{ label = "ฆ่าต้นไม้ทั้งโซน", sub = "มาใน Phase 2", phase = 2 },
-	{ label = "โตทันทีทั้งสวน", sub = "มาใน Phase 4", phase = 4 },
-	{ label = "ฝนดาวตก", sub = "มาใน Phase 4", phase = 4 },
-	{ label = "Rebirth ทันที", sub = "มาใน Phase 8", phase = 8 },
+	{ label = "Set Rich", sub = "All currencies = 1Qi", color = "Orange", cmds = { "money.rich" } },
+	{ label = "Fly + God Mode", sub = "Toggle", color = "Blue", cmds = { "player.fly", "player.god" } },
+	{ label = "Save Data", sub = "Target Items", color = "Green", cmds = { "data.save" } },
+	{ label = "Return to Spawn", sub = "Warp Now", color = "Teal", cmds = { "player.spawn" } },
+	{ label = "Check Balance Formula", sub = "Compare balance_sim", color = "Purple", cmds = { "debug.balancetest" } },
+	{ label = "Disable All Admin Modes", sub = "Fly/Noclip/God Mode/Speed", color = "Slate", cmds = { "player.clearall" } },
+	{ label = "Run Level 50", sub = "Available in Phase 2", phase = 2 },
+	{ label = "Spawn Mythic Chests ×10", sub = "Available in Phase 3", phase = 3 },
+	{ label = "Fell All Trees in Zone", sub = "Available in Phase 2", phase = 2 },
+	{ label = "Grow Entire Garden Instantly", sub = "Available in Phase 4", phase = 4 },
+	{ label = "Meteor Shower", sub = "Available in Phase 4", phase = 4 },
+	{ label = "Rebirth Instant", sub = "Available in Phase 8", phase = 8 },
 }
 
 local function color(name: string?): Color3
@@ -65,9 +65,9 @@ end
 local adminButtonHolder = New("Frame", {
 	Name = "AdminButton",
 	BackgroundTransparency = 1,
-	AnchorPoint = Vector2.new(0, 1),
-	Position = UDim2.new(0, 16, 1, -16),
-	Size = UDim2.fromOffset(96, 120),
+	AnchorPoint = Vector2.new(0, 0),
+	Position = UDim2.fromOffset(230, 8),
+	Size = UDim2.fromOffset(84, 64),
 	Parent = gui,
 }, { UIKit.List(Enum.FillDirection.Vertical, 6, Enum.HorizontalAlignment.Center) })
 
@@ -76,10 +76,10 @@ local toggleOpen: () -> ()
 local adminButton = UIKit.Button({
 	text = "ADMIN",
 	color = C.Accent,
-	textColor = C.TextDark,
-	size = UDim2.fromOffset(92, 88),
-	textSize = 20,
-	radius = 22,
+	textColor = Color3.new(1,1,1),
+	size = UDim2.fromOffset(84, 34),
+	textSize = 16,
+	radius = 10,
 	stroke = 4,
 	shadow = 5,
 	layoutOrder = 1,
@@ -94,7 +94,7 @@ local rankTag = UIKit.Label("", 12, {
 	TextXAlignment = Enum.TextXAlignment.Center,
 	BackgroundTransparency = 0,
 	BackgroundColor3 = C.Panel,
-	Size = UDim2.fromOffset(92, 20),
+	Size = UDim2.fromOffset(84, 18),
 	LayoutOrder = 2,
 	Parent = adminButtonHolder,
 }, nil)
@@ -156,7 +156,7 @@ UIKit.Stroke(2).Parent = rankBadge
 New("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(10, 10), LayoutOrder = 3, Parent = header }, {
 	New("UIFlexItem", { FlexMode = Enum.UIFlexMode.Grow }),
 })
-UIKit.Label("ทำกับ:", 15, {
+UIKit.Label("Target:", 15, {
 	FontFace = UIKit.FontBody,
 	TextColor3 = C.TextDim,
 	AutomaticSize = Enum.AutomaticSize.X,
@@ -168,7 +168,7 @@ UIKit.Label("ทำกับ:", 15, {
 local targetChips: { [string]: Frame } = {}
 local renderTargetChips: () -> ()
 local openPlayerPicker: () -> ()
-for i, t in { { "me", "ตัวเอง" }, { "player", "เลือกผู้เล่น" }, { "all", "ทุกคน" } } do
+for i, t in { { "me", "Self" }, { "player", "Select Player" }, { "all", "Everyone" } } do
 	local chip = UIKit.Button({
 		text = t[2],
 		color = C.Card,
@@ -263,7 +263,7 @@ local textBox = New("TextBox", {
 	TextSize = 14,
 	FontFace = UIKit.FontBody,
 	TextColor3 = C.Text,
-	PlaceholderText = "ช่องข้อความ: ผลลัพธ์ Export จะขึ้นที่นี่ / วาง JSON เพื่อ Import / พิมพ์ข้อความประกาศหรือเหตุผล",
+	PlaceholderText = "Text: Export appears here / Paste JSON to Import / Enter an announcement or reason",
 	PlaceholderColor3 = C.TextDim,
 	Text = "",
 	Parent = textAreaHolder,
@@ -279,16 +279,16 @@ local function invoke(request: any): any
 		return Net.Function("AdminRun"):InvokeServer(request)
 	end)
 	if not ok then
-		return { ok = false, msg = "ติดต่อ Server ไม่ได้: " .. tostring(result) }
+		return { ok = false, msg = "Could not reach server: " .. tostring(result) }
 	end
 	return result
 end
 
 local function targetLabel(): string
 	if state.target.mode == "me" then
-		return "ตัวเอง"
+		return "Self"
 	elseif state.target.mode == "all" then
-		return "ทุกคน"
+		return "Everyone"
 	end
 	return state.target.name
 end
@@ -298,7 +298,7 @@ local renderTab: () -> ()
 
 local function handleResult(cmd: CommandInfo?, result: any)
 	local suffix = (cmd and cmd.usesTarget) and (" → " .. targetLabel()) or ""
-	toast((result.ok and "ทำแล้ว: " or "ไม่สำเร็จ: ") .. tostring(result.msg) .. suffix, result.ok)
+	toast((result.ok and "Completed: " or "Failed: ") .. tostring(result.msg) .. suffix, result.ok)
 	if result.data and type(result.data.text) == "string" then
 		textBox.Text = result.data.text
 	end
@@ -307,7 +307,7 @@ end
 local function runCommand(id: string, args: { [string]: any }?, silent: boolean?): any
 	local cmd = state.byId[id]
 	if not cmd then
-		toast("ยศของคุณใช้คำสั่งนี้ไม่ได้: " .. id, false)
+		toast("Your role cannot use this command: " .. id, false)
 		return nil
 	end
 	local function send(confirmed: number?)
@@ -318,9 +318,9 @@ local function runCommand(id: string, args: { [string]: any }?, silent: boolean?
 		return result
 	end
 	if cmd.confirm >= 1 then
-		confirmDialog("ยืนยัน \"" .. cmd.label .. "\" กับ " .. targetLabel() .. "?", function()
+		confirmDialog("Confirm \"" .. cmd.label .. "\" and " .. targetLabel() .. "?", function()
 			if cmd.confirm >= 2 then
-				confirmDialog("แน่ใจจริงๆ ใช่ไหม? ย้อนกลับไม่ได้", function()
+				confirmDialog("Are you sure? This cannot be undone", function()
 					send(2)
 				end)
 			else
@@ -357,7 +357,7 @@ local dialogButtons = New("Frame", { BackgroundTransparency = 1, Size = UDim2.ne
 	UIKit.List(Enum.FillDirection.Horizontal, 14, Enum.HorizontalAlignment.Center),
 })
 local onDialogYes: (() -> ())? = nil
-local yes = UIKit.Button({ text = "ยืนยัน", color = C.Red, size = UDim2.fromOffset(160, 54), layoutOrder = 1, onClick = function()
+local yes = UIKit.Button({ text = "Confirm", color = C.Red, size = UDim2.fromOffset(160, 54), layoutOrder = 1, onClick = function()
 	overlay.Visible = false
 	local fn = onDialogYes
 	onDialogYes = nil
@@ -366,7 +366,7 @@ local yes = UIKit.Button({ text = "ยืนยัน", color = C.Red, size = UD
 	end
 end })
 yes.Parent = dialogButtons
-local no = UIKit.Button({ text = "ยกเลิก", color = C.Slate, size = UDim2.fromOffset(160, 54), layoutOrder = 2, onClick = function()
+local no = UIKit.Button({ text = "Cancel", color = C.Slate, size = UDim2.fromOffset(160, 54), layoutOrder = 2, onClick = function()
 	overlay.Visible = false
 	onDialogYes = nil
 end })
@@ -412,7 +412,7 @@ renderTargetChips = function()
 	local playerChip = targetChips.player
 	local label = playerChip:FindFirstChild("Button") and playerChip.Button:FindFirstChildOfClass("TextLabel")
 	if label then
-		label.Text = state.target.mode == "player" and state.target.name or "เลือกผู้เล่น"
+		label.Text = state.target.mode == "player" and state.target.name or "Select Player"
 	end
 end
 
@@ -557,7 +557,7 @@ end
 local tabRenderers: { [string]: () -> () } = {}
 
 tabRenderers.quick = function()
-	sectionTitle("ปุ่มที่ใช้บ่อย กดครั้งเดียวจบ (ปุ่มสีเทา = ระบบยังไม่มา)", 1)
+	sectionTitle("Common actions (gray buttons: unavailable)", 1)
 	local grid = buttonGrid(2, 3, 96)
 	for i, q in QUICK do
 		local available = q.cmds ~= nil
@@ -589,7 +589,7 @@ tabRenderers.quick = function()
 end
 
 tabRenderers.money = function()
-	sectionTitle("เลือกจำนวน (หรือพิมพ์เอง เช่น 2.5Qa, 1e30) → กดปุ่มในแถวสกุลเงิน", 1)
+	sectionTitle("Select or enter an amount (e.g. 2.5Qa, 1e30), then click a currency action", 1)
 	local chips = New("Frame", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 46),
@@ -633,7 +633,7 @@ tabRenderers.money = function()
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -16, 1, 0),
 		Position = UDim2.fromOffset(8, 0),
-		PlaceholderText = "พิมพ์จำนวน",
+		PlaceholderText = "Enter Amount",
 		PlaceholderColor3 = C.TextDim,
 		Text = state.customAmount and NumberFormat.Short(state.customAmount) or "",
 		TextColor3 = C.Text,
@@ -690,9 +690,9 @@ tabRenderers.money = function()
 			Parent = row,
 		})
 		local actions = {
-			{ "+ เสก", C.Green, "money.add", false },
-			{ "ตั้งค่า", C.Blue, "money.set", false },
-			{ "เป็น 0", C.Red, "money.set", true },
+			{ "+ Spawn", C.Green, "money.add", false },
+			{ "Settings", C.Blue, "money.set", false },
+			{ "to 0", C.Red, "money.set", true },
 		}
 		for j, a in actions do
 			local b = UIKit.Button({
@@ -721,7 +721,7 @@ tabRenderers.money = function()
 		end
 		if data and data.Currencies then
 			for id, label in valueLabels do
-				label.Text = NumberFormat.Short(data.Currencies[id] or 0) .. " (ของคุณ)"
+				label.Text = NumberFormat.Short(data.Currencies[id] or 0) .. " (Yours)"
 			end
 		end
 	end
@@ -750,25 +750,25 @@ local function textAreaTab(tab: string, hint: string)
 	return function()
 		sectionTitle(hint, 1)
 		commandButtons(tab, 2)
-		sectionTitle("ช่องข้อความ", 3)
+		sectionTitle("Text Box", 3)
 		textAreaHolder.Parent = content
 	end
 end
 
-tabRenderers.data = textAreaTab("data", "เซฟของเป้าหมาย (เลือกผู้เล่นทางขวาบน) · Import/รีเซ็ต ใช้ได้เฉพาะ Owner")
-tabRenderers.mod = textAreaTab("mod", "พิมพ์ข้อความประกาศ/เหตุผลในช่องข้อความก่อนกด")
+tabRenderers.data = textAreaTab("data", "Target save (select a player at top-right). Import/Reset requires Owner")
+tabRenderers.mod = textAreaTab("mod", "Enter an announcement/reason before clicking")
 
 tabRenderers.player = function()
-	sectionTitle("ทำกับเป้าหมายที่เลือกทางขวาบน · บินบนมือถือใช้จอยสติ๊ก", 1)
+	sectionTitle("Applies to selected target at top-right. Use the joystick to fly on mobile", 1)
 	commandButtons("player", 2)
 end
 
 tabRenderers.debug = function()
-	sectionTitle("ข้อมูลเซิร์ฟและการทดสอบ", 1)
+	sectionTitle("Server Data & Tests", 1)
 	local localGrid = buttonGrid(2, 3, 74)
 	local fps = UIKit.Button({
-		text = state.fpsOverlay and "ซ่อน FPS / Ping" or "แสดง FPS / Ping",
-		sub = "เฉพาะจอคุณ",
+		text = state.fpsOverlay and "Hide FPS / Ping" or "Show FPS / Ping",
+		sub = "Your screen only",
 		color = C.Teal,
 		radius = 16,
 		stroke = 4,
@@ -780,7 +780,7 @@ tabRenderers.debug = function()
 	})
 	fps.Parent = localGrid
 	commandButtons("debug", 3)
-	sectionTitle("Feature Flags (เปิด/ปิดสดในเซิร์ฟนี้)", 4)
+	sectionTitle("Feature Flags (Open/Disable live in this server)", 4)
 	local flagGrid = buttonGrid(5, 4, 52)
 	local result = invoke({ id = "debug.flags" })
 	if result.ok and result.data then
@@ -801,7 +801,7 @@ tabRenderers.debug = function()
 			b.Parent = flagGrid
 		end
 	end
-	sectionTitle("ผลลัพธ์", 6)
+	sectionTitle("Result", 6)
 	textAreaHolder.LayoutOrder = 7
 	textAreaHolder.Parent = content
 end
@@ -813,8 +813,8 @@ local function comingSoon(tabInfo)
 		LayoutOrder = 1,
 		Parent = content,
 	}, { UIKit.Corner(16), UIKit.Stroke(3), UIKit.Padding(20), UIKit.List(Enum.FillDirection.Vertical, 8) })
-	UIKit.Label("ระบบนี้มาใน Phase " .. tabInfo.phase, 24, { TextColor3 = C.AccentText, Parent = box })
-	UIKit.Label("ปุ่มทดสอบของแท็บ \"" .. tabInfo.label .. "\" จะขึ้นเองเมื่อระบบนี้ถูกสร้าง (ดู plan.md หัวข้อ 18.3)", 15, {
+	UIKit.Label("System available in Phase " .. tabInfo.phase, 24, { TextColor3 = C.AccentText, Parent = box })
+	UIKit.Label("Test buttons for tab \"" .. tabInfo.label .. "\" will appear when the system is available", 15, {
 		FontFace = UIKit.FontBody,
 		TextColor3 = C.TextDim,
 		Size = UDim2.new(1, 0, 0, 44),
@@ -874,7 +874,7 @@ renderTab = function()
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -16, 1, 0),
 		Position = UDim2.fromOffset(8, 0),
-		PlaceholderText = "พิมพ์คำสั่ง เช่น /give coins 1e15 me",
+		PlaceholderText = "Enter a command, e.g. /give coins 1e15 me",
 		PlaceholderColor3 = C.TextDim,
 		Text = "",
 		TextColor3 = C.Text,

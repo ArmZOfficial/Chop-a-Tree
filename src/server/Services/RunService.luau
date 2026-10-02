@@ -99,6 +99,20 @@ function Run.Begin(player)
 	return true
 end
 
+-- The Play CTA uses the same Run entry, from the village only; never resets an active Run.
+function Run.Play(player)
+	if not Data.IsLoaded(player) or Run.Get(player).Active then return false end
+	local character=player.Character;local hum=character and character:FindFirstChildOfClass("Humanoid")
+	local root=character and character:FindFirstChild("HumanoidRootPart")
+	local map=workspace:FindFirstChild("Map");local village=map and map:FindFirstChild("Village")
+	local home=village and village:FindFirstChild("VillageSpawn")
+	if not root or not hum or hum.Health<=0 or not home or (root.Position-home.Position).Magnitude>320 then return false end
+	local spawn
+	for _,s in Collection:GetTagged("ZoneSpawn") do if s:IsDescendantOf(workspace) and s:GetAttribute("Zone")==1 then spawn=s;break end end
+	if not spawn or not Run.Begin(player) then return false end
+	character:PivotTo(spawn:GetPivot()+Vector3.new(0,4,0));return true
+end
+
 function Run.End(player,teleport)
 	local r=Run.Get(player)
 	if not r or not r.Active then return false end
@@ -194,7 +208,8 @@ function Run.Init()
 		local now=os.clock()
 		if now-(lastAction[player] or 0)<0.1 then return end
 		lastAction[player]=now
-		if action=="End" then Run.End(player,true)
+		if action=="Play" then if not Run.Play(player) then Net.Event("Notify"):FireClient(player,{text="Return to the village and put down your egg before entering the forest",kind="warn"}) end
+		elseif action=="End" then Run.End(player,true)
 		elseif action=="AutoAttack" or action=="AutoCut" then Run.SetMode(player,action,value) end
 	end)
 	Players.PlayerRemoving:Connect(function(player) lastAction[player]=nil end)

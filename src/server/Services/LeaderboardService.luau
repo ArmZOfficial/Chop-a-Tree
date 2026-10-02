@@ -35,9 +35,9 @@ function Leader.Render()
 	local state=Leader.State()
 	for _,board in boards do local id=board.part:GetAttribute("Board");local rows=(status=="ready" and state.globalBoards or state.localBoards)[id] or {}
 		board.label.Parent.Enabled=state.enabled;board.part.LeaderboardPrompt.Enabled=state.enabled
-		local text=board.title.."\n"..(status=="ready" and "GLOBAL ≈" or "SERVER • Global รออัปเดต").."\n"
+		local text=board.title.."\n"..(status=="ready" and "GLOBAL ≈" or "SERVER • Global Update pending").."\n"
 		for i,row in rows do text..="\n"..i..". "..row.name.."  "..NF.Short(row.value) end
-		if #rows==0 then text..="\nยังไม่มีผู้เล่นที่เข้าเกณฑ์" end
+		if #rows==0 then text..="\nNo eligible players yet" end
 		board.label.Text=text
 	end
 end
@@ -65,10 +65,10 @@ end
 function Leader.Init()
 	for _,metric in Config.Metrics do stores[metric.id]=DSS:GetOrderedDataStore(prefix..Config.Season.."_"..metric.id) end
 	Net.Function("LeaderboardRequest").OnServerInvoke=function(p)
-		if not Data.IsLoaded(p) then return false,"ข้อมูลยังไม่พร้อม" end
-		local now=os.clock();if now-(last[p] or -math.huge)<1 then return false,"รอสักครู่" end;last[p]=now
-		if not Features.IsEnabled("Leaderboard") then return false,"Leaderboard ยังไม่เปิด" end
-		Leader.Snapshot(p);return true,"พร้อมแล้ว",Leader.State()
+		if not Data.IsLoaded(p) then return false,"Data not ready" end
+		local now=os.clock();if now-(last[p] or -math.huge)<1 then return false,"Please wait" end;last[p]=now
+		if not Features.IsEnabled("Leaderboard") then return false,"Leaderboard Unavailable" end
+		Leader.Snapshot(p);return true,"Ready",Leader.State()
 	end
 	Data.Changed:Connect(function(p) Leader.Snapshot(p) end)
 	Data.PlayerLoaded:Connect(Leader.Snapshot)
@@ -85,7 +85,7 @@ function Leader.Init()
 			local gui=Instance.new("SurfaceGui");gui.Name="LeaderboardDisplay";gui.Face=Enum.NormalId.Front;gui.CanvasSize=Vector2.new(600,720);gui.Parent=part
 			local label=Instance.new("TextLabel");label.Size=UDim2.fromScale(1,1);label.BackgroundTransparency=1;label.TextColor3=Color3.fromRGB(255,231,158);label.TextSize=30;label.TextWrapped=true;label.Font=Enum.Font.GothamBold;label.Parent=gui
 			table.insert(boards,{part=part,label=label,title=title})
-			local prompt=Instance.new("ProximityPrompt");prompt.Name="LeaderboardPrompt";prompt.ActionText="ดูอันดับทั้งหมด";prompt.ObjectText=title;prompt.MaxActivationDistance=16;prompt.RequiresLineOfSight=false;prompt.Parent=part
+			local prompt=Instance.new("ProximityPrompt");prompt.Name="LeaderboardPrompt";prompt.ActionText="View All Leaderboards";prompt.ObjectText=title;prompt.MaxActivationDistance=16;prompt.RequiresLineOfSight=false;prompt.Parent=part
 			prompt.Triggered:Connect(function(p) if Features.IsEnabled("Leaderboard") then Net.Event("LeaderboardShow"):FireClient(p) end end)
 		end
 	end end

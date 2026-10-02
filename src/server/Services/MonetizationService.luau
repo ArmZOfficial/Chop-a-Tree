@@ -32,9 +32,9 @@ function M.SetPass(p,key,on)
 end
 -- Checked before prompting so a utility product never sells into a no-op.
 local READY={
-	instantHatch=function(p) for _,e in D.Get(p,"Pets.incubator") do if not e.done and not e.carriedBy then return true end end;return false,"ไม่มีไข่ที่กำลังฟักในตู้" end,
-	instantGrow=function(p) for _,pl in D.Get(p,"Garden.plots") do if not pl.mature then return true end end;return false,"ไม่มีต้นไม้ที่กำลังโต" end,
-	baseLock=function(p) local id=G.BaseIndex(p);if not id then return false,"ยังไม่มีฐาน" end;if Steal.Locked(id) then return false,"ฐานล็อกอยู่แล้ว" end;return true end,
+	instantHatch=function(p) for _,e in D.Get(p,"Pets.incubator") do if not e.done and not e.carriedBy then return true end end;return false,"No eggs hatching in the incubator" end,
+	instantGrow=function(p) for _,pl in D.Get(p,"Garden.plots") do if not pl.mature then return true end end;return false,"No growing trees" end,
+	baseLock=function(p) local id=G.BaseIndex(p);if not id then return false,"No base yet" end;if Steal.Locked(id) then return false,"Base already locked" end;return true end,
 }
 -- Applies one product. Must not yield: ProcessReceipt writes the receipt marker right after.
 function M.Grant(p,key)
@@ -44,7 +44,7 @@ function M.Grant(p,key)
 	elseif key=="serverLuck" then
 		local untilAt=math.max(now,game.ReplicatedStorage:GetAttribute("ServerLuckUntil") or 0)+C.ServerLuckSeconds
 		game.ReplicatedStorage:SetAttribute("ServerLuckUntil",untilAt)
-		Net.Event("Notify"):FireAllClients({text=p.DisplayName.." เปิด Luck +25% ทั้งเซิร์ฟ 15 นาที!",color="Accent"})
+		Net.Event("Notify"):FireAllClients({text=p.DisplayName.." activated +25% server Luck for 15 min!",color="Accent"})
 	elseif key=="instantHatch" then
 		local d=D.Get(p,"Pets");for _,e in d.incubator do if not e.done and not e.carriedBy then e.progress=Eggs.ById[e.id].hatch end end
 		P.Advance(p,now,true);D.Set(p,"Pets",d);P.Send(p)
@@ -66,26 +66,26 @@ function M.ProcessReceipt(info)
 		local now=os.time();local t=table.clone(D.Get(p,"Purchases.receipts"))
 		for k,at in t do if at<now-C.ReceiptKeepSeconds then t[k]=nil end end
 		t[id]=now;D.Set(p,"Purchases.receipts",t)
-		Net.Event("Notify"):FireClient(p,{text=(text or "ได้รับ "..row.name.." แล้ว").." ขอบคุณที่สนับสนุน!"})
+		Net.Event("Notify"):FireClient(p,{text=(text or "Received "..row.name.." done").." Thank you for your support!"})
 	end
 	-- Report success only once the receipt marker is in the saved copy (no double grants after a crash).
 	local saved=D.SaveAndWait(p,function(data) return data and data.Purchases and data.Purchases.receipts and data.Purchases.receipts[id]~=nil end,30)
 	return saved and Enum.ProductPurchaseDecision.PurchaseGranted or Enum.ProductPurchaseDecision.NotProcessedYet
 end
 function M.Prompt(p,key)
-	if not F.IsEnabled("Shop") then return false,"ร้านปิดอยู่" end
+	if not F.IsEnabled("Shop") then return false,"Shop disabled" end
 	local pass=C.PassByKey[key]
 	if pass then
-		if M.Owns(p,key) then return false,"มี "..pass.name.." แล้ว" end
-		MS:PromptGamePassPurchase(p,pass.id);return true,"เปิดหน้าซื้อ "..pass.name
+		if M.Owns(p,key) then return false,"Owned "..pass.name.." done" end
+		MS:PromptGamePassPurchase(p,pass.id);return true,"Open purchase for "..pass.name
 	end
 	if key=="seasonPremium" then
 		local ok,msg=Season.CanBuy(p);if not ok then return false,msg end
-		Season.MarkPending(p);MS:PromptProductPurchase(p,C.SeasonPremium.id);return true,"เปิดหน้าซื้อ "..C.SeasonPremium.name
+		Season.MarkPending(p);MS:PromptProductPurchase(p,C.SeasonPremium.id);return true,"Open purchase for "..C.SeasonPremium.name
 	end
-	local row=C.ProductByKey[key];if not row then return false,"ไม่มีสินค้านี้" end
+	local row=C.ProductByKey[key];if not row then return false,"Product not found" end
 	local check=READY[key];if check then local ok,msg=check(p);if not ok then return false,msg end end
-	MS:PromptProductPurchase(p,row.id);return true,"เปิดหน้าซื้อ "..row.name
+	MS:PromptProductPurchase(p,row.id);return true,"Open purchase for "..row.name
 end
 local function checkPasses(p)
 	M.Refresh(p)
@@ -98,18 +98,18 @@ function M.Init()
 	MS.ProcessReceipt=M.ProcessReceipt
 	MS.PromptGamePassPurchaseFinished:Connect(function(p,id,bought)
 		local pass=C.PassById[id]
-		if bought and pass and D.IsLoaded(p) then M.SetPass(p,pass.key,true);Net.Event("Notify"):FireClient(p,{text="ได้รับ Game Pass "..pass.name.." แล้ว!"}) end
+		if bought and pass and D.IsLoaded(p) then M.SetPass(p,pass.key,true);Net.Event("Notify"):FireClient(p,{text="Game Pass received "..pass.name.." done!"}) end
 	end)
 	D.PlayerLoaded:Connect(checkPasses)
 	Net.Function("ShopAction").OnServerInvoke=function(p,action,key)
-		if not D.IsLoaded(p) then return false,"กำลังโหลดข้อมูล" end
-		local now=os.clock();if now-(last[p] or -math.huge)<.5 then return false,"รอสักครู่" end;last[p]=now
+		if not D.IsLoaded(p) then return false,"Loading data" end
+		local now=os.clock();if now-(last[p] or -math.huge)<.5 then return false,"Please wait" end;last[p]=now
 		if action=="Prompt" and type(key)=="string" then return M.Prompt(p,key) end
 		if action=="Warp" then
-			if not M.Owns(p,"Teleport") then return false,"ต้องมี Game Pass วาร์ปทุกที่" end
-			Net.Event("StoryShow"):FireClient(p,{kind="warp"});return true,"เลือกปลายทางวาร์ป"
+			if not M.Owns(p,"Teleport") then return false,"Requires the Teleport Anywhere pass" end
+			Net.Event("StoryShow"):FireClient(p,{kind="warp"});return true,"Choose Warp Destination"
 		end
-		return false,"คำสั่งไม่ถูกต้อง"
+		return false,"Invalid command"
 	end
 	Players.PlayerRemoving:Connect(function(p) last[p]=nil end)
 end

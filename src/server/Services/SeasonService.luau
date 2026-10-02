@@ -35,7 +35,7 @@ function M.AddXp(p,amount,now)
 	local cap=#C.Levels*C.XpPerLevel;if d.xp>=cap then return end
 	local before=M.Level(d.xp);d.xp=math.min(cap,d.xp+amount);D.Set(p,"Season.xp",d.xp)
 	local after=M.Level(d.xp)
-	if after>before then Net.Event("Notify"):FireClient(p,{text="Season Pass เลเวล "..after.."! เปิดหน้า Season เพื่อรับรางวัล",color="Accent"}) end
+	if after>before then Net.Event("Notify"):FireClient(p,{text="Season Pass Level "..after.."! Open Season to claim rewards",color="Accent"}) end
 end
 local function claimOne(p,d,track,level,now)
 	local row=C.Levels[level];local ledger=track=="premium" and d.prem or d.free;local key=tostring(level)
@@ -43,33 +43,33 @@ local function claimOne(p,d,track,level,now)
 	ledger[key]=true;Reward.Grant(p,row[track],now,D.Get(p,"Meta.AdminTouched")==true);return row[track].label
 end
 function M.Claim(p,track,level,now)
-	if not D.IsLoaded(p) or not F.IsEnabled("SeasonPass") then return false,"Season Pass ยังไม่เปิด" end
+	if not D.IsLoaded(p) or not F.IsEnabled("SeasonPass") then return false,"Season Pass Unavailable" end
 	now=now or os.time();local d,season=M.Touch(p,now)
-	if not season then return false,"ตอนนี้ไม่มีซีซัน" end
-	if track~="free" and track~="premium" then return false,"คำสั่งไม่ถูกต้อง" end
-	if type(level)~="number" or level%1~=0 then return false,"เลเวลไม่ถูกต้อง" end
+	if not season then return false,"No active season" end
+	if track~="free" and track~="premium" then return false,"Invalid command" end
+	if type(level)~="number" or level%1~=0 then return false,"Invalid level" end
 	local label=claimOne(p,d,track,level,now)
-	if not label then return false,track=="premium" and not d.premium and "ต้องมี Season Pass Premium" or "ยังรับรางวัลนี้ไม่ได้" end
-	D.Set(p,"Season",d);return true,"ได้รับ "..label
+	if not label then return false,track=="premium" and not d.premium and "Requires Season Pass Premium" or "Reward not available yet" end
+	D.Set(p,"Season",d);return true,"Received "..label
 end
 function M.ClaimAll(p,now)
-	if not D.IsLoaded(p) or not F.IsEnabled("SeasonPass") then return false,"Season Pass ยังไม่เปิด" end
+	if not D.IsLoaded(p) or not F.IsEnabled("SeasonPass") then return false,"Season Pass Unavailable" end
 	now=now or os.time();local d,season=M.Touch(p,now)
-	if not season then return false,"ตอนนี้ไม่มีซีซัน" end
+	if not season then return false,"No active season" end
 	local n=0
 	for level=1,M.Level(d.xp) do
 		if claimOne(p,d,"free",level,now) then n+=1 end
 		if claimOne(p,d,"premium",level,now) then n+=1 end
 	end
-	if n==0 then return false,"ไม่มีรางวัลที่รับได้" end
-	D.Set(p,"Season",d);return true,"รับรางวัลแล้ว "..n.." รายการ"
+	if n==0 then return false,"No rewards available" end
+	D.Set(p,"Season",d);return true,"Reward claimed "..n.." entries"
 end
 -- Premium purchase flow. The prompt stamps the season on sale so a late receipt cannot unlock a later season.
 function M.CanBuy(p,now)
-	if not F.IsEnabled("SeasonPass") then return false,"Season Pass ยังไม่เปิด" end
+	if not F.IsEnabled("SeasonPass") then return false,"Season Pass Unavailable" end
 	local d,season=M.Touch(p,now)
-	if not season then return false,"ตอนนี้ไม่มีซีซันที่เปิดขาย" end
-	if d.premium then return false,"มี Premium ของ "..season.name.." แล้ว" end
+	if not season then return false,"No season currently on sale" end
+	if d.premium then return false,"Premium owned for "..season.name.." done" end
 	return true
 end
 function M.MarkPending(p,now) local d=M.Touch(p,now);D.Set(p,"Season.pendingFor",d.id) end
@@ -78,10 +78,10 @@ function M.GrantPremium(p,now)
 	local d,season=M.Touch(p,now);local target=d.pendingFor~="" and d.pendingFor or d.id
 	d.pendingFor=""
 	if season and target==season.id and not d.premium then
-		d.premium=true;D.Set(p,"Season",d);return "ปลดล็อก Season Pass Premium • "..season.name
+		d.premium=true;D.Set(p,"Season",d);return "Unlock Season Pass Premium • "..season.name
 	end
 	D.Set(p,"Season",d);D.AddCurrency(p,"Gems",C.PremiumFallbackGems)
-	return "ซีซันที่ซื้อจบแล้วหรือมี Premium อยู่แล้ว จึงได้ "..C.PremiumFallbackGems.." Gems แทน"
+	return "Season ended or Premium already owned. Received "..C.PremiumFallbackGems.." Gems instead"
 end
 function M.SetPremium(p,on) local d=M.Touch(p);d.premium=on==true;D.Set(p,"Season",d) end
 function M.Reset(p) D.Set(p,"Season",{id="",xp=0,premium=false,free={},prem={},pendingFor=""});M.Touch(p) end
@@ -99,13 +99,13 @@ function M.Init()
 	D.PlayerLoaded:Connect(function(p) snapshot(p);M.Touch(p) end)
 	D.Changed:Connect(onChanged)
 	Net.Function("SeasonAction").OnServerInvoke=function(p,action,track,level)
-		if not D.IsLoaded(p) then return false,"กำลังโหลดข้อมูล" end
-		local now=os.clock();if now-(last[p] or -math.huge)<.3 then return false,"รอสักครู่" end;last[p]=now
+		if not D.IsLoaded(p) then return false,"Loading data" end
+		local now=os.clock();if now-(last[p] or -math.huge)<.3 then return false,"Please wait" end;last[p]=now
 		local ok,msg
 		if action=="Sync" then ok,msg=true,""
 		elseif action=="Claim" then ok,msg=M.Claim(p,track,level)
 		elseif action=="ClaimAll" then ok,msg=M.ClaimAll(p)
-		else return false,"คำสั่งไม่ถูกต้อง" end
+		else return false,"Invalid command" end
 		return ok,msg,M.State(p)
 	end
 	Players.PlayerRemoving:Connect(function(p) seen[p]=nil;last[p]=nil end)

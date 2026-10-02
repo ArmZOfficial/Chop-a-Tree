@@ -9,28 +9,28 @@ local function home(list,text)
 	if studio or #list==0 then return end
 	task.wait(M.EndSeconds)
 	local ok,err=pcall(Teleport.TeleportAsync,Teleport,M.LobbyPlaceId,list)
-	if not ok then warn("[Arena] Return failed: "..tostring(err));for _,p in list do p:Kick("กลับหมู่บ้านไม่สำเร็จ กรุณาเข้าเกมใหม่") end end
+	if not ok then warn("[Arena] Return failed: "..tostring(err));for _,p in list do p:Kick("Return to village failed. Please rejoin") end end
 end
 if not studio and (game.PrivateServerId=="" or game.PrivateServerOwnerId~=0) then
 	-- Public or VIP server: matches only exist in lobby-reserved servers.
-	Players.PlayerAdded:Connect(function(p) task.wait(2);home({p},"เข้า Arena ผ่านพอร์ทัลในหมู่บ้าน") end)
+	Players.PlayerAdded:Connect(function(p) task.wait(2);home({p},"Enter Arena through the village portal") end)
 	return
 end
 local mode,ranked,skillHints
 local function arrive(p)
 	if not mode then local data=p:GetJoinData().TeleportData;mode=M.Mode(data) or (studio and "FFA") or "";ranked=type(data)=="table" and data.ranked==true;skillHints=type(data)=="table" and type(data.skills)=="table" and data.skills or {} end
-	M.Say(p,"รอผู้เล่น…")
+	M.Say(p,"Waiting for players...")
 end
 Players.PlayerAdded:Connect(arrive);for _,p in Players:GetPlayers() do arrive(p) end
 repeat task.wait(.5) until #Players:GetPlayers()>0
 local rules=M.Modes[mode]
-if not rules then home(Players:GetPlayers(),"โหมดนี้ยังไม่เปิด");return end
+if not rules then home(Players:GetPlayers(),"Mode unavailable");return end
 local start=os.clock()
 repeat task.wait(.5) until #Players:GetPlayers()>=rules.max or os.clock()-start>=M.WaitSeconds
 local fighters=Players:GetPlayers()
-if rules.teams and #fighters%2==1 then task.spawn(home,{table.remove(fighters)},"ทีมไม่เท่ากัน กลับหมู่บ้าน") end
-if #fighters<rules.min then home(fighters,"ผู้เล่นไม่ครบ กลับหมู่บ้าน");return end
-Players.PlayerAdded:Connect(function(p) task.defer(home,{p},"แมตช์เริ่มไปแล้ว") end)
+if rules.teams and #fighters%2==1 then task.spawn(home,{table.remove(fighters)},"Uneven teams. Returning to village") end
+if #fighters<rules.min then home(fighters,"Not enough players. Returning to village");return end
+Players.PlayerAdded:Connect(function(p) task.defer(home,{p},"Match already started") end)
 local teamOf=rules.teams and M.Split(fighters) or {}
 local alive,characters,charTeam,trees,scores,shapes={},{},{},{},{0,0},{}
 local result,egg,carrier
@@ -85,7 +85,7 @@ local function spawn(i,p)
 		if carrier==p then dropEgg(c:GetPivot().Position) end
 		if team then task.delay(M.Respawn,spawn,i,p) else out(p) end
 	end)
-	local tool=Instance.new("Tool");tool.Name="ขวาน";tool.CanBeDropped=false
+	local tool=Instance.new("Tool");tool.Name="Axe";tool.CanBeDropped=false
 	local handle=Instance.new("Part");handle.Name="Handle";handle.Size=Vector3.new(.4,3,.4);handle.Parent=tool
 	local pressed
 	tool.Activated:Connect(function() pressed=os.clock() end) -- Activated/Deactivated replicate; the server times the charge and decides the hit
@@ -101,7 +101,7 @@ action.OnServerEvent:Connect(function(p,kind,on)
 	if kind=="Block" and type(on)=="boolean" then M.SetBlock(c,on)
 	elseif kind=="Skill" then M.UseSkill(c,targetsFor(teamOf[p]),os.clock(),charTeam,shapes[p]) end
 end)
-for _,p in fighters do M.Say(p,"สู้! คลิกฟัน • กดค้างฟันหนัก • E ท่าอาวุธ • Q Dash • F บล็อก") end
+for _,p in fighters do M.Say(p,"FIGHT! Click: Chop • Hold: Heavy Attack • E: Skill • Q: Dash • F: Block") end
 -- Team result: a side with nobody left loses; otherwise the first to finish its goal wins, and at time-out the side further along wins.
 local function teamResult(final)
 	local present={0,0};for _,p in alive do present[teamOf[p]]+=1 end
@@ -121,4 +121,4 @@ repeat
 until result~=nil or os.clock()>=deadline
 result=result or false
 M.Record(game.JobId~="" and game.JobId or "studio-"..os.time(),ranked,M.Results(fighters,teamOf,result,function(p) return p.Parent==Players end))
-home(Players:GetPlayers(),type(result)=="number" and M.Teams[result].name.." ชนะ!" or result and result.DisplayName.." ชนะ!" or "เสมอ")
+home(Players:GetPlayers(),type(result)=="number" and M.Teams[result].name.." wins!" or result and result.DisplayName.." wins!" or "Draw")

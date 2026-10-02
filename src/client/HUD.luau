@@ -26,15 +26,19 @@ function HUD.Start()
 	local column = UIKit.New("Frame", {
 		Name = "Currencies",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(16, 12),
-		Size = UDim2.fromOffset(240, 160),
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 12, 1, -18),
+		Size = UDim2.fromOffset(190, 124),
 		Parent = gui,
-	}, { UIKit.List(Enum.FillDirection.Vertical, 8) })
+	}, { UIKit.List(Enum.FillDirection.Vertical, 3) })
 
 	local rows: { { id: string, label: TextLabel, shown: number } } = {}
 	for i, c in Currencies.List do
 		if c.hud then
-			local pill, label = UIKit.Pill(c.color, "0", { LayoutOrder = i, Parent = column })
+			local pill = UIKit.New("Frame", {BackgroundTransparency=1,Size=UDim2.fromOffset(190,38),LayoutOrder=i,Parent=column})
+            local coin=UIKit.New("Frame",{Position=UDim2.fromOffset(1,4),Size=UDim2.fromOffset(30,30),BackgroundColor3=c.color,Parent=pill},{UIKit.Corner(c.id=="Gems" and 7 or 15),UIKit.Stroke(3)})
+            UIKit.New("Frame",{BackgroundTransparency=1,Position=UDim2.fromOffset(5,5),Size=UDim2.fromOffset(20,20),Parent=coin},{UIKit.Corner(c.id=="Gems" and 4 or 10),UIKit.Stroke(2,Color3.fromRGB(255,242,171))})
+            local label=UIKit.Label("0",27,{Position=UDim2.fromOffset(40,0),Size=UDim2.new(1,-40,1,0),TextColor3=c.color,Parent=pill});UIKit.TextStroke(3).Parent=label
 			pill.Name = c.id
 			table.insert(rows, { id = c.id, label = label, shown = 0 })
 		end
@@ -57,6 +61,7 @@ function HUD.Start()
 	end)
 
 	Net.Event("Notify").OnClientEvent:Connect(function(msg)
+		if type(msg) == "string" then UIKit.Toast(gui, msg, UIKit.Colors.Accent); return end
 		local color = msg.kind == "warn" and UIKit.Colors.Red or UIKit.Colors.Accent
 		UIKit.Toast(gui, tostring(msg.text), color)
 	end)

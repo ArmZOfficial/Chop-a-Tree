@@ -1,8 +1,8 @@
 -- Places the zone 3–8 keeper NPCs (Config.Story keepers) beside each ZoneSpawn, opposite the warp stone.
 -- Run in Studio Edit with MCP execute_luau; safe to rerun. Run again after a MapBuilder rebuild.
 local Collection=game:GetService("CollectionService")
-local keepers={[3]={"Myco","ป้า Myco",Color3.fromRGB(110,90,200)},[4]={"Hana","Hana ผู้เฝ้าซากุระ",Color3.fromRGB(240,150,190)},[5]={"Raiko","Raiko แพนด้าสายฟ้า",Color3.fromRGB(250,220,80)},
-	[6]={"Borin","Borin นักล่าน้ำแข็ง",Color3.fromRGB(150,210,250)},[7]={"Quartz","Quartz โกเลมคริสตัล",Color3.fromRGB(170,240,230)},[8]={"Lumi","Lumi วิญญาณ Lumora",Color3.fromRGB(255,250,200)}}
+local keepers={[3]={"Myco","Aunt Myco",Color3.fromRGB(110,90,200)},[4]={"Hana","Hana, Sakura Keeper",Color3.fromRGB(240,150,190)},[5]={"Raiko","Raiko, Thunder Panda",Color3.fromRGB(250,220,80)},
+	[6]={"Borin","Borin, Ice Hunter",Color3.fromRGB(150,210,250)},[7]={"Quartz","Quartz, Crystal Golem",Color3.fromRGB(170,240,230)},[8]={"Lumi","Lumi, Spirit of Lumora",Color3.fromRGB(255,250,200)}}
 local function tagged(tag,zone) for _,x in Collection:GetTagged(tag) do if x:IsDescendantOf(workspace) and x:GetAttribute("Zone")==zone then return x end end end
 local placed=0
 for zone,k in keepers do

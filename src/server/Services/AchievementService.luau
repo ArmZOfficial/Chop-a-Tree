@@ -23,21 +23,21 @@ function Achievement.RefreshTitle(p)
 	gui.TextLabel.Text=title
 end
 function Achievement.Claim(p,id)
-	if not Data.IsLoaded(p) or not Features.IsEnabled("Achievements") then return false,"Achievements ยังไม่เปิด" end
-	local def=type(id)=="string" and Config.ById[id];if not def then return false,"ไม่พบความสำเร็จ" end
+	if not Data.IsLoaded(p) or not Features.IsEnabled("Achievements") then return false,"Achievements Unavailable" end
+	local def=type(id)=="string" and Config.ById[id];if not def then return false,"Achievement not found" end
 	local d=Data.GetData(p);local a=d.Achievements
-	if a.claimed[id] then return false,"รับรางวัลนี้แล้ว" end
-	if Math.AchievementProgress(d,def)<def.need then return false,"ยังทำไม่ครบ" end
+	if a.claimed[id] then return false,"Reward already claimed" end
+	if Math.AchievementProgress(d,def)<def.need then return false,"Incomplete" end
 	local nextState={claimed=table.clone(a.claimed),equipped=a.equipped};nextState.claimed[id]=true
 	if nextState.equipped=="" then nextState.equipped=id end
 	-- Marker, Gems and selected title belong to the same session profile; no yields.
 	Data.Set(p,"Achievements",nextState);Data.AddCurrency(p,"Gems",def.gems);Achievement.RefreshTitle(p)
-	return true,"สำเร็จ: "..def.name.." +"..def.gems.." Gems • ปลดฉายา "..def.title
+	return true,"Success: "..def.name.." +"..def.gems.." Gems • Unlock Title "..def.title
 end
 function Achievement.Equip(p,id)
-	if not Data.IsLoaded(p) or not Features.IsEnabled("Achievements") then return false,"Achievements ยังไม่เปิด" end
-	if type(id)~="string" or (id~="" and (not Config.ById[id] or not Data.Get(p,"Achievements.claimed")[id])) then return false,"ฉายานี้ยังไม่ปลด" end
-	Data.Set(p,"Achievements.equipped",id);Achievement.RefreshTitle(p);return true,id=="" and "ถอดฉายาแล้ว" or "เลือกฉายาแล้ว"
+	if not Data.IsLoaded(p) or not Features.IsEnabled("Achievements") then return false,"Achievements Unavailable" end
+	if type(id)~="string" or (id~="" and (not Config.ById[id] or not Data.Get(p,"Achievements.claimed")[id])) then return false,"Title not unlocked" end
+	Data.Set(p,"Achievements.equipped",id);Achievement.RefreshTitle(p);return true,id=="" and "Title removed" or "Title selected"
 end
 function Achievement.SetAll(p,all)
 	local claimed={};if all then for _,def in Config.Achievements do claimed[def.id]=true end end
@@ -45,9 +45,9 @@ function Achievement.SetAll(p,all)
 end
 function Achievement.Init()
 	Net.Function("AchievementAction").OnServerInvoke=function(p,action,id)
-		if not Data.IsLoaded(p) then return false,"ข้อมูลยังไม่พร้อม" end
-		local now=os.clock();if now-(last[p] or -math.huge)<.35 then return false,"รอสักครู่" end;last[p]=now
-		local ok,msg;if action=="Sync" then ok,msg=true,"พร้อมแล้ว" elseif action=="Claim" then ok,msg=Achievement.Claim(p,id) elseif action=="Equip" then ok,msg=Achievement.Equip(p,id) else return false,"คำสั่งไม่ถูกต้อง" end
+		if not Data.IsLoaded(p) then return false,"Data not ready" end
+		local now=os.clock();if now-(last[p] or -math.huge)<.35 then return false,"Please wait" end;last[p]=now
+		local ok,msg;if action=="Sync" then ok,msg=true,"Ready" elseif action=="Claim" then ok,msg=Achievement.Claim(p,id) elseif action=="Equip" then ok,msg=Achievement.Equip(p,id) else return false,"Invalid command" end
 		return ok,msg,Achievement.State(p)
 	end
 	Data.PlayerLoaded:Connect(function(p)

@@ -12,8 +12,8 @@ function Weather.Start()
 	local banner=UI.Label("",19,{Name="Banner",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,175),Size=UDim2.new(.7,0,0,36),TextXAlignment=Enum.TextXAlignment.Center,Visible=false,Parent=gui})
 	local function resize()
 		local size=workspace.CurrentCamera.ViewportSize;local small=size.X<620
-		badge.Position=UDim2.new(1,-16,0,small and 16 or 120)
-		badge.Size=UDim2.fromOffset(small and math.max(120,size.X-220) or 230,small and 84 or 60);badge.TextSize=small and 12 or 13
+		badge.Position=UDim2.new(1,-12,0,8)
+		badge.Size=UDim2.fromOffset(small and math.min(210,size.X-100) or 230,72);badge.TextSize=small and 12 or 13
 	end
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize);resize()
 	local original={Brightness=Lighting.Brightness,Ambient=Lighting.Ambient,OutdoorAmbient=Lighting.OutdoorAmbient,FogEnd=Lighting.FogEnd,FogColor=Lighting.FogColor,ClockTime=Lighting.ClockTime}
@@ -42,7 +42,7 @@ function Weather.Start()
 		emitter.Rate=id=="Storm" and 140 or 80;emitter.Speed=NumberRange.new(id=="Snow" and 7 or 40);emitter.Lifetime=NumberRange.new(id=="Snow" and 3 or .8);emitter.Size=NumberSequence.new(id=="Snow" and .2 or .1);emitter.Color=ColorSequence.new(id=="Snow" and Color3.new(1,1,1) or Color3.fromRGB(163,206,240))
 		if tint and id~="Fog" then emitter.Enabled=true;emitter.Color=ColorSequence.new(tint);emitter.Rate=45;emitter.Speed=NumberRange.new(id=="Meteor" and 55 or 8);emitter.Lifetime=NumberRange.new(3);emitter.Size=NumberSequence.new(.22);emitter.Acceleration=id=="Wind" and Vector3.new(20,-3,0) or Vector3.new(0,-8,0) else emitter.Acceleration=Vector3.new(0,-15,0) end
 		roofs:ClearAllChildren();if id=="Snow" then for _,part in workspace.Map.Village:GetDescendants() do cover(part) end end
-		banner.Text=Config.ById[id].name..(id=="Golden" and " • หีบ Level +5!" or "");banner.Visible=true
+		banner.Text=Config.ById[id].name..(id=="Golden" and " • Chests Level +5!" or "");banner.Visible=true
 		local key=id;task.delay(4,function() if current==key then banner.Visible=false end end)
 	end
 	state:GetAttributeChangedSignal("id"):Connect(apply);workspace.DescendantAdded:Connect(cover);apply()
@@ -52,10 +52,10 @@ function Weather.Start()
 		local bolt=Instance.new("Part");bolt.Name="Lightning";bolt.Size=Vector3.new(.5,35,.5);bolt.Position=pos+Vector3.new(0,17.5,0);bolt.Anchored=true;bolt.CanCollide=false;bolt.CanQuery=false;bolt.Color=Color3.fromRGB(221,230,255);bolt.Material=Enum.Material.Neon;bolt.Parent=effects;Debris:AddItem(bolt,.25)
 	end)
 	task.spawn(function() while true do
-		local id=state:GetAttribute("id");local seconds=math.max(0,(state:GetAttribute("endsAt") or os.time())-os.time());local nextId=state:GetAttribute("nextId") or "???";local nextName=Config.ById[nextId] and Config.ById[nextId].name or (nextId=="UTC" and "ตารางปกติ" or nextId)
-		local note=({Rain="Wood ×1.25 • สวนโต ×1.5",Storm="ฟ้าผ่าให้รางวัล ×3",Snow="EXP ×1.5 • ต้นไม้แข็งขึ้น",Golden="หีบ Level +5",Clear="สวนโตได้แม้ออฟไลน์"})[id]
+		local id=state:GetAttribute("id");local seconds=math.max(0,(state:GetAttribute("endsAt") or os.time())-os.time());local nextId=state:GetAttribute("nextId") or "???";local nextName=Config.ById[nextId] and Config.ById[nextId].name or (nextId=="UTC" and "Normal schedule" or nextId)
+		local note=({Rain="Wood ×1.25 • Garden growth ×1.5",Storm="Lightning rewards ×3",Snow="EXP ×1.5 • Tougher trees",Golden="Chests Level +5",Clear="Gardens grow while offline"})[id]
 		local nextIn=math.max(0,(state:GetAttribute("nextAt") or os.time())-os.time())
-		local fest=state:GetAttribute("Festival") or "";badge.Text=(fest~="" and "เทศกาล "..fest.." • " or "")..(state:GetAttribute("live") and "LIVE • " or "")..Config.ById[id].name.." • "..string.format("%d:%02d",seconds//60,seconds%60).."\n"..(note or Config.ById[id].note or "").."\nถัดไป: "..nextName.." • "..math.ceil(nextIn/60).." นาที"
+		local fest=state:GetAttribute("Festival") or "";badge.Text=(fest~="" and "Festival "..fest.." • " or "")..(state:GetAttribute("live") and "LIVE • " or "")..Config.ById[id].name.." • "..string.format("%d:%02d",seconds//60,seconds%60).."\n"..(note or Config.ById[id].note or "").."\nNext: "..nextName.." • "..math.ceil(nextIn/60).." min"
 		task.wait(1)
 	end end)
 end
