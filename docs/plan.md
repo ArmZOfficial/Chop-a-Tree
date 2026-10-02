@@ -60,8 +60,8 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | Wood windows/outlined headings/red X/blur, Inventory rarity grid, Shop art cards, Index gallery, Music/SFX implemented and desktop checked; English copy; device/all-flow proof and item/world art/VFX/balance pending; not published |
 
 Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.
-ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) 2026-11-01→12-01 และซีซัน 3 ป่าหิมะเงิน (`s3_2026_12`) 12-01→2027-01-01 UTC พร้อม; ใช้ XP/รางวัลเดิม. Rollover/late receipt/ห่วงโซ่ซีซันผ่าน scenario 34/34.
-ถัดไป: ซื้อผ่าน Roblox Player จริงแล้ว reconnect และตรวจหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 4 ก่อน **2027-01-01 UTC**.
+ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) 2026-11-01→12-01 ซีซัน 3 ป่าหิมะเงิน (`s3_2026_12`) 12-01→2027-01-01 และซีซัน 4 ป่าโคมไฟ (`s4_2027_01`) 2027-01-01→02-01 UTC พร้อม; ใช้ XP/รางวัลเดิม. Rollover/late receipt/ห่วงโซ่ซีซันผ่าน scenario 34/34.
+ถัดไป: ซื้อผ่าน Roblox Player จริงแล้ว reconnect และตรวจหลายบัญชี/อุปกรณ์; เพิ่มซีซัน 5 ก่อน **2027-02-01 UTC**.
 ผู้ใช้สั่งเริ่ม Phase 9 ระหว่างรอซื้อจริง: เริ่มจากพอร์ทัล/คิว Ranked-Casual แยกกัน, reserved server, ยกเลิก/failed-transfer recovery. PvP ยังปิดและ Arena.PlaceId=0 จนสนามอยู่ Universe เดียวกันและ match server พร้อม. รายละเอียดสถานะ/ข้อจำกัดใน [systems §Arena](systems.md#arena).
 ค้าง: ไลก์/กระดานฐานยอดนิยม. ตกแต่งฐาน/ของเทศกาล/กับดัก/สัตว์เฝ้า/NPC บท 3–8 ทำแล้ว ยังไม่ Publish.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).

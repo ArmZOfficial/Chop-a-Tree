@@ -23,6 +23,7 @@ return table.freeze({
 		{id="s1_2026_10",name="Season 1 • First Bloom",startsAt=1790812800,endsAt=1793491200}, -- 2026-10-01 → 2026-11-01 UTC
 		{id="s2_2026_11",name="Season 2 • Moonlit Forest",startsAt=1793491200,endsAt=1796083200}, -- 2026-11-01 → 2026-12-01 UTC
 		{id="s3_2026_12",name="Season 3 • Silver Snow Forest",startsAt=1796083200,endsAt=1798761600}, -- 2026-12-01 → 2027-01-01 UTC
+		{id="s4_2027_01",name="Season 4 • Lantern Grove",startsAt=1798761600,endsAt=1801440000}, -- 2027-01-01 → 2027-02-01 UTC
 	},
 	XpPerLevel=1000,
 	Levels=levels,
