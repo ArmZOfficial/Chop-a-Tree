@@ -12,6 +12,7 @@ local NumberFormat = require(Shared.NumberFormat)
 local Currencies = require(Shared.Config.Currencies)
 local Net = require(Shared.Net)
 local ClientData = require(script.Parent.ClientData)
+local Locale = require(Shared.Locale)
 
 local HUD = {}
 
@@ -87,7 +88,7 @@ function HUD.Start()
 	Net.Event("Notify").OnClientEvent:Connect(function(msg)
 		if type(msg) == "string" then UIKit.Toast(gui, msg, UIKit.Colors.Accent); return end
 		local color = msg.kind == "warn" and UIKit.Colors.Red or UIKit.Colors.Accent
-		UIKit.Toast(gui, tostring(msg.text), color)
+		UIKit.Toast(gui, Locale.T(tostring(msg.text), msg.vars), color)
 	end)
 end
 

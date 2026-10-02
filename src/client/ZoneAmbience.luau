@@ -14,6 +14,7 @@ local PRESETS={
 	[7]={name="Sparkles",color=ColorSequence.new(Color3.fromRGB(170,230,255),Color3.fromRGB(255,170,250)),rate=16,size=NumberSequence.new(.3),speed=NumberRange.new(.5,1),life=NumberRange.new(2,4),light=1,accel=Vector3.zero},
 	[8]={name="GoldMotes",color=seq(Color3.fromRGB(255,232,150)),rate=18,size=NumberSequence.new(.3),speed=NumberRange.new(.5,1.5),life=NumberRange.new(4,7),light=1,accel=Vector3.new(0,.6,0)},
 }
+local byName={};for _,preset in PRESETS do byName[preset.name]=preset end
 
 -- Same zone footprint as RunService.ZoneAt.
 Ambience.ZoneAt=Zones.At
@@ -26,12 +27,16 @@ function Ambience.Start()
 	local current
 	task.spawn(function() while true do
 		local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-		local zone=hr and Ambience.ZoneAt(hr.Position)
-		local preset=zone and PRESETS[zone]
+		local flags=game.ReplicatedStorage:FindFirstChild("FeatureFlags")
+		local zone=flags and flags:GetAttribute("MapSystems") and player:GetAttribute("Zone")
+		local def=type(zone)=="number" and Zones.List[zone]
+		local preset=def and byName[def.ambient.particles]
 		if preset~=current then
 			current=preset;emitter.Enabled=preset~=nil;emitter:Clear()
 			if preset then
 				emitter.Name=preset.name;emitter.Color=preset.color;emitter.Rate=preset.rate;emitter.Size=preset.size;emitter.Speed=preset.speed
+				local ok,quality=pcall(function() return UserSettings().GameSettings.SavedQualityLevel.Value end)
+				if game:GetService("UserInputService").TouchEnabled or ok and quality>0 and quality<=3 then emitter.Rate=math.min(15,preset.rate*.35) end
 				emitter.Lifetime=preset.life;emitter.LightEmission=preset.light or 0;emitter.Acceleration=preset.accel
 				emitter.RotSpeed=preset.rot and NumberRange.new(-90,90) or NumberRange.new(0)
 				emitter.Squash=preset.squash and NumberSequence.new(2.5) or NumberSequence.new(0)

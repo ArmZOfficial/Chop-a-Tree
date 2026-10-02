@@ -4,6 +4,8 @@ local Tween=game:GetService("TweenService")
 local Debris=game:GetService("Debris")
 local S=game.ReplicatedStorage.Shared
 local UI=require(S.UIKit);local Net=require(S.Net);local Config=require(S.Config.Weather)
+local DayCycle=require(S.Config.DayCycle)
+local Zones=require(S.Config.Zones)
 local Weather={}
 function Weather.Start()
 	local state=game.ReplicatedStorage:WaitForChild("WeatherState")
@@ -27,10 +29,20 @@ function Weather.Start()
 		end
 	end
 	local current;local transition
-	local function apply()
-		local id=state:GetAttribute("id");if id==current then return end;current=id
+	local dayState=game.ReplicatedStorage:WaitForChild("DayCycleState")
+	local function apply(force)
+		local id=state:GetAttribute("id");if id==current and not force then return end;local changed=id~=current;current=id
 		if transition then transition:Cancel() end
 		local mood=table.clone(original)
+		for _,phase in DayCycle.Phases do if phase.id==dayState:GetAttribute("phase") then
+			mood.ClockTime=phase.clock;mood.Ambient=phase.ambient;mood.OutdoorAmbient=phase.ambient;mood.Brightness=phase.brightness
+		end end
+		local zone=Zones.List[game.Players.LocalPlayer:GetAttribute("Zone")]
+		if id=="Clear" and zone and zone.ambient.lighting then
+			for key,value in zone.ambient.lighting do
+				mood[key]=typeof(value)=="Color3" and mood[key]:Lerp(value,.4) or value
+			end
+		end
 		if id=="Rain" or id=="Storm" then mood.Brightness=id=="Storm" and .8 or 1.3;mood.OutdoorAmbient=Color3.fromRGB(109,125,150);mood.FogColor=Color3.fromRGB(139,153,170);mood.FogEnd=id=="Storm" and 450 or 750
 		elseif id=="Snow" then mood.OutdoorAmbient=Color3.fromRGB(192,218,245);mood.FogColor=Color3.fromRGB(222,236,250);mood.FogEnd=750
 		elseif id=="Golden" then mood.Brightness=3;mood.OutdoorAmbient=Color3.fromRGB(232,199,115);mood.Ambient=Color3.fromRGB(185,157,90) end
@@ -42,10 +54,14 @@ function Weather.Start()
 		emitter.Rate=id=="Storm" and 140 or 80;emitter.Speed=NumberRange.new(id=="Snow" and 7 or 40);emitter.Lifetime=NumberRange.new(id=="Snow" and 3 or .8);emitter.Size=NumberSequence.new(id=="Snow" and .2 or .1);emitter.Color=ColorSequence.new(id=="Snow" and Color3.new(1,1,1) or Color3.fromRGB(163,206,240))
 		if tint and id~="Fog" then emitter.Enabled=true;emitter.Color=ColorSequence.new(tint);emitter.Rate=45;emitter.Speed=NumberRange.new(id=="Meteor" and 55 or 8);emitter.Lifetime=NumberRange.new(3);emitter.Size=NumberSequence.new(.22);emitter.Acceleration=id=="Wind" and Vector3.new(20,-3,0) or Vector3.new(0,-8,0) else emitter.Acceleration=Vector3.new(0,-15,0) end
 		roofs:ClearAllChildren();if id=="Snow" then for _,part in workspace.Map.Village:GetDescendants() do cover(part) end end
-		banner.Text=Config.ById[id].name..(id=="Golden" and " • Chests Level +5!" or "");banner.Visible=true
-		local key=id;task.delay(4,function() if current==key then banner.Visible=false end end)
+		if changed then
+			banner.Text=Config.ById[id].name..(id=="Golden" and " • Chests Level +5!" or "");banner.Visible=true
+			local key=id;task.delay(4,function() if current==key then banner.Visible=false end end)
+		end
 	end
 	state:GetAttributeChangedSignal("id"):Connect(apply);workspace.DescendantAdded:Connect(cover);apply()
+	dayState:GetAttributeChangedSignal("phase"):Connect(function() apply(true) end)
+	game.Players.LocalPlayer:GetAttributeChangedSignal("Zone"):Connect(function() apply(true) end)
 	state:GetAttributeChangedSignal("Message"):Connect(function() local message=state:GetAttribute("Message");if message and message~="" then banner.Text=message;banner.Visible=true;task.delay(5,function() banner.Visible=false end) end end)
 	Run.RenderStepped:Connect(function() local camera=workspace.CurrentCamera;if camera then emitterPart.Position=camera.CFrame.Position+Vector3.new(0,20,0) end end)
 	Net.Event("WeatherStrike").OnClientEvent:Connect(function(pos)
