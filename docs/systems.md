@@ -22,7 +22,7 @@
 - GardenService owns 7ฐาน/OwnerUserId/BaseIndex; ownership reuse ผ่าน BaseById/OwnerOf. GardenSlots runtime30.
 - Crops เก็บ seed UID/sourceZone/Rot/admin/timestamps. Offlineโตปกติ ไม่ mutation/harvestย้อนหลัง; สูตร Mutation = พิเศษสูงสุด × (1+ผลรวมอื่น), รวม parent tagsก่อนราคา.
 - GardenMath.SellQuote เป็นทางเดียว: cap UTCตาม highest mutation, Garden.sellDay/sold; OverCapMult จาก Config.Garden.
-- UI refreshใช้ปุ่มเดิมไม่สร้างซ้ำ; state packet/DataPatch มาช้ากว่า responseได้. Phase4 55 checks.
+- UI refreshใช้ปุ่มเดิมไม่สร้างซ้ำ: GardenController reuses list rows by name (text/color/callback/LayoutOrder updated, unused rows removed) since GardenState arrives every tick; Studio 2026-10-02 kept 16/16 slot rows and 9/9 shop rows across ticks while countdown text updated, tab switch removed stale rows, Slot3 click selected. state packet/DataPatch มาช้ากว่า responseได้. Phase4 55 checks.
 
 ## Pets / stealing
 

@@ -26,12 +26,22 @@ function Garden.Start()
 			task.wait(.32);busy=false
 		end)
 	end
+	-- Rows are reused by name: state packets arrive every tick, so rebuilding would drop clicks mid-press.
+	local rows,used,order={},{},0
 	local function row(name,text,color,callback)
-		return button(name,text,color,list,UDim2.new(),UDim2.new(1,-7,0,58),callback)
+		order+=1;used[name]=true
+		local r=rows[name]
+		if not r then
+			local holder=button(name,text,color,list,UDim2.new(),UDim2.new(1,-7,0,58),function() rows[name].fn() end)
+			r={holder=holder,button=holder:FindFirstChild("Button"),label=holder:FindFirstChildWhichIsA("TextLabel",true)};rows[name]=r
+		end
+		r.fn=callback;r.button.BackgroundColor3=color;r.holder.LayoutOrder=order
+		if r.label.Text~=text then r.label.Text=text end
+		return r.holder
 	end
 	render=function()
 		if not panel.Visible or not state then return end
-		for _,v in list:GetChildren() do if v:IsA("GuiObject") then v:Destroy() end end
+		table.clear(used);order=0
 		if seedUid and not state.seeds[seedUid] then seedUid=nil end
 		local seed=seedUid and state.seeds[seedUid];local chosen=seed and Seeds.ById[seed.id].name or "ยังไม่เลือก (แท็บเมล็ด)"
 		local count=0;for _,f in state.fruits do count+=f.count end;local value=Math.SellQuote(state.fruits,state.sold)
@@ -65,6 +75,7 @@ function Garden.Start()
 				row("Buy_"..id,def.name.." • "..NF.Short(Math.SeedPrice(id,state.shopZone)).." Coins • เหลือ "..state.stock[id].."\n"..def.rarity.." • รีสต็อกอีก "..math.max(0,state.restockAt-state.now).." วิ",state.stock[id]>0 and UI.Colors.Orange or UI.Colors.Disabled,function() request("Buy",id) end)
 			end
 		end
+		for name,r in rows do if not used[name] then r.holder:Destroy();rows[name]=nil end end
 	end
 	for i,name in {"Garden","Seeds","Shop","Merchant"} do local target=name
 		button("Tab"..name,({Garden="สวน",Seeds="เมล็ด",Shop="ร้าน / ขายผล",Merchant="พ่อค้าเร่"})[name],UI.Colors.Teal,panel,UDim2.new((i-1)/4,0,0,64),UDim2.new(1/4,-8,0,42),function() tab=target;cutPending=nil;render() end)
