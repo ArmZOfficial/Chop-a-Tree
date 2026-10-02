@@ -10,6 +10,7 @@ local Mutations=require(S.Config.Mutations)
 local Data=require(script.Parent.ClientData)
 local Progression=require(S.Config.Progression);local CollectionMath=require(S.CollectionMath)
 local Controller={}
+local WeaponVisual=require(S.WeaponVisual);local Rarities=require(S.Config.Rarities)
 local TABS={{"Main","Main Quests"},{"Daily","Daily"},{"Weekly","Weekly"},{"Index","Index"},{"Achievements","Achievements"},{"Warp","Warp"}}
 local CATS={{"weapons","Weapons"},{"pets","Pets"},{"seeds","Trees / Seeds"},{"mutations","Mutation"}}
 
@@ -97,6 +98,7 @@ function Controller.Start()
 	UI.Label("Quests • Index • Warp",22,{Parent=panel})
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
+	local indexCategory="weapons"
 	local tab="Main";local busy=false;local render
 	local function call(action,arg,remote)
 		if busy then return end;busy=true
@@ -134,23 +136,45 @@ function Controller.Start()
 			if quest.current then row("Current","Now: "..quest.current.text..(quest.current.need>1 and " ("..quest.current.have.."/"..quest.current.need..")" or "")..(quest.current.blocked and "\nZone available in Phase 7" or ""),UI.Colors.Orange,none) end
 		elseif tab=="Daily" then sideRows(quest.daily,"daily",quest.dailyEnds)
 		elseif tab=="Weekly" then sideRows(quest.weekly,"weekly",quest.weeklyEnds)
-		elseif tab=="Index" then
-			local idx=Data.Get("Index") or {}
-			for _,c in CATS do local cat=c[1];local n=quest.index[cat]
-				local unlocked=idx.done and idx.done[cat];local effect=Progression.Index[cat].text
-				row("Cat_"..cat,c[2].." • "..n.have.."/"..n.total..(unlocked and " • Bonus unlocked" or "").."\n"..effect..(game.ReplicatedStorage.FeatureFlags:GetAttribute("IndexBonuses")~=true and " (Bonus disabled)" or ""),unlocked and UI.Colors.Green or UI.Colors.Teal,none)
-			end
-			row("IndexRewards","New discovery: +1 Gem • Complete a category: +50 Gems • Admin items excluded\nUnlocked bonuses persist through Rebirth and new collection items",UI.Colors.Slate,none)
-			local function names(cat,listDefs,label)
-				local have,missing=0,{};for _,d in listDefs do if idx[cat] and idx[cat][d.id] then have+=1 else table.insert(missing,d.name) end end
-				row("Missing_"..cat,label.." Missing: "..(#missing==0 and "-" or table.concat(missing,", ")),UI.Colors.Slate,none)
-			end
-			names("pets",Pets.List,"Pets");names("seeds",Seeds.List,"Seeds")
-			local muts={};for id in Mutations.Values do table.insert(muts,{id=id,name=id}) end;for id in Pets.Mutations do if not Mutations.Values[id] then table.insert(muts,{id=id,name=id}) end end
-			table.sort(muts,function(a,b) return a.id<b.id end);names("mutations",muts,"Mutation")
-			local rarity={};for _,w in Weapons.List do rarity[w.rarity]=rarity[w.rarity] or {0,0};rarity[w.rarity][2]+=1;if idx.weapons and idx.weapons[w.id] then rarity[w.rarity][1]+=1 end end
-			local parts={};for _,r in {"Common","Rare","Epic","Legendary","Mythic"} do if rarity[r] then table.insert(parts,r.." "..rarity[r][1].."/"..rarity[r][2]) end end
-			row("WeaponRarity","Weapons by rarity: "..table.concat(parts," • "),UI.Colors.Slate,none)
+        elseif tab=="Index" then
+            local idx=Data.Get("Index") or {}
+            keep.CollectionSummary=true;keep.CollectionGrid=true
+            local keys={};for id in idx[indexCategory] or {} do table.insert(keys,id) end;table.sort(keys)
+            local signature=indexCategory..":"..table.concat(keys,",")
+            local currentGrid=list:FindFirstChild("CollectionGrid")
+            if not currentGrid or currentGrid:GetAttribute("Signature")~=signature then
+            local old=list:FindFirstChild("CollectionSummary");if old then old:Destroy() end
+            local summary=UI.New("Frame",{Name="CollectionSummary",Size=UDim2.new(1,-7,0,64),BackgroundTransparency=1,LayoutOrder=0,Parent=list},{UI.Grid(4,60,8)});keep.CollectionSummary=true
+            local symbols={weapons="axe",pets="egg",seeds="leaf",mutations="season"}
+            for _,c in CATS do local cat=c[1];local n=quest.index[cat]
+                local button=UI.Button({text=c[2].."\n"..n.have.." / "..n.total,textSize=16,color=indexCategory==cat and UI.Colors.Orange or UI.Colors.Rail,onClick=function() indexCategory=cat;render() end});button.Name=cat;button.Parent=summary
+            end
+            local oldGrid=list:FindFirstChild("CollectionGrid");if oldGrid then oldGrid:Destroy() end
+            local defs=indexCategory=="weapons" and Weapons.List or indexCategory=="pets" and Pets.List or indexCategory=="seeds" and Seeds.List or {}
+            if indexCategory=="mutations" then
+                for id in Mutations.Values do table.insert(defs,{id=id,name=id}) end
+                for id in Pets.Mutations do if not Mutations.Values[id] then table.insert(defs,{id=id,name=id}) end end
+                table.sort(defs,function(a,b) return a.id<b.id end)
+            end
+            local gallery=UI.New("Frame",{Name="CollectionGrid",BackgroundTransparency=1,Size=UDim2.new(1,-7,0,math.ceil(#defs/4)*140),LayoutOrder=1,Parent=list},{UI.Grid(4,130,10)});keep.CollectionGrid=true
+            gallery:SetAttribute("Signature",signature)
+            for i,def in defs do
+                local discovered=idx[indexCategory] and idx[indexCategory][def.id]
+                local color=discovered and (def.rarity and Rarities.Color[def.rarity] or UI.Colors.Green) or UI.Colors.PanelDark
+                local card=UI.New("Frame",{Name="Entry_"..def.id,BackgroundColor3=color,LayoutOrder=i,Parent=gallery},{UI.Corner(10),UI.Stroke(3)})
+                UI.Label(discovered and def.name or "Undiscovered",14,{Position=UDim2.fromOffset(3,3),Size=UDim2.new(1,-6,0,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+                if indexCategory=="weapons" then
+                    local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(4,35),Size=UDim2.new(1,-8,1,-55),Ambient=Color3.new(1,1,1),Parent=card})
+                    local world=UI.New("WorldModel",{Parent=view});local model=WeaponVisual.Build(def,{giant=false},true);model.Parent=world
+                    if not discovered then for _,v in model:GetDescendants() do if v:IsA("BasePart") then v.Color=Color3.fromRGB(15,12,10) end end end
+                    local cf,size=model:GetBoundingBox();local cam=UI.New("Camera",{FieldOfView=35,CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,4)*1.45),cf.Position),Parent=view});view.CurrentCamera=cam
+                else
+                    UI.Icon(card,symbols[indexCategory],{Position=UDim2.new(.5,-32,0,39),Size=UDim2.fromOffset(64,64),ImageColor3=discovered and Color3.new(1,1,1) or Color3.new(0,0,0)})
+                end
+                UI.Label(discovered and "Collected" or "?",13,{Position=UDim2.new(0,0,1,-24),Size=UDim2.new(1,0,0,22),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+            end
+            end
+            row("IndexRewards","Discover: +1 Gem • Complete a category: +50 Gems\nYour collection stays after Rebirth",UI.Colors.Slate,none).LayoutOrder=10000
 		elseif tab=="Achievements" then
 			local d=Data.Get();local enabled=game.ReplicatedStorage.FeatureFlags:GetAttribute("Achievements")==true
 			row("TitleNone","Remove your displayed title",UI.Colors.Slate,function() call("Equip","","AchievementAction") end)

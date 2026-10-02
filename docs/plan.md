@@ -33,7 +33,7 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 8a–f | Rebirth, Rewards, Index, Weather/Encounters, Merchant, Festivals, Emote/Photo | core ทดสอบแล้ว |
 | 8g | ร้าน Robux + Season Pass | Shop 34/34 รันซ้ำ + OpenTen คลิกจริง/Pass refresh/capacity ผ่าน; Season 34/34 + ซีซัน 2–3 พร้อม; ยังไม่ Publish |
 | 9 | PvP แยก Place | 9a lobby/คิว ทำแล้ว; 9b Duel/FFA Publish แล้ว; 9c Timber Clash/Egg Heist + 9d แรงก์รายเดือน/Arena Tokens Publish แล้ว (รอทดสอบหลายบัญชี); 9e ฟันหนัก/บล็อก/dash ใน Studio (ยังไม่ Publish); ด่าน Arena พื้นฐาน + 9f ท่าอาวุธตามธาตุ (ยังไม่ Publish); เหลือทดสอบหลายบัญชีแล้วเปิด PvP |
-| 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | UI woodland + generated menu icons + English copy implemented; desktop menu checks passed; all flows/mobile/gamepad and world art/VFX/balance pending; not published |
+| 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | Wood windows/outlined headings/red X/blur, Inventory rarity grid, Shop art cards, Index gallery, Music/SFX implemented and desktop checked; English copy; device/all-flow proof and item/world art/VFX/balance pending; not published |
 
 Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.
 ซีซัน 2 ป่าแสงจันทร์ (`s2_2026_11`) 2026-11-01→12-01 และซีซัน 3 ป่าหิมะเงิน (`s3_2026_12`) 12-01→2027-01-01 UTC พร้อม; ใช้ XP/รางวัลเดิม. Rollover/late receipt/ห่วงโซ่ซีซันผ่าน scenario 34/34.
@@ -42,7 +42,7 @@ Regression หลังร้าน 2–7/8a–f รันซ้ำครบแ�
 ค้าง: ไลก์/กระดานฐานยอดนิยม. ตกแต่งฐาน/ของเทศกาล/กับดัก/สัตว์เฝ้า/NPC บท 3–8 ทำแล้ว ยังไม่ Publish.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 
-Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 direction: readable outlined labels, large woodland icons, consistent wood/gold tiles, minimal primary menus, one modal at a time. Artwork and layout must be verified in actual Play against the user references.
+Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 direction: simulator-style brown wood windows, large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).
 
 ## 8–9. การตัดสินใจที่คงไว้
 

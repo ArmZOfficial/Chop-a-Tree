@@ -20,12 +20,15 @@ function Inventory.Start()
 	local title=UI.Label("Inventory • Chests & Weapons",22,{Name="Title",Parent=panel})
 	local message=UI.Label("Open chests and fuse at the village station",14,{Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
 	local tab="Weapons";local selected,pendingSelection,pendingFuse,pendingDelete;local busy=false
-	local body=UI.New("Frame",{Name="Body",BackgroundTransparency=1,Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-244),Parent=panel})
+	local body=UI.New("Frame",{Name="Body",BackgroundTransparency=1,Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-176),Parent=panel})
 	local function list(name)
 		return UI.New("ScrollingFrame",{Name=name,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),ScrollBarThickness=5,Parent=body},{UI.List(Enum.FillDirection.Vertical,8)})
 	end
 	local chestList=list("Chests");local weaponList=list("Weapons")
-	local details=UI.Label("Select a weapon to equip or fuse duplicates",15,{Name="Details",Position=UDim2.new(0,0,1,-122),Size=UDim2.new(1,0,0,65),Parent=panel})
+    weaponList:FindFirstChildOfClass("UIListLayout"):Destroy();UI.Grid(4,142,10).Parent=weaponList
+    local selection=UI.New("Frame",{Name="Selection",BackgroundColor3=UI.Colors.PanelDark,Size=UDim2.new(.24,-10,1,0),Parent=body},{UI.Corner(12),UI.Stroke(3,UI.Colors.Rail)})
+    local selectionView=UI.New("ViewportFrame",{Name="Preview",BackgroundTransparency=1,Position=UDim2.fromOffset(8,8),Size=UDim2.new(1,-16,0,148),Ambient=Color3.new(1,1,1),Parent=selection})
+	local details=UI.Label("Select a weapon to equip or fuse duplicates",15,{Name="Details",Position=UDim2.fromOffset(8,164),Size=UDim2.new(1,-16,1,-170),Parent=selection})
 	local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.new(0,0,1,-49),Size=UDim2.new(1,0,0,49),Parent=panel})
 	local result=UI.New("Frame",{Name="Result",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(380,365),BackgroundColor3=UI.Colors.PanelDark,Visible=false,ZIndex=20,Parent=gui},{UI.Corner(20),UI.Stroke(4),UI.Padding(18)})
 	local resultLabel=UI.Label("Opening chest...",20,{Name="Reward",Position=UDim2.fromOffset(0,190),Size=UDim2.new(1,0,0,90),TextXAlignment=Enum.TextXAlignment.Center,ZIndex=21,Parent=result})
@@ -35,7 +38,7 @@ function Inventory.Start()
 		local world=Instance.new("WorldModel");world.Parent=view
 		local model=Visual.Build(def,item,true);model.Parent=world
 		local cf,size=model:GetBoundingBox()
-		local camera=Instance.new("Camera");camera.FieldOfView=35;camera.CFrame=CFrame.lookAt(cf.Position+Vector3.new(0,size.Y*.15,math.max(size.Magnitude,4)*1.9),cf.Position);camera.Parent=view;view.CurrentCamera=camera
+		local camera=Instance.new("Camera");camera.FieldOfView=35;camera.CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,4)*1.45),cf.Position);camera.Parent=view;view.CurrentCamera=camera
 	end
 	local render,resize
 	local function request(action,arg)
@@ -60,7 +63,7 @@ function Inventory.Start()
 		end
 		preview(resultView,def,reward.item)
 		resultLabel.Text=(reward.item.giant and "GIANT!\n" or "")..def.name.."\n"..def.rarity.." • IL "..reward.item.il.." • Power "..NF.Short(Loot.Power(reward.item))
-		resultLabel.TextColor3=Rarities.Color[def.rarity]:Lerp(UI.Colors.Outline,.35)
+		resultLabel.TextColor3=Rarities.Color[def.rarity]:Lerp(Color3.new(1,1,1),.25)
 		if reward.item.giant then
 			local hum=player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 			if hum then local original=hum.CameraOffset;for _=1,8 do hum.CameraOffset=original+Vector3.new(math.random()-.5,math.random()-.5,0);task.wait(.04) end;hum.CameraOffset=original end
@@ -112,10 +115,10 @@ function Inventory.Start()
 		for i,uid in ids do
 			local item=inv[uid];local def=Weapons.ById[item.id]
 			if def then
-				local row=UI.New("TextButton",{Name="Item_"..uid,Size=UDim2.new(1,-8,0,90),BackgroundColor3=selected==uid and UI.Colors.Blue or UI.Colors.PanelDark,Text="",AutoButtonColor=true,LayoutOrder=i,Parent=weaponList},{UI.Corner(10)})
-				local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(4,4),Size=UDim2.fromOffset(64,80),Ambient=Color3.new(1,1,1),Parent=row});preview(view,def,item)
-				UI.Label((equipped==uid and "✓ " or "")..(item.giant and "GIANT " or "")..def.name,14,{Position=UDim2.fromOffset(74,4),Size=UDim2.new(1,-80,0,38),Parent=row})
-				UI.Label(def.rarity.." • IL "..item.il.." • ★"..item.stars.."\nPower "..NF.Short(Loot.Power(item)),13,{Position=UDim2.fromOffset(74,42),Size=UDim2.new(1,-80,0,43),TextColor3=Rarities.Color[def.rarity]:Lerp(UI.Colors.Outline,.65),Parent=row})
+				local row=UI.New("TextButton",{Name="Item_"..uid,Size=UDim2.fromOffset(130,142),BackgroundColor3=Rarities.Color[def.rarity]:Lerp(Color3.new(0,0,0),.3),Text="",AutoButtonColor=true,LayoutOrder=i,Parent=weaponList},{UI.Corner(10),UI.Stroke(selected==uid and 4 or 2,selected==uid and UI.Colors.Orange or UI.Colors.Outline)})
+				local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(4,35),Size=UDim2.new(1,-8,0,70),Ambient=Color3.new(1,1,1),Parent=row});preview(view,def,item)
+				UI.Label((equipped==uid and "✓ " or "")..(item.giant and "GIANT " or "")..def.name,14,{Position=UDim2.fromOffset(3,2),Size=UDim2.new(1,-6,0,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=row})
+				UI.Label(def.rarity.." • IL "..item.il.." • ★"..item.stars.."\nPower "..NF.Short(Loot.Power(item)),13,{Position=UDim2.fromOffset(3,103),Size=UDim2.new(1,-6,0,35),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=Color3.new(1,1,1),Parent=row})
 				row.Activated:Connect(function() selected=uid;pendingSelection=nil;pendingFuse=nil;pendingDelete=nil;render() end)
 			end
 		end
@@ -146,17 +149,18 @@ function Inventory.Start()
 			end
 		end
 		if #chests==0 then UI.Label("No chests yet. Clear trees around a chest spot, then End Run",16,{Size=UDim2.new(1,-10,0,80),Parent=chestList}) end
+		if not selected then selected=equipped or ids[1] end
 		local item=inv[selected];local def=item and Weapons.ById[item.id]
-		if def then details.Text=def.name.." • Power "..NF.Short(Loot.Power(item)).." • Speed "..def.speed.." • Area "..def.area*(item.giant and 2 or 1).."\n"..(item.stars<5 and ("Fuse ★"..(item.stars+1)..": Requires 3 matching items + Wood "..NF.Short(Loot.FuseCost(item))) or "Max ★5 reached")
+        if def then preview(selectionView,def,item) end
+		if def then details.Text=def.name.."\nPower "..NF.Short(Loot.Power(item)).."\nSpeed "..def.speed.."\nArea "..def.area*(item.giant and 2 or 1).."\n"..(item.stars<5 and ("Fuse ★"..(item.stars+1)..": Requires 3 matching items + Wood "..NF.Short(Loot.FuseCost(item))) or "Max ★5 reached")
 		else details.Text="Select a weapon to equip or fuse duplicates • Open chests at the village station" end
 	end
 	resize=function()
 		local size=workspace.CurrentCamera.ViewportSize
 		panel.Size=UDim2.fromOffset(math.min(820,size.X-28),math.min(570,size.Y-60))
-		local wide=size.X>=760
-		weaponList.Visible=wide or tab=="Weapons";chestList.Visible=wide or tab=="Chests"
-		chestList.Position=UDim2.fromScale(0,0);chestList.Size=UDim2.fromScale(wide and .43 or 1,1)
-		weaponList.Position=UDim2.fromScale(wide and .45 or 0,0);weaponList.Size=UDim2.fromScale(wide and .55 or 1,1)
+		weaponList.Visible=tab=="Weapons";chestList.Visible=tab=="Chests";selection.Visible=tab=="Weapons"
+		chestList.Position=UDim2.fromScale(0,0);chestList.Size=UDim2.fromScale(1,1)
+		weaponList.Position=UDim2.fromScale(.25,0);weaponList.Size=UDim2.fromScale(.75,1)
 		local s=result:FindFirstChildOfClass("UIScale") or Instance.new("UIScale");s.Scale=math.min(1,(size.X-20)/380,(size.Y-30)/365);s.Parent=result
 	end
 	local function show()

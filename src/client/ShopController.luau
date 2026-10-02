@@ -12,14 +12,14 @@ function Shop.Start()
 	local flags=game.ReplicatedStorage.FeatureFlags
 	local gui=UI.New("ScreenGui",{Name="ShopHUD",ResetOnSpawn=false,DisplayOrder=12,Parent=player:WaitForChild("PlayerGui")})
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(700,520),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(16),UI.Stroke(4),UI.Padding(14)})
-	UI.Label("Robux Shop • Free players can reach the same goals",20,{Parent=panel})
+	UI.Label("Shop",30,{Parent=panel})
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,30),Size=UDim2.new(1,0,0,24),TextColor3=UI.Colors.Accent,Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,6)})
-	local tab,prices,render="Passes",{},nil
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Grid(2,186,12)})
+	local tab,prices,icons,render="Passes",{},{},nil
 	local function price(id,kind)
 		if prices[id]==nil then prices[id]=false
 			task.spawn(function()
-				local ok,info=pcall(MS.GetProductInfo,MS,id,kind);prices[id]=ok and info.PriceInRobux or false;render()
+				local ok,info=pcall(MS.GetProductInfo,MS,id,kind);prices[id]=ok and info.PriceInRobux or false;icons[id]=ok and info.IconImageAssetId or nil;render()
 			end)
 		end
 		return prices[id] and ("R$ "..prices[id]) or "R$ …"
@@ -30,15 +30,25 @@ function Shop.Start()
 			message.Text=ok and (msg or "") or "Could not reach the server";message.TextColor3=ok and success and UI.Colors.Accent or UI.Colors.Red
 		end)
 	end
-	local function row(name,text,color,callback)
-		local b=UI.Button({text=text,color=color,size=UDim2.new(1,-8,0,58),onClick=callback});b.Name=name;b.Parent=list
-	end
+    local function row(name,text,color,callback)
+        local parts=string.split(text,"\n");local heading=parts[1];local description=parts[2] or "";local key=name:gsub("^Pass_",""):gsub("^Product_","")
+        local symbols={VIP="trophy",Wood2x="leaf",Coins2x="gift",Lucky="season",PetSlots="egg",HatchSpeed="egg",GardenPlots="leaf",AutoSell="shop",Teleport="arena",OpenTen="gift"}
+        local symbol=symbols[key] or (key:find("gems") and "season") or (key:find("Hatch") and "egg") or (key:find("Grow") and "leaf") or "gift"
+        local card=UI.New("Frame",{Name=name,BackgroundColor3=UI.Colors.Card,Parent=list},{UI.Corner(12),UI.Stroke(3,UI.Colors.Outline),UI.Padding(10)})
+        UI.New("UIGradient",{Rotation=90,Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(188,161,135)),Parent=card})
+        local art=UI.Icon(card,symbol,{Position=UDim2.fromOffset(6,27),Size=UDim2.fromOffset(82,82)})
+        local product=C.PassByKey[key] or C.ProductByKey[key];local imageId=product and icons[product.id]
+        if art and imageId and imageId>0 then art.Image="rbxassetid://"..imageId;art.ImageRectOffset=Vector2.zero;art.ImageRectSize=Vector2.zero end
+        UI.Label((C.PassByKey[key] or C.ProductByKey[key] or {}).name or heading,21,{Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,30),Parent=card})
+        UI.Label(description~="" and description or "Repeatable purchase",14,{Position=UDim2.fromOffset(98,38),Size=UDim2.new(1,-102,0,66),Parent=card})
+        local purchase=UI.Button({text=heading:match("R%$.*$") or (heading:find("Owned") and "Owned") or (heading:find("Warp") and "Open Warp") or "View",textSize=24,color=color==UI.Colors.Slate and color or UI.Colors.Green,size=UDim2.new(1,0,0,46),onClick=callback});purchase.Name="Purchase";purchase.Position=UDim2.new(0,0,1,-48);purchase.Parent=card
+    end
 	render=function()
 		if not panel.Visible then return end
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") then v:Destroy() end end
 		local owned=Data.Get("Purchases.passes") or {}
 		if tab=="Passes" then
-			for _,pass in C.Passes do local key=pass.key
+			for _,pass in C.Passes do local key=pass.key;price(pass.id,Enum.InfoType.GamePass)
 				if owned[key] and key=="Teleport" then row("Pass_"..key,pass.name.." ✓ • Click to open Warp\n"..pass.desc,UI.Colors.Green,function() request("Warp") end)
 				elseif owned[key] then row("Pass_"..key,pass.name.." ✓ Owned\n"..pass.desc,UI.Colors.Slate,function() end)
 				else row("Pass_"..key,pass.name.." • "..price(pass.id,Enum.InfoType.GamePass).."\n"..pass.desc,UI.Colors.Purple,function() request("Prompt",key) end) end

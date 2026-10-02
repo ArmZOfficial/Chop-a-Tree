@@ -24,6 +24,7 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - Auto Cut ฟรี; permanent bonus ชนิดเดียวกันใช้ค่าสูงสุด/เพดานร่วมกับทางฟรี. ใช้ seam Run.Award/Pet.Mult/Balance; รายละเอียด cap อ่าน validation ของระบบ.
 
 - Player-facing text must be English (ArmZ 2026-10-02): menus, NPC dialogue, map signs, prompts, notifications, Admin and Arena. Keep legacy `.thai` metadata and Thai element keys for compatibility; display `.name`. Do not translate player names or stable IDs. Phase 10 artwork: `assets/ui/woodland-icons-v2.png`, imported image `121083844656821`; use per-icon bounds in Config/UIIcons (uploaded 1024 texture), never source-size grid guesses. Check actual Play screenshots, contrast/cropping/overlap and clicks before claiming visual completion.
+- System UI uses shared UIKit.Window (wood/rim/heading/red X), live labels and modal blur; preserve server intents. Shop art/prices use GetProductInfo with atlas fallback; Index rebuilds on collection changes. Sound mute must restore original Volume, including new sounds; local Sound fixtures only. UI proof/remaining art in `docs/systems.md#phase-10-ui`.
 
 ## Creator Store / ภาพ
 

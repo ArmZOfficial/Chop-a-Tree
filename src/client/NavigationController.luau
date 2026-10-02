@@ -3,6 +3,7 @@ local Players=game:GetService("Players")
 local S=game.ReplicatedStorage.Shared;local UI=require(S.UIKit)
 local Atlas=require(S.Config.UIIcons)
 local Navigation={}
+local Lighting=game:GetService("Lighting")
 local specs={
 	{"InventoryHUD","Toggle","Inventory","bag",true,820,570},
 	{"PetHUD","Toggle","Pets","egg",true,780,570},
@@ -31,9 +32,10 @@ function Navigation.Start()
 	UI.Label("Choose a Menu",24,{Parent=drawer})
 	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,45),Size=UDim2.new(1,0,1,-45),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12)})
 	local records,panels={},{};local compact=false;local layout
+    local blur=UI.New("BlurEffect",{Name="MenuBlur",Size=0,Parent=Lighting})
+    UI.Window(drawer,"Choose a Menu","book")
 	local more=UI.Button({text="More",color=UI.Colors.Orange,size=UDim2.fromOffset(94,100),onClick=function() drawer.Visible=not drawer.Visible end});more.Name="More";more.LayoutOrder=99;more.Parent=rail
 	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(64,68),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
-	local close=UI.Button({text="×",color=UI.Colors.Red,size=UDim2.fromOffset(36,34),onClick=function() drawer.Visible=false end});close.Position=UDim2.new(1,-36,0,0);close.Parent=drawer
 	local function dress(holder,label,id)
 		local b=holder:FindFirstChild("Button");if not b then return end
 		b.BackgroundColor3=Color3.fromRGB(164,98,49)
@@ -50,6 +52,9 @@ function Navigation.Start()
 		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24)/w,(v.Y-68)/h)
 	end
 	local function bindPanel(panel,owner,w,h)
+        local titles={InventoryHUD={"Inventory","bag"},PetHUD={"Pets","egg"},GardenHUD={"Garden","leaf"},ShopHUD={"Shop","shop"},RewardsHUD={"Rewards","gift"},StoryHUD={"Quests & Index","book"},SeasonHUD={"Season Pass","season"},RebirthHUD={"Rebirth","cycle"},ArenaHUD={"Chop Arena","arena"},NavigationHUD={"Settings","gear"}}
+        local title=titles[owner.Name]
+        if panel.Name=="Panel" or panel.Name=="Settings" then UI.Window(panel,title and title[1],title and title[2]) else UI.Window(panel) end
 		local shade=panel.Name=="Panel" and owner:FindFirstChild("Shade")
 		if not shade then shade=UI.New("TextButton",{Name="NavigationShade_"..panel.Name,Text="",AutoButtonColor=false,Size=UDim2.fromScale(1,1),BackgroundColor3=UI.Colors.Outline,BackgroundTransparency=.45,Visible=false,Parent=owner});shade.ZIndex=0;shade.Activated:Connect(function() panel.Visible=false end) end
 		table.insert(panels,{panel=panel,owner=owner,w=w,h=h,shade=shade});panel:SetAttribute("NavigationPanel",true)
@@ -75,12 +80,30 @@ function Navigation.Start()
 		local owner=pg:FindFirstChild(spec[1]);local panel=owner and owner:FindFirstChild(spec[2]);if panel then bindPanel(panel,owner,spec[3],spec[4]) end
 	end
 	local settings=UI.New("Frame",{Name="Settings",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(450,280),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(18)})
-	UI.Label("Settings",24,{Parent=settings});UI.Label("Click a tree or press E to chop\nG: Emotes • P: Photo\nEnd Run to bring your loot home",18,{Position=UDim2.fromOffset(0,50),Size=UDim2.new(1,0,0,100),Parent=settings})
-	local muted=false;local volumes=setmetatable({},{__mode="k"})
-	local function sound(s) if s:IsA("Sound") then if muted then volumes[s]=volumes[s] or s.Volume;s.Volume=0 elseif volumes[s] then s.Volume=volumes[s];volumes[s]=nil end end end
-	local mute=UI.Button({text="Sound: On",color=UI.Colors.Teal,onClick=function() muted=not muted;for _,s in game:GetDescendants() do sound(s) end;local t=settings.Mute:FindFirstChildWhichIsA("TextLabel",true);t.Text=muted and "Sound: Off" or "Sound: On" end});mute.Name="Mute";mute.Position=UDim2.fromOffset(0,166);mute.Parent=settings
-	game.DescendantAdded:Connect(function(s) if muted then task.defer(sound,s) end end)
-	local done=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.fromOffset(80,36),onClick=function() settings.Visible=false end});done.Position=UDim2.new(1,-80,0,0);done.Parent=settings
+	UI.Label("Settings",24,{Parent=settings})
+    UI.Label("E: Chop  •  G: Emotes  •  P: Photo",15,{Position=UDim2.fromOffset(12,198),Size=UDim2.new(1,-24,0,34),Parent=settings})
+    local muteState={Music=false,SFX=false};local volumes={}
+    local function category(s)
+        local group=s.SoundGroup;local name=string.lower(s.Name)
+        return (s:GetAttribute("SoundCategory")=="Music" or (group and group.Name=="Music") or name:find("music") or name:find("ambience")) and "Music" or "SFX"
+    end
+    local function sound(s)
+        if not s:IsA("Sound") then return end
+        if muteState[category(s)] then
+            if volumes[s]==nil then volumes[s]=s.Volume;s.Destroying:Once(function() volumes[s]=nil end) end
+            s.Volume=0
+        elseif volumes[s]~=nil then s.Volume=volumes[s];volumes[s]=nil end
+    end
+    for i,key in {"Music","SFX"} do
+        local row=UI.New("Frame",{Name=key,Position=UDim2.fromOffset(0,50+(i-1)*66),Size=UDim2.new(1,0,0,58),BackgroundColor3=UI.Colors.PanelDark,Parent=settings},{UI.Corner(12),UI.Stroke(2,UI.Colors.Rail)})
+        UI.Label(key,26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-120,1,-16),Parent=row})
+        local toggle
+        toggle=UI.Button({text="ON",textSize=24,color=UI.Colors.Green,size=UDim2.fromOffset(88,46),onClick=function()
+            muteState[key]=not muteState[key];for _,s in game:GetDescendants() do sound(s) end
+            toggle.Button:FindFirstChildWhichIsA("TextLabel",true).Text=muteState[key] and "OFF" or "ON";UI.SetButtonColor(toggle,muteState[key] and UI.Colors.Red or UI.Colors.Green)
+        end});toggle.Name="Toggle";toggle.Position=UDim2.new(1,-98,0,6);toggle.Parent=row
+    end
+    game.DescendantAdded:Connect(function(s) task.defer(sound,s) end)
 	local settingButton=UI.Button({text="Settings",color=UI.Colors.Blue,onClick=function() settings.Visible=true end});settingButton.Name="SettingsMenu";settingButton.LayoutOrder=98;dress(settingButton,"Settings","gear");table.insert(records,{holder=settingButton,owner=gui,primary=false})
 	bindPanel(settings,gui,450,280)
 	layout=function()
@@ -89,6 +112,7 @@ function Navigation.Start()
 		rail.Visible=not compact and not modal;mobile.Visible=compact and not modal;drawer.Visible=drawer.Visible and not modal
 		fit(drawer,490,400)
         local obscured=modal or drawer.Visible
+        blur.Size=obscured and 18 or 0
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
 		if currencies then currencies.AnchorPoint=Vector2.new(0,compact and 0 or 1);currencies.Position=compact and UDim2.fromOffset(10,145) or UDim2.new(0,12,1,-18) end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end

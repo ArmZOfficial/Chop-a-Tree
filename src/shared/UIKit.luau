@@ -8,16 +8,16 @@ local UIKit = {}
 
 UIKit.Colors = table.freeze({
 	Outline = Color3.fromRGB(49, 30, 20),
-	Panel = Color3.fromRGB(255, 242, 208),
-	PanelDark = Color3.fromRGB(219, 187, 134),
+	Panel = Color3.fromRGB(116, 59, 37),
+	PanelDark = Color3.fromRGB(78, 37, 24),
 	Rail = Color3.fromRGB(120, 78, 45),
-	Card = Color3.fromRGB(249, 220, 163),
-	Input = Color3.fromRGB(255, 251, 235),
-	Text = Color3.fromRGB(62, 38, 23),
-	TextDim = Color3.fromRGB(126, 92, 62),
+	Card = Color3.fromRGB(145, 77, 49),
+	Input = Color3.fromRGB(73, 35, 25),
+	Text = Color3.fromRGB(255, 248, 228),
+	TextDim = Color3.fromRGB(239, 208, 176),
 	TextDark = Color3.fromRGB(26, 26, 26),
-	Accent = Color3.fromRGB(57, 121, 45),
-	AccentText = Color3.fromRGB(57, 121, 45),
+	Accent = Color3.fromRGB(153, 235, 58),
+	AccentText = Color3.fromRGB(153, 235, 58),
 	Green = Color3.fromRGB(105, 198, 52),
 	Blue = Color3.fromRGB(81, 165, 235),
 	Red = Color3.fromRGB(239, 108, 82),
@@ -92,7 +92,7 @@ end
 function UIKit.Grid(columns: number, cellHeight: number, gap: number): UIGridLayout
 	return New("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(gap, gap),
-		CellSize = UDim2.new(1 / columns, -gap * (columns - 1) / columns, 0, cellHeight),
+		CellSize = UDim2.new(1 / columns, -gap * (columns - 1) / columns - 2, 0, cellHeight),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	})
 end
@@ -115,6 +115,7 @@ function UIKit.Label(text: string, size: number, props: Props?): TextLabel
 		end
 	end
 	local label = New("TextLabel", p)
+	UIKit.TextStroke(1.5).Parent=label
 	return label
 end
 
@@ -160,7 +161,7 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 		Parent = holder,
 	}, { UIKit.Corner(radius), UIKit.Stroke(o.stroke or 3) })
 	New("UIGradient", {Rotation=90,Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),ColorSequenceKeypoint.new(1,Color3.fromRGB(194,178,153))}),Parent=button})
-	local textColor = o.textColor or C.Text
+	local textColor = o.textColor or Color3.new(1,1,1)
 	if o.sub then
 		New("Frame", {
 			BackgroundTransparency = 1,
@@ -299,6 +300,32 @@ function UIKit.Toast(parent: Instance, text: string, color: Color3?)
 			toast:Destroy()
 		end
 	end)
+end
+
+-- Common woodland window and existing atlas artwork, shared by every system.
+function UIKit.Icon(parent: Instance, id: string, props: Props?): ImageLabel?
+ local atlas=require(game.ReplicatedStorage.Shared.Config.UIIcons)
+ local r=atlas.Rects[id];if not r then return nil end
+ local p: Props={Name="Art",BackgroundTransparency=1,Size=UDim2.fromOffset(64,64),ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..atlas.AssetId,ImageRectOffset=Vector2.new(r[1],r[2]),ImageRectSize=Vector2.new(r[3],r[4]),Parent=parent}
+ if props then for k,v in props do p[k]=v end end
+ return New("ImageLabel",p)
+end
+function UIKit.Window(panel: GuiObject, title: string?, symbol: string?)
+ if panel:FindFirstChild("WindowRim") then return end
+ panel.BackgroundColor3=C.Panel
+ for _,child in panel:GetChildren() do if child:IsA("GuiObject") then child.ZIndex=math.max(2,child.ZIndex) end end
+ New("Frame",{Name="WindowRim",BackgroundTransparency=1,Position=UDim2.fromOffset(5,5),Size=UDim2.new(1,-10,1,-10),ZIndex=1,Parent=panel},{UIKit.Corner(13),UIKit.Stroke(6,Color3.fromRGB(183,108,71))})
+ for i=1,7 do
+  New("Frame",{Name="Grain",BorderSizePixel=0,BackgroundColor3=Color3.fromRGB(222,151,105),BackgroundTransparency=.92,Position=UDim2.new(0,3,i/8,0),Size=UDim2.new(1,-6,0,2),Rotation=i%2==0 and 3 or -2,ZIndex=1,Parent=panel})
+ end
+ if not title then return end
+ local original=panel:FindFirstChild("Title") or panel:FindFirstChildWhichIsA("TextLabel")
+ if original then original.Visible=false end
+ local heading=UIKit.Label(title,30,{Name="WindowHeading",Position=UDim2.fromOffset(58,-19),Size=UDim2.new(1,-125,0,44),TextColor3=Color3.fromRGB(255,217,111),ZIndex=5,Parent=panel});UIKit.TextStroke(3).Parent=heading
+ if original then original:GetPropertyChangedSignal("Text"):Connect(function() heading.Text=original.Text end) end
+ UIKit.Icon(panel,symbol or "book",{Position=UDim2.fromOffset(-5,-29),Size=UDim2.fromOffset(60,60),ZIndex=5})
+ local close=UIKit.Button({text="×",textSize=38,color=C.Red,radius=10,stroke=4,size=UDim2.fromOffset(54,54),onClick=function() panel.Visible=false end});close.Name="WindowClose";close.Position=UDim2.new(1,-42,0,-27);close.ZIndex=6;close.Parent=panel
+ for _,v in close:GetDescendants() do if v:IsA("GuiObject") then v.ZIndex=6 end end
 end
 
 return UIKit
