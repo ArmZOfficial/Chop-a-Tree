@@ -26,6 +26,9 @@ local active=false
 -- Art from assets/ui/elements-v3/chests (neutral silver, tinted per rarity).
 local FRAME="rbxassetid://115975654245049" -- card-frame-1024.png, 9-sliced
 local RIBBON="rbxassetid://139487178872339" -- ribbon-1024.png (1024x284)
+-- One SFX per phase, Roblox-licensed Pro Sound Effects library only (names in docs/systems.md).
+-- Sounds live in the opening gui, so they stop with it; Settings SFX mute picks them up by itself.
+local SFX={Intro=9126047023,Charge=9116393976,Burst=9120873624,Reveal=9116394545}
 
 local function reduced()
 	local ok,on=pcall(function() return GuiService.ReducedMotionEnabled end)
@@ -101,6 +104,10 @@ function Opening.Play(results,opts)
 	stamp:FindFirstChildOfClass("UIStroke").Thickness=6
 	local stampScale=UI.New("UIScale",{Parent=stamp})
 	local catcher=UI.New("TextButton",{Name="SkipCatcher",Text="",AutoButtonColor=false,Selectable=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),Parent=gui})
+	local volume=.3+.1*Timeline.Rank(bestRarity) -- louder for rarer results
+	local function sfx(phase)
+		local s=Instance.new("Sound");s.Name="sfx"..phase;s.SoundId="rbxassetid://"..SFX[phase];s.Volume=volume;s.Parent=gui;s:Play()
+	end
 	local skip=UI.Button({text=multi and "Skip All" or "Skip",textSize=24,color=UI.Colors.Blue,size=UDim2.fromOffset(150,56)})
 	skip.Name="Skip";skip.AnchorPoint=Vector2.new(1,1);skip.Position=UDim2.new(1,-24,1,-24);skip.Parent=gui
 
@@ -138,6 +145,8 @@ function Opening.Play(results,opts)
 		for _,c in cubes do c.part:Destroy() end;table.clear(cubes)
 		if beam then beam.Transparency=.6 end;if ring then ring:Destroy();ring=nil end
 		flash.BackgroundTransparency=1
+		for _,s in gui:GetChildren() do if s:IsA("Sound") and s.Name~="sfxReveal" then s:Stop() end end
+		if not gui:FindFirstChild("sfxReveal") then sfx("Reveal") end -- Fast / Off / skipped: chime only
 		local equippedUid=Data.Get("Inventory.Equipped");local inv=Data.Get("Inventory.Weapons") or {}
 		local current=equippedUid and inv[equippedUid]
 		local card=UI.New("Frame",{Name=multi and "ResultGrid" or "ResultCard",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=multi and UDim2.fromOffset(720,400) or UDim2.fromOffset(440,400),BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(20),UI.Padding(16)})
@@ -192,13 +201,14 @@ function Opening.Play(results,opts)
 
 	local burstDone,revealShown=false,false
 	local nCubes=({6,10,14,18,24})[Timeline.Rank(bestRarity)];if few then nCubes=math.ceil(nCubes/2) end
-	local spin=0
+	local spin,lastPhase=0,nil
 	local conn;conn=RunService.Heartbeat:Connect(function(dt)
 		if closed then conn:Disconnect();return end
 		t+=dt;spin+=dt
 		for i,bar in rays do bar.Rotation=(i-1)*22.5+spin*(calm and 4 or 14) end
 		if finished then return end
 		local phase,p=Timeline.At(plan,t)
+		if phase~=lastPhase then lastPhase=phase;if plan.mode=="Full" and SFX[phase] then sfx(phase) end end
 		if phase=="Intro" then
 			chest:PivotTo(home*CFrame.new(0,(1-back(p))*8,0)*CFrame.Angles(0,(1-ease(p))*1.2,0))
 		elseif phase=="Charge" then

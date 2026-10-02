@@ -35,7 +35,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 - UI audit (2026-10-02/03): desktop/tablet/phone/gamepad ผ่านเรื่องข้อความล้น/หลุดจอ; มือถือมีเลย์เอาต์แยก (`PhoneLayouts`) ปุ่ม ≥44px ทุกหน้าต่างที่ 666×374; ค้างตรวจเครื่องจริง ([UX-audit](../assets/ui/UX-audit.md)).
 - สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
-- Chest opening (ทำแล้ว 2026-10-03): แอนิเมชันเปิดหีบเป็น cosmetic ข้ามได้ ยาวตาม rarity ของอาวุธที่ได้; ตั้งค่า Full/Fast/Off; server สุ่มและเซฟก่อน. ค้างตรวจเปิดจริง/มือถือ/เสียง ([HANDOFF](HANDOFF.md)).
+- Chest opening (ทำแล้ว 2026-10-03): แอนิเมชันเปิดหีบเป็น cosmetic ข้ามได้ ยาวตาม rarity ของอาวุธที่ได้; ตั้งค่า Full/Fast/Off; server สุ่มและเซฟก่อน. มีเสียงละเฟส (คลัง Pro Sound Effects) และตรวจ Open 10 จริงแล้ว; ค้างตรวจมือถือ/จอยเครื่องจริง ([HANDOFF](HANDOFF.md)).
 - Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).
 
 - Run จบโดยผู้เล่น End Run ไม่มีเวลาจำกัด; รางวัล/ของถือใช้ RunService และกติกา secure เดิม. ไข่จากรังต้องส่งกลับอย่างถูกต้อง; ออก/ตายต่างจาก secure.

@@ -24,8 +24,9 @@ Retro builders (Plastic + Studs, BrickColor-style colours, Neon accents only, no
 | หีบ 5 ระดับ + hinge | สร้างแล้ว | `Shared.ChestBuilder` (Build/SetLid/LevelOf/Levels) |
 | ไอคอนหีบ 2D | สร้างแล้ว (ViewportFrame) | `Shared.ChestIconRenderer.New(rarity, props)` ใน Inventory |
 | ดาบ 380 | สร้างแล้ว (แทร็ก B) | `Shared.WeaponVisual` |
-| Opening Stage props / idle FX / particles | ยัง (แทร็ก J) | อ่าน attribute ใน `FX` ของหีบ |
+| Opening Stage / idle FX / เสียง | สร้างแล้ว (แทร็ก J) | `Client.ChestOpening` + `Shared.ChestOpeningTimeline` |
 
+- Chest opening SFX (2026-10-03): เสียงละเฟส จากคลัง Pro Sound Effects ที่ Roblox ให้ใช้ (ผู้สร้าง `ProSoundEffects`; ห้ามใช้เสียงที่ผู้ใช้อัปโหลด/ริปจากเกมอื่น) — Intro `9126047023` Synth Air Whoosh, Charge `9116393976` Magic Glow Short Pulsing Bursts 9, Burst `9120873624` Wooden Chest Open Close Cedar Box 5, Reveal `9116394545` Magic Glows Soft Clusters Of Chiming Hits 1. โหมด Full เล่นทุกเฟส; Fast/Off/กด Skip เล่นเฉพาะ Reveal ตอนขึ้นการ์ด. Volume 0.4–0.8 ตาม rarity. Sound อยู่ใต้ `ChestOpeningHUD` (ชื่อ `sfx<Phase>`) → หายพร้อม gui และถูกปิดด้วยปุ่ม SFX ใน Settings เอง.
 - ChestBuilder: pivot = กลางพื้น, หน้า −Z; ใช้ `body.PivotOffset` เพราะ `WorldPivot` ถูกเมินเมื่อมี PrimaryPart. CanCollide/CanTouch ปิดทุกชิ้น. Budget ตรวจแล้ว 23/28/30/37/61 (≤25/35/45/60/80). ภาพ/สรุป: [elements-v3](../assets/ui/elements-v3/README.md).
 
 ## Run / weapons

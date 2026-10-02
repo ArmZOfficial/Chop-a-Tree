@@ -161,7 +161,7 @@ function Weapon.Init()
 			local n,ok,msg,last,all,seen=0,true,nil,nil,{},{}
 			for _=1,10 do local r;ok,msg,r=Weapon.Open(player,arg,seen);if not ok then break end;n+=1;last=r;table.insert(all,r) end
 			if n==0 then return false,msg end
-			return true,"Open Chest "..n.." eggs",last,all -- 4th value: every result, for the multi-open grid
+			return true,"Opened "..n.." chests",last,all -- 4th value: every result, for the multi-open grid
 		elseif action=="Equip" then return Weapon.Equip(player,arg)
 		elseif action=="Fuse" then return Weapon.Fuse(player,arg)
 		elseif action=="Delete" then return Weapon.Delete(player,arg)

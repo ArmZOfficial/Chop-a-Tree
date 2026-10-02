@@ -4,6 +4,12 @@
 
 ## สถานะล่าสุด
 
+## แทร็ก J ปิดงาน — เสียงเปิดหีบ + Open 10 จริง (2026-10-03, ยังไม่ Publish)
+
+`ChestOpening` เล่นเสียงละเฟส (Intro/Charge/Burst/Reveal) จากคลัง Pro Sound Effects ของ Roblox เท่านั้น — id/ชื่อ: [systems §Models](systems.md#models--builders). Full = ทุกเฟส, Fast/Off/Skip = เสียง Reveal อย่างเดียว, ดังตาม rarity 0.4–0.8, ปุ่ม SFX ใน Settings ปิดได้. แก้ข้อความ Open 10 ภาษาอังกฤษ "Open Chest N eggs" → "Opened N chests" (ไทย "เปิดหีบแล้ว N ใบ").
+ตรวจ Studio Play (mock profile, 1115×675): เสียง 4 ตัวโหลดได้ (TimeLength 1.26/1.69/2.09/1.43 วิ) และเล่นตามเฟสที่ Common/Rare/Legendary/Mythic/10 ใบ; Volume Common 0.40 / Legendary 0.70; ปิด SFX → Volume 0 ทุกตัว; คลิก Skip กลางเฟส → เสียงอื่นหยุด เหลือ Reveal + การ์ดขึ้น. **Open 10 จริง** (หีบ Epic 12 ใบ, กดปุ่มในหน้า Inventory ที่ Chest Altar): ตาราง 10 ช่อง, server อาวุธ 0→10, หีบ 12→2; Open Again → 2 ช่อง, อาวุธ 12, หีบหมด ปุ่ม Open Again หาย. console ไม่มี error. ตรวจรวม: luau-compile 203 ไฟล์ 0 error, timeline 33/33, map systems 162, sword pack 4/4, locale missing_th 0 (1,740 keys), balance_sim รันผ่าน (ไม่ได้แก้ตัวเลข), Studio = repo checksum ทุกสคริปต์ (ต่างเฉพาะ ProfileStore ตามเดิม + MapQABootstrap ที่มีแค่ใน Studio), tags โหมด Edit เท่าเดิม (Tree 1470, ChestSpot 80 ...).
+**ยังไม่ตรวจ:** ฟังเสียงด้วยหูจริง (ตรวจได้แค่ว่าโหลด/เล่น/ระดับเสียง — ArmZ ควรฟังว่าเข้ากับจังหวะไหม), โหมด Fast/Off ผ่านปุ่ม Settings (ใช้ code path เดียวกับ Skip), มือถือ/จอย, ออกเกมกลางแอนิเมชัน, MaxWeapons เต็ม. บน Windows รัน python tools ต้องตั้ง `PYTHONUTF8=1`.
+
 ## เอาแผนที่/minimap ออก (2026-10-03, ArmZ สั่ง, ยังไม่ Publish)
 
 ลบหน้าต่าง World Map, minimap, ปุ่ม Map และปุ่มลัด M/จอย ออกจาก `MapController` (เหลือเข็มทิศ + เป้า quest/event + ฉากเรือ). การวาร์ปใช้แท็บ Warp ใน Quests; เพิ่มแถว "Home" ที่เดิมมีเฉพาะบนแผนที่ (ทดสอบแล้ว วาร์ปไปฐานได้). ฝั่ง server (TravelService/Explorer/Zones) ไม่เปลี่ยน. แก้บั๊กที่เจอระหว่างทาง: หน้าต่าง Quests/Season/Rebirth/Arena/Settings บนจอใหญ่หลุดไปทางซ้าย (ค้างตำแหน่งแบบมือถือ) — วัดแล้ว 10 หน้าต่างอยู่ในจอครบที่ 1115×675.
@@ -84,7 +90,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 ## งานถัดไป / ค้าง
 
-0. Master prompt ที่เหลือ: J เสียง + Open 10 จริง, C ตรวจบน Device Simulator/เครื่องจริง → F+G → regression รอบสุดท้าย. A/B/C/D/E/H/I/J-core เสร็จแล้ว.
+0. Master prompt: A/B/C/D/E/H/I/J เสร็จในส่วนที่ทำใน Studio ได้; F ไม่มีการปรับ balance (แก้เฉพาะข้อความ Open 10); G เอกสารตามทัน. เหลือเฉพาะที่ต้องใช้คน/เครื่องจริง: C+J บน Device Simulator/มือถือ/จอยจริง, ฟังเสียง, playtest เดินครบทุกโซน/บอสบนเกาะใหม่, หลายบัญชี, และการอนุมัติ migration v3 กับเซฟจริงก่อนปิด mock.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.
