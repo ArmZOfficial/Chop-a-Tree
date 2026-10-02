@@ -23,6 +23,9 @@ local Data=require(script.Parent.ClientData)
 local player=Players.LocalPlayer
 local Opening={}
 local active=false
+-- Art from assets/ui/elements-v3/chests (neutral silver, tinted per rarity).
+local FRAME="rbxassetid://115975654245049" -- card-frame-1024.png, 9-sliced
+local RIBBON="rbxassetid://139487178872339" -- ribbon-1024.png (1024x284)
 
 local function reduced()
 	local ok,on=pcall(function() return GuiService.ReducedMotionEnabled end)
@@ -91,8 +94,9 @@ function Opening.Play(results,opts)
 	local nameLabel=UI.Label("",40,{Name="WeaponName",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,.72,0),Size=UDim2.new(.8,0,0,50),TextXAlignment=Enum.TextXAlignment.Center,TextTransparency=1,TextColor3=color,Parent=gui})
 	nameLabel:FindFirstChildOfClass("UIStroke").Thickness=3
 	local rarityLabel=UI.Label("",26,{Name="WeaponRarity",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,.72,52),Size=UDim2.new(.6,0,0,32),TextXAlignment=Enum.TextXAlignment.Center,TextTransparency=1,Parent=gui})
-	local banner=UI.Label("",54,{Name="Banner",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.12),Size=UDim2.new(.9,0,0,70),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=color:Lerp(Color3.new(1,1,1),.2),Visible=false,Parent=gui})
-	banner:FindFirstChildOfClass("UIStroke").Thickness=5
+	local banner=UI.New("ImageLabel",{Name="Banner",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,0,78),Size=UDim2.fromOffset(460,128),Image=RIBBON,ImageColor3=color:Lerp(Color3.new(1,1,1),.3),Visible=false,Parent=gui})
+	local bannerText=UI.Label("",40,{Name="BannerText",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.5,-4),Size=UDim2.fromScale(.56,.42),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=banner})
+	bannerText:FindFirstChildOfClass("UIStroke").Thickness=4
 	local stamp=UI.Label("GIANT!",64,{Name="GiantStamp",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.72,.32),Size=UDim2.fromOffset(320,90),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=Color3.fromRGB(255,214,64),Rotation=-12,Visible=false,Parent=gui})
 	stamp:FindFirstChildOfClass("UIStroke").Thickness=6
 	local stampScale=UI.New("UIScale",{Parent=stamp})
@@ -112,7 +116,7 @@ function Opening.Play(results,opts)
 	local fxModel=chest:FindFirstChild("FX");local fxBase=fxModel and fxModel:GetPivot()
 	local core=neon(world,"Core",Vector3.one*.2,CFrame.new(0,top*.55,0),color,Enum.PartType.Ball);core.Transparency=1
 	local weapon=Visual.Build(hero.def,hero.result.item,true);weapon.Parent=world
-	local wcf,wsize=weapon:GetBoundingBox();local wscale=(csize.Y*1.5)/math.max(wsize.Y,wsize.X,.1) -- same on-screen size for every weapon
+	local wcf,wsize=weapon:GetBoundingBox();local wscale=(csize.Y*1.15)/math.max(wsize.Y,wsize.X,.1) -- same on-screen size for every weapon
 	weapon:ScaleTo(weapon:GetScale()*wscale)
 	weapon:PivotTo(CFrame.new(0,-50,0))
 	local beam,ring;local cubes={}
@@ -136,16 +140,17 @@ function Opening.Play(results,opts)
 		flash.BackgroundTransparency=1
 		local equippedUid=Data.Get("Inventory.Equipped");local inv=Data.Get("Inventory.Weapons") or {}
 		local current=equippedUid and inv[equippedUid]
-		local card=UI.New("Frame",{Name=multi and "ResultGrid" or "ResultCard",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=multi and UDim2.fromOffset(720,480) or UDim2.fromOffset(440,440),BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(20),UI.Stroke(5),UI.Padding(16)})
-		local stroke=card:FindFirstChildOfClass("UIStroke");stroke.Color=color
+		local card=UI.New("Frame",{Name=multi and "ResultGrid" or "ResultCard",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=multi and UDim2.fromOffset(720,420) or UDim2.fromOffset(440,400),BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(20),UI.Padding(16)})
+		-- Ornate frame wraps the card (28 px overhang); corners keep their shape, edges stretch.
+		UI.New("ImageLabel",{Name="Frame",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.new(1,88,1,88),Image=FRAME,ImageColor3=color:Lerp(Color3.new(1,1,1),.3),ScaleType=Enum.ScaleType.Slice,SliceCenter=Rect.new(300,300,724,724),SliceScale=.26,Parent=card})
 		local scale=UI.New("UIScale",{Parent=card})
-		local function fit() local v=workspace.CurrentCamera.ViewportSize;scale.Scale=math.min(1,(v.X-24)/(multi and 720 or 440),(v.Y-24)/(multi and 480 or 440)) end
+		local function fit() local v=workspace.CurrentCamera.ViewportSize;scale.Scale=math.min(1,(v.X-24)/(multi and 776 or 496),(v.Y-24)/(multi and 476 or 456)) end -- card + frame overhang
 		fit();local fitConn=workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fit);card.Destroying:Connect(function() fitConn:Disconnect() end)
-		local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,1),Position=UDim2.fromScale(.5,1),Size=UDim2.new(1,0,0,56),Parent=card},{UI.List(Enum.FillDirection.Horizontal,10,Enum.HorizontalAlignment.Center)})
-		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=multi and 24 or 19,color=col,size=UDim2.fromOffset(multi and 200 or 128,multi and 62 or 56),onClick=fn});b.Name=name;b.Parent=buttons;return b end
+		local buttons=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,1),Position=UDim2.fromScale(.5,1),Size=UDim2.new(1,0,0,62),Parent=card},{UI.List(Enum.FillDirection.Horizontal,10,Enum.HorizontalAlignment.Center)})
+		local function action(name,text,col,fn) local b=UI.Button({text=text,textSize=multi and 24 or 19,color=col,size=UDim2.fromOffset(multi and 200 or 128,multi and 62 or 58),onClick=fn});b.Name=name;b.Parent=buttons;return b end
 		if multi then
 			UI.Label("Results",30,{Name="Heading",Size=UDim2.new(1,0,0,38),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
-			local grid=UI.New("Frame",{Name="Grid",BackgroundTransparency=1,Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,1,-110),Parent=card},{UI.New("UIGridLayout",{CellSize=UDim2.new(.2,-8,.5,-8),CellPadding=UDim2.fromOffset(8,8),SortOrder=Enum.SortOrder.LayoutOrder})})
+			local grid=UI.New("Frame",{Name="Grid",BackgroundTransparency=1,Position=UDim2.fromOffset(0,44),Size=UDim2.new(1,0,1,-116),Parent=card},{UI.New("UIGridLayout",{CellSize=UDim2.new(.2,-8,.5,-8),CellPadding=UDim2.fromOffset(8,8),SortOrder=Enum.SortOrder.LayoutOrder})})
 			for i,e in list do
 				local cell=UI.New("Frame",{Name="Result"..i,LayoutOrder=i,BackgroundColor3=UI.Colors.PanelDark,Parent=grid},{UI.Corner(12),UI.Stroke(3,glow(e.rarity))})
 				icon(cell,e.def,e.result.item,{Position=UDim2.fromOffset(4,4),Size=UDim2.new(1,-8,1,-48)})
@@ -158,18 +163,18 @@ function Opening.Play(results,opts)
 			action("KeepAll","Keep All",UI.Colors.Green,close)
 		else
 			local e=list[1];local item=e.result.item
-			icon(card,e.def,item,{Name="Icon",Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,170)})
+			icon(card,e.def,item,{Name="Icon",Position=UDim2.fromOffset(0,0),Size=UDim2.new(1,0,0,130)})
 			if e.result.new then UI.Label("NEW!",26,{Name="New",Position=UDim2.fromOffset(4,2),Size=UDim2.fromOffset(110,32),TextColor3=Color3.fromRGB(120,255,120),Parent=card}) end
 			if e.giant then UI.Label("GIANT",26,{Name="Giant",AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-4,0,2),Size=UDim2.fromOffset(130,32),TextXAlignment=Enum.TextXAlignment.Right,TextColor3=Color3.fromRGB(255,214,64),Parent=card}) end
-			local n=UI.Label(e.def.name,32,{Name="ItemName",Position=UDim2.fromOffset(0,172),Size=UDim2.new(1,0,0,40),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,TextColor3=glow(e.rarity),Parent=card})
+			local n=UI.Label(e.def.name,32,{Name="ItemName",Position=UDim2.fromOffset(0,132),Size=UDim2.new(1,0,0,40),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,TextColor3=glow(e.rarity),Parent=card})
 			UI.New("UITextSizeConstraint",{MaxTextSize=32,Parent=n})
-			UI.Label(e.rarity.." • IL "..item.il,22,{Name="Rarity",Position=UDim2.fromOffset(0,214),Size=UDim2.new(1,0,0,28),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+			UI.Label(e.rarity.." • IL "..item.il,22,{Name="Rarity",Position=UDim2.fromOffset(0,174),Size=UDim2.new(1,0,0,28),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
 			local power=Loot.Power(item)
-			UI.Label("Power "..NF.Short(power),26,{Name="Power",Position=UDim2.fromOffset(0,248),Size=UDim2.new(1,0,0,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+			UI.Label("Power "..NF.Short(power),26,{Name="Power",Position=UDim2.fromOffset(0,208),Size=UDim2.new(1,0,0,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
 			if current and equippedUid~=e.result.uid then
 				local diff=power-Loot.Power(current)
 				local up=diff>=0;local delta=(up and "▲ +" or "▼ -")..NF.Short(math.abs(diff))
-				UI.Label("Compared with equipped: "..delta,20,{Name="Compare",Position=UDim2.fromOffset(0,282),Size=UDim2.new(1,0,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=up and Color3.fromRGB(120,255,120) or Color3.fromRGB(255,120,110),Parent=card})
+				UI.Label("Compared with equipped: "..delta,20,{Name="Compare",Position=UDim2.fromOffset(0,242),Size=UDim2.new(1,0,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=up and Color3.fromRGB(120,255,120) or Color3.fromRGB(255,120,110),Parent=card})
 			end
 			if not opts.preview and opts.onEquip and equippedUid~=e.result.uid then action("Equip","Equip",UI.Colors.Green,function() opts.onEquip(e.result.uid);close() end) end
 			action("Keep","Keep",UI.Colors.Blue,close)
@@ -229,7 +234,7 @@ function Opening.Play(results,opts)
 				revealShown=true;if ring then ring:Destroy();ring=nil end
 				for _,bar in rays do bar.BackgroundTransparency=0 end
 				nameLabel.Text=hero.def.name;rarityLabel.Text=hero.giant and ("Giant "..hero.rarity) or hero.rarity
-				local shout=({Legendary="LEGENDARY!",Mythic="MYTHIC!"})[hero.rarity];if shout then banner.Text=shout;banner.Visible=true end
+				local shout=({Legendary="LEGENDARY!",Mythic="MYTHIC!"})[hero.rarity];if shout then bannerText.Text=shout;banner.Visible=true end
 				if anyGiant and plan.mode=="Full" then stamp.Visible=true;stampScale.Scale=2.2 end
 				title.Visible=false
 			end
