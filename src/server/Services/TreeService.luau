@@ -13,6 +13,7 @@ local Weapon=require(script.Parent.WeaponService)
 local Weather=require(script.Parent.WeatherService)
 local Pet=require(script.Parent.PetService)
 local WeatherConfig=require(Shared.Config.Weather)
+local SpecialConfig=require(Shared.Config.WorldEvents).SpecialTrees
 local Tree={}
 local trees, cooldowns, navigating, chestStates, collected={},{},{},{},{}
 local fogChest
@@ -47,12 +48,33 @@ local function register(model)
 	trees[model]=s; Tree.Reset(model)
 end
 
+function Tree.SetSpecial(model,kind)
+	local state=trees[model]; if not state or not model.Parent then return false end
+	local def=kind and SpecialConfig[kind]
+	if kind and (not def or state.ratio~=1) then return false end
+	if state.special then
+		model:ScaleTo(state.special.scale);model:PivotTo(state.special.pivot)
+		for part,color in state.special.colors do if part.Parent then part.Color=color end end
+		state.special=nil
+	end
+	model:SetAttribute("SpecialKind",nil);model:SetAttribute("MapWoodMult",nil);model:SetAttribute("SpecialHP",nil)
+	if kind==nil then return true end
+	local ground=position(model)
+	state.special={scale=model:GetScale(),pivot=model:GetPivot(),colors={}}
+	for part in state.parts do state.special.colors[part]=part.Color;if def.color then part.Color=def.color end end
+	model:ScaleTo(state.special.scale*def.scale);model:PivotTo(model:GetPivot()+ground-position(model))
+	model:SetAttribute("SpecialKind",kind);model:SetAttribute("MapWoodMult",def.wood);model:SetAttribute("SpecialHP",def.hp)
+	return true
+end
+
 local function fell(model,s,now)
 	model:SetAttribute("Alive",false); model:SetAttribute("HealthRatio",0)
 	for part in s.parts do if part.Parent then part.Transparency=1; part.CanCollide=false end end
 	for contributor,entry in s.contributors do
 		if now-entry.at<=Config.ContributionWindow and contributor.Parent and Run.Get(contributor)==entry.run then
-			Run.Award(contributor,model:GetAttribute("Zone"),model:GetAttribute("Tier"),entry.autoCut,entry.rewardMult)
+			local special=SpecialConfig[model:GetAttribute("SpecialKind")]
+			local share=special and special.shared and (entry.share or 0) or 1
+			if share>=.02 then Run.Award(contributor,model:GetAttribute("Zone"),model:GetAttribute("Tier"),entry.autoCut,(entry.rewardMult or 1)*share,model:GetAttribute("MapWoodMult")) end
 		end
 	end
 	local cycle=s.cycle
@@ -64,6 +86,7 @@ end
 
 function Tree.Strike(model)
 	local s=trees[model];if not Features.IsEnabled("Forest") or not s or s.ratio<=0 or not model.Parent then return false end
+	local special=SpecialConfig[model:GetAttribute("SpecialKind")];if special and special.shared then return false end
 	local zone=model:GetAttribute("Zone");local p=position(model);local now=os.clock()
 	for _,player in Players:GetPlayers() do
 		local hr=root(player);local r=Run.Get(player)
@@ -98,7 +121,7 @@ function Tree.Hit(player,model)
 	if flatDistance(hr.Position,p)>Config.AttackRange or math.abs(hr.Position.Y-p.Y)>12 then return false,"Out of range" end
 	local rebirth=Data.Get(player,"Progress.Rebirth")
 	local power=Run.Power(player)
-	local health=Weather.Def().hp
+	local health=Weather.Def().hp*(Features.IsEnabled("MapSystems") and (model:GetAttribute("SpecialHP") or 1) or 1)
 	if power<Balance.TreeRequiredPower(zone,tier,rebirth)*health then return false,"Power too low" end
 	local now=os.clock()
 	if now<(cooldowns[player] or 0) then return false,"Cooldown" end
@@ -117,7 +140,8 @@ function Tree.Hit(player,model)
 	local previous=s.contributors[player]
 	-- A manual finishing hit cannot erase AutoCut's reward reduction.
 	local usedAuto=Run.GetModes(player).AutoCut or (previous and previous.run==r and now-previous.at<=Config.ContributionWindow and previous.autoCut) or false
-	s.contributors[player]={at=now,autoCut=usedAuto,run=r}
+	s.contributors[player]={at=now,autoCut=usedAuto,run=r,share=fraction+(previous and previous.run==r and previous.share or 0)}
+	player:SetAttribute("CombatUntil",workspace:GetServerTimeNow()+3)
 	model:SetAttribute("HealthRatio",s.ratio)
 	Data.Set(player,"Stats.HighestHit",math.max(Data.Get(player,"Stats.HighestHit"),damage))
 	Net.Event("TreeHit"):FireAllClients({tree=model,position=aim,damage=damage,crit=crit,player=player.UserId,dead=s.ratio==0,tier=tier})
@@ -134,10 +158,12 @@ function Tree.Hit(player,model)
 				if flatDistance(p,op)<=area and math.abs(hr.Position.Y-op.Y)<=12 and power>=Balance.TreeRequiredPower(zone,ot,rebirth)*health then
 					local oa=op+Vector3.new(0,3,0);local block=workspace:Raycast(hr.Position,oa-hr.Position,params)
 					if not block or block.Instance:IsDescendantOf(other) then
-						extra.ratio=math.max(0,extra.ratio-damage/(Balance.TreeHP(zone,ot,rebirth)*health))
+						local otherHealth=Weather.Def().hp*(Features.IsEnabled("MapSystems") and (other:GetAttribute("SpecialHP") or 1) or 1)
+						local extraFraction=math.min(extra.ratio,damage/(Balance.TreeHP(zone,ot,rebirth)*otherHealth))
+						extra.ratio=math.max(0,extra.ratio-extraFraction)
 						local prev=extra.contributors[player]
 						local auto=Run.GetModes(player).AutoCut or (prev and prev.run==r and now-prev.at<=Config.ContributionWindow and prev.autoCut) or false
-						extra.contributors[player]={at=now,autoCut=auto,run=r};other:SetAttribute("HealthRatio",extra.ratio)
+						extra.contributors[player]={at=now,autoCut=auto,run=r,share=extraFraction+(prev and prev.run==r and prev.share or 0)};other:SetAttribute("HealthRatio",extra.ratio)
 						Net.Event("TreeHit"):FireAllClients({tree=other,position=oa,damage=damage,crit=crit,player=player.UserId,dead=extra.ratio==0,tier=ot})
 						if extra.ratio==0 then fell(other,extra,now) end
 					end

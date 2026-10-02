@@ -37,13 +37,14 @@ function E.GetSpot() return eggSpot end
 function E.Collect(p,part)
  local v=pickups[part];local state=WX.State();local hr=root(p)
  if not enabled() or not D.IsLoaded(p) or not v or not hr or not R.Get(p).Active then return false end
- if state.id~="Meteor" or state.eventKey~=v.key or os.clock()>=v.expires then return false end
+ if state.id~=v.weather or state.eventKey~=v.key or os.clock()>=v.expires then return false end
+ if v.weather=="Fog" then local day=game.ReplicatedStorage:FindFirstChild("DayCycleState");if not F.IsEnabled("MapSystems") or not day or day:GetAttribute("phase")~="night" then return false end end
  if not R.CanAccess(p,v.zone) or R.ZoneAt(p)~=v.zone or (hr.Position-part.Position).Magnitude>C.PickupRange then return false end
  destroyPickup(part);D.AddCurrency(p,"Stardust",C.MeteorDust);notify(p,"+"..C.MeteorDust.." Stardust");return true
 end
-function E.SpawnMeteor()
+local function spawnPickup(kind)
  if not enabled() then return nil end
- local state=WX.State();if state.id~="Meteor" then return nil end
+ local state=WX.State();if state.id~=kind then return nil end
  local n=0;for _ in pickups do n+=1 end;if n>=C.MaxPickups then return nil end
  local trees={};for _,tree in Collection:GetTagged("Tree") do
   local zone=tree:GetAttribute("Zone")
@@ -51,14 +52,15 @@ function E.SpawnMeteor()
  end
  if #trees==0 then return nil end
  local tree=trees[rng:NextInteger(1,#trees)];local zone=tree:GetAttribute("Zone");local at=tree.PrimaryPart.Position
- local part=Instance.new("Part");part.Name="Stardust";part.Shape=Enum.PartType.Ball;part.Size=Vector3.new(1.8,1.8,1.8)
+ local part=Instance.new("Part");part.Name=kind=="Fog" and "NightSpirit" or "Stardust";part.Shape=Enum.PartType.Block;part.Size=Vector3.new(1.8,1.8,1.8)
  part.Material=Enum.Material.Neon;part.Color=Color3.fromRGB(180,130,255);part.Anchored=true;part.CanCollide=false
  part.Position=Vector3.new(at.X+4,Zones.List[zone].y+2,at.Z);part.Parent=folder
  local light=Instance.new("PointLight");light.Color=part.Color;light.Range=10;light.Parent=part
- local prompt=Instance.new("ProximityPrompt");prompt.Name="CollectStardust";prompt.ActionText="Collect +"..C.MeteorDust.." Stardust";prompt.ObjectText="METEOR";prompt.MaxActivationDistance=C.PickupRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
- pickups[part]={zone=zone,key=state.eventKey,expires=os.clock()+C.PickupSeconds}
+ local prompt=Instance.new("ProximityPrompt");prompt.Name="CollectStardust";prompt.ActionText="Collect +"..C.MeteorDust.." Stardust";prompt.ObjectText=kind=="Fog" and "Night Spirits" or "METEOR";prompt.MaxActivationDistance=C.PickupRange;prompt.RequiresLineOfSight=false;prompt.Parent=part
+ pickups[part]={zone=zone,key=state.eventKey,weather=kind,expires=os.clock()+C.PickupSeconds}
  prompt.Triggered:Connect(function(p) E.Collect(p,part) end);return part
 end
+function E.SpawnMeteor() return spawnPickup("Meteor") end
 function E.Exchange(p)
  if not enabled() or not F.IsEnabled("Chests") or not D.IsLoaded(p) or not W.AtAltar(p) then return false,"Exchange Stardust at the village chest station" end
  if D.Get(p,"Currencies.Stardust")<C.ChestDust then return false,"Requires "..C.ChestDust.." Stardust" end
@@ -104,10 +106,12 @@ function E.Hit(p,model)
 end
 function E.Update()
  local state=WX.State();local active=enabled()
- for part,v in pickups do if not active or state.id~="Meteor" or state.eventKey~=v.key or os.clock()>=v.expires then destroyPickup(part) end end
- if active and state.id=="Meteor" then
+ local day=game.ReplicatedStorage:FindFirstChild("DayCycleState")
+ local spirit=F.IsEnabled("MapSystems") and state.id=="Fog" and day and day:GetAttribute("phase")=="night"
+ for part,v in pickups do if not active or state.id~=v.weather or v.weather=="Fog" and not spirit or state.eventKey~=v.key or os.clock()>=v.expires then destroyPickup(part) end end
+ if active and (state.id=="Meteor" or spirit) then
   if meteorKey~=state.eventKey then meteorKey=state.eventKey;nextMeteor=0 end
-  if os.clock()>=nextMeteor then nextMeteor=os.clock()+C.MeteorSeconds;E.SpawnMeteor() end
+  if os.clock()>=nextMeteor then nextMeteor=os.clock()+C.MeteorSeconds;spawnPickup(state.id) end
  else meteorKey=nil end
  local eggId=active and F.IsEnabled("Eggs") and (state.id=="Fog" and C.FogEgg or state.id=="Bloodmoon" and C.BloodEgg)
  local wantKey=eggId and state.eventKey

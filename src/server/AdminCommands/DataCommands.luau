@@ -112,7 +112,7 @@ return function(Admin, DataService)
 		id = "data.migratetest",
 		tab = "data",
 		label = "Test Migration",
-		sub = "v0/v1 samples → Sword Pack v2",
+		sub = "Synthetic saves: Sword Pack + map v3",
 		color = "Slate",
 		order = 6,
 		run = function()
@@ -122,7 +122,8 @@ return function(Admin, DataService)
 			if not ok then
 				return false, "Migration test crashed: " .. tostring(passed)
 			end
-			return passed, summary, { text = text }
+			local mapOK, mapSummary, mapText = require(script.Parent.MapMigrationCheck)(DataService)
+			return passed and mapOK, summary .. " / " .. mapSummary, { text = text .. "\n" .. mapText }
 		end,
 	})
 	Admin.Register({

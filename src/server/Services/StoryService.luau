@@ -54,23 +54,7 @@ function StoryService.LightShrine(p,zone)
 end
 -- Warp from any WarpStone to the village (ends the Run) or an unlocked, built zone (starts one).
 function StoryService.Warp(p,zone)
-	if not Features.IsEnabled("Story") or not Data.IsLoaded(p) then return false,"Warp unavailable" end
-	if type(zone)~="number" or zone%1~=0 then return false,"Invalid destination" end
-	local atStone=false;for _,w in Collection:GetTagged("WarpStone") do if w:IsDescendantOf(workspace) and near(p,w,Story.WarpRange) then atStone=true end end
-	if not atStone and not (Data.Get(p,"Purchases.passes") or {}).Teleport then return false,"Use at a warp stone only" end
-	if p:GetAttribute("CarryingEgg") then return false,"Cannot warp while carrying an egg" end
-	if zone==0 then
-		if Data.Get(p,"Run.Active") then Run.End(p,true);return true,"End Run & Return Home" end
-		local spawn=workspace.Map.Village:FindFirstChild("VillageSpawn")
-		pcall(p.RequestStreamAroundAsync,p,spawn.Position,5);if p.Character then p.Character:PivotTo(spawn.CFrame+Vector3.new(0,4,0)) end
-		return true,"Warp to Village"
-	end
-	if not Zones.List[zone] or not Run.CanAccess(p,zone) then return false,"Cannot enter this zone yet" end
-	if not Data.Get(p,"Run.Active") and not Run.Begin(p) then return false,"Cannot start run" end
-	local spawn=tagged("ZoneSpawn","Zone",zone)
-	pcall(p.RequestStreamAroundAsync,p,spawn.Position,5)
-	if p.Character then p.Character:PivotTo(spawn.CFrame+Vector3.new(0,4,0)) end
-	return true,"Warped to "..Zones.List[zone].name
+	return require(script.Parent.TravelService).Warp(p,zone)
 end
 
 local function prompt(parent,name,action,object,range,callback)

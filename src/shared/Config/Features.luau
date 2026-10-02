@@ -30,4 +30,5 @@ return table.freeze({
 	Decor = true, -- base decoration (plan 9.2)
 	SwordPack = true, -- Sword Pack 380 chest pool (off = legacy pool; saves resolve both)
 	Sprint = true, -- Shift / touch / gamepad sprint (Config.Movement)
+	MapSystems = true, -- zone tracking, map UI, rescue, day cycle and Explorer
 })

@@ -16,7 +16,7 @@ local ProfileStore = require(script.Parent.Parent.Packages.ProfileStore)
 local DataService = {}
 
 DataService.STORE_NAME = "PlayerData_v1"
-DataService.DATA_VERSION = 2
+DataService.DATA_VERSION = 3
 
 local function currencyTemplate()
 	local t = {}
@@ -32,7 +32,8 @@ DataService.Template = {
 	DataVersion = DataService.DATA_VERSION,
 	Currencies = currencyTemplate(),
 	Stats = { TreesCut = 0, PlaySeconds = 0, HighestHit = 0, EggsHatched = 0, EggsStolen = 0, ChestsOpened = 0, SeedsPlanted = 0, Harvests = 0, BossKills = 0, WorldBossKills = 0 },
-	Progress = { Zone = 1, UnlockedZones = { 1 }, Rebirth = 0, StoryChapter = 1, Bosses = {}, Shrines = {} },
+	Progress = { Zone = 1, UnlockedZones = { 1 }, VisitedZones = {}, Rebirth = 0, StoryChapter = 1, Bosses = {}, Shrines = {} },
+	Explorer = { collected = {}, completed = {} },
 	Quests = {
 		main = { step = 1, base = 0 },
 		daily = { key = -1, ids = {}, base = {}, claimed = {} },
@@ -60,6 +61,7 @@ DataService.Template = {
 -- MIGRATIONS[n] แปลงข้อมูลจากเวอร์ชัน n−1 → n
 -- เวอร์ชัน 0 = เซฟเก่าก่อนมีระบบ (ใช้ทดสอบจากแท็บ Data)
 DataService.MIGRATIONS = {
+	[3] = require(Shared.MapMigration),
 	[1] = function(data)
 		-- v0 เก็บเงินไว้ที่ root เช่น data.Coins → ย้ายเข้า Currencies
 		data.Currencies = data.Currencies or {}

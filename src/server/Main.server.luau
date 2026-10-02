@@ -8,6 +8,13 @@ require(Shared.Net) -- สร้าง Remotes ก่อนทุกอย่า
 
 local SERVICES = { "FeatureService", "DataService", "AdminService", "WeatherService", "GardenService", "WeaponService", "RewardService", "PetService", "StealService", "NestService", "RunService", "TreeService", "BossService", "QuestService", "StoryService", "RebirthService", "DailyService", "CodeService", "LeaderboardService", "AchievementService", "LiveEventService", "WeatherEncounterService", "MerchantService", "EmoteService", "SeasonService", "MonetizationService", "ArenaService", "ArenaRewardService", "DecorService" }
 
+table.insert(SERVICES, "ZoneService")
+table.insert(SERVICES, "GateService")
+table.insert(SERVICES, "DayCycleService")
+table.insert(SERVICES, "ExplorerService")
+table.insert(SERVICES, "TravelService")
+table.insert(SERVICES, "WorldEventService")
+
 local loaded: { [string]: any } = {}
 for _, name in SERVICES do
 	loaded[name] = require(script.Parent.Services[name])
@@ -23,6 +30,7 @@ end
 -- คำสั่งแอดมินของแต่ละระบบ
 local Admin = loaded.AdminService
 local commandSets = {
+	{ "MapCommands" },
 	{ "PlayerCommands" },
 	{ "MoneyCommands", loaded.DataService },
 	{ "DataCommands", loaded.DataService },

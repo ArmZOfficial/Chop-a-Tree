@@ -78,8 +78,28 @@ local list: { Zone } = {
 }
 
 local byKey = {}
+local treePools = {
+	{"Oak","RoundTree","Pine"}, {"Maple","Birch","AutumnBall"}, {"Mushroom","TwinShroom","GlowBulb"},
+	{"Sakura","Weeping","Layered"}, {"BambooClump","BambooTall","ThunderPalm"}, {"SnowPine","IceSpire","SnowRound"},
+	{"CrystalTree","Prism","Amethyst"}, {"GoldenTree","LightOrb","SpiritWillow"},
+}
+local particles = { "", "", "Fireflies", "Petals", "Drizzle", "LightSnow", "Sparkles", "GoldMotes" }
+local lighting = {
+	[3] = { Ambient = rgb(105,115,135), FogColor = rgb(130,155,170), FogEnd = 650 },
+	[6] = { OutdoorAmbient = rgb(192,218,245), FogColor = rgb(222,236,250), FogEnd = 750 },
+}
 for _, z in list do
 	byKey[z.key] = z
+	z.region = "Workspace.Map.Wilds.Zone" .. z.id .. "_" .. z.key
+	z.order = z.id
+	z.nameKey = z.name -- Locale uses English text as its stable key.
+	z.unlock = { shrine = z.id > 1 and z.id - 1 or nil, coins = 0 }
+	z.trees = { pool = treePools[z.id], hpMult = 1, dropMult = 1 } -- TreeKit retains its 55/30/15 mix; Balance/Forest own stats.
+	z.events = { "GoldenTree", "TimberRush", "Meteor", "BossTree", "Fog" }
+	z.rarityBonus = 0
+	z.ambient = { music = "", sfx = "", particles = particles[z.id], lighting = lighting[z.id] } -- Silent until licensed assets exist.
+	z.fastTravel = { zone = z.id, cost = 0 }
+	z.explorer = { landmarks = 1, secrets = 1, chests = 1 }
 end
 
 local hub = { center = Vector3.new(0, 4, 1010), radius = 190 }
@@ -106,4 +126,5 @@ return table.freeze({
 	RotColor = rgb(128, 60, 200),
 	Hub = table.freeze(hub),
 	At = at,
+	Tracking = table.freeze({ interval = .35, settleSeconds = .7, killFloor = -60 }),
 })
