@@ -20,7 +20,7 @@
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.
-3. งานเดิมค้าง: ตกแต่งฐาน/กับดัก/สัตว์เฝ้า. ยืนยันกับโค้ดก่อนแก้. (Garden UI refresh แก้แล้ว; NPC ผู้เฝ้าโซน 3–8 + บทพูด + คัตซีนศาลเจ้า ทำแล้ว scenario 7/7; ทั้งคู่ยังไม่ Publish)
+3. งานเดิมค้าง: ตกแต่งฐาน, ของตกแต่งเทศกาล (กับดัก/สัตว์เฝ้าทำแล้ว 8/8). ยืนยันกับโค้ดก่อนแก้. (Garden UI refresh แก้แล้ว; NPC ผู้เฝ้าโซน 3–8 + บทพูด + คัตซีนศาลเจ้า ทำแล้ว scenario 7/7; ทั้งหมดยังไม่ Publish)
 4. Multi-account ขโมย/บอสร่วม, multi-server Live Events/world boss, mobile/gamepad ยังไม่พิสูจน์ครบ. Balance/เสียง/VFX/UI polish Phase 10.
 5. Phase 9 ถัดไป: Place Arena ใน Universe เดียวกัน, match server/combat 4 โหมด, Ranked/monthly ranks/tokens; คอสเมติกเมื่อ ArmZ สั่ง; Publish เมื่อผู้ใช้สั่ง.
 
