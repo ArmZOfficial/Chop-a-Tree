@@ -8,6 +8,7 @@ local Net=require(Shared.Net)
 local Pets=require(Shared.Config.Pets)
 local Eggs=require(Shared.Config.Eggs)
 local Config=require(Shared.Config.Base)
+local Movement=require(Shared.Config.Movement)
 local Math=require(Shared.PetMath)
 local Visual=require(Shared.PetVisual)
 local RebirthMath=require(Shared.RebirthMath)
@@ -17,7 +18,7 @@ local Weather=require(script.Parent.WeatherService)
 local Garden=require(script.Parent.GardenService)
 local Pet={}
 local rng=Random.new()
-local mounts,lastAction,penSig={},{},{}
+local mounts,lastAction,penSig,sprintAt={},{},{},{}
 Pet.OnForeignIncubator=function() return false,"Egg theft unavailable" end -- set by StealService
 
 local function enabled(p) return Data.IsLoaded(p) and Features.IsEnabled("Eggs") end
@@ -229,10 +230,28 @@ function Pet.SpeedMult(p)
 	if mount and Features.IsEnabled("Eggs") and not p:GetAttribute("CarryingEgg") then m*=Config.MountSpeed[Pets.ById[mount.id].rarity] end
 	return m*(p:GetAttribute("CarryMult") or 1)
 end
+-- Sprint is server-validated: Character.Sprinting is only set here, and only counts while the flag is on
+-- and the player is not carrying an egg. A new character never has the attribute (respawn resets it).
+local function sprintMult(p)
+	local c=p.Character
+	if not c or c:GetAttribute("Sprinting")~=true or not Features.IsEnabled("Sprint") then return 1 end
+	if p:GetAttribute("CarryingEgg") and not Movement.SprintWhileCarrying then return 1 end
+	return Movement.SprintMultiplier
+end
+function Pet.SetSprint(p,on)
+	if type(on)~="boolean" then return false end
+	local c=p.Character;local hum=c and c:FindFirstChildOfClass("Humanoid")
+	if not hum or hum.Health<=0 then return false end
+	if on then
+		local now=os.clock();if now-(sprintAt[p] or -math.huge)<Movement.MinSprintInterval then return false end;sprintAt[p]=now
+		if not Features.IsEnabled("Sprint") or p:GetAttribute("AdminFly") or (p:GetAttribute("CarryingEgg") and not Movement.SprintWhileCarrying) then on=false end
+	end
+	c:SetAttribute("Sprinting",on or nil);Pet.ApplySpeed(p);return true
+end
 function Pet.ApplySpeed(p)
 	local c=p.Character;local hum=c and c:FindFirstChildOfClass("Humanoid");if not hum then return end
-	local base=p:GetAttribute("AdminSpeed");base=type(base)=="number" and base or 16
-	local want=base*Pet.SpeedMult(p);if math.abs(hum.WalkSpeed-want)>.01 then hum.WalkSpeed=want end
+	local base=p:GetAttribute("AdminSpeed");base=type(base)=="number" and base or Movement.WalkSpeed
+	local want=base*Pet.SpeedMult(p)*sprintMult(p);if math.abs(hum.WalkSpeed-want)>.01 then hum.WalkSpeed=want end
 end
 -- Shared by stealing and nest eggs: one carried egg, slower walk, no mount.
 function Pet.SetCarry(p,color,mult,from)
@@ -349,7 +368,11 @@ function Pet.Init()
 	Data.Changed:Connect(function(p,path) if path=="" then task.defer(function() Pet.Advance(p,os.time(),false);Pet.Refresh(p);penSig[p]=nil;Pet.Send(p) end) end end)
 	Players.PlayerRemoving:Connect(function(p)
 		if Data.IsLoaded(p) then Pet.Advance(p,os.time(),true);Data.Set(p,"Pets",Data.Get(p,"Pets")) end
-		clearPen(p);mounts[p]=nil;lastAction[p]=nil;penSig[p]=nil
+		clearPen(p);mounts[p]=nil;lastAction[p]=nil;penSig[p]=nil;sprintAt[p]=nil
+	end)
+	Net.Event("SprintIntent").OnServerEvent:Connect(function(p,kind,value)
+		if kind=="Sprint" then Pet.SetSprint(p,value)
+		elseif kind=="Mode" and (value=="Hold" or value=="Toggle") and Data.IsLoaded(p) and Data.Get(p,"Settings.SprintMode")~=value then Data.Set(p,"Settings.SprintMode",value) end
 	end)
 	game.ReplicatedStorage.FeatureFlags:GetAttributeChangedSignal("Eggs"):Connect(function() for _,p in Players:GetPlayers() do Pet.Refresh(p) end end)
 	Net.Function("PetAction").OnServerInvoke=function(p,action,arg)

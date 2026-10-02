@@ -25,6 +25,7 @@ local EVENTS = {
 	"EmoteAction",
 	"ArenaState",
 	"ArenaShow",
+	"SprintIntent", -- client → server: ("Sprint", bool) | ("Mode", "Hold"|"Toggle")
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน

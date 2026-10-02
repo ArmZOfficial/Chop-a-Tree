@@ -31,6 +31,8 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
+- Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).
+
 - Run จบโดยผู้เล่น End Run ไม่มีเวลาจำกัด; รางวัล/ของถือใช้ RunService และกติกา secure เดิม. ไข่จากรังต้องส่งกลับอย่างถูกต้อง; ออก/ตายต่างจาก secure.
 - Auto Attack = ยืนฟัน, Auto Cut = เดินฟันฟรีทุกคนในโซนปัจจุบัน; manual override หยุด. ค่าเริ่มต้นผลตอบแทน .55; ทักษะฟรีลดโทษถึง .75; ไม่ขาย Auto Cut.
 - ต้น 6 tier/โซน, scale `100^(zone-1)`; respawn 15 วิ, contribution reward. สูตรอ้างอิง Config/Balance ไม่คัดตัวเลขซ้ำใน docs.

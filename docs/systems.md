@@ -34,6 +34,11 @@ Retro builders (Plastic + Studs, BrickColor-style colours, Neon accents only, no
 - **Sword Pack 380 (แทร็ก B):** ข้อมูล `data/swords.json` ← `tools/gen_swords.py`; `tools/gen_config.py` สร้าง `Config/SwordPack.luau` (แถวย่อ) + `Config/LegacyWeaponMap.luau` + `docs/sword-pack-migration.md`. ทุกระบบ require `Config.WeaponCatalog` (List = ดาบ 380 สำหรับหีบ/Index, Legacy = wpn_* เดิม legacy=true, ById = ทั้งคู่). Flag `SwordPack` เลือก pool หีบ (ปิด = pool เก่า). DataService v2: `MIGRATIONS[2]` แก้ item.id ในที่ + `legacyId`, Index union; ทุก step รันบน copy ใน pcall — ล้ม = คงข้อมูลเดิม/เวอร์ชันเดิม. Admin `data.migratetest` → `AdminCommands/SwordMigrationCheck` (ข้อมูลสังเคราะห์). WeaponVisual: retro Plastic/Studs ≤9 parts + `SwingTrail` (ForestController เปิดตอนฟัน + hit burst บล็อก neon).
 - Phase2 23, Phase3 36; fixtures ใน tools/tests. Power thresholds/EXP/odds ดู Balance/Config. หีบหลายใบไม่เปลี่ยน odds.
 
+## Movement / Sprint
+
+- `Config.Movement` + flag `Sprint`. Client `SprintController` ส่ง intent `SprintIntent` ("Sprint", bool / "Mode", Hold|Toggle) จาก Shift, gamepad L3, ปุ่ม RUN (touch, toggle). Server `PetService.SetSprint` ตรวจ (bool, ตัวละครมีชีวิต, flag, ไม่ AdminFly, ไม่แบกไข่, rate limit เฉพาะ start) → `Character.Sprinting`; ความเร็วรวมที่ `Pet.ApplySpeed` = base(AdminSpeed|16) × Pet.SpeedMult × 1.5. ตัวละครใหม่ไม่มี attribute = รีเซ็ต. Arena Place ไม่มีสคริปต์นี้ (ArenaMatch ตั้ง WalkSpeed เอง).
+- Client cosmetics อ่าน attribute: FOV +8 (ramp), ฝุ่นบล็อก; ปิดเมื่อ Reduce Motion/กราฟิกต่ำ. Shift-lock ย้ายไป Ctrl ผ่าน `MouseLockController.BoundKeys`. Photo mode/AdminFly ใช้ Shift ของตัวเอง → sprint ปิด. `Settings.SprintMode` (Reconcile, ไม่เพิ่ม DATA_VERSION) แก้จากหน้าต่าง Settings.
+
 ## Garden
 
 - GardenService owns 7ฐาน/OwnerUserId/BaseIndex; ownership reuse ผ่าน BaseById/OwnerOf. GardenSlots runtime30.
