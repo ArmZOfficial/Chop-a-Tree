@@ -37,7 +37,14 @@
 | Phase8 Collections/Emote/Encounter/Festival | **55 · 5 · 59 · 16** | `WeaponCatalog` |
 | Phase8 Merchant/Rebirth/Rewards/Season/Shop/Weather | **30 · 41 · 45 · 34 · 34 · 38** | Merchant รอ 1.1 วิ ก่อน Summon รอบสอง (key `admin:<วินาที>` ซ้ำได้) |
 
-ทุกชุด restore ครบ (RegressionHarness Finish), console ไม่มี error, ลบ test scripts ออกจาก Studio แล้ว. ไม่มีบั๊กเกมจากรอบนี้ — ที่ตกทั้งหมดเป็นเทสต์ที่ต้องพอร์ต.
+| Phase2 / Phase3 / Phase7 (รันใหม่หลังสร้างต้นไม้ใหม่) | **23 · 36 · 24** | — |
+| ArenaReward (main place, ledger Studio) | **12/12** | — |
+| Arena lobby (Luau CLI, `RunArenaLobby.ps1`) | **37** | — |
+| Offline | compile 204 ไฟล์ 0 error · timeline 33/33 · sword pack 4/4 · map systems 162 · locale missing_th 0 · balance_sim ผ่าน | — |
+| UI smoke (เปิดทุกหน้าต่าง 13 ตัว ใน Play 1238×793) | ทุกตัวอยู่ในจอ, shade เต็มจอ, HUD/prompt ซ่อน, blur 18 → ปิดแล้วคืนครบ | — |
+
+ทุกชุด restore ครบ (RegressionHarness Finish), ลบ test scripts ออกจาก Studio แล้ว. บั๊กเกมที่เจอรอบนี้ 1 ตัว (มีมาก่อน): `StoryController` ตั้ง `QuestGuide.TargetPosition=false` ตอนไม่มีเควสต์ → `MapController:81` error ทุก 0.2 วิ — แก้ให้เป็น `nil`, console สะอาดแล้ว.
+**ยังไม่ได้รัน:** ReceiptPersistence (ต้อง reconnect ด้วยเซฟจริง — mock หายเมื่อ Stop; รอ ArmZ อนุมัติ live profile), ArenaMatchSelfTest (ต้องเปิด place Arena `135249057761883`), GUI harness แบบคลิกเมาส์จริงทีละหน้าจอ (แทนด้วย UI smoke ข้างบน), มือถือ/จอยเครื่องจริง.
 วิธีรัน: วาง `RegressionHarness` + `RegressionRunner` + scenario (ปิด `Enabled`) ใน ServerScriptService ด้วย multi_edit, ตั้ง attribute `Scenarios="ชื่อ=StatusKey,..."` บน Runner → Play → รอ character แล้วตั้ง `RegressionRunner.Enabled=true` จาก execute_luau (Server) → อ่าน `Summary`/`Done` → Stop → ลบ (MCP เรียก BindableFunction ของ harness ตรง ๆ ไม่ได้). execute_luau รอนานเกิน ~2 นาทีจะ timeout ให้ poll ซ้ำ. เทียบ hash กับไฟล์ repo ก่อนรันทุกครั้ง. mock profile ของ ArmZ มี pass ติดมา (เช่น Wood 2x, OpenTen) → scenario ที่วัดรางวัลต้องล้าง `Purchases.passes`/`Boosts` เอง หรือใช้ RegressionHarness.
 
 ## แทร็ก J ปิดงาน — เสียงเปิดหีบ + Open 10 จริง (2026-10-03, ยังไม่ Publish)

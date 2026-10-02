@@ -255,7 +255,7 @@ function Controller.Start()
 		local hr=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		-- Guide beam
 		local goal=quest and quest.enabled and target(quest.current)
-		local pos=goal and (goal:IsA("BasePart") and goal.Position or goal:GetPivot().Position)
+		local pos=goal and (goal:IsA("BasePart") and goal.Position or goal:GetPivot().Position) or nil -- never false: MapController reads it as a Vector3
 		-- The map consumes the existing quest resolver, including streamed-out/blocked targets.
 		beamFolder:SetAttribute("TargetPosition",pos)
 		-- The distance billboard is GUI (never blurred): hide it while a menu blurs the world.
