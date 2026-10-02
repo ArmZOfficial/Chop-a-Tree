@@ -991,7 +991,7 @@ function MapBuilder.BuildMountains()
 			local n = math.ceil(2 * math.pi * r / 60)
 			for i = 0, n - 1 do
 				local a = (i + rng:NextNumber(-0.3, 0.3)) / n * 2 * math.pi
-				for row = 0, i % 2 do -- every other slot gets a taller peak behind
+				for row = 0, 1 do -- front rock + a taller peak behind
 					local p = polar(center, r + row * 35 + rng:NextNumber(-8, 8), a, -6)
 					if not inside(p) and not blocked(p) then
 						local m = template:Clone()

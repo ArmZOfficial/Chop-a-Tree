@@ -120,8 +120,9 @@ local function part(m, name, size, cf, color, material, collide)
 	p.Name = name
 	p.Anchored = true
 	p.Material = material or Enum.Material.Plastic
-	p.TopSurface = Enum.SurfaceType.Studs
-	p.BottomSurface = Enum.SurfaceType.Inlet
+	for _, face in { "Top", "Bottom", "Front", "Back", "Left", "Right" } do -- studs on every face, like the reference
+		p[face .. "Surface"] = Enum.SurfaceType.Studs
+	end
 	p.Size = size
 	p.CFrame = cf
 	p.Color = color
