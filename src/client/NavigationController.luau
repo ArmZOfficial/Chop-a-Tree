@@ -222,6 +222,7 @@ function Navigation.Start()
         -- Floating world HUD (compass, zone/event banners) would still show through the dim: hide it while a menu is open.
         if map then for _,c in map:GetChildren() do if c:IsA("GuiObject") and c.Name~="BoatSkip" then c.Visible=not obscured end end end
         for _,name in {"ZoneHUD","WorldEventHUD"} do local g=pg:FindFirstChild(name);if g then g.Enabled=not obscured end end
+        game:GetService("ProximityPromptService").Enabled=not obscured -- world prompts ("E Open Chest") draw over windows
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
             if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not compact and not forest.RunPanel.Visible end

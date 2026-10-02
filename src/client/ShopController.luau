@@ -81,8 +81,9 @@ function Shop.Start()
 		local card=UI.New("Frame",{Name=(tab=="Passes" and "Pass_" or "Product_")..key,BackgroundTransparency=1,LayoutOrder=order,Parent=others});UI.Skin(card,"cards","product")
 		art(card,key,product,{Position=UDim2.fromOffset(12,11),Size=UDim2.fromOffset(100,100)})
 		UI.Label(title(product),21,{Name="Title",Position=UDim2.fromOffset(118,10),Size=UDim2.new(1,-130,0,28),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
-		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
-		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,58),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-62);b.Parent=card
+		-- Description fills the gap between title and button (the button used to cover its second line).
+		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,1,-88),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
+		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,46),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-50);b.Parent=card
 	end
 	local tabs={}
 	render=function()
