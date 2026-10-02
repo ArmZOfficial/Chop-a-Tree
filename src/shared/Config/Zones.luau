@@ -42,19 +42,19 @@ local list: { Zone } = {
 	{
 		id = 3, key = "GlowcapBog", name = "Glowcap Bog", thai = "บึงเห็ดเรืองแสง",
 		y = 20, inner = 560, outer = 650, built = true, egg = "SporeEgg", boss = "Sporemother",
-		colors = { ground = rgb(70, 92, 72), cliff = rgb(70, 66, 60), trunk = rgb(80, 70, 90),
+		colors = { ground = rgb(45, 90, 85), cliff = rgb(70, 66, 60), trunk = rgb(80, 70, 90),
 			leaves = { rgb(120, 70, 160), rgb(90, 230, 200) }, accent = rgb(90, 230, 200) },
 	},
 	{
 		id = 4, key = "SakuraHighlands", name = "Sakura Highlands", thai = "ที่ราบสูงซากุระ",
 		y = 30, inner = 470, outer = 560, built = true, egg = "PetalEgg", boss = "Blossom Ronin",
-		colors = { ground = rgb(150, 200, 120), cliff = rgb(130, 120, 110), trunk = rgb(90, 60, 60),
+		colors = { ground = rgb(236, 196, 212), cliff = rgb(130, 120, 110), trunk = rgb(90, 60, 60),
 			leaves = { rgb(255, 183, 213), rgb(255, 210, 230) }, accent = rgb(200, 40, 50) },
 	},
 	{
 		id = 5, key = "ThunderBamboo", name = "Thunder Bamboo", thai = "ป่าไผ่สายฟ้า",
 		y = 40, inner = 380, outer = 470, built = true, egg = "ThunderEgg", boss = "Stormstalk",
-		colors = { ground = rgb(90, 140, 80), cliff = rgb(100, 105, 100), trunk = rgb(150, 180, 90),
+		colors = { ground = rgb(141, 176, 74), cliff = rgb(100, 105, 100), trunk = rgb(150, 180, 90),
 			leaves = { rgb(120, 190, 80) }, accent = rgb(255, 235, 80) },
 	},
 	{
@@ -94,7 +94,7 @@ for _, z in list do
 	z.order = z.id
 	z.nameKey = z.name -- Locale uses English text as its stable key.
 	z.unlock = { shrine = z.id > 1 and z.id - 1 or nil, coins = 0 }
-	z.trees = { pool = treePools[z.id], hpMult = 1, dropMult = 1 } -- TreeKit retains its 55/30/15 mix; Balance/Forest own stats.
+	z.trees = { pool = treePools[z.id], hpMult = 1, dropMult = 1 } -- TreeKit look mix 85/15 own/neighbour; Balance/Forest own stats.
 	z.events = { "GoldenTree", "TimberRush", "Meteor", "BossTree", "Fog" }
 	z.rarityBonus = 0
 	z.ambient = { music = "", sfx = "", particles = particles[z.id], lighting = lighting[z.id] } -- Silent until licensed assets exist.

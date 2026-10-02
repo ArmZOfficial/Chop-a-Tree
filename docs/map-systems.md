@@ -48,7 +48,7 @@ Balance: no paid gates, no new prices/pass IDs and no rarity weight changes. Use
 | 8 | Lumora Plateau (SkyIsles key) | 0–200 / 78 | Boss + shrine 7 | LumoraGold, LumoraPearl, LumoraSun |
 | hub | Rootfall | (0,4,1010), r190 | Safe/free | None |
 
-All zone HP/drop multipliers are 1; rarity bonus 0; travel cost 0. Actual progression remains Balance's x100 per zone with Rebirth/AutoCut/friend/Pet/pass/boost seams. TreeKit retains its existing 55/30/15 themed/neighbour/other mix; pool metadata records the themed references. No extra economic curve.
+All zone HP/drop multipliers are 1; rarity bonus 0; travel cost 0. Actual progression remains Balance's x100 per zone with Rebirth/AutoCut/friend/Pet/pass/boost seams. TreeKit look mix is 85/15 themed/neighbour (2026-10-03 map review); pool metadata records the themed references. No extra economic curve.
 
 ## Data v3
 

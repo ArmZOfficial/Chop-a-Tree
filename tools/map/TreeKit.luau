@@ -103,13 +103,11 @@ for zone, list in zones do
 end
 TreeKit.Kinds = kinds
 
--- Mix per plan: own zone ~55%, neighbouring zones ~30%, anywhere ~15%.
+-- Look mix (2026-10-03 map review): own zone ~85%, neighbouring zone ~15%, so each ring reads
+-- as its own palette. Tree stats always come from the tree's Zone attribute, not its look.
 function TreeKit.Pick(zoneId, rng)
-	local roll = rng:NextNumber()
 	local zone = zoneId
-	if roll >= 0.85 then
-		zone = rng:NextInteger(1, 8)
-	elseif roll >= 0.55 then
+	if rng:NextNumber() >= 0.85 then
 		zone = math.clamp(zoneId + (rng:NextNumber() < 0.5 and -1 or 1), 1, 8)
 	end
 	return (zone - 1) * 3 + rng:NextInteger(1, 3)

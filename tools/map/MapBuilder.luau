@@ -822,7 +822,7 @@ function MapBuilder.BuildZone(index)
 
 		-- Hedge along the outer rim (meadow: coast wall in BuildWorld), opening at the south gate.
 		if index > 1 then
-			ringWall(folders.Boundary, Vector3.zero, Z.outer - 2.5, y - 0.5, 8.5, 5, Zones.RotColor:Lerp(zone.colors.cliff, 0.65), "RotHedge", { { 0, GATE_HALF } }, 30)
+			ringWall(folders.Boundary, Vector3.zero, Z.outer - 2.5, y - 0.5, 8.5, 5, Zones.RotColor:Lerp(zone.colors.ground:Lerp(Color3.new(), 0.3), 0.8), "RotHedge", { { 0, GATE_HALF } }, 30)
 		end
 
 		-- Gate to the next ring at the top of the stairs.
@@ -995,7 +995,12 @@ function MapBuilder.BuildMountains()
 					local p = polar(center, r + row * 35 + rng:NextNumber(-8, 8), a, -6)
 					if not inside(p) and not blocked(p) then
 						local m = template:Clone()
-						m:ScaleTo(rng:NextNumber(7, 10) * (row == 1 and 1.4 or 1))
+						m:ScaleTo(rng:NextNumber(8, 12) * (row == 1 and 1.6 or 1))
+						if rng:NextNumber() < 0.5 then -- alternate two greys so neighbouring rocks read apart
+							for _, part in m:GetDescendants() do
+								if part:IsA("BasePart") then part.Color = Color3.fromRGB(140, 138, 135) end
+							end
+						end
 						m:PivotTo(CFrame.new(p) * CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0))
 						m.Parent = root
 					end
