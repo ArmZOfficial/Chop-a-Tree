@@ -67,7 +67,7 @@ function Weapon.AtAltar(player)
 	return false
 end
 
-function Weapon.Open(player,uid)
+function Weapon.Open(player,uid,seen)
 	if not Data.IsLoaded(player) or not Features.IsEnabled("Chests") then return false,"Chests unavailable" end
 	if type(uid)~="string" or not Weapon.AtAltar(player) then return false,"End your run, then visit the village chest station" end
 	local inventory=Data.Get(player,"Inventory.Weapons");local count=0;for _ in inventory do count+=1 end
@@ -78,6 +78,10 @@ function Weapon.Open(player,uid)
 	if not chest then return false,"Chest no longer available" end
 	local luck=CollectionMath.Luck(Data.GetData(player),Features.IsEnabled("Rebirth"),Features.IsEnabled("IndexBonuses"),os.time(),game.ReplicatedStorage:GetAttribute("ServerLuckUntil"))
 	local item=Loot.Roll(chest,rng,luck);local weaponUid=Http:GenerateGUID(false)
+	-- NEW! badge for the opening card: not in the Index, not owned, not earlier in this batch.
+	local idx=Data.Get(player,"Index");local fresh=not (type(idx)=="table" and type(idx.weapons)=="table" and idx.weapons[item.id]) and not (seen and seen[item.id])
+	if fresh then for _,w in inventory do if w.id==item.id then fresh=false;break end end end
+	if seen then seen[item.id]=true end
 	-- No yields: consume exactly one chest and create exactly one weapon.
 	chest.count-=1;if chest.count==0 then table.remove(chests,index) end
 	inventory[weaponUid]=item
@@ -86,7 +90,7 @@ function Weapon.Open(player,uid)
 	require(script.Parent.PetService).ChestDrop(player,chest)
 	if Data.Get(player,"Inventory.Equipped")=="" then Data.Set(player,"Inventory.Equipped",weaponUid);Weapon.RefreshTool(player) end
 	if item.giant then Net.Event("Notify"):FireAllClients({text=player.DisplayName.." Earned GIANT "..Weapons.ById[item.id].name.."!",color="Accent"}) end
-	return true,"Chest opened",{uid=weaponUid,item=table.clone(item)}
+	return true,"Chest opened",{uid=weaponUid,item=table.clone(item),new=fresh,chest=chest.rarity}
 end
 
 function Weapon.Equip(player,uid)
@@ -154,10 +158,10 @@ function Weapon.Init()
 		if action=="Open" then return Weapon.Open(player,arg)
 		elseif action=="OpenTen" then
 			if not (Data.Get(player,"Purchases.passes") or {}).OpenTen then return false,"Requires the Open Ten pass" end
-			local n,ok,msg,last=0,true
-			for _=1,10 do local r;ok,msg,r=Weapon.Open(player,arg);if not ok then break end;n+=1;last=r end
+			local n,ok,msg,last,all,seen=0,true,nil,nil,{},{}
+			for _=1,10 do local r;ok,msg,r=Weapon.Open(player,arg,seen);if not ok then break end;n+=1;last=r;table.insert(all,r) end
 			if n==0 then return false,msg end
-			return true,"Open Chest "..n.." eggs",last
+			return true,"Open Chest "..n.." eggs",last,all -- 4th value: every result, for the multi-open grid
 		elseif action=="Equip" then return Weapon.Equip(player,arg)
 		elseif action=="Fuse" then return Weapon.Fuse(player,arg)
 		elseif action=="Delete" then return Weapon.Delete(player,arg)

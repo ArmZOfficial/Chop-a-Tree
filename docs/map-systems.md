@@ -88,6 +88,8 @@ No push or Publish was performed. Initial 31-script synchronization and continua
 
 ## Studio QA mode and next checks
 
+Update 2026-10-03: the full Main bootstrap is enabled again and both QA bootstraps are disabled (kept in place); MapUseMockProfiles stays true. The paragraph below describes the earlier QA state.
+
 Studio is left in Edit/default viewport with safe QA: normal Main scripts disabled, MapQABootstrap/MapClientQA enabled, DataService.MapUseMockProfiles=true. It asserts Studio/mock opt-in and loads map/gameplay/Quest services plus ten UI modules, including StoryController for gates/quest targets. Admin/leaderboards/live-event networking/purchases/full bootstrap are not started. Play reviews this slice without PlayerData_v1 reads/writes; memory profiles disappear with the VM.
 
 Fixtures: tools/tests/StudioMapQA.server.luau (Server.MapQABootstrap) and StudioMapQA.client.luau (StarterPlayerScripts.MapClientQA). Server-only MapQARequests.action supports report/migration/collect/allExplorer/zone2/travel/event/hub/language/variants/unlock2/boat/boatBack/boatCancel/spawnTree/basesCycle/perf/mockRoundTrip. Observe completion/result and reset Play between independent cases. mockRoundTrip saves the existing mock key, kicks the QA client to release its session/base, then reopens/verifies/ends a native mock session; run it last. boatCancel requires moving the character away during the ride. Never enable these fixtures for deployment.

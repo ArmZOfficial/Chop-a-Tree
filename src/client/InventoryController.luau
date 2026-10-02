@@ -48,9 +48,6 @@ function Inventory.Start()
 	local chestList=list("Chests");local weaponList=list("Weapons")
 	UI.Grid(4,154,10).Parent=weaponList;UI.Grid(3,190,10).Parent=chestList
 	local info,message=UI.InfoBar(panel,HINT,{Name="Info",Position=UDim2.fromOffset(344,556),Size=UDim2.fromOffset(582,50)},"book")
-	local result=UI.New("Frame",{Name="Result",Active=true,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(380,365),BackgroundColor3=UI.Colors.PanelDark,Visible=false,ZIndex=20,Parent=gui},{UI.Corner(20),UI.Stroke(4),UI.Padding(18)})
-	local resultLabel=UI.Label("Opening chest...",20,{Name="Reward",Position=UDim2.fromOffset(0,190),Size=UDim2.new(1,0,0,90),TextXAlignment=Enum.TextXAlignment.Center,ZIndex=21,Parent=result})
-	local resultView=UI.New("ViewportFrame",{Name="Preview",BackgroundTransparency=1,Size=UDim2.new(1,0,0,185),ZIndex=21,Ambient=Color3.fromRGB(220,220,220),LightColor=Color3.new(1,1,1),Parent=result})
 	local function preview(view,def,item)
 		view:ClearAllChildren()
 		local illustration=UI.Art(view,"weapons",def.id,{Size=UDim2.fromScale(1,1)})
@@ -65,35 +62,28 @@ function Inventory.Start()
 	local function request(action,arg)
 		if busy then return false end
 		busy=true
-		local ok,success,text,extra=pcall(function() return Net.Function("InventoryAction"):InvokeServer(action,arg) end)
+		local ok,success,text,extra,all=pcall(function() return Net.Function("InventoryAction"):InvokeServer(action,arg) end)
 		busy=false
 		if not ok then say("Connection failed. Try again");return false end
 		if action~="Sync" then say(text or (success and "Done" or "Try again")) end
 		if success and extra then selected=extra.uid;pendingSelection=extra.uid end
 		render()
-		return success,extra
+		return success,extra,all
 	end
-	local function showReward(reward)
-		if not reward then return end
-		busy=true;result.Visible=true
-		local def=Weapons.ById[reward.item.id]
-		for i=1,12 do
-			local candidate=Weapons.List[math.random(1,#Weapons.List)]
-			preview(resultView,candidate,{giant=false});resultLabel.Text=candidate.name
-			task.wait(.03+i*.008)
-		end
-		preview(resultView,def,reward.item)
-		resultLabel.Text=(reward.item.giant and "GIANT!\n" or "")..def.name.."\n"..def.rarity.." • IL "..reward.item.il.." • Power "..NF.Short(Loot.Power(reward.item))
-		resultLabel.TextColor3=Rarities.Color[def.rarity]:Lerp(Color3.new(1,1,1),.25)
-		if reward.item.giant then
-			local hum=player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-			if hum then local original=hum.CameraOffset;for _=1,8 do hum.CameraOffset=original+Vector3.new(math.random()-.5,math.random()-.5,0);task.wait(.04) end;hum.CameraOffset=original end
-		end
-		busy=false
+	-- Opening cinematic + result card (ChestOpening). The server already saved the weapons.
+	local Opening=require(script.Parent.ChestOpening)
+	local function chestLeft(uid) for _,c in Data.Get("Inventory.Chests") or {} do if c.uid==uid and c.count>0 then return true end end;return false end
+	local openChest
+	openChest=function(uid,ten)
+		if not uid or Opening.Playing() then return end
+		local ok,reward,all=request(ten and "OpenTen" or "Open",uid)
+		if not ok or not reward then return end
+		Opening.Play(ten and type(all)=="table" and all or {reward},{
+			onEquip=function(w) request("Equip",w) end,
+			onAgain=function() openChest(uid,ten) end,
+			canAgain=function() return chestLeft(uid) end,
+		})
 	end
-	local closeResult=UI.Button({text="Added to inventory • Close",color=UI.Colors.Green,size=UDim2.new(1,0,0,48),onClick=function() if not busy then result.Visible=false end end})
-	closeResult.Name="Close";closeResult.Position=UDim2.new(0,0,1,-48);closeResult.Parent=result
-	closeResult.ZIndex=22;for _,g in closeResult:GetDescendants() do if g:IsA("GuiObject") then g.ZIndex=22 end end
 	local function compatibleIds()
 		local inv=Data.Get("Inventory.Weapons") or {};local item=inv[selected];local ids={}
 		if item then for uid,w in inv do if uid~=selected and Loot.Compatible(item,w) then table.insert(ids,uid) end end end
@@ -115,8 +105,8 @@ function Inventory.Start()
 		local uid=selected;pendingDelete=nil;request("Delete",uid)
 	end)
 	UI.Skin(delete.Button,"controls","delete");delete.Button.SurfaceArt.ScaleType=Enum.ScaleType.Fit
-	local openOne=action("Open","Open 1",UI.Colors.Orange,0,1,function() if selectedChest then local ok,reward=request("Open",selectedChest);if ok then showReward(reward) end end end)
-	local openTen=action("OpenTen","Open 10",UI.Colors.Green,.5,.5,function() if selectedChest then local ok,reward=request("OpenTen",selectedChest);if ok then showReward(reward) end end end)
+	local openOne=action("Open","Open 1",UI.Colors.Orange,0,1,function() openChest(selectedChest,false) end)
+	local openTen=action("OpenTen","Open 10",UI.Colors.Green,.5,.5,function() openChest(selectedChest,true) end)
 	local exchange=action("DustExchange","Exchange",UI.Colors.Green,0,1,function()
 		local success,ok,msg=pcall(function() return Net.Function("EncounterAction"):InvokeServer("Exchange") end)
 		say(success and msg or "Connection failed");render()
@@ -220,11 +210,10 @@ function Inventory.Start()
 		local size=workspace.CurrentCamera.ViewportSize
 		weaponList.Visible=tab=="Weapons";chestList.Visible=tab=="Chests"
 		for name,t in tabs do UI.SetTab(t,tab==name and "gold" or nil) end
-		local s=result:FindFirstChildOfClass("UIScale") or Instance.new("UIScale");s.Scale=math.min(1,(size.X-20)/380,(size.Y-30)/365);s.Parent=result
 	end
 	local function show()
 		local garden=player.PlayerGui:FindFirstChild("GardenHUD");if garden and garden:FindFirstChild("Panel") then garden.Panel.Visible=false end
-		panel.Visible=true;result.Visible=false;pendingFuse=nil;pendingDelete=nil;say();resize();render()
+		panel.Visible=true;pendingFuse=nil;pendingDelete=nil;say();resize();render()
 		task.spawn(function() request("Sync") end)
 	end
 	local toggle=UI.Button({text="Inventory / Chests",color=UI.Colors.Purple,size=UDim2.fromOffset(178,48),onClick=function() if panel.Visible then panel.Visible=false else show() end end})

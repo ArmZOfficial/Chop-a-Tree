@@ -2,6 +2,7 @@
 local Players=game:GetService("Players")
 local S=game.ReplicatedStorage.Shared;local UI=require(S.UIKit)
 local Atlas=require(S.Config.UIIcons)
+local Net=require(S.Net)
 local Navigation={}
 local Lighting=game:GetService("Lighting")
 local GuiService=game:GetService("GuiService")
@@ -106,9 +107,9 @@ function Navigation.Start()
 	for _,spec in {{"ArenaHUD","Panel",500,420},{"InventoryHUD","Result",380,365},{"ForestHUD","Summary",360,250},{"EmoteHUD","Wheel",330,330},{"StoryHUD","Dialog",620,150}} do
 		local owner=pg:FindFirstChild(spec[1]);local panel=owner and owner:FindFirstChild(spec[2]);if panel then bindPanel(panel,owner,spec[3],spec[4]) end
 	end
-	local settings=UI.New("Frame",{Name="Settings",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(450,412),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(18)})
+	local settings=UI.New("Frame",{Name="Settings",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(450,478),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(18)})
 	UI.Label("Settings",24,{Parent=settings})
-    UI.Label("E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo",15,{Position=UDim2.fromOffset(12,330),Size=UDim2.new(1,-24,0,34),Parent=settings})
+    UI.Label("E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo",15,{Position=UDim2.fromOffset(12,396),Size=UDim2.new(1,-24,0,34),Parent=settings})
     local muteState={Music=false,SFX=false};local volumes={}
     local function category(s)
         local group=s.SoundGroup;local name=string.lower(s.Name)
@@ -153,8 +154,19 @@ function Navigation.Start()
         toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,3);toggle.Parent=row;lift(toggle)
         refresh();require(script.Parent.ClientData).Changed:Connect(function(path) if path=="" or path=="Settings.Language" or path=="Settings" then refresh() end end)
     end
+    do -- Chest opening animation: FULL / FAST / OFF; saved in Settings.ChestAnimation by the server
+        local Opening=require(script.Parent.ChestOpening)
+        local NEXT,LABEL={Full="Fast",Fast="Off",Off="Full"},{Full="FULL",Fast="FAST",Off="OFF"}
+        local row=UI.New("Frame",{Name="ChestAnimation",Position=UDim2.fromOffset(0,314),Size=UDim2.new(1,0,0,58),BackgroundColor3=UI.Colors.PanelDark,Parent=settings},{UI.Corner(12),UI.Stroke(2,UI.Colors.Rail)})
+        UI.Label("Chest Animation",26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-170,1,-16),TextScaled=true,Parent=row})
+        local toggle
+        local function refresh() local t=toggle.Button:FindFirstChildWhichIsA("TextLabel",true);if t then t.Text=LABEL[Opening.Mode()] end end
+        toggle=UI.Button({text="FULL",textSize=22,color=UI.Colors.Blue,size=UDim2.fromOffset(138,52),onClick=function() Net.Event("SettingIntent"):FireServer("ChestAnimation",NEXT[Opening.Mode()]) end})
+        toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,3);toggle.Parent=row;lift(toggle)
+        refresh();require(script.Parent.ClientData).Changed:Connect(function(path) if path=="" or path=="Settings.ChestAnimation" or path=="Settings" then refresh() end end)
+    end
 	local settingButton=UI.Button({text="Settings",color=UI.Colors.Blue,onClick=function() settings.Visible=true end});settingButton.Name="SettingsMenu";settingButton.LayoutOrder=98;dress(settingButton,"Settings","gear");table.insert(records,{holder=settingButton,owner=gui,primary=false})
-	bindPanel(settings,gui,450,412)
+	bindPanel(settings,gui,450,478)
 	layout=function()
 		local v=workspace.CurrentCamera.ViewportSize;compact=v.X<700 or v.Y<500
 		local modal,active=false,nil;for _,r in panels do local s=fit(r.panel,r.w,r.h,r.primary);if r.panel.Visible and r.owner.Enabled then modal=true;if r.primary and not compact then active=r;sideScale.Scale=s end end end

@@ -66,6 +66,35 @@ Crystal Dragon Chest,Crystal Dragon Chest,หีบมังกรคริส�
 Gilded Gem Chest,Gilded Gem Chest,หีบอัญมณีทองคำ,ChestBuilder,
 Mossy Oak Chest,Mossy Oak Chest,หีบไม้โอ๊กตะไคร่,ChestBuilder,
 Runed Iron Chest,Runed Iron Chest,หีบเหล็กจารึกรูน,ChestBuilder,
+Beam,Beam,Beam,ChestOpening,dev
+Bolt,Bolt,Bolt,ChestOpening,dev
+Burst,Burst,Burst,ChestOpening,dev
+Charge,Charge,Charge,ChestOpening,dev
+Compared with equipped: {1},Compared with equipped: {1},เทียบกับที่สวมใส่: {1},ChestOpening,
+Core,Core,Core,ChestOpening,dev
+Equip,Equip,สวมใส่,ChestOpening,
+Full,Full,Full,ChestOpening,dev
+GIANT,GIANT,ยักษ์,ChestOpening,manual
+GIANT!,GIANT!,ยักษ์!,ChestOpening,
+Giant {1},Giant {1},{1} ยักษ์,ChestOpening,
+Intro,Intro,Intro,ChestOpening,dev
+Keep,Keep,เก็บไว้,ChestOpening,
+Keep All,Keep All,เก็บทั้งหมด,ChestOpening,
+LEGENDARY!,LEGENDARY!,ตำนาน!,ChestOpening,
+MYTHIC!,MYTHIC!,เทพนิยาย!,ChestOpening,
+Mythic,Mythic,เทพนิยาย,ChestOpening,
+NEW!,NEW!,ใหม่!,ChestOpening,
+Open Again,Open Again,เปิดอีกครั้ง,ChestOpening,
+Power {1},Power {1},พลัง {1},ChestOpening,
+Results,Results,ผลลัพธ์,ChestOpening,
+Result{1},Result{1},Result{1},ChestOpening,dev
+Reveal,Reveal,Reveal,ChestOpening,dev
+Shockwave,Shockwave,Shockwave,ChestOpening,dev
+Skip,Skip,ข้าม,ChestOpening,
+Skip All,Skip All,ข้ามทั้งหมด,ChestOpening,
+Spark,Spark,Spark,ChestOpening,dev
+{1} Chest,{1} Chest,หีบ{1},ChestOpening,
+{1} • IL {2},{1} • IL {2},{1} • IL {2},ChestOpening,
 Claim reward from {1} done,Claim reward from {1} done,รับรางวัลจาก {1} แล้ว,CodeService,
 Code already redeemed,Code already redeemed,ใช้โค้ดนี้ไปแล้ว,CodeService,
 Codes Unavailable,Codes Unavailable,ระบบโค้ดยังไม่พร้อม,CodeService,
@@ -156,6 +185,10 @@ Halloween,Halloween,ฮาโลวีน,Events,
 Loy Krathong,Loy Krathong,ลอยกระทง,Events,
 Songkran,Songkran,สงกรานต์,Events,
 Splash,Splash,สาดน้ำ,Events,
+Landmark,Landmark,จุดสำคัญ,Explorer,
+Discover,Discover,ค้นพบ,ExplorerService,
+Explored {1}: {2}/{3},Explored {1}: {2}/{3},สำรวจ {1}: {2}/{3},ExplorerService,
+Explorer,Explorer,นักสำรวจ,ExplorerService,
  CRIT!, CRIT!, คริ!,ForestController,
 Auto Attack: OFF,Auto Attack: OFF,โจมตีอัตโนมัติ: ปิด,ForestController,
 Auto Attack: {1},Auto Attack: {1},โจมตีอัตโนมัติ: {1},ForestController,
@@ -295,9 +328,11 @@ Waiting for new fruit,Waiting for new fruit,รอผลใหม่,GardenServi
 Water Seedlings +10%,Water Seedlings +10%,รดน้ำต้นกล้า +10%,GardenService,
 Water once before fully grown,Water once before fully grown,รดน้ำได้ครั้งเดียวก่อนโตเต็มที่,GardenService,
 Watered. Growth +10%,Watered. Growth +10%,รดน้ำแล้ว โตเร็วขึ้น +10%,GardenService,
+Unlock Zone,Unlock Zone,ปลดล็อกโซน,GateController,
+Light shrine in Zone {1} to unlock this gate,Light shrine in Zone {1} to unlock this gate,จุดศาลเจ้าในโซน {1} เพื่อปลดล็อกประตูนี้,GateService,
 Coins,Coins,เหรียญ,HUD,
 Gems,Gems,เพชร,HUD,
-Added to inventory • Close,Added to inventory • Close,เพิ่มเข้าคลังแล้ว • ปิด,InventoryController,
+Added to inventory • Close,Added to inventory • Close,เพิ่มเข้าคลังแล้ว • ปิด,InventoryController,unused
 Chests,Chests,หีบ,InventoryController,
 "Clear trees around a chest spot, then End Run","Clear trees around a chest spot, then End Run",ตัดต้นไม้รอบจุดหีบ แล้วกดจบรอบ,InventoryController,
 Click Delete again to permanently remove this weapon,Click Delete again to permanently remove this weapon,กดลบอีกครั้งเพื่อลบอาวุธนี้ถาวร,InventoryController,
@@ -307,7 +342,6 @@ Connection failed. Try again,Connection failed. Try again,เชื่อมต�
 Delete,Delete,ลบ,InventoryController,
 Done,Done,เสร็จ,InventoryController,
 Dust,Dust,ผงดาว,InventoryController,
-Equip,Equip,สวมใส่,InventoryController,
 Exchange,Exchange,แลก,InventoryController,
 "Exchange {1} Stardust
 for one Rare Chest","Exchange {1} Stardust
@@ -320,7 +354,7 @@ GIANT ,GIANT ,ยักษ์ ,InventoryController,
 "GIANT!
 ","GIANT!
 ","ยักษ์!
-",InventoryController,
+",InventoryController,unused
 Giant ,Giant ,ยักษ์ ,InventoryController,
 "IL {1} • Giant {2}
 {3}","IL {1} • Giant {2}
@@ -343,7 +377,7 @@ Open,Open,เปิด,InventoryController,
 Open 1,Open 1,เปิด 1,InventoryController,
 Open 10,Open 10,เปิด 10,InventoryController,
 Open chests at the village station,Open chests at the village station,เปิดหีบได้ที่แท่นในหมู่บ้าน,InventoryController,
-Opening chest...,Opening chest...,กำลังเปิดหีบ...,InventoryController,
+Opening chest...,Opening chest...,กำลังเปิดหีบ...,InventoryController,unused
 Owned,Owned,มีอยู่,InventoryController,
 Power,Power,พลัง,InventoryController,
 Rare,Rare,หายาก,InventoryController,
@@ -364,12 +398,11 @@ Legacy weapon — upgrades to {2} on next join","{1}
 Legacy weapon — upgrades to {2} on next join","{1}
 อาวุธรุ่นเก่า — จะอัปเกรดเป็น {2} เมื่อเข้าเกมครั้งถัดไป",InventoryController,
 {1} = Rare Chest,{1} = Rare Chest,{1} = หีบหายาก,InventoryController,
-{1} Chest,{1} Chest,หีบ{1},InventoryController,
 {1}Tab,{1}Tab,{1}Tab,InventoryController,
 "{1}{2}
 {3} • IL {4} • Power {5}","{1}{2}
 {3} • IL {4} • Power {5}","{1}{2}
-{3} • IL {4} • พลัง {5}",InventoryController,
+{3} • IL {4} • พลัง {5}",InventoryController,unused
 ✓ Equipped,✓ Equipped,✓ สวมใส่อยู่,InventoryController,
 "
 No eligible players yet","
@@ -394,6 +427,31 @@ ENGLISH,ENGLISH,English,LocaleController,manual
 Settings,Settings,ตั้งค่า,LocaleController,
 Unknown chest rarity,Unknown chest rarity,ไม่รู้จักความหายากของหีบ,Loot,
 HUD,HUD,HUD,Main.client,
+Compass {1}° • N  E  S  W,Compass {1}° • N  E  S  W,เข็มทิศ {1}° • เหนือ ตะวันออก ใต้ ตะวันตก,MapController,
+Defeat boss and light shrine in Zone {1},Defeat boss and light shrine in Zone {1},ชนะบอสและจุดศาลเจ้าในโซน {1},MapController,
+Destination: {1},Destination: {1},ปลายทาง: {1},MapController,
+Event,Event,Event,MapController,dev
+Event target,Event target,อีเวนต์,MapController,
+Explored {1}/{2},Explored {1}/{2},สำรวจ {1}/{2},MapController,
+Home,Home,บ้าน,MapController,
+Hub,Hub,หมู่บ้าน,MapController,
+Map,Map,แผนที่,MapController,
+Marker,Marker,หมุด,MapController,
+North / Camera,North / Camera,ทิศเหนือ / กล้อง,MapController,
+Quest,Quest,Quest,MapController,dev
+Quest target,Quest target,ภารกิจ,MapController,
+Rootfall,Rootfall,รูทฟอลล์,MapController,
+Select a zone to travel,Select a zone to travel,เลือกโซนเพื่อเดินทาง,MapController,
+Shrine,Shrine,ศาลเจ้า,MapController,
+Skip boat ride,Skip boat ride,ข้ามการนั่งเรือ,MapController,
+Travel,Travel,เดินทาง,MapController,
+Travel unavailable,Travel unavailable,เดินทางไม่ได้,MapController,
+World Map,World Map,แผนที่โลก,MapController,
+Zone{1},Zone{1},Zone{1},MapController,dev
+{1} {2} • {3},{1} {2} • {3},{1} {2} • {3},MapController,manual
+{1}Target,{1}Target,{1}Target,MapController,dev
+Mini-chest,Mini-chest,หีบสำรวจ,MapSystems,manual
+{1} • {2},{1} • {2},{1} • {2},MapSystems,unused
 Chests {1} LEVEL {2},Chests {1} LEVEL {2},หีบ{1} เลเวล {2},MerchantMath,
 Seeds {1},Seeds {1},เมล็ด {1},MerchantMath,
 Buy {1} done,Buy {1} done,ซื้อ {1} แล้ว,MerchantService,
@@ -428,10 +486,14 @@ Cosmic,Cosmic,จักรวาล,Mutations,
 Electrified,Electrified,ไฟฟ้า,Mutations,
 Frozen,Frozen,เยือกแข็ง,Mutations,
 Shocked,Shocked,ช็อต,Mutations,
+Chest Animation,Chest Animation,แอนิเมชันหีบ,NavigationController,
 Choose a Menu,Choose a Menu,เลือกเมนู,NavigationController,
 Dialog,Dialog,Dialog,NavigationController,
 E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo,E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo,E: ฟัน  •  Shift: วิ่ง  •  G: อีโมต  •  P: ถ่ายรูป,NavigationController,
 Emotes,Emotes,อีโมต,NavigationController,
+FAST,FAST,เร็ว,NavigationController,
+FULL,FULL,เต็ม,NavigationController,
+Fast,Fast,Fast,NavigationController,dev
 HOLD,HOLD,กดค้าง,NavigationController,
 Hold,Hold,กดค้าง,NavigationController,
 Invite Friends,Invite Friends,ชวนเพื่อน,NavigationController,
@@ -439,6 +501,7 @@ Language,Language,ภาษา,NavigationController,manual
 Menu,Menu,เมนู,NavigationController,
 More,More,เพิ่มเติม,NavigationController,
 Music,Music,เพลง,NavigationController,
+Off,Off,Off,NavigationController,dev
 Panel,Panel,Panel,NavigationController,
 Pets,Pets,สัตว์เลี้ยง,NavigationController,
 Photo,Photo,ถ่ายรูป,NavigationController,
@@ -616,7 +679,6 @@ Missing or duplicate pets,Missing or duplicate pets,สัตว์เลี้�
 Mode,Mode,โหมด,PetService,
 Mount {1} done,Mount {1} done,ขี่ {1} แล้ว,PetService,
 Mounting unlocks in chapter {1},Mounting unlocks in chapter {1},ปลดล็อกการขี่ในบทที่ {1},PetService,
-Mythic,Mythic,เทพนิยาย,PetService,
 No Aurora egg available,No Aurora egg available,ไม่มีไข่ออโรรา,PetService,
 No hatched eggs yet,No hatched eggs yet,ยังไม่มีไข่ที่ฟักแล้ว,PetService,
 No pen income yet,No pen income yet,ยังไม่มีรายได้คอก,PetService,
@@ -1108,8 +1170,6 @@ End your current run and return home","Rootfall Village
 End your current run and return home","หมู่บ้านรูทฟอลล์
 จบรอบปัจจุบันแล้วกลับบ้าน",StoryController,
 Select Title,Select Title,เลือกฉายา,StoryController,
-Shrine,Shrine,ศาลเจ้า,StoryController,
-Skip,Skip,ข้าม,StoryController,
 Step{1},Step{1},Step{1},StoryController,
 Story,Story,เนื้อเรื่อง,StoryController,
 System disabled,System disabled,ระบบปิดอยู่,StoryController,
@@ -1135,14 +1195,10 @@ Zone,Zone,โซน,StoryController,
 🔒 Defeat the previous boss and light its shrine,🔒 Defeat the previous boss and light its shrine,🔒 ปราบบอสก่อนหน้าและจุดศาลเจ้าก่อน,StoryController,
 🔒 Requires Power {1},🔒 Requires Power {1},🔒 ต้องมีพลัง {1},StoryController,
  — Unlock Zone {1}, — Unlock Zone {1}, — ปลดล็อกโซน {1},StoryService,
-Cannot enter this zone yet,Cannot enter this zone yet,ยังเข้าโซนนี้ไม่ได้,StoryService,
-Cannot start run,Cannot start run,เริ่มออกป่าไม่ได้,StoryService,
-Cannot warp while carrying an egg,Cannot warp while carrying an egg,วาร์ปไม่ได้ขณะถือไข่,StoryService,
 "Cycle {1} cycles already... The Rot grows stronger, but so do you!","Cycle {1} cycles already... The Rot grows stronger, but so do you!",ผ่านมา {1} วัฏจักรแล้ว... ความเน่าแข็งแกร่งขึ้น แต่เจ้าก็เช่นกัน!,StoryService,
 Defeat {1} before lighting the shrine,Defeat {1} before lighting the shrine,ปราบ {1} ก่อนจุดศาลเจ้า,StoryService,
-End Run & Return Home,End Run & Return Home,จบรอบและกลับบ้าน,StoryService,
+End Run & Return Home,End Run & Return Home,จบรอบและกลับบ้าน,StoryService,unused
 Go to the shrine first,Go to the shrine first,ไปที่ศาลเจ้าก่อน,StoryService,
-Invalid destination,Invalid destination,จุดหมายไม่ถูกต้อง,StoryService,
 Light Shrine,Light Shrine,จุดศาลเจ้า,StoryService,
 Move closer to the NPC first,Move closer to the NPC first,เข้าใกล้ NPC ก่อน,StoryService,
 SHRINE,SHRINE,ศาลเจ้า,StoryService,
@@ -1151,14 +1207,34 @@ Shrine lit{1},Shrine lit{1},จุดศาลเจ้าแล้ว{1},StoryS
 Story unavailable,Story unavailable,ระบบเนื้อเรื่องยังไม่พร้อม,StoryService,
 Talk,Talk,คุย,StoryService,
 Talk to {1},Talk to {1},คุยกับ {1},StoryService,
-Use at a warp stone only,Use at a warp stone only,ใช้ได้ที่หินวาร์ปเท่านั้น,StoryService,
 WARP STONE,WARP STONE,หินวาร์ป,StoryService,
-Warp to Village,Warp to Village,วาร์ปไปหมู่บ้าน,StoryService,
-Warp unavailable,Warp unavailable,วาร์ปยังไม่พร้อม,StoryService,
-Warped to {1},Warped to {1},วาร์ปไป {1} แล้ว,StoryService,
+Warp to Village,Warp to Village,วาร์ปไปหมู่บ้าน,StoryService,unused
+Warped to {1},Warped to {1},วาร์ปไป {1} แล้ว,StoryService,unused
 {1} Shrine Lit!,{1} Shrine Lit!,จุดศาลเจ้า{1}แล้ว!,StoryService,
+Cannot enter this zone yet,Cannot enter this zone yet,ยังเข้าโซนนี้ไม่ได้,TravelService,
+Cannot start run,Cannot start run,เริ่มออกป่าไม่ได้,TravelService,
+Cannot travel during combat,Cannot travel during combat,เดินทางระหว่างต่อสู้ไม่ได้,TravelService,
+Cannot warp while carrying an egg,Cannot warp while carrying an egg,วาร์ปไม่ได้ขณะถือไข่,TravelService,
+Destination obstructed,Destination obstructed,มีสิ่งกีดขวางที่ปลายทาง,TravelService,
+Destination unavailable,Destination unavailable,ปลายทางไม่พร้อม,TravelService,
+Invalid destination,Invalid destination,จุดหมายไม่ถูกต้อง,TravelService,
+Leave the Arena queue before travelling,Leave the Arena queue before travelling,ออกจากคิวอารีน่าก่อนเดินทาง,TravelService,
+Move closer to the dock,Move closer to the dock,เข้าไปใกล้ท่าเรืออีกนิด,TravelService,
+Sunny Meadow,Sunny Meadow,ทุ่งหญ้าแสงแดด,TravelService,config
+Travel complete,Travel complete,เดินทางสำเร็จ,TravelService,
+Use at a warp stone only,Use at a warp stone only,ใช้ได้ที่หินวาร์ปเท่านั้น,TravelService,
+Visit this zone before fast travel,Visit this zone before fast travel,สำรวจโซนนี้ก่อนเดินทางด่วน,TravelService,
+Warp unavailable,Warp unavailable,วาร์ปยังไม่พร้อม,TravelService,
 Blocked,Blocked,ถูกกั้น,TreeService,
+Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,TreeService,dev
+Enter kind and tier 1–6,Enter kind and tier 1–6,Enter kind and tier 1–6,TreeService,dev
+Map QA mutations require Studio,Map QA mutations require Studio,Map QA mutations require Studio,TreeService,dev
 Nest,Nest,รัง,TreeService,
+No safe ground in this zone,No safe ground in this zone,No safe ground in this zone,TreeService,dev
+QA tree spawned,QA tree spawned,QA tree spawned,TreeService,dev
+Stand in an unlocked forest zone,Stand in an unlocked forest zone,Stand in an unlocked forest zone,TreeService,dev
+TreeKit unavailable,TreeKit unavailable,TreeKit unavailable,TreeService,dev
+Unknown TreeKit kind,Unknown TreeKit kind,Unknown TreeKit kind,TreeService,dev
 Parent,Parent,Parent,UIKit,
 Tab,Tab,Tab,UIKit,
 CHEST ALTAR,CHEST ALTAR,แท่นหีบ,WeaponService,
@@ -1207,6 +1283,7 @@ Zone 1 World Boss • Slower garden growth,Zone 1 World Boss • Slower garden g
 Aurora,Aurora,ออโรรา,WeatherController,
 Bloodmoon,Bloodmoon,จันทร์สีเลือด,WeatherController,
 Chests Level +5,Chests Level +5,หีบเลเวล +5,WeatherController,
+Clear,Clear,แจ่มใส,WeatherController,
 EXP ×1.5 • Tougher trees,EXP ×1.5 • Tougher trees,EXP ×1.5 • ต้นไม้แข็งขึ้น,WeatherController,
 Festival {1} • ,Festival {1} • ,เทศกาล {1} • ,WeatherController,
 Fog,Fog,หมอก,WeatherController,
@@ -1236,14 +1313,30 @@ Data still loading,Data still loading,ข้อมูลยังโหลดอ
 Exchange Stardust at the village chest station,Exchange Stardust at the village chest station,แลกผงดาวได้ที่แท่นหีบในหมู่บ้าน,WeatherEncounterService,
 Exchanged Stardust for a Rare chest,Exchanged Stardust for a Rare chest,แลกผงดาวเป็นหีบหายากแล้ว,WeatherEncounterService,
 METEOR,METEOR,ดาวตก,WeatherEncounterService,
+Night Spirits,Night Spirits,วิญญาณราตรี,WeatherEncounterService,
 Requires {1} Stardust,Requires {1} Stardust,ต้องใช้ {1} ผงดาว,WeatherEncounterService,
 World Boss: +{1} Gems / +{2} Stardust,World Boss: +{1} Gems / +{2} Stardust,บอสโลก: +{1} เพชร / +{2} ผงดาว,WeatherEncounterService,
 Clear:{1},Clear:{1},Clear:{1},WeatherSchedule,
 RotInvasion:{1},RotInvasion:{1},RotInvasion:{1},WeatherSchedule,
-Clear,Clear,แจ่มใส,WeatherService,
 Live Event,Live Event,Live Event,WeatherService,
 Server override,Server override,เซิร์ฟเวอร์กำหนดเอง,WeatherService,
 Unknown weather,Unknown weather,ไม่รู้จักสภาพอากาศ,WeatherService,
+{1} • {2} studs,{1} • {2} studs,{1} • {2} สตัด,WorldEventController,
+An event is already active,An event is already active,มีอีเวนต์กำลังดำเนินอยู่แล้ว,WorldEventService,
+Event started,Event started,อีเวนต์เริ่มแล้ว,WorldEventService,
+Existing weather encounter started,Existing weather encounter started,เริ่มเหตุการณ์สภาพอากาศแล้ว,WorldEventService,
+Invalid zone,Invalid zone,โซนไม่ถูกต้อง,WorldEventService,
+No healthy pooled tree,No healthy pooled tree,ไม่มีต้นไม้ว่างให้ใช้,WorldEventService,
+This existing encounter runs in Zone 1,This existing encounter runs in Zone 1,เหตุการณ์นี้เกิดในโซน 1,WorldEventService,
+Tree unavailable,Tree unavailable,ต้นไม้ไม่พร้อมใช้งาน,WorldEventService,
+Unknown/disabled event,Unknown/disabled event,ไม่รู้จักอีเวนต์หรือถูกปิดอยู่,WorldEventService,
+Wait for clear weather,Wait for clear weather,รอให้ฟ้าโปร่งก่อน,WorldEventService,
+Ancient Tree,Ancient Tree,ต้นไม้โบราณ,WorldEvents,
+Boss Tree,Boss Tree,บอสต้นไม้,WorldEvents,
+Cursed Tree,Cursed Tree,ต้นไม้ต้องสาป,WorldEvents,
+Giant Tree,Giant Tree,ต้นไม้ยักษ์,WorldEvents,
+Golden Tree,Golden Tree,ต้นไม้ทอง,WorldEvents,
+Timber Rush,Timber Rush,เร่งตัดไม้,WorldEvents,
 Drizzle,Drizzle,ฝนปรอย,ZoneAmbience,
 Fireflies,Fireflies,หิ่งห้อย,ZoneAmbience,
 Petals,Petals,กลีบดอกไม้,ZoneAmbience,
@@ -1255,15 +1348,22 @@ Missing EN/TH name: {1},Missing EN/TH name: {1},Missing EN/TH name: {1},ZoneUtil
 Missing TreeKit kind: {1},Missing TreeKit kind: {1},Missing TreeKit kind: {1},ZoneUtil,dev
 Missing region: {1},Missing region: {1},Missing region: {1},ZoneUtil,dev
 Ring seam mismatch: {1},Ring seam mismatch: {1},Ring seam mismatch: {1},ZoneUtil,dev
-Rootfall,Rootfall,รูทฟอลล์,ZoneUtil,
 Amber Woods,Amber Woods,ป่าอำพัน,Zones,config
+Amethyst,Amethyst,อเมทิสต์,Zones,
+Birch,Birch,เบิร์ช,Zones,
 Crystal Ridge,Crystal Ridge,สันเขาคริสตัล,Zones,config
 Frostvale,Frostvale,หุบเขาน้ำแข็ง,Zones,config
 Glowcap Bog,Glowcap Bog,บึงเห็ดเรืองแสง,Zones,config
+Layered,Layered,ชั้นซ้อน,Zones,
 Lumora Plateau,Lumora Plateau,ที่ราบสูงลูมอรา,Zones,config
+Maple,Maple,เมเปิล,Zones,
+Mushroom,Mushroom,เห็ด,Zones,
+Oak,Oak,โอ๊ก,Zones,
+Pine,Pine,สน,Zones,
+Prism,Prism,ปริซึม,Zones,
 Sakura Highlands,Sakura Highlands,ที่ราบสูงซากุระ,Zones,config
-Sunny Meadow,Sunny Meadow,ทุ่งหญ้าแสงแดด,Zones,config
 Thunder Bamboo,Thunder Bamboo,ป่าไผ่สายฟ้า,Zones,config
+Weeping,Weeping,หลิวย้อย,Zones,
 Ancient Cyclone Shardblade,Ancient Cyclone Shardblade,ดาบเศษผลึกไซโคลนดึกดำบรรพ์,catalog:swords.json,
 Ancient Eclipse Bastard Sword,Ancient Eclipse Bastard Sword,ดาบครึ่งมือสุริยุปราคาดึกดำบรรพ์,catalog:swords.json,
 Ancient Eclipse Broadsword,Ancient Eclipse Broadsword,ดาบกว้างสุริยุปราคาดึกดำบรรพ์,catalog:swords.json,
@@ -1752,7 +1852,6 @@ Chop Arena · PvP,Chop Arena · PvP,สนามประลอง Chop · PvP,m
 Forest Gate → {1},Forest Gate → {1},ประตูป่า → {1},manual,manual
 Frost Warden,Frost Warden,ผู้คุมน้ำแข็ง,manual,manual
 Frostfields,Frostfields,ทุ่งน้ำแข็ง,manual,manual
-GIANT,GIANT,ยักษ์,manual,manual
 Giant,Giant,ยักษ์,manual,manual
 Glowshroom Marsh,Glowshroom Marsh,บึงเห็ดเรืองแสง,manual,manual
 Maple Colossus,Maple Colossus,ยักษ์เมเปิล,manual,manual
@@ -1775,50 +1874,3 @@ Wood Shop · Sell,Wood Shop · Sell,ร้านไม้ · ขาย,manual,ma
 Zone {1} · {2},Zone {1} · {2},โซน {1} · {2},manual,manual
 {1} min,{1} min,{1} นาที,manual,manual
 ไทย,ไทย,ไทย,manual,manual
-Map,Map,แผนที่,MapSystems,
-World Map,World Map,แผนที่โลก,MapSystems,
-Home,Home,บ้าน,MapSystems,
-Travel,Travel,เดินทาง,MapSystems,
-North / Camera,North / Camera,ทิศเหนือ / กล้อง,MapSystems,
-Select a zone to travel,Select a zone to travel,เลือกโซนเพื่อเดินทาง,MapSystems,
-Destination: {1},Destination: {1},ปลายทาง: {1},MapSystems,
-Explored {1}/{2},Explored {1}/{2},สำรวจ {1}/{2},MapSystems,
-Explored {1}: {2}/{3},Explored {1}: {2}/{3},สำรวจ {1}: {2}/{3},MapSystems,
-Defeat boss and light shrine in Zone {1},Defeat boss and light shrine in Zone {1},ชนะบอสและจุดศาลเจ้าในโซน {1},MapSystems,
-Compass {1}° • N  E  S  W,Compass {1}° • N  E  S  W,เข็มทิศ {1}° • เหนือ ตะวันออก ใต้ ตะวันตก,MapSystems,
-Discover,Discover,ค้นพบ,MapSystems,
-Landmark,Landmark,จุดสำคัญ,MapSystems,
-Mini-chest,Mini-chest,หีบสำรวจ,MapSystems,
-Visit this zone before fast travel,Visit this zone before fast travel,สำรวจโซนนี้ก่อนเดินทางด่วน,MapSystems,
-Leave the Arena queue before travelling,Leave the Arena queue before travelling,ออกจากคิวอารีน่าก่อนเดินทาง,MapSystems,
-Cannot travel during combat,Cannot travel during combat,เดินทางระหว่างต่อสู้ไม่ได้,MapSystems,
-Destination unavailable,Destination unavailable,ปลายทางไม่พร้อม,MapSystems,
-Destination obstructed,Destination obstructed,มีสิ่งกีดขวางที่ปลายทาง,MapSystems,
-Travel unavailable,Travel unavailable,เดินทางไม่ได้,MapSystems,
-Travel complete,Travel complete,เดินทางสำเร็จ,MapSystems,
-Golden Tree,Golden Tree,ต้นไม้ทอง,MapSystems,
-Timber Rush,Timber Rush,เร่งตัดไม้,MapSystems,
-Boss Tree,Boss Tree,บอสต้นไม้,MapSystems,
-Night Spirits,Night Spirits,วิญญาณราตรี,MapSystems,
-{1} • {2},{1} • {2},{1} • {2},MapSystems,
-{1} • {2} studs,{1} • {2} studs,{1} • {2} สตัด,MapSystems,
-Unlock Zone,Unlock Zone,ปลดล็อกโซน,MapSystems,
-Light shrine in Zone {1} to unlock this gate,Light shrine in Zone {1} to unlock this gate,จุดศาลเจ้าในโซน {1} เพื่อปลดล็อกประตูนี้,MapSystems,
-Event,Event,Event,MapController,dev
-Event target,Event target,อีเวนต์,MapController,
-Quest,Quest,Quest,MapController,dev
-Quest target,Quest target,ภารกิจ,MapController,
-Skip boat ride,Skip boat ride,ข้ามการนั่งเรือ,MapController,
-{1} {2} • {3},{1} {2} • {3},{1} {2} • {3},MapController,manual
-{1}Target,{1}Target,{1}Target,MapController,dev
-Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,TreeService,dev
-Enter kind and tier 1–6,Enter kind and tier 1–6,Enter kind and tier 1–6,TreeService,dev
-Map QA mutations require Studio,Map QA mutations require Studio,Map QA mutations require Studio,TreeService,dev
-No safe ground in this zone,No safe ground in this zone,No safe ground in this zone,TreeService,dev
-QA tree spawned,QA tree spawned,QA tree spawned,TreeService,dev
-Stand in an unlocked forest zone,Stand in an unlocked forest zone,Stand in an unlocked forest zone,TreeService,dev
-TreeKit unavailable,TreeKit unavailable,TreeKit unavailable,TreeService,dev
-Unknown TreeKit kind,Unknown TreeKit kind,Unknown TreeKit kind,TreeService,dev
-Ancient Tree,Ancient Tree,ต้นไม้โบราณ,WorldEvents,
-Cursed Tree,Cursed Tree,ต้นไม้ต้องสาป,WorldEvents,
-Giant Tree,Giant Tree,ต้นไม้ยักษ์,WorldEvents,

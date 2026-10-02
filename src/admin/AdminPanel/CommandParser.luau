@@ -118,5 +118,16 @@ return function(text: string, state, run): (boolean, string)
 		run("mod.announce", { text = message })
 		return true, ""
 	end
+	if cmd == "chest" and string.lower(words[2] or "") == "preview" then
+		-- Chest opening QA: /chest preview common|rare|epic|legendary|mythic|giant|1-5 [multi]
+		local byLevel = { ["1"] = "common", ["2"] = "rare", ["3"] = "epic", ["4"] = "legendary", ["5"] = "mythic" }
+		local word = string.lower(words[3] or "")
+		local id = "chest.preview." .. (byLevel[word] or word) .. (string.lower(words[4] or "") == "multi" and ".multi" or "")
+		if not state.byId[id] then
+			return false, "Usage: /chest preview common|rare|epic|legendary|mythic|giant|1-5 [multi]"
+		end
+		run(id)
+		return true, ""
+	end
 	return false, "Unknown command /" .. cmd .. " (Owned: give set rich poor fly noclip god speed tp bring spawn reset save backup export kick announce)"
 end

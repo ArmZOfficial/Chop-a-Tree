@@ -4,13 +4,21 @@
 
 ## สถานะล่าสุด
 
+## แทร็ก J — Chest opening cinematic (2026-10-03, ยังไม่ Publish)
+
+`Client.ChestOpening` + `Shared.ChestOpeningTimeline`: ฉาก ViewportFrame เต็มจอ (Intro→Charge→Burst→Reveal→Result card), ยาวตาม rarity ของอาวุธที่ได้ 1.6/2.4/3.4/4.5/5.5 วิ, Giant +0.4 วิและตรา GIANT!, เปิด 10 ใบเป็นตารางผล + Skip All, การ์ดผล NEW!/พลัง/เทียบของที่ใส่/Equip/Keep/Open Again, Settings `ChestAnimation` Full/Fast/Off (server whitelist, ไม่มี DATA_VERSION ใหม่ — Reconcile), Reduce Motion, แอดมิน `/chest preview <rarity|giant|1-5> [multi]` (ไม่เซฟ). Server สุ่ม+เซฟก่อนเสมอ; ไม่แตะน้ำหนักสุ่ม. `Weapon.Open` คืน `new`/`chest` เพิ่ม, `OpenTen` คืนผลทุกใบเป็นค่าที่ 4.
+ตรวจ: timeline 33/33 (`tools/tests/test_chest_timeline.luau`), compile 0 error, locale missing_th 0 (1,737 keys), Studio = repo checksum 11 ไฟล์. Studio Play (mock profile, 1115×675): Mythic+Giant Full, Legendary Full, 10 ใบภาษาไทยโหมด Fast, Common โหมด Off (การ์ดทันที), ปุ่ม Keep ปิด, ยิงซ้ำขณะเปิดไม่ซ้อน, console ไม่มี error. แก้ UX จากภาพ: ฉากหลังทึบขึ้น (HUD ไม่ทะลุ), ลำแสงจางตอน Reveal + อาวุธขนาดเท่ากันทุกชิ้น, ซ่อนหีบใต้การ์ด, ป้าย LEGENDARY!/MYTHIC! ขึ้นบนไม่ทับดาบ.
+**ยังไม่ตรวจ:** เปิดหีบจริงที่ Chest Altar (ทดสอบผ่าน preview เท่านั้น), ปุ่ม Equip/Open Again, จอมือถือ/จอย, เสียง (ยังไม่มี SFX ที่มีสิทธิ์ใช้), ออกเกมกลางแอนิเมชัน, MaxWeapons เต็ม. กรอบการ์ด/แบนเนอร์เป็น UI วาดเอง (ยังไม่ใช้ภาพ gen); `assets/reference/chest-open/` ยังไม่มี → รอ reference.
+
+**Studio bootstrap (เปลี่ยน 2026-10-03):** UI หายเพราะ Studio ค้างโหมด Map QA (Main ปิด, MapClientQA เปิดแค่ 10 โมดูล). คืนแล้ว: `Server.Main` + `Client.Main` Enabled, `MapQABootstrap`/`MapClientQA` Disabled (ยังอยู่ เปิดกลับได้). `DataService.MapUseMockProfiles=true` คงไว้ → Play ใช้ ProfileStore.Mock เซฟว่าง ไม่อ่าน/เขียน PlayerData_v1. ห้ามปิด mock จนกว่า ArmZ อนุมัติ migration v3 กับเซฟจริง.
+
 ## Map scripting system — Studio QA synchronized 2026-10-02
 
 ซิงก์ 31 scripts และตรวจ checksum ตรงกับ repo (ยกเว้น ChestOpening/settings WIP ที่ยังไม่ส่ง Studio). **148 checks จำลองผ่าน**; Studio validator/actual services/UI เริ่มครบ, migration mock ผ่าน; Explorer24จุดครบ8โซนได้ Common Level1/source-zone1 รวม8ใบและกันซ้ำ. วาร์ปปลอดภัย/ปฏิเสธ Infinity/กันเข้าโซน2ที่ล็อก/Golden event ผ่าน. Local Server: ผู้เล่น1–7ได้ BaseIndex1–7ไม่ซ้ำและ track zone1 พร้อมกัน; อีก2ไคลเอนต์ที่เปิดเกินไม่มีฐานซ้ำ. Desktop EN/TH + iPad/iPhone7 ไทยมีภาพ; แก้สี/ขอบวงแผนที่, minimapทับ panel, ปุ่ม map actions มือถือ44px. Zone745samples mean0.012504ms peak0.0535ms (รวมช่วงผู้เล่นน้อย ไม่ใช่เวลาระบบแมพทั้งหมด). รายละเอียด/ตารางbalance/สิ่งค้างอยู่ [map-systems](map-systems.md).
 
 **ต่อเสร็จ 2026-10-02/03:** ประตูเลื่อนเปิดเฉพาะผู้เล่น, quest/event compass, เรืออ้อมชายฝั่ง 6 วินาทีพร้อมข้าม/ยกเลิก, tree.spawn/clear (TreeKit/สูงสุด8ต้น), scheduler Giant/Ancient/Cursed น้ำหนัก .2/.1/.1 เทียบ Golden/Timber 1/1 ใช้เพดานเดิมหนึ่งอีเวนต์/600วินาที. แก้ HP UI/Auto Cut ให้ตรง SpecialHP. **162 checks ผ่าน**; Studio ซิงก์12 scripts, 10 client modules เริ่มไม่มี error; M จริงเปิด–ปิดผ่าน, เรือไป/กลับ6.03/6.05วินาที, skip1.05วินาทีและออกห่างท่าเรือยกเลิก/คืนกล้อง. ProfileStore.Mock save→เปิด session เดิมใหม่ Progress/Explorer/หีบตรงครบ, ฐานคืนหลังออก; release/assign25รอบผ่าน. วัด4 services 200รอบ/1คน mean0.080ms peak0.104ms (ไม่รวม rendering/network). รูปเรือไทย iPhone7/เข็มทิศไทย iPad + raw report: artifacts/map-qa/continuation-report.json.
 
-**Studio อยู่ Edit + โหมด QA:** Main server/client ปกติ Disabled; MapQABootstrap/MapClientQA Enabled; DataService.MapUseMockProfiles=true ใช้ ProfileStore.Mock เดิม (ไม่แก้ package). Device Simulator คืน default แล้ว. กด Play ตรวจชุดแผนที่ได้ ไม่โหลดเซฟจริง/ไม่เปิด leaderboard/monetization bootstrap. **ไม่รัน migration กับเซฟจริง/ไม่ Publish.** คืน bootstrap ปกติตามขั้นตอนใน map-systems เมื่ออนุมัติเปิดเซฟจริงเท่านั้น. ค้าง: จอยจริง, client/network rejoin endurance, seven-player total frame budget/FPS, เสียงที่มีสิทธิ์ใช้ (placeholder เงียบ). Locale map keys ครบ; global check ยังขาด1 key ใน ChestOpening WIP ของงานอื่นซึ่งไม่ stage/sync. Backup source เดิมอยู่ artifacts/studio-map-backup/ (local).
+**(เดิม — ถูกแทนด้วยหัวข้อ Studio bootstrap ด้านบน) Studio อยู่ Edit + โหมด QA:** Main server/client ปกติ Disabled; MapQABootstrap/MapClientQA Enabled; DataService.MapUseMockProfiles=true ใช้ ProfileStore.Mock เดิม (ไม่แก้ package). Device Simulator คืน default แล้ว. กด Play ตรวจชุดแผนที่ได้ ไม่โหลดเซฟจริง/ไม่เปิด leaderboard/monetization bootstrap. **ไม่รัน migration กับเซฟจริง/ไม่ Publish.** คืน bootstrap ปกติตามขั้นตอนใน map-systems เมื่ออนุมัติเปิดเซฟจริงเท่านั้น. ค้าง: จอยจริง, client/network rejoin endurance, seven-player total frame budget/FPS, เสียงที่มีสิทธิ์ใช้ (placeholder เงียบ). Locale map keys ครบ; global check ยังขาด1 key ใน ChestOpening WIP ของงานอื่นซึ่งไม่ stage/sync. Backup source เดิมอยู่ artifacts/studio-map-backup/ (local).
 
 ## Master prompt run 2026-10-02
 
@@ -61,7 +69,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 ## งานถัดไป / ค้าง
 
-0. Master prompt ที่เหลือ (ตามลำดับ): D+E ChestBuilder/props/elements-v3 → H Sprint → I Locale EN+TH → C UI audit → J chest cinematic → F+G → regression. ดู `prompts/cli-continue.md`.
+0. Master prompt ที่เหลือ: J ส่วนที่ยังไม่ตรวจ (เปิดหีบจริง/มือถือ/จอย/เสียง) → C เลย์เอาต์มือถือปุ่ม ≥44px → F+G → regression รอบสุดท้าย. A/B/D/E/H/I/J-core เสร็จแล้ว.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.

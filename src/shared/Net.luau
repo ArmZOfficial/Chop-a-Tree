@@ -27,6 +27,7 @@ local EVENTS = {
 	"ArenaShow",
 	"SprintIntent", -- client → server: ("Sprint", bool) | ("Mode", "Hold"|"Toggle")
 	"SettingIntent", -- client → server: (name, value) for whitelisted Settings (DataService)
+	"ChestPreview", -- server → admin client: fake opening results for `chest preview` (nothing saved)
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
