@@ -2,7 +2,7 @@
 -- Always restores the real profile.
 assert(game:GetService("RunService"):IsStudio())
 local V=game.ServerScriptService.Server.Services
-local D=require(V.DataService);local F=require(V.FeatureService);local Dec=require(V.DecorService);local G=require(V.GardenService);local R=require(V.RunService)
+local D=require(V.DataService);local F=require(V.FeatureService);local Dec=require(V.DecorService);local G=require(V.GardenService);local R=require(V.RunService);local W=require(V.WeatherService)
 local C=require(game.ReplicatedStorage.Shared.Config.Decor)
 local p=game.Players:GetPlayers()[1] or game.Players.PlayerAdded:Wait();assert(D.WaitForData(p,120));task.wait(2)
 local original=D.ExportJSON(p);local pivot=p.Character:GetPivot();local flags={Decor=F.IsEnabled("Decor"),AutoSave=F.IsEnabled("AutoSave")}
@@ -29,8 +29,15 @@ local ok,err=xpcall(function()
 	local full={};for i=1,C.MaxItems do full["f"..i]={id="path",x=100+i,z=0,r=0} end;D.Set(p,"Decor",{items=full,next=0})
 	check("The piece cap is enforced",not Dec.Place(p,"bush") and count()==C.MaxItems)
 	D.Set(p,"Decor",{items={},next=0});F.Set("Decor",false);check("Feature off refuses decorating",not Dec.Place(p,"bush"));F.Set("Decor",true)
+	W.PreviewFestival(nil);Dec.DressVillage();at(5,7)
+	check("Festival pieces are refused outside their festival",W.Festival()==nil and not Dec.Place(p,"pumpkin"))
+	W.PreviewFestival("halloween",120);Dec.DressVillage();local dressing=workspace.Map.Village:FindFirstChild("FestivalDecor")
+	check("During the festival its piece can be placed",Dec.Place(p,"pumpkin") and count()==1)
+	check("The village is dressed with the festival piece",dressing and #dressing:GetChildren()==C.VillagePieces and dressing:GetChildren()[1].Name=="pumpkin")
+	W.PreviewFestival(nil);Dec.DressVillage()
+	check("Dressing is removed when the festival ends; placed pieces stay",not workspace.Map.Village:FindFirstChild("FestivalDecor") and count()==1)
 end,debug.traceback)
-for id,v in flags do F.Set(id,v) end
+for id,v in flags do F.Set(id,v) end;W.PreviewFestival(nil);Dec.DressVillage()
 D.ImportJSON(p,original);p.Character:PivotTo(pivot);Dec.Build(p);D.SaveNow(p)
 local o=game.HttpService:JSONDecode(original)
 local restored=D.GetCurrency(p,"Wood")==o.Currencies.Wood and D.Get(p,"Meta.AdminTouched")==o.Meta.AdminTouched and game.HttpService:JSONEncode(D.Get(p,"Progress.Shrines"))==game.HttpService:JSONEncode(o.Progress.Shrines)

@@ -144,8 +144,10 @@ function Controller.Start()
 			row("DecorInfo","ตกแต่งฐาน • ความสวย "..beauty.." • "..count.."/"..DecorConfig.MaxItems.." ชิ้น\nยืนบนพื้นฐานแล้วกดวาง • ไม่มีผลต่อพลัง",UI.Colors.Slate,function() end)
 			row("DecorRotate","หมุนชิ้นที่ใกล้ที่สุด 90°",UI.Colors.Teal,function() call("DecorAction","Rotate") end)
 			row("DecorRemove","เก็บชิ้นที่ใกล้ที่สุด (คืน "..math.round(DecorConfig.Refund*100).."% Wood)",UI.Colors.Red,function() call("DecorAction","Remove") end)
-			for _,def in DecorConfig.List do local id=def.id;local locked=def.zone and not shrines[tostring(def.zone)]
-				row("Decor_"..id,def.name.." • "..NF.Short(def.price).." Wood • สวย +"..def.beauty.."\n"..(locked and "ล็อก: จุดศาลเจ้าโซน "..def.zone or "วางตรงที่ยืน"),locked and UI.Colors.Disabled or UI.Colors.Green,function() call("DecorAction","Place",id) end)
+			local weather=game.ReplicatedStorage:FindFirstChild("WeatherState");local festival=weather and weather:GetAttribute("festival")
+			for _,def in DecorConfig.List do local id=def.id;local locked=(def.zone and not shrines[tostring(def.zone)]) or (def.festival and def.festival~=festival)
+				local note=def.festival and (locked and "เฉพาะช่วงเทศกาล" or "เทศกาลนี้เท่านั้น! วางตรงที่ยืน") or (locked and "ล็อก: จุดศาลเจ้าโซน "..def.zone or "วางตรงที่ยืน")
+				row("Decor_"..id,def.name.." • "..NF.Short(def.price).." Wood • สวย +"..def.beauty.."\n"..note,locked and UI.Colors.Disabled or (def.festival and UI.Colors.Orange or UI.Colors.Green),function() call("DecorAction","Place",id) end)
 			end
 			actions({{"Close","ปิด",UI.Colors.Slate,function() panel.Visible=false end}})
 		else
