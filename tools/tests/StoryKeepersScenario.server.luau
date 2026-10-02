@@ -14,6 +14,8 @@ local function at(model,offset) p.Character:PivotTo(model:GetPivot()*CFrame.new(
 local function setQuest(chapter,step) D.Set(p,"Progress.StoryChapter",chapter);local q=table.clone(D.Get(p,"Quests.main"));q.step=step;q.base=0;D.Set(p,"Quests.main",q) end
 local ok,err=xpcall(function()
 	R.End(p,false);F.Set("Story",true);F.Set("AutoSave",false);D.Set(p,"Meta.AdminTouched",true);D.SetCurrency(p,"Gems",0);D.Set(p,"Progress.Bosses",{});D.Set(p,"Progress.Shrines",{})
+	-- Map systems rescue players out of locked zones within a second; unlock the keepers' zones.
+	D.Set(p,"Progress.UnlockedZones",{1,2,3,4,5,6,7,8})
 	local valid=true
 	for z=3,8 do
 		local last=Story.Chapters[z].steps[5];local keeper=last and Story.Npcs[last.npc];local models=last and tagged("NPC","NpcId",last.npc) or {}

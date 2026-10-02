@@ -24,7 +24,7 @@ local ok,err=xpcall(function()
 	check("Level 3 trap slows the thief to 52.5%",St.Try(p,botId) and math.abs(p:GetAttribute("CarryMult")-M.TrapSlow(3))<1e-9 and math.abs(p.Character.Humanoid.WalkSpeed-16*M.TrapSlow(3))<1e-3);St.Return(p,"test");St.ResetLock(p)
 	St.SetBotDefence(nil,7) -- chance above 1: the guard always wins, so the roll is deterministic
 	local okTry,msg=St.Try(p,botId)
-	check("Guard chases the thief off before the egg moves",not okTry and string.find(msg,"สัตว์เฝ้า")~=nil and not p:GetAttribute("CarryingEgg") and St.Bot().incubator["1"].carriedBy==nil)
+	check("Guard chases the thief off before the egg moves",not okTry and string.find(msg,"Guard chased you away")~=nil and not p:GetAttribute("CarryingEgg") and St.Bot().incubator["1"].carriedBy==nil)
 	check("Being chased off still starts the base cooldown",not St.Try(p,botId))
 	St.RemoveBot()
 end,debug.traceback)
