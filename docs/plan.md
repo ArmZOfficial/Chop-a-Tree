@@ -1,11 +1,11 @@
-# Chop a Tree — แผนหลักฉบับย่อ (ร่าง 18)
+# Chop a Tree — แผนหลักฉบับย่อ (ร่าง 19)
 
 อัปเดต 2026-10-02. สถานะ/ผลตรวจล่าสุดอยู่ [HANDOFF](HANDOFF.md); กฎอยู่ [SKILL](../SKILL.md).
 อ่านรายละเอียดเฉพาะงานจาก [INDEX](INDEX.md). Spec รายละเอียด: [design reference](design.md) — เลือกหัวข้อ ไม่อ่านทั้งไฟล์.
 
 ## 0. เกมและขอบเขต
 
-Roblox **Chop a Tree** (ชื่อ place Chop a Trees), 7 คน/เซิร์ฟ, 8 โซนในทวีปแนวนอน → เกาะ Lumora. Low-poly fantasy + แสงสมจริง + VFX อนิเมะ; เอกลักษณ์/ไอเทมของเราเอง.
+Roblox **Chop a Tree** (ชื่อ place Chop a Trees), 7 คน/เซิร์ฟ, 8 โซนในทวีปแนวนอน → เกาะ Lumora. ทิศภาพใหม่ (ArmZ 2026-10-02): **retro classic Roblox** — บล็อกหนา Plastic + Studs/Inlet, สีสด BrickColor, แสงเรียบ; VFX บล็อก/neon เรียบง่าย; เอกลักษณ์/ไอเทมของเราเอง.
 Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → สำรวจ/ไข่/สัตว์ → สวน/ฐาน → บอส/ปลดโซน → Rebirth.
 เรื่อง The Withering: ป่าติดราเน่า; ฟื้นศาลเจ้าและเดินทางถึง Lumora. บท 3–8 มี NPC ผู้เฝ้าโซน/บทพูด/คัตซีนศาลเจ้าแล้ว (ยังไม่ Publish).
 
@@ -13,6 +13,12 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/shrine/boss/nests; ป่าและ HP ใช้ร่วมเซิร์ฟ. Rebirth ต่างกัน normalized damage.
 โซน 1–7 ต่อกันแนวนอน, โซน 8 เกาะลอย; **ไม่กลับไปภูเขาเกลียว**. ผัง/asset/tag constraints: design reference §3/§6 และ [map constraints](systems.md#map).
+
+**Map rework (วางแผน ArmZ 2026-10-02, ยังไม่เริ่ม):**
+- กว้างและราบ: Village + โซน 1–7 อยู่ระดับพื้นเดียว (y≈4), ขยาย GridStep/halfSize เป็นที่ราบใหญ่; ถนนราบแทนทางลาด. โซน 8 ยังลอย, ปรับเกลียวให้เริ่มจากความสูงโซน 7 ใหม่.
+- กำแพงสูง (~60 studs) รอบทวีปและระหว่างโซน แทนรั้วราเน่าเตี้ย; ช่องเปิดตรงเสา ZoneGate เดิม.
+- TreeKit: ต้นไม้ procedural retro ≥24 แบบ ผสมต่อโซน (ธีมตัวเอง ~55% / โซนข้างเคียง ~30% / สุ่ม ~15%) + biome patches/ลานโล่ง; จำนวน/tier/ระยะห่าง/route clearance เท่าเดิม, seed คงที่, Tier 6 rot veins คงไว้. แทน block/asset trees ใน MapBuilder.
+- Zones.y/ขนาดเปลี่ยน → ตรวจทุกระบบที่อ่านตำแหน่งโซน (spawn/warp/boss/navigation/forest). Tag/attribute เดิมทั้งหมดต้องอยู่ครบ (ดู SKILL).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
@@ -33,6 +39,7 @@ Rootfall hub + ฐาน 7 หลัง; Wilds Zone1–8, ประตู/warp/s
 | 8a–f | Rebirth, Rewards, Index, Weather/Encounters, Merchant, Festivals, Emote/Photo | core ทดสอบแล้ว |
 | 8g | ร้าน Robux + Season Pass | Shop 34/34 รันซ้ำ + OpenTen คลิกจริง/Pass refresh/capacity ผ่าน; Season 34/34 + ซีซัน 2–3 พร้อม; ยังไม่ Publish |
 | 9 | PvP แยก Place | 9a lobby/คิว ทำแล้ว; 9b Duel/FFA Publish แล้ว; 9c Timber Clash/Egg Heist + 9d แรงก์รายเดือน/Arena Tokens Publish แล้ว (รอทดสอบหลายบัญชี); 9e ฟันหนัก/บล็อก/dash ใน Studio (ยังไม่ Publish); ด่าน Arena พื้นฐาน + 9f ท่าอาวุธตามธาตุ (ยังไม่ Publish); เหลือทดสอบหลายบัญชีแล้วเปิด PvP |
+| 10s | Sword Pack 380 + Map rework retro | วางแผนแล้ว (prompt พร้อม), ยังไม่เริ่ม; ดู §3 และ §ดาบ |
 | 10 | Balance + UI/ภาพ/เสียง/VFX/อุปกรณ์จริง | Wood windows/outlined headings/red X/blur, Inventory rarity grid, Shop art cards, Index gallery, Music/SFX implemented and desktop checked; English copy; device/all-flow proof and item/world art/VFX/balance pending; not published |
 
 Regression หลังร้าน 2–7/8a–f รันซ้ำครบและ restore ผ่าน; แก้ festival preview ถูก forecast อนาคตล้าง. Receipt failed-save/reconnect ผ่านบน DataStore บัญชีจริงด้วย synthetic receipt และยืนยันซ้ำด้วย harness Save/Replay; คืนข้อมูลและเซฟแล้ว. ซื้อผ่านหน้าจ่าย Robux จริงยังค้าง รอจัด session เกม. Counts/หลักฐานอยู่ Phase 8g.
@@ -46,9 +53,14 @@ Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 directio
 
 UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
 
-Concept-matched [elements-v2](../assets/ui/elements-v2/README.md) imported/assembled: 10 atlases, shared wood/button/nav art and five primary page layouts. Desktop Play: HUD, Inventory, Garden selection/Seeds, Pets tabs, Shop Passes/Products and Rewards Daily/Codes/red X clicked; Incubator illustrations verified after layer fix. Final Garden row-height/encoding and Rewards shade fixes compiled/synced; final screenshots interrupted by concurrent Studio map edits. Luau120 compile (0 errors), 8/8 UI sources match Studio. Mobile/gamepad and all transaction flows remain unverified. Concurrent Sword Pack catalog drops legacy weapon IDs: saved old items need a separate migration; do not restore the old catalog. Remaining catalog/world art and device proof belong to Phase 10; pixel-identical matching not established.
+Five primary windows now follow the elements-v1 concepts (layout, plaques, tabs, cards, side rail) and the HUD follows the reference game; see HANDOFF for proof and gaps. Concept-matched [elements-v2](../assets/ui/elements-v2/README.md) imported/assembled: 10 atlases, shared wood/button/nav art and five primary page layouts. Desktop Play: HUD, Inventory, Garden selection/Seeds, Pets tabs, Shop Passes/Products and Rewards Daily/Codes/red X clicked; Incubator illustrations verified after layer fix. Final Garden row-height/encoding and Rewards shade fixes compiled/synced; final screenshots interrupted by concurrent Studio map edits. Luau120 compile (0 errors), 8/8 UI sources match Studio. Mobile/gamepad and all transaction flows remain unverified. Concurrent Sword Pack catalog drops legacy weapon IDs: saved old items need a separate migration; do not restore the old catalog. Remaining catalog/world art and device proof belong to Phase 10; pixel-identical matching not established.
 
-Concept-matched parts ready: [elements-v2](../assets/ui/elements-v2/README.md), 65 elements including state art and ID-bound pet/weapon first sets. Next import/assemble against the five concepts; complete remaining catalog art as needed. Pixel/device matching requires actual Play proof.
+## ดาบ: Sword Pack 380 (วางแผน ArmZ 2026-10-02)
+
+- ดาบใหม่ 380 ชิ้น ID `swd_001`–`swd_380` (stable); Common 110 / Rare 95 / Epic 80 / Legendary 60 / Mythic 35. basePower Base×1–×4 ในความหายาก, ธาตุ 8 คีย์เดิม (~25% Common ไม่มีธาตุ).
+- ต้นทางข้อมูลยังเป็น `data/weapons.json` → `gen_config.py`; ระหว่างทดลองใช้ `Config.SwordPack` + `Shared.WeaponCatalog` รวมกับ `Config.Weapons` (ห้ามแก้ Weapons.luau ด้วยมือ). ก่อนปิดงานย้ายเข้า pipeline JSON และรัน `balance_sim.py`.
+- Feature flag `SwordPack`; ปิดแล้ว Loot ไม่สุ่ม swd_ แต่ ById ยังหาเจอ (เซฟไม่พัง). Index/collection totals ต้องนับใหม่.
+- ภาพ: ต่อ `WeaponVisual` (Tool `ForestWeapon` contract เดิม) ดาบ retro ≤10 parts + trail ตามธาตุเฉพาะตอนฟัน, VFX ตาม rarity, hit burst ที่ต้นไม้; ไม่สร้างระบบต่อสู้ใหม่. Mesh เสริมได้จาก `3d weapon/RPGWeapons_Free.zip` (Long/Short Sword, Sabre, Dagger).
 
 ## 8–9. การตัดสินใจที่คงไว้
 

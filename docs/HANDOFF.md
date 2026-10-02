@@ -4,9 +4,24 @@
 
 ## สถานะล่าสุด
 
+## Master prompt run 2026-10-02 — สำรวจก่อนแก้ (§1)
+
+Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a-tree-master-prompt.md) (แทร็ก A–J). Studio `Chop a Tree` PlaceId 93479990217075, Edit mode.
+
+**ของที่มี (Studio = repo ยกเว้นที่ระบุ):** 49 shared/config, 29 services, 20 admin command modules, 18 client controllers; ProfileStore ใน Studio ≠ repo (ห้าม overwrite). แมพปัจจุบัน = ทวีปตัว S ราบ (Zones halfSize 350, GridStep 700 ใน Studio; repo ยังเป็น 250/500 แบบขั้นบันได) + Sky Isles y=364; Workspace 18,798 parts (Zone8 7,719, Road_7_8 1,159). Tags: Tree 1280, ChestSpot 80, Nest 16, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena 8, Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 7, ForestGate/ArenaPortal/RealmGate/Lumora/ChestAltar 1, Leaderboard 2.
+
+**ของที่ค้าง (WIP ใน Studio ไม่อยู่ใน repo):** `Config.SwordPack` (380 ดาบสร้างตอนรัน ชื่อมีเลขท้าย เช่น "Inferno Katana 37") + `Config.WeaponCatalog` = ดาบอย่างเดียว → 100 อาวุธเก่า `wpn_*` หาไม่เจอ = "Retired item"; 10 สคริปต์ require WeaponCatalog แล้ว (Loot, CollectionMath, WeaponService, QuestService, EmoteService, ArenaService, WeaponCommands, StoryCommands, StoryController, InventoryController fallback); WeaponVisual มี sword builder (SmoothPlastic, ไม่มี trail). ไม่มี LegacyWeaponMap/migration, DATA_VERSION=1. MapBuilder/Zones ใน Studio เป็นงาน "ทวีปราบ" ครึ่งทาง.
+
+**ของที่ขาด:** LegacyWeaponMap + migration v2, flag SwordPack, Config.Movement/Sprint, Shared.Locale/Strings (ไทย), ChestBuilder/ChestIconRenderer/Opening Stage, เกาะวงกลม 8 โซน, TreeKit, elements-v3, ภาพ concept แมพ และ `assets/reference/chest-open/` (ไม่มีในโฟลเดอร์ → ทำตามสเปก, รอ reference).
+
+
+- **UI matched to concepts (2026-10-02):** Inventory/Pets/Garden/Shop/Rewards rebuilt to the five elements-v1 concepts with elements-v2 art (plaque titles, wood tabs, 9-sliced cards/buttons, info bars, cradle/plot/calendar cards, Cut confirm popover); HUD follows the reference game (big Coins top-centre + Wood/Gems capsules, 2×3 menu tiles, PLAY). Primary windows show a side nav rail with the active tile lit. Live Config/server data, prices and intents unchanged. Desktop Play (1366×793): all five windows screenshotted; real clicks: tile open, side-rail switch, Shop tab, in-window click stays open, red X close. Studio sources = repo (checksum). Inventory shows 12 legacy weapons as "Retired item" until the Sword Pack catalog migration. Mobile/gamepad, Codes/Leaderboard/Base/Conveyor tab visuals and transactions not re-verified. Not published.
+
 - **UI parts v2 assembled in Studio:** 10 imported atlases; runtime UIArt/UIKit wood windows, buttons/nav, Inventory rarity/detail, Garden plot/grid, Pets cradle/cards, Shop 3-column cards, Rewards 4+3 calendar. Live English data/prices/intents retained. Desktop Play: HUD, Inventory, Garden selection/Seeds, Pets tabs, Shop Passes/Products and Rewards Daily/Codes/red X clicked; Incubator illustrations verified after layer fix. Final Garden row-height/encoding and Rewards shade fixes compiled/synced; final screenshots interrupted by concurrent Studio map edits. Luau120 compile (0 errors), 8/8 UI sources match Studio. Mobile/gamepad and all transaction flows remain unverified. Concurrent Sword Pack catalog drops legacy weapon IDs: saved old items need a separate migration; do not restore the old catalog. Not published or pixel-identical. [Pack](../assets/ui/elements-v2/README.md).
 
 - **UI art pack prepared:** 36 transparent sprites / 4 atlases + 5 generated concepts (Inventory/Garden/Pets/Shop/Rewards), ImageRect helper and all-screen UX audit in [elements-v1](../assets/ui/elements-v1/README.md). PNG alpha/bounds and helper compile checked. These new atlases are not uploaded/wired; runtime below unchanged. Next: shared art assembly, Garden/Pets contextual actions, then remaining views/device proof. Prompts included; no Publish.
+
+- **วางแผนใหม่ (ArmZ 2026-10-02), ยังไม่เริ่มโค้ด:** (1) Sword Pack 380 ชิ้น `swd_001–380` ผ่าน `Config.SwordPack` + `Shared.WeaponCatalog` + flag `SwordPack` + ดาบ retro/trail ใน WeaponVisual; (2) Map rework — ทวีปกว้างราบระดับเดียว, กำแพงสูง ~60 studs, สไตล์ retro classic, TreeKit ≥24 แบบผสมหลายโซน. ขอบเขต: [plan §3/§ดาบ](plan.md). Prompt สำหรับ Studio AI (14 ขั้น): [prompts/studio-ai-sword-pack-map-rework.md](../prompts/studio-ai-sword-pack-map-rework.md). ต้องตรวจ: tag counts ก่อน/หลัง, ValidateRoutes Edit+Play, ทุกระบบที่อ่าน Zones.y, balance_sim, sync source กลับ repo.
 
 - **Phase 10 UI / English:** wood windows/outlined icon headings/red X/blur; Inventory rarity grid + preview, Shop actual product art/live prices, Index categories/gallery/silhouettes, independent Music/SFX mute/restore implemented. Desktop clicks/17 product prices/Index counts/sound fixtures checked; Luau129 compile. Earlier authored English scan Thai0; stable element keys kept. Item models/category art, mobile/gamepad, all flows/world art/VFX/balance remain pending. Details: [UI](systems.md#phase-10-ui). Not published.
 
@@ -23,6 +38,8 @@
 - เซฟ/receipt/reconnect: บัญชี ArmZKubfu บน DataStore จริง (`Access`) ผ่าน; synthetic receipt จำลอง failed-save 2 ครั้ง/แจก 100 Gems ครั้งเดียว, reconnect เก็บยอด/marker และ replay ไม่จ่ายซ้ำ. ยืนยันซ้ำด้วย ReceiptPersistenceScenario Save/Replay. คืนยอด 221 Gems/ลบ synthetic markers และยืนยันเซฟแล้ว; Studio Edit ไม่มี test scripts. **ยังไม่ใช่การซื้อผ่านหน้าจ่าย Robux จริง**; Roblox Player ยังอยู่เกมอื่นมี Run ค้าง รอผู้ใช้เลือกจัด session.
 
 ## งานถัดไป / ค้าง
+
+0. Sword Pack 380 + Map rework retro (ดูสถานะบน) — เริ่มเมื่อ ArmZ สั่ง; บันทึก Report() ก่อนสร้างใหม่เพื่อเทียบ.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.
