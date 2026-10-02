@@ -44,6 +44,8 @@ Regression หลังร้าน 2–7/8a–f รันซ้ำครบแ�
 
 Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 direction: simulator-style brown wood windows, large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).
 
+UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
+
 ## 8–9. การตัดสินใจที่คงไว้
 
 มี Friend Boost/Mount/ตกแต่งฐาน/Photo-Emote/เติมเงินไม่ P2W; ไม่มี Co-op Run แชร์ตัวคูณ.

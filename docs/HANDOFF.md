@@ -4,6 +4,8 @@
 
 ## สถานะล่าสุด
 
+- **UI art pack prepared:** 36 transparent sprites / 4 atlases + 5 generated concepts (Inventory/Garden/Pets/Shop/Rewards), ImageRect helper and all-screen UX audit in [elements-v1](../assets/ui/elements-v1/README.md). PNG alpha/bounds and helper compile checked. These new atlases are not uploaded/wired; runtime below unchanged. Next: shared art assembly, Garden/Pets contextual actions, then remaining views/device proof. Prompts included; no Publish.
+
 - **Phase 10 UI / English:** wood windows/outlined icon headings/red X/blur; Inventory rarity grid + preview, Shop actual product art/live prices, Index categories/gallery/silhouettes, independent Music/SFX mute/restore implemented. Desktop clicks/17 product prices/Index counts/sound fixtures checked; Luau129 compile. Earlier authored English scan Thai0; stable element keys kept. Item models/category art, mobile/gamepad, all flows/world art/VFX/balance remain pending. Details: [UI](systems.md#phase-10-ui). Not published.
 
 - **Phase 9a lobby ทำแล้ว**: พอร์ทัลเดิมเปิดหน้าคิว Duel/FFA/Timber Clash/Egg Heist; Ranked/Casual แยก, ตรวจ Run/ไข่/mount/ระยะ/ชีวิต, reserved-server transfer + failure/timeout recovery. Luau CLI 37 checks; Studio startup/คลิก GUI ผ่าน, source 7 ไฟล์ตรง repo; คืน flags/pivot/anchor แล้ว Studio Edit ไม่มี test scripts. PvP=false. Combat/สนาม/แรงก์/รางวัลยังไม่ทำ; ดู [Arena](systems.md#arena).

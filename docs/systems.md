@@ -116,6 +116,8 @@ Owner grants Tester/Moderator/Admin from the panel tab "จัดการผู
 
 ## Phase 10 UI
 
+- Prepared art/design: `assets/ui/elements-v1/` has 36 sprites in four 1254-square transparent atlases, five generated concepts, crop manifest, ImageRect helper and UX screen/action matrix. Built-in image_gen prompts recorded; alpha/bounds/helper checked. Not imported/wired yet; concepts are illustrative. Use UX.md for assembly/state/mobile rules; existing runtime proof below remains separate.
+
 - Shared UIKit.Window: brown wood panels/rim/grain, outlined icon headings, red X, bright buttons; local BlurEffect=18 while a modal/More is open, 0 when closed. Navigation reuses existing callbacks. Primary Inventory/Pets/Garden/Shop/Rewards + More, compact Menu, one modal and outside-click close.
 - Inventory: four-column rarity cards, selected 3D preview/details, Weapons/Chests tabs; original equip/fuse/delete/open intents. Shop: two-column cards, actual IconImageAssetId/live prices from GetProductInfo, atlas fallback; original server prompts. Index: category counts/gallery, discovered cards/unknown silhouettes; rebuild only when category/discovered IDs change, preserving buttons during 1-second refresh. Weapon previews still use procedural WeaponVisual; pets/seeds use category art.
 - Settings: independent session-local Music/SFX ON/OFF. Music identified by SoundCategory=Music, SoundGroup.Name=Music or name containing music/ambience; everything else SFX. Cache original Volume strongly until restored (weak keys lost it); handle sounds added while muted and cleanup destroyed sounds.
