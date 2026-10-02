@@ -1,8 +1,15 @@
 # Chop a Tree — HANDOFF
 
-อัปเดต 2026-10-02 (ไทย). ล่าสุด: เพิ่มซีซัน 3, Season 34/34; Arena Place ใหม่ `135249057761883` อยู่ Universe หลักแล้ว. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
+อัปเดต 2026-10-03 (ไทย). ล่าสุด: regression ครบทุกชุดบนเกาะวงกลม + Sword Pack, ต้นไม้ทรง Kako9 + ภูเขาล้อมแมพ, แก้ UI modal (blur/HUD/ร้าน). ยังไม่ Publish. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
 
 ## สถานะล่าสุด
+
+## แก้ UI หน้าต่าง/modal (2026-10-03, ArmZ แจ้งจากภาพ, ยังไม่ Publish)
+
+- ฉากมืดของทุกหน้าต่างคลุมแถบ top-bar (ยืดตาม `GetGuiInset` ตอนเปิด; ค่า inset เป็น 0 จนกว่า top-bar โหลด จึงอ่านตอนเปิดไม่ใช่ตอน bind).
+- เปิดหน้าต่างแล้ว ScreenGui เจ้าของถูกยกเป็น DisplayOrder 30 (คืนค่าเดิมจาก attribute `BaseDisplayOrder` ตอนปิด) — เดิม Run Complete (ForestHUD 3) อยู่ใต้เข็มทิศ/แบนเนอร์. ซ่อนเข็มทิศ (ยกเว้นปุ่ม BoatSkip), ZoneHUD, WorldEventHUD, ป้ายระยะเควสต์ (billboard) และ ProximityPrompt ระหว่างเปิดหน้าต่าง; Blur มีผลแค่ 3D ไม่เบลอ GUI.
+- ร้าน: การ์ดเล็กปุ่มสูง 46 (เดิม 58 บังคำอธิบายบรรทัดสอง), คำอธิบายสูงตามพื้นที่เหนือปุ่ม. ตรวจ Play: 14 การ์ดคำอธิบายจบเหนือปุ่ม.
+- ทั้งหมดอยู่ใน `NavigationController.bindPanel/layout` (จุดเดียวที่ทุกหน้าต่างผ่าน) + `ShopController.small` + `StoryController` (billboard). **ยังไม่ได้ตรวจ:** ภาพจริงบนมือถือ/จอย.
 
 ## ภูเขาหินล้อมแมพ + เพลง/เสียงตัดไม้ (2026-10-03, ยังไม่ Publish)
 
@@ -13,7 +20,7 @@
 - ตรวจภาพแบบ .md §0.5 (subagent ใหม่ไม่เห็นโค้ด): รอบ 1 ได้ 46/100 → แก้ studs ทุกด้านของต้นไม้ + ภูเขา 2 แถวทุกช่อง. ต่อมา (ArmZ สั่งทำต่อ): หน้าตาต้นไม้ผสม 85/15 โซนตัวเอง/ข้างเคียง (เปลี่ยนในที่เดิม 1,187 ต้น, หน้าตาตรงโซน 1,279/1,470), พื้นบึงเห็ดม่วง/ซากุระชมพู/ไผ่เขียวอ่อน + Trail/พื้นลานบอส/RotHedge ตามสีพื้นแต่ละวง; Play: ต้นไม้ 1,470 ลงทะเบียนครบ, Trunk ชนได้ทุกต้น, console สะอาด. รอบ 2 ได้ 53/100 → ภูเขาสูงขึ้น (×8–12, แถวหลัง ×1.6) สลับสองเทา, พื้นบึงเห็ดเขียวอมฟ้าเข้ม (45,90,85) ไม่ซ้ำกับคริสตัล. ไม่ทำ: ลดความหนาแน่น 40% (ชนกฎ ≥140 ต้น/โซน + สมดุลเศรษฐกิจ), แสง (WeatherController/DayCycle เป็นเจ้าของ), ตกแต่งลานบอส/จัด hub ใหม่ — [verification/map_report.md](../verification/map_report.md).
 - Regression หลังเปลี่ยนต้นไม้: Phase2 **23/23** (restored=true), Phase7 **24/24** (รวมตัดต้นโซน 3 จริง = เสียงฟัน/ล้มรันโดยไม่มี error), ValidateRoutes 263 จุด 0 ปัญหา, tag เท่าเดิม (Tree 1470, ChestSpot 80, Nest 16 ...), console สะอาด. หมายเหตุ: รัน Phase7 ต่อจาก Phase2 ทันทีจะตกข้อ "collidable Trunk" เพราะต้นที่ Phase2 ตัดยังไม่เกิดใหม่ (15 วิ) — รันแยกรอบ.
 
-## Regression รอบสุดท้าย (บางส่วน) บนเกาะใหม่ + Sword Pack (2026-10-03)
+## Regression ครบทุกชุด บนเกาะใหม่ + Sword Pack (2026-10-03)
 
 รัน scenario เดิมใน Script VM ของ Studio Play ด้วย **mock profile** (ไม่แตะเซฟจริง; ทุกชุด restore ครบ, console ไม่มี error, ลบ test scripts แล้ว):
 
@@ -23,8 +30,15 @@
 | Phase3 อาวุธ/หีบ/Fuse | **36/36** | ใช้ `Config.WeaponCatalog` (380 + legacy 100); เวลารอฟันคิดจาก speed ของดาบ (swd_001 = 0.8 → 1.25 วิ) |
 | Phase7 โซน/บอส/ศาลเจ้า/วาร์ป/รัง | **24/24** | โครงสร้างเกาะวงกลม (≥140 ต้น/โซน, Trunk collider, ไม่มี asset tree); ล้าง pass/boost เอง; กติกา Travel ใหม่ (รอ 3 วิหลังต่อสู้, ต้องเคยไปโซนนั้น, cooldown 2 วิ) + ข้อใหม่ "โซนที่ยังไม่เคยไปวาร์ปไม่ได้" |
 
-**ยังไม่ได้รันซ้ำหลังแมพ/ดาบใหม่:** Phase4 สวน, Phase5 สัตว์/ขโมย, Phase6 เนื้อเรื่อง, StoryKeepers, BaseDefence, Decor, Phase8a–f + ร้าน/ซีซัน (รวม ~144 KB; Phase6/Collections/Emote/Rebirth ยัง require `Config.Weapons` ตรง ๆ ต้องพอร์ตแบบ Phase3). ผลเดิมของชุดเหล่านี้เป็นของแมพเก่า — อย่าอ้างเป็นหลักฐานของแมพใหม่.
-วิธีรัน: สร้าง Script ใน ServerScriptService ด้วย multi_edit → ตั้ง `Enabled=false` ใน Edit → Play → รอ character แล้วตั้ง `Enabled=true` จาก execute_luau (Server) → อ่าน `workspace:GetAttribute("PhaseNTest…")` → Stop → ลบ. เทียบ hash กับไฟล์ repo ก่อนรันทุกครั้ง. mock profile ของ ArmZ มี pass ติดมา (เช่น Wood 2x, OpenTen) → scenario ที่วัดรางวัลต้องล้าง `Purchases.passes`/`Boosts` เอง หรือใช้ RegressionHarness.
+| Phase4 สวน/อากาศ | **55/55** | — |
+| Phase5 สัตว์/รัง/ขโมย | **81/81** | — |
+| Phase6 เนื้อเรื่อง/บอส/Index | **51/51** | `WeaponCatalog`; ตั้ง `Progress.VisitedZones` โซน 2 + รอ cooldown 2 วิ ก่อนวาร์ปกลับ |
+| StoryKeepers / BaseDefence / Decor | **7/7 · 8/8 · 15/15** | StoryKeepers ปลดโซน 1–8 ก่อน (map systems ดีดผู้เล่นออกจากโซนที่ล็อกภายใน 1 วิ); BaseDefence หาข้อความอังกฤษ "Guard chased you away" |
+| Phase8 Collections/Emote/Encounter/Festival | **55 · 5 · 59 · 16** | `WeaponCatalog` |
+| Phase8 Merchant/Rebirth/Rewards/Season/Shop/Weather | **30 · 41 · 45 · 34 · 34 · 38** | Merchant รอ 1.1 วิ ก่อน Summon รอบสอง (key `admin:<วินาที>` ซ้ำได้) |
+
+ทุกชุด restore ครบ (RegressionHarness Finish), console ไม่มี error, ลบ test scripts ออกจาก Studio แล้ว. ไม่มีบั๊กเกมจากรอบนี้ — ที่ตกทั้งหมดเป็นเทสต์ที่ต้องพอร์ต.
+วิธีรัน: วาง `RegressionHarness` + `RegressionRunner` + scenario (ปิด `Enabled`) ใน ServerScriptService ด้วย multi_edit, ตั้ง attribute `Scenarios="ชื่อ=StatusKey,..."` บน Runner → Play → รอ character แล้วตั้ง `RegressionRunner.Enabled=true` จาก execute_luau (Server) → อ่าน `Summary`/`Done` → Stop → ลบ (MCP เรียก BindableFunction ของ harness ตรง ๆ ไม่ได้). execute_luau รอนานเกิน ~2 นาทีจะ timeout ให้ poll ซ้ำ. เทียบ hash กับไฟล์ repo ก่อนรันทุกครั้ง. mock profile ของ ArmZ มี pass ติดมา (เช่น Wood 2x, OpenTen) → scenario ที่วัดรางวัลต้องล้าง `Purchases.passes`/`Boosts` เอง หรือใช้ RegressionHarness.
 
 ## แทร็ก J ปิดงาน — เสียงเปิดหีบ + Open 10 จริง (2026-10-03, ยังไม่ Publish)
 

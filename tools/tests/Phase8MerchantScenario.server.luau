@@ -93,6 +93,7 @@ local ok,err=xpcall(function()
  local adminKept=true;for _,s in D.Get(p,"Inventory.Seeds") do adminKept=adminKept and s.admin_spawned==true end;for _,e in D.Get(p,"Inventory.Eggs") do adminKept=adminKept and e.admin_spawned==true end
  check("Admin provenance carries into merchant items",adminKept)
  check("UI state shows zero remaining after buying out",(function() for _,o in M.State(p).offers do if o.left~=0 then return false end end;return true end)())
+ task.wait(1.1) -- admin visit keys are per second; a same-second summon would reuse the bought-out ledger
  M.Summon(MC.SummonSeconds);local fresh=M.State(p)
  D.SetCurrency(p,"Coins",0);D.SetCurrency(p,"Gems",0);local key=M.Visit().key
  check("Insufficient currency is rejected without a marker",not M.Buy(p,fresh.offers[1].id) and D.Get(p,"Merchant.bought")[key]==nil)
