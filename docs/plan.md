@@ -46,6 +46,8 @@ Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 directio
 
 UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
 
+Concept-matched parts ready: [elements-v2](../assets/ui/elements-v2/README.md), 65 elements including state art and ID-bound pet/weapon first sets. Next import/assemble against the five concepts; complete remaining catalog art as needed. Pixel/device matching requires actual Play proof.
+
 ## 8–9. การตัดสินใจที่คงไว้
 
 มี Friend Boost/Mount/ตกแต่งฐาน/Photo-Emote/เติมเงินไม่ P2W; ไม่มี Co-op Run แชร์ตัวคูณ.

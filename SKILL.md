@@ -26,6 +26,7 @@ description: Work on Chop a Tree gameplay, Roblox assets, and project documentat
 - Player-facing text must be English (ArmZ 2026-10-02): menus, NPC dialogue, map signs, prompts, notifications, Admin and Arena. Keep legacy `.thai` metadata and Thai element keys for compatibility; display `.name`. Do not translate player names or stable IDs. Phase 10 artwork: `assets/ui/woodland-icons-v2.png`, imported image `121083844656821`; use per-icon bounds in Config/UIIcons (uploaded 1024 texture), never source-size grid guesses. Check actual Play screenshots, contrast/cropping/overlap and clicks before claiming visual completion.
 - System UI uses shared UIKit.Window (wood/rim/heading/red X), live labels and modal blur; preserve server intents. Shop art/prices use GetProductInfo with atlas fallback; Index rebuilds on collection changes. Sound mute must restore original Volume, including new sounds; local Sound fixtures only. UI proof/remaining art in `docs/systems.md#phase-10-ui`.
 - UI art assembly: read `assets/ui/elements-v1/UX.md` for screen coverage/layout/state rules; use sprites.json bounds and actual uploaded dimensions. Keep generated concepts as references, live labels/data separate; verify imported art in Play before claiming integration.
+- Concept-matched UI parts: `assets/ui/elements-v2/README.md` + sprites.json; source dimensions vary by image. Bind pet/weapon illustrations to their listed IDs; retain real previews for the unillustrated catalog. Preserve alpha and use measured crops.
 
 ## Creator Store / ภาพ
 

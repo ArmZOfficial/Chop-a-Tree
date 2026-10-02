@@ -1,5 +1,7 @@
 # Woodland UI atlas
 
+Concept-matched follow-up pack: [elements-v2](elements-v2/README.md), 65 elements including window/detail, chrome/control/card states, incubation/garden/reward art, six actual pets and nine actual weapon illustrations. Prepared, not imported/wired yet.
+
 New modular frames/buttons/system art and five screen concepts: [elements-v1](elements-v1/README.md). Full screen/action audit and proposed UX: [UX](elements-v1/UX.md). This new pack is prepared, not yet integrated; runtime nav atlas below remains active.
 
 Runtime image: `rbxassetid://121083844656821`. Source: `woodland-icons-v2.png` (1254 square RGBA); Roblox uploaded texture renders at 1024. Config/UIIcons has individual tight padded rectangles. Do not use source-size grid offsets.

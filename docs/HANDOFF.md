@@ -4,6 +4,8 @@
 
 ## สถานะล่าสุด
 
+- **UI parts v2 prepared:** [pack](../assets/ui/elements-v2/README.md), 65 elements / 10 PNGs redrawn from concepts; windows/chrome/buttons/cards, garden/incubation states, rewards, six real pets and nine real weapons with ID bindings. Alpha/65 non-overlapping bounds/catalog IDs/helper compile checked. Not imported/wired; remaining catalog art + actual Play/device matching pending. No gameplay source/Publish change.
+
 - **UI art pack prepared:** 36 transparent sprites / 4 atlases + 5 generated concepts (Inventory/Garden/Pets/Shop/Rewards), ImageRect helper and all-screen UX audit in [elements-v1](../assets/ui/elements-v1/README.md). PNG alpha/bounds and helper compile checked. These new atlases are not uploaded/wired; runtime below unchanged. Next: shared art assembly, Garden/Pets contextual actions, then remaining views/device proof. Prompts included; no Publish.
 
 - **Phase 10 UI / English:** wood windows/outlined icon headings/red X/blur; Inventory rarity grid + preview, Shop actual product art/live prices, Index categories/gallery/silhouettes, independent Music/SFX mute/restore implemented. Desktop clicks/17 product prices/Index counts/sound fixtures checked; Luau129 compile. Earlier authored English scan Thai0; stable element keys kept. Item models/category art, mobile/gamepad, all flows/world art/VFX/balance remain pending. Details: [UI](systems.md#phase-10-ui). Not published.
