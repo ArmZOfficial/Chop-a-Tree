@@ -325,9 +325,10 @@ Tree cut +{1} Wood,Tree cut +{1} Wood,ตัดต้นไม้แล้ว +{
 Trunk,Trunk,ลำต้น,GardenService,
 Upgrade at your own base,Upgrade at your own base,อัปเกรดที่ฐานของคุณ,GardenService,
 Waiting for new fruit,Waiting for new fruit,รอผลใหม่,GardenService,
-Water Seedlings +10%,Water Seedlings +10%,รดน้ำต้นกล้า +10%,GardenService,
+Water Seedlings +10%,Water Seedlings +10%,รดน้ำต้นกล้า +10%,GardenService,unused
 Water once before fully grown,Water once before fully grown,รดน้ำได้ครั้งเดียวก่อนโตเต็มที่,GardenService,
 Watered. Growth +10%,Watered. Growth +10%,รดน้ำแล้ว โตเร็วขึ้น +10%,GardenService,
+Watering Can,Watering Can,บัวรดน้ำ,GardenService,
 Unlock Zone,Unlock Zone,ปลดล็อกโซน,GateController,
 Light shrine in Zone {1} to unlock this gate,Light shrine in Zone {1} to unlock this gate,จุดศาลเจ้าในโซน {1} เพื่อปลดล็อกประตูนี้,GateService,
 Coins,Coins,เหรียญ,HUD,

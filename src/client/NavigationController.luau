@@ -199,8 +199,10 @@ function Navigation.Start()
 		fit(drawer,490,400)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
-        -- Roblox's hotbar would sit on top of window footers.
-        if obscured~=hidBackpack then hidBackpack=obscured;pcall(game:GetService("StarterGui").SetCoreGuiEnabled,game:GetService("StarterGui"),Enum.CoreGuiType.Backpack,not obscured) end
+        -- The tool hotbar would sit on top of window footers: StarterGui.ToolHotbar when installed
+        -- (it turns Roblox's backpack bar off for good), Roblox's own bar otherwise.
+        local hotbar=pg:FindFirstChild("ToolHotbar")
+        if hotbar then hotbar.Enabled=not obscured elseif obscured~=hidBackpack then hidBackpack=obscured;pcall(game:GetService("StarterGui").SetCoreGuiEnabled,game:GetService("StarterGui"),Enum.CoreGuiType.Backpack,not obscured) end
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
 		if currencies then currencies.Visible=not obscured end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end

@@ -213,7 +213,7 @@ end
 local function wateringTool(p)
 	local bag=p:FindFirstChildOfClass("Backpack");if not bag then return end
 	if bag:FindFirstChild("WateringCan") or (p.Character and p.Character:FindFirstChild("WateringCan")) then return end
-	local tool=Instance.new("Tool");tool.Name="WateringCan";tool.CanBeDropped=false;tool.ToolTip="Water Seedlings +10%";tool:SetAttribute("GardenWater",true)
+	local tool=Instance.new("Tool");tool.Name="WateringCan";tool.CanBeDropped=false;tool.ToolTip="Watering Can";tool:SetAttribute("GardenWater",true)
 	local h=Instance.new("Part");h.Name="Handle";h.Size=Vector3.new(1.2,1.1,1);h.Color=Color3.fromRGB(54,189,178);h.CanCollide=false;h.Massless=true;h.Parent=tool;tool.Parent=bag
 end
 function Garden.Assign(p)
