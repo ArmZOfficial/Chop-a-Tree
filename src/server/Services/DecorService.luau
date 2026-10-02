@@ -27,6 +27,31 @@ function D.Build(p)
 	local top=s.CFrame*CFrame.new(0,s.Size.Y/2,0);local items=Data.Get(p,"Decor.items")
 	for uid,it in items do local def=C.ById[it.id];if def then D.Piece(def,top*CFrame.new(it.x,0,it.z)*CFrame.Angles(0,it.r*math.pi/2,0),folder,uid) end end
 	s.Parent:SetAttribute("Beauty",D.Beauty(items))
+	-- Like prompt on the slab; the owner is resolved when it fires, so a reassigned base never credits the old owner.
+	local prompt=s:FindFirstChild("LikePrompt")
+	if not prompt then
+		prompt=Instance.new("ProximityPrompt");prompt.Name="LikePrompt";prompt.ActionText="Like Base";prompt.KeyboardKeyCode=Enum.KeyCode.L
+		prompt.MaxActivationDistance=C.LikeRange/2;prompt.RequiresLineOfSight=false;prompt.Parent=s
+		prompt.Triggered:Connect(function(liker)
+			local ok,msg=D.Like(liker,Players:GetPlayerByUserId(s.Parent:GetAttribute("OwnerUserId") or 0))
+			Net.Event("Notify"):FireClient(liker,{text=msg,kind=not ok and "warn" or nil})
+		end)
+	end
+	prompt.ObjectText=tostring(Data.Get(p,"Decor.likes") or 0).." ♥"
+end
+-- One like per base owner per UTC day. The liker keeps only today's marks, so the ledger stays tiny.
+function D.Like(p,owner)
+	if not enabled(p) or not owner or not Data.IsLoaded(owner) then return false,"Base unavailable" end
+	if owner==p then return false,"You cannot like your own base" end
+	local s=slab(owner);local hr=p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+	if not s or not hr or (hr.Position-s.Position).Magnitude>C.LikeRange then return false,"Walk to that base first" end
+	local day=os.time()//86400;local key=tostring(owner.UserId);local liked=Data.Get(p,"Decor.liked")
+	if liked[key]==day then return false,"You already liked this base today" end
+	for k,d in liked do if d~=day then liked[k]=nil end end
+	liked[key]=day;Data.Set(p,"Decor.liked",liked)
+	Data.Increment(owner,"Decor.likes",1);s.LikePrompt.ObjectText=tostring(Data.Get(owner,"Decor.likes")).." ♥"
+	Net.Event("Notify"):FireClient(owner,{text="{1} liked your base!",vars={p.DisplayName}})
+	return true,"Base liked"
 end
 -- Grid cell under the player in base-local space, or nil when off their own slab.
 local function cellOf(p)

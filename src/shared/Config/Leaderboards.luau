@@ -3,4 +3,5 @@ return table.freeze({Season="launch_2026",RefreshSeconds=120,Top=10,Metrics={
 	{id="HighestHit",name="Highest Damage"},
 	{id="Rebirth",name="Rebirth"},
 	{id="Income",name="Pen Income / sec"},
+	{id="Likes",name="Popular Bases"},
 }})

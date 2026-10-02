@@ -36,6 +36,28 @@ local ok,err=xpcall(function()
 	check("The village is dressed with the festival piece",dressing and #dressing:GetChildren()==C.VillagePieces and dressing:GetChildren()[1].Name=="pumpkin")
 	W.PreviewFestival(nil);Dec.DressVillage()
 	check("Dressing is removed when the festival ends; placed pieces stay",not workspace.Map.Village:FindFirstChild("FestivalDecor") and count()==1)
+	-- Likes: a fake visitor (DataService patched for it, as in Phase2) likes the real player's base.
+	local fakeChar=Instance.new("Model");local hr=Instance.new("Part");hr.Name="HumanoidRootPart";hr.Anchored=true;hr.CanCollide=false;hr.Parent=fakeChar
+	local fake={UserId=-424242,DisplayName="Visitor",Character=fakeChar};local fakeLiked={}
+	local orig={get=D.Get,set=D.Set,loaded=D.IsLoaded}
+	D.IsLoaded=function(who) if who==fake then return true end return orig.loaded(who) end
+	D.Get=function(who,path) if who==fake then return path=="Decor.liked" and fakeLiked or nil end return orig.get(who,path) end
+	D.Set=function(who,path,v) if who==fake then fakeLiked=v;return end return orig.set(who,path,v) end
+	local likeOk,likeErr=pcall(function()
+		D.Set(p,"Decor.likes",0);Dec.Build(p);local key=tostring(p.UserId);local day=os.time()//86400
+		check("You cannot like your own base",not Dec.Like(p,p))
+		hr.Position=slab.Position+Vector3.new(200,0,0);check("Liking from far away is refused",not Dec.Like(fake,p) and D.Get(p,"Decor.likes")==0)
+		hr.Position=slab.Position+Vector3.new(6,3,0)
+		check("A visitor like counts once and marks today",Dec.Like(fake,p) and D.Get(p,"Decor.likes")==1 and fakeLiked[key]==day)
+		check("A second like the same UTC day is refused",not Dec.Like(fake,p) and D.Get(p,"Decor.likes")==1)
+		fakeLiked={[key]=day-1,["999"]=day-3}
+		check("Yesterday's mark allows a new like and old marks are pruned",Dec.Like(fake,p) and D.Get(p,"Decor.likes")==2 and fakeLiked["999"]==nil)
+		check("The base prompt shows the like count",slab.LikePrompt.ObjectText=="2 ♥")
+		check("Popular Bases leaderboard reads the likes",require(V.LeaderboardService).Snapshot(p).values.Likes==2)
+		F.Set("Decor",false);fakeLiked={};check("Feature off refuses likes",not Dec.Like(fake,p));F.Set("Decor",true)
+	end)
+	D.Get,D.Set,D.IsLoaded=orig.get,orig.set,orig.loaded;fakeChar:Destroy()
+	assert(likeOk,likeErr)
 end,debug.traceback)
 for id,v in flags do F.Set(id,v) end;W.PreviewFestival(nil);Dec.DressVillage()
 D.ImportJSON(p,original);p.Character:PivotTo(pivot);Dec.Build(p);D.SaveNow(p)

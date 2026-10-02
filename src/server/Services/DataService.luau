@@ -48,7 +48,7 @@ DataService.Template = {
 	Purchases = { passes = {}, receipts = {} },
 	Season = { id = "", xp = 0, premium = false, free = {}, prem = {}, pendingFor = "" },
 	Arena = { season = "", rp = 0, wins = 0, losses = 0, applied = {} },
-	Decor = { items = {}, next = 0 },
+	Decor = { items = {}, next = 0, likes = 0, liked = {} }, -- likes: received; liked: [ownerUserId]=UTC day given
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {}, sellDay = -1, sold = {} },
 	Merchant = { bought = {} },

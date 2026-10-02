@@ -19,4 +19,4 @@ local list={
 	{id="watergun",name="Water Gun Stand",festival="songkran",price=800,beauty=3,parts={{size=V(3,2,2),offset=V(0,1,0),color=C(60,150,220),material=M.SmoothPlastic},{size=V(2.4,.6,.6),offset=V(0,2.3,0),color=C(250,200,60),material=M.SmoothPlastic},{size=V(.6,.6,1.6),offset=V(1,2.3,0),color=C(240,90,90),material=M.SmoothPlastic}}},
 }
 local byId={};for _,d in list do byId[d.id]=d end
-return table.freeze({List=list,ById=byId,Grid=4,MaxItems=40,Refund=.5,VillagePieces=8,VillageRadius=34})
+return table.freeze({List=list,ById=byId,Grid=4,MaxItems=40,Refund=.5,VillagePieces=8,VillageRadius=34,LikeRange=40})

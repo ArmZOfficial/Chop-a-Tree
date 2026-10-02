@@ -9,7 +9,7 @@ local prefix=RunService:IsStudio() and "ChopBoards_Studio_v1_" or "ChopBoards_v1
 function Leader.Snapshot(p)
 	if not Data.IsLoaded(p) then return end
 	local entry={userId=p.UserId,name=p.DisplayName,blocked=Data.Get(p,"Meta.AdminTouched")==true or blocked[p.UserId]==true,
-		values={TreesCut=Data.Get(p,"Stats.TreesCut"),HighestHit=Data.Get(p,"Stats.HighestHit"),Rebirth=Data.Get(p,"Progress.Rebirth"),Income=Pet.Income(p)}}
+		values={TreesCut=Data.Get(p,"Stats.TreesCut"),HighestHit=Data.Get(p,"Stats.HighestHit"),Rebirth=Data.Get(p,"Progress.Rebirth"),Income=Pet.Income(p),Likes=Data.Get(p,"Decor.likes") or 0}}
 	entries[p.UserId]=entry;if entry.blocked then blocked[p.UserId]=true end;return entry
 end
 -- Zero is a season tombstone. UpdateAsync prevents a stale eligible write reviving it.

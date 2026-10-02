@@ -190,8 +190,8 @@ for i = 1, 7 do
 	L["RewardsHUD.Panel"]["Daily.Day" .. i] = at(8 + (i - 1) * 110, 70, 104, 218)
 	L["RewardsHUD.Panel"]["Daily.Day" .. i .. ".Status"] = u(0.5, 0, 1, -4, 0, 98, 0, 32)
 end
-for i, name in { "TreesCut", "HighestHit", "Rebirth", "Income" } do
-	L["RewardsHUD.Panel"]["Boards." .. name] = at((i - 1) * 192, 0, 188, 56)
+for i, name in { "TreesCut", "HighestHit", "Rebirth", "Income", "Likes" } do
+	L["RewardsHUD.Panel"]["Boards." .. name] = at((i - 1) * 154, 0, 150, 56)
 end
 for i, name in { "Main", "Daily", "Weekly", "Index", "Achievements", "Warp" } do
 	L["StoryHUD.Panel"]["Tab" .. name] = at((i - 1) * 114, 0, 110, 58)
