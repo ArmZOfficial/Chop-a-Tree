@@ -193,11 +193,11 @@ function Controller.Start()
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") and not keep[v.Name] then v:Destroy() end end
 	end
 	for i,t in TABS do local target=t[1]
-		local b=UI.Button({text=t[2],color=UI.Colors.Purple,size=UDim2.new(1/#TABS,-8,0,42),onClick=function() tab=target;message.Text="";render() end})
-		b.Name="Tab"..target;b.Position=UDim2.new((i-1)/#TABS,0,0,64);b.Parent=panel
+		local b=UI.Button({text=t[2],color=UI.Colors.Purple,size=UDim2.new(1/#TABS,-8,0,50),onClick=function() tab=target;message.Text="";render() end})
+		b.Name="Tab"..target;b.Position=UDim2.new((i-1)/#TABS,0,0,60);b.Parent=panel
 	end
-	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,42),onClick=function() panel.Visible=false end})
-	close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
+	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,50),onClick=function() panel.Visible=false end})
+	close.Name="Close";close.Position=UDim2.new(0,0,1,-50);close.Parent=panel
 	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(780,size.X-28),math.min(570,size.Y-56)) end
 	local function show(target)
 		for _,name in {"InventoryHUD","GardenHUD","PetHUD"} do local other=player.PlayerGui:FindFirstChild(name);if other and other:FindFirstChild("Panel") then other.Panel.Visible=false end end

@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CSV = ROOT / "assets" / "localization" / "strings.csv"
 SOURCES = ["src/client", "src/server/Services", "src/shared"]
-SKIP_FILES = {"SwordPack.luau", "Weapons.luau", "LegacyWeaponMap.luau", "WeaponCatalog.luau", "Admins.luau", "AdminTabs.luau",
+SKIP_FILES = {"PhoneLayouts.luau", "SwordPack.luau", "Weapons.luau", "LegacyWeaponMap.luau", "WeaponCatalog.luau", "Admins.luau", "AdminTabs.luau",
               "Strings.luau", "Locale.luau", "BalanceConfig.luau", "UIIcons.luau", "UIArt.luau", "NumberFormat.luau", "Net.luau",
               "WeaponVisual.luau", "PetVisual.luau", "Balance.luau", "AdminService.luau", "LiveEventMath.luau", "ChestIconRenderer.luau",
               "FeatureService.luau", "Features.luau"}

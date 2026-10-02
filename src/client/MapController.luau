@@ -115,10 +115,11 @@ function Map.Start()
 		local button=UI.Button({text=T(destination==0 and "Rootfall" or "Home"),color=UI.Colors.Blue,size=UDim2.fromOffset(140,48),onClick=function() selected=destination;refresh() end})
 		button.Position=UDim2.fromOffset(425+(i-1)*150,464);button.Parent=panel;homeButtons[i]=button
 	end
+	local phone=false
 	local toggle=UI.Button({text=T("Map"),color=UI.Colors.Blue,size=UDim2.fromOffset(72,38),onClick=function() panel.Visible=not panel.Visible;refresh() end})
 	toggle.AnchorPoint=Vector2.new(1,1);toggle.Position=UDim2.new(1,-12,1,-115);toggle.Parent=gui
 	table.insert(connections,panel:GetPropertyChangedSignal("Visible"):Connect(function()
-		mini.Visible=not panel.Visible;heading.Visible=not panel.Visible;compass.Visible=not panel.Visible;toggle.Visible=not panel.Visible
+		mini.Visible=not panel.Visible;heading.Visible=not panel.Visible and not phone;compass.Visible=not panel.Visible;toggle.Visible=not panel.Visible
 		if not panel.Visible and Selection.SelectedObject and Selection.SelectedObject:IsDescendantOf(panel) then Selection.SelectedObject=nil end
 	end))
 	local north=UI.Button({text=T("North / Camera"),textSize=13,color=UI.Colors.Slate,size=UDim2.fromOffset(145,48),onClick=function() cameraMode=not cameraMode end})
@@ -198,8 +199,15 @@ function Map.Start()
 			north.Position=UDim2.fromOffset(575,414);north.Size=UDim2.fromOffset(145,48)
 			for i,button in homeButtons do button.Position=UDim2.fromOffset(425+(i-1)*150,464);button.Size=UDim2.fromOffset(140,48) end
 		end
-		local size=v.X<700 and 90 or 140;mini.Size=UDim2.fromOffset(size,size)
-		toggle.Size=UDim2.fromOffset(72,(Input.TouchEnabled or v.X<700) and 48 or 38)
+		phone=v.X<700 or v.Y<500
+		local size=phone and 90 or 140;mini.Size=UDim2.fromOffset(size,size)
+		toggle.Size=UDim2.fromOffset(72,(Input.TouchEnabled or phone) and 48 or 38)
+		-- Phone HUD: minimap + Map button join the Menu button in the left column (the right one holds the
+		-- forecast and quest tracker); the compass text is dropped and its targets sit under the currencies.
+		mini.Position=phone and UDim2.fromOffset(176,155) or UDim2.new(1,-12,1,-160)
+		toggle.Position=phone and UDim2.fromOffset(82,201) or UDim2.new(1,-12,1,-115)
+		heading.Visible=not phone and not panel.Visible
+		compass.Position=UDim2.new(.5,0,0,phone and 76 or 141)
 	end
 	if workspace.CurrentCamera then table.insert(connections,workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fit)) end
 	fit();refresh()

@@ -33,7 +33,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 - Map scripting (2026-10-02/03): implementation + 162 synthetic checks in [map-systems](map-systems.md). Boss/shrine unlock, x100 progression, seven Garden bases, Teleport pass and reward caps retained. Approved Explorer reward = one Common Level1/source-zone1 chest per zone (max8); special trees/Timber Wood x2 within overall x4. Gate slide, quest/event compass, skippable coastal boat ride, tree.spawn/clear and rare variant scheduler implemented and synced. Studio native M, two-way boat/skip/cancel, native mock save/reopen and 25 base release/assign cycles passed. Guarded QA remains enabled; physical gamepad, real client rejoin endurance and seven-player total frame/FPS proof remain pending. No live v3 migration or Publish.
 
-- UI audit (2026-10-02): desktop/tablet/phone/gamepad ผ่านเรื่องข้อความล้น/หลุดจอ; ค้างเลย์เอาต์มือถือให้ปุ่ม ≥44px ([UX-audit](../assets/ui/UX-audit.md)).
+- UI audit (2026-10-02/03): desktop/tablet/phone/gamepad ผ่านเรื่องข้อความล้น/หลุดจอ; มือถือมีเลย์เอาต์แยก (`PhoneLayouts`) ปุ่ม ≥44px ทุกหน้าต่างที่ 666×374; ค้างตรวจเครื่องจริง ([UX-audit](../assets/ui/UX-audit.md)).
 - สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
 - Chest opening (ทำแล้ว 2026-10-03): แอนิเมชันเปิดหีบเป็น cosmetic ข้ามได้ ยาวตาม rarity ของอาวุธที่ได้; ตั้งค่า Full/Fast/Off; server สุ่มและเซฟก่อน. ค้างตรวจเปิดจริง/มือถือ/เสียง ([HANDOFF](HANDOFF.md)).
 - Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).

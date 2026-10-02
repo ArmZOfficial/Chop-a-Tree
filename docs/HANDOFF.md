@@ -4,6 +4,12 @@
 
 ## สถานะล่าสุด
 
+## แทร็ก C — เลย์เอาต์มือถือ (2026-10-03, ยังไม่ Publish)
+
+`Client.PhoneLayouts` (ข้อมูลล้วน) + `NavigationController.reflow`: จอ <700 กว้าง หรือ <500 สูง วาดหน้าต่างใหม่บน canvas 780×360 แทนการย่อ 960×650 ลงเหลือ 0.45 → scale 0.82 บนจอ 666×374. วัดที่ 666×374 (ย่อหน้าต่าง Studio) EN+TH: ปุ่ม <44px = 0, ข้อความล้น = 0, หลุดจอ = 0 ใน HUD + 10 หน้าต่าง + เมนู; กลับจอใหญ่คืนค่าเดิมครบ 189 ชิ้น. จัด HUD มือถือใหม่ไม่ซ้อนกัน; ป้ายอีเวนต์ไม่ทับ PLAY (desktop ด้วย); ปุ่ม desktop ที่ต่ำกว่า 44px (Shop/Quests/Season/Arena) ขยายแล้ว. แก้บั๊ก: แถวว่างใน Pets/Garden ไม่มีข้อความและ error ทุก render. รายละเอียด/ตาราง: [UX-audit](../assets/ui/UX-audit.md).
+**ยังไม่ตรวจ:** Device Simulator/เครื่องจริง/ทัช/รอยบาก, แท็บเล็ตหลังแก้, จอแนวตั้ง, จอย. เคาน์เตอร์ความจุ Inventory และ stat ของ Pets ซ่อนบนมือถือ.
+วิธีวัดซ้ำ: ย่อหน้าต่าง Studio ให้ viewport ≈666×374 ระหว่าง Play (Studio คืนขนาดเองเป็นระยะ ต้องเช็ก `ViewportSize` ก่อนวัด) แล้วรัน `tools/ui/UIAudit.luau`.
+
 ## แทร็ก J — Chest opening cinematic (2026-10-03, ยังไม่ Publish)
 
 `Client.ChestOpening` + `Shared.ChestOpeningTimeline`: ฉาก ViewportFrame เต็มจอ (Intro→Charge→Burst→Reveal→Result card), ยาวตาม rarity ของอาวุธที่ได้ 1.6/2.4/3.4/4.5/5.5 วิ, Giant +0.4 วิและตรา GIANT!, เปิด 10 ใบเป็นตารางผล + Skip All, การ์ดผล NEW!/พลัง/เทียบของที่ใส่/Equip/Keep/Open Again, Settings `ChestAnimation` Full/Fast/Off (server whitelist, ไม่มี DATA_VERSION ใหม่ — Reconcile), Reduce Motion, แอดมิน `/chest preview <rarity|giant|1-5> [multi]` (ไม่เซฟ). Server สุ่ม+เซฟก่อนเสมอ; ไม่แตะน้ำหนักสุ่ม. `Weapon.Open` คืน `new`/`chest` เพิ่ม, `OpenTen` คืนผลทุกใบเป็นค่าที่ 4.
@@ -70,7 +76,7 @@ Prompt: [Claude outputs/chop-a-tree-master-prompt.md](../Claude%20outputs/chop-a
 
 ## งานถัดไป / ค้าง
 
-0. Master prompt ที่เหลือ: J ส่วนที่ยังไม่ตรวจ (เปิดหีบจริง/มือถือ/จอย/เสียง) → C เลย์เอาต์มือถือปุ่ม ≥44px → F+G → regression รอบสุดท้าย. A/B/D/E/H/I/J-core เสร็จแล้ว.
+0. Master prompt ที่เหลือ: J เสียง + Open 10 จริง, C ตรวจบน Device Simulator/เครื่องจริง → F+G → regression รอบสุดท้าย. A/B/C/D/E/H/I/J-core เสร็จแล้ว.
 
 1. ซีซัน 2–3 พร้อมแล้ว; เพิ่มแถวซีซัน 4 ID ใหม่ **ก่อน 2027-01-01 UTC** มิฉะนั้นไม่มีซีซันให้เล่น/ขายหลังนั้น.
 2. ซื้อผ่าน Roblox Player จริง + reconnect หลังซื้อ; server persistence/failed-save ผ่านแล้วใน Studio ด้วยบัญชีจริง. Regression 2–7/8a–f ครบ; ต้องแยกจาก multi-account/device proof.

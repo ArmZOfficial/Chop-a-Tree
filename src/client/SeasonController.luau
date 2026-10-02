@@ -74,7 +74,7 @@ function Controller.Start()
 			cell("Premium","premium",row.premium,prem[key]==true,not premium,.5)
 		end
 	end
-	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,44),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(0,0,1,-48);close.Parent=panel
+	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,50),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(0,0,1,-50);close.Parent=panel
 	local toggle=UI.Button({text="Season Pass",color=UI.Colors.Purple,size=UDim2.fromOffset(130,48),onClick=function()
 		panel.Visible=not panel.Visible;message.Text="";render()
 	end});toggle.Name="Toggle";toggle.Position=UDim2.fromOffset(200,425);toggle.Parent=gui

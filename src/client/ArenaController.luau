@@ -14,7 +14,7 @@ function A.Start()
 	local info=UI.Label("",15,{Name="Info",Position=UDim2.fromOffset(0,36),Size=UDim2.new(1,0,0,48),Parent=panel})
 	local ranked=true;local busy=false;local lastStatus;local labels={}
 	local function button(name,text,y,color,fn)
-		local b=UI.Button({text=text,textSize=16,color=color,size=UDim2.new(1,0,0,42),onClick=fn});b.Name=name;b.Position=UDim2.fromOffset(0,y);b.Parent=panel;return b
+		local b=UI.Button({text=text,textSize=16,color=color,size=UDim2.new(1,0,0,48),onClick=fn});b.Name=name;b.Position=UDim2.fromOffset(0,y);b.Parent=panel;return b
 	end
 	local function render(s)
 		local status=s.transferring and "Joining arena…" or s.mode and ("Queued for "..s.mode.." • Waiting for players") or s.ready and "Choose a mode and wait at the portal" or "Arena unavailable"
@@ -34,8 +34,8 @@ function A.Start()
 	toggle=button("Ranked","Ranked • Equal stats",92,UI.Colors.Purple,function()
 		ranked=not ranked;toggle:FindFirstChildWhichIsA("TextLabel",true).Text=ranked and "Ranked • Equal stats" or "Casual • Power capped"
 	end)
-	for i,m in C.Modes do local b=button("Join"..m.id,m.name,140+(i-1)*48,UI.Colors.Blue,function() request("Join",m.id) end);labels[m.id]=b:FindFirstChildWhichIsA("TextLabel",true) end
-	button("Leave","Leave Queue",336,UI.Colors.Red,function() request("Leave") end)
+	for i,m in C.Modes do local b=button("Join"..m.id,m.name,144+(i-1)*52,UI.Colors.Blue,function() request("Join",m.id) end);labels[m.id]=b:FindFirstChildWhichIsA("TextLabel",true) end
+	button("Leave","Leave Queue",356,UI.Colors.Red,function() request("Leave") end)
 	local close=UI.Button({text="×",color=UI.Colors.Slate,size=UDim2.fromOffset(40,36),onClick=function() panel.Visible=false end});close.Name="Close";close.Position=UDim2.new(1,-40,0,0);close.Parent=panel
 	Net.Event("ArenaShow").OnClientEvent:Connect(function() lastStatus=nil;rank();panel.Visible=true;request("State") end)
 	Net.Event("ArenaState").OnClientEvent:Connect(render)

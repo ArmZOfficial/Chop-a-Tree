@@ -107,11 +107,11 @@ function Garden.Start()
 		callbacks[name]=onClick
 		local r=element(name,function()
 			local b=UI.New("TextButton",{Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.new(1,-8,0,70)})
-			UI.Label("",18,{Name="Text",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
+			UI.Label("",18,{Name="RowText",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
 			return b
 		end)
 		UI.Skin(r,"cards",color==UI.Colors.Orange and "today" or "product")
-		r.Text.Text=text;r.Text.TextTransparency=color==UI.Colors.Disabled and .45 or 0
+		r.RowText.Text=text;r.RowText.TextTransparency=color==UI.Colors.Disabled and .45 or 0
 	end
 	local tabs={}
 	render=function()

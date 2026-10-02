@@ -13,9 +13,9 @@ function Weather.Start()
 	local badge=UI.Label("",13,{Name="Forecast",AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-16,0,120),Size=UDim2.fromOffset(230,60),BackgroundTransparency=.12,BackgroundColor3=UI.Colors.Panel,TextXAlignment=Enum.TextXAlignment.Center,Parent=gui});UI.Corner(10).Parent=badge
 	local banner=UI.Label("",19,{Name="Banner",AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,175),Size=UDim2.new(.7,0,0,36),TextXAlignment=Enum.TextXAlignment.Center,Visible=false,Parent=gui})
 	local function resize()
-		local size=workspace.CurrentCamera.ViewportSize;local small=size.X<620
+		local size=workspace.CurrentCamera.ViewportSize;local small=size.X<700 or size.Y<500 -- same phone rule as NavigationController
 		badge.Position=UDim2.new(1,-12,0,8)
-		badge.Size=UDim2.fromOffset(small and math.min(210,size.X-100) or 230,72);badge.TextSize=small and 12 or 13
+		badge.Size=UDim2.fromOffset(small and 190 or 230,72);badge.TextSize=small and 12 or 13 -- 190 clears the currency capsules on phones
 	end
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize);resize()
 	local original={Brightness=Lighting.Brightness,Ambient=Lighting.Ambient,OutdoorAmbient=Lighting.OutdoorAmbient,FogEnd=Lighting.FogEnd,FogColor=Lighting.FogColor,ClockTime=Lighting.ClockTime}

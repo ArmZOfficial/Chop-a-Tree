@@ -101,11 +101,11 @@ function Controller.Start()
 		order+=1;callbacks[name]=callback
 		local r=element(list,name,function()
 			local b=clickable(name);b.Size=UDim2.new(1,-8,0,70)
-			UI.Label("",18,{Name="Text",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
+			UI.Label("",18,{Name="RowText",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
 			return b
 		end)
 		r.LayoutOrder=order;UI.Skin(r,"cards",color==UI.Colors.Teal and "selected" or (color==UI.Colors.Orange or color==UI.Colors.Purple) and "today" or "product")
-		r.Text.Text=text;r.Text.TextTransparency=color==UI.Colors.Disabled and .45 or 0
+		r.RowText.Text=text;r.RowText.TextTransparency=color==UI.Colors.Disabled and .45 or 0
 		return r
 	end
 	local function actions(defs)

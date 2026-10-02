@@ -3,6 +3,7 @@ local Players=game:GetService("Players")
 local S=game.ReplicatedStorage.Shared;local UI=require(S.UIKit)
 local Atlas=require(S.Config.UIIcons)
 local Net=require(S.Net)
+local Phone=require(script.Parent.PhoneLayouts)
 local Navigation={}
 local Lighting=game:GetService("Lighting")
 local GuiService=game:GetService("GuiService")
@@ -45,7 +46,7 @@ function Navigation.Start()
 		local open=false;for _,r in panels do if r.panel.Visible then open=true;r.panel.Visible=false end end
 		drawer.Visible=open or not drawer.Visible
 	end});more.Name="More";more.LayoutOrder=99;more.Parent=rail
-	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(64,68),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
+	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(72,80),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
 	local function dress(holder,label,id)
 		local b=holder:FindFirstChild("Button");if not b then return end
 		b.BackgroundColor3=Color3.fromRGB(164,98,49)
@@ -56,16 +57,34 @@ function Navigation.Start()
 		icon(b,id);b.Activated:Connect(function() if holder~=more and holder~=mobile then drawer.Visible=false end end)
 	end
 	dress(more,"More","menu");dress(mobile,"Menu","menu");mobile:FindFirstChild("Button").Icon.Size=UDim2.fromOffset(42,35);mobile.Button.Icon.Position=UDim2.new(.5,-21,0,3)
+	-- Phone layouts: {Position,Size} per named child (false = hidden); desktop values are restored
+	-- when the screen is no longer compact.
+	-- Re-applied whenever the window is shown or gains children: controllers build parts lazily.
+	local function reflow(panel,spec,on)
+		if not on and not panel:GetAttribute("PhoneLayout") then return end
+		panel:SetAttribute("PhoneLayout",on)
+		for path,r in spec do
+			local o=panel;for part in path:gmatch("[^.]+") do o=o and o:FindFirstChild(part) end
+			if o then
+				-- Desktop values live in attributes (a weak table keyed by Instance loses entries).
+				if o:GetAttribute("DeskVisible")==nil then o:SetAttribute("DeskPosition",o.Position);o:SetAttribute("DeskSize",o.Size);o:SetAttribute("DeskVisible",o.Visible) end
+				if r==false then o.Visible=not on and o:GetAttribute("DeskVisible")
+				else o.Position=on and r[1] or o:GetAttribute("DeskPosition");o.Size=on and r[2] or o:GetAttribute("DeskSize") end
+			end
+		end
+	end
 	local function fit(panel,w,h,primary)
 		local v=workspace.CurrentCamera.ViewportSize;local scale=panel:FindFirstChildOfClass("UIScale") or UI.New("UIScale",{Parent=panel})
 		local owner=panel:FindFirstAncestorWhichIsA("ScreenGui")
+		local spec=owner and Phone[owner.Name.."."..panel.Name];local pad=40
+		if spec then if panel.Visible or not compact then reflow(panel,spec,compact) end;if compact then local sz=spec._size;w,h,pad=sz and sz[1] or Phone.W,sz and sz[2] or Phone.H,16 end end
 		if compact and owner and (primary or panel.Name=="Panel" or panel.Name=="Settings") then
 			-- Phone: use the full screen height (the window may cover the topbar strip) and stay right of
 			-- Roblox's top-left buttons; +40 keeps the corner close button on screen.
-			local area=owner.AbsoluteSize;local inset=GuiService:GetGuiInset().Y
+			local inset=GuiService:GetGuiInset().Y;local area=Vector2.new(v.X,v.Y-inset) -- not owner.AbsoluteSize: it lags a viewport change
 			local ok,bar=pcall(function() return GuiService.TopbarInset end);local left=ok and bar and math.max(0,bar.Min.X) or 0
-			local beside=math.min(1,(area.X-left-12)/(w+40),(area.Y+inset-8)/(h+40))
-			local below=math.min(1,(area.X-12)/(w+40),(area.Y-8)/(h+40)) -- narrow phones: under the topbar instead
+			local beside=math.min(1,(area.X-left-12)/(w+pad),(area.Y+inset-8)/(h+pad))
+			local below=math.min(1,(area.X-12)/(w+pad),(area.Y-8)/(h+pad)) -- narrow phones: under the topbar instead
 			local s=math.max(beside,below)
 			panel.Size=UDim2.fromOffset(w,h);scale.Scale=s;panel.AnchorPoint=Vector2.new(.5,.5)
 			panel.Position=beside>=below and UDim2.new(0,left+(area.X-left)/2,.5,-inset/2+6*s) or UDim2.new(.5,0,.5,6*s)
@@ -91,6 +110,10 @@ function Navigation.Start()
 			if panel.Visible then for _,r in panels do if r.panel~=panel then r.panel.Visible=false;r.shade.Visible=false end end;drawer.Visible=false end
 			if layout then layout() end
 		end)
+		local spec,pending=Phone[owner.Name.."."..panel.Name],false
+		if spec then panel.DescendantAdded:Connect(function()
+			if compact and panel.Visible and not pending then pending=true;task.defer(function() pending=false;reflow(panel,spec,compact) end) end
+		end) end
 		local correcting=false
 		panel:GetPropertyChangedSignal("Size"):Connect(function() if not correcting then correcting=true;fit(panel,w,h,primary);correcting=false end end)
 		fit(panel,w,h,primary)
@@ -104,12 +127,12 @@ function Navigation.Start()
 			if spec[6] and owner:FindFirstChild("Panel") then bindPanel(owner.Panel,owner,spec[6],spec[7],spec[5]) end
 		end
 	end
-	for _,spec in {{"ArenaHUD","Panel",500,420},{"InventoryHUD","Result",380,365},{"ForestHUD","Summary",360,250},{"EmoteHUD","Wheel",330,330},{"StoryHUD","Dialog",620,150}} do
+	for _,spec in {{"ArenaHUD","Panel",500,440},{"InventoryHUD","Result",380,365},{"ForestHUD","Summary",360,250},{"EmoteHUD","Wheel",330,330},{"StoryHUD","Dialog",620,150}} do
 		local owner=pg:FindFirstChild(spec[1]);local panel=owner and owner:FindFirstChild(spec[2]);if panel then bindPanel(panel,owner,spec[3],spec[4]) end
 	end
 	local settings=UI.New("Frame",{Name="Settings",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(450,478),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(18)})
 	UI.Label("Settings",24,{Parent=settings})
-    UI.Label("E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo",15,{Position=UDim2.fromOffset(12,396),Size=UDim2.new(1,-24,0,34),Parent=settings})
+    UI.Label("E: Chop  •  Shift: Sprint  •  G: Emotes  •  P: Photo",15,{Name="Keys",Position=UDim2.fromOffset(12,396),Size=UDim2.new(1,-24,0,34),Parent=settings})
     local muteState={Music=false,SFX=false};local volumes={}
     local function category(s)
         local group=s.SoundGroup;local name=string.lower(s.Name)
@@ -181,11 +204,13 @@ function Navigation.Start()
 		local currencies=pg:FindFirstChild("HUD") and pg.HUD:FindFirstChild("Currencies")
 		if currencies then currencies.Visible=not obscured end
 		local weather=pg:FindFirstChild("WeatherHUD");if weather and weather:FindFirstChild("Forecast") then weather.Forecast.Visible=not obscured end
+        -- The event banner sits above the hint line (desktop) or in its place (phones), never over PLAY.
+        local event=pg:FindFirstChild("WorldEventHUD") and pg.WorldEventHUD:FindFirstChild("Event");if event then event.Position=UDim2.new(.5,0,1,compact and -150 or -196) end
         -- Minimap/compass (MapHUD, DisplayOrder 22) would draw over open windows: drop it below them.
         local map=pg:FindFirstChild("MapHUD");if map then map.DisplayOrder=(obscured and not (map:FindFirstChild("Panel") and map.Panel.Visible)) and 7 or 22 end
         local forest=pg:FindFirstChild("ForestHUD");if forest and forest:FindFirstChild("RunPanel") then
             if forest:FindFirstChild("Play") then forest.Play.Visible=not obscured and not forest.RunPanel.Visible end
-            if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not forest.RunPanel.Visible end
+            if forest:FindFirstChild("Hint") then forest.Hint.Visible=not obscured and not compact and not forest.RunPanel.Visible end
         end
         for _,r in records do
             local here=active and r.primary;r.holder.Parent=here and side or ((compact or not r.primary) and grid or rail);r.holder.Size=here and UDim2.fromOffset(100,100) or UDim2.fromOffset(94,100)

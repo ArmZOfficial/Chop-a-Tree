@@ -16,6 +16,7 @@ function Controller.Start()
 	UI.Window(panel,"Rewards","rewards/gift",{plaque=370})
 	local streakBox=UI.New("Frame",{Name="Streak",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,.5),Position=UDim2.new(1,-92,.105,-2),Size=UDim2.fromOffset(320,56),Parent=panel});UI.Skin(streakBox,"chrome","infoRow")
 	local streak=UI.Label("",24,{Name="StreakText",RichText=true,Size=UDim2.fromScale(1,1),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,ZIndex=3,Parent=streakBox})
+	streak.TextScaled=true;UI.New("UITextSizeConstraint",{MaxTextSize=24,MinTextSize=12,Parent=streak}) -- narrow box on phones / long Thai
 	local message=UI.Label("",14,{Name="Message",Visible=false,Parent=panel})
 	local render
 	local function button(name,text,parent,pos,size,fn,color,textSize)

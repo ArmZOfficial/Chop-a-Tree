@@ -38,7 +38,7 @@ function Controller.Start()
 		local d=def
 		local row=UI.New("Frame",{Name=d.id,Size=UDim2.new(1,-8,0,80),BackgroundColor3=UI.Colors.Card,Parent=list},{UI.Corner(10)})
 		local label=UI.Label(d.name,16,{Name="Description",Position=UDim2.fromOffset(10,6),Size=UDim2.new(1,-185,1,-12),Parent=row})
-		local buy=button("Buy","Upgrade",UI.Colors.Green,row,UDim2.new(1,-166,0,14),UDim2.fromOffset(150,52),function() if state then call("Buy",{id=d.id,rank=state.skills[d.id]}) end end)
+		local buy=button("Buy","Upgrade",UI.Colors.Green,row,UDim2.new(1,-166,0,11),UDim2.fromOffset(150,58),function() if state then call("Buy",{id=d.id,rank=state.skills[d.id]}) end end)
 		rows[d.id]={label=label,buy=buy}
 	end
 	local rebirth=button("Prepare","Start New Cycle",UI.Colors.Purple,panel,UDim2.new(0,0,1,-72),UDim2.fromOffset(430,55),function() call("Prepare") end)

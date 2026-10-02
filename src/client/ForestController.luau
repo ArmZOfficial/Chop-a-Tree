@@ -102,7 +102,7 @@ function Forest.Start()
 	Net.Event("RunState").OnClientEvent:Connect(function(nextState)
 		state=nextState
 		play.Visible=not state.active
-		panel.Visible=state.active; top.Visible=state.active; chop.Visible=state.active; hint.Visible=not state.active and not state.summary
+		panel.Visible=state.active; top.Visible=state.active; chop.Visible=state.active; local v=workspace.CurrentCamera.ViewportSize;hint.Visible=not state.active and not state.summary and v.X>=700 and v.Y>=500 -- phones: no room above PLAY
 		buttonText(attack,"Auto Attack: "..(state.autoAttack and "ON" or "OFF"))
 		buttonText(cut,"Auto Cut: "..(state.autoCut and "ON" or "OFF"))
 		for _,label in cut:GetDescendants() do if label:IsA("TextLabel") and label.LayoutOrder==2 then label.Text="EXP / Wood / Coins −"..math.floor((1-(state.autoReward or .55))*100+.5).."%" end end

@@ -74,7 +74,7 @@ function Shop.Start()
 		art(card,key,product,{Position=UDim2.fromOffset(20,12),Size=UDim2.new(1,-40,0,112)})
 		UI.Label(title(product),32,{Name="Title",Position=UDim2.fromOffset(12,122),Size=UDim2.new(1,-24,0,38),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
 		UI.Label((desc:gsub("%s+"," ")),17,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(14,160),Size=UDim2.new(1,-28,0,22),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
-		local b=UI.Button({text=buy,textSize=28,color=color,size=UDim2.new(1,-28,0,54),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,14,1,-62);b.Parent=card
+		local b=UI.Button({text=buy,textSize=28,color=color,size=UDim2.new(1,-28,0,58),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,14,1,-64);b.Parent=card
 	end
 	-- Small card: illustration left, text and price right.
 	local function small(product,key,desc,buy,color,onClick,order)
@@ -82,7 +82,7 @@ function Shop.Start()
 		art(card,key,product,{Position=UDim2.fromOffset(12,11),Size=UDim2.fromOffset(100,100)})
 		UI.Label(title(product),21,{Name="Title",Position=UDim2.fromOffset(118,10),Size=UDim2.new(1,-130,0,28),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
 		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,0,34),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
-		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,44),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-52);b.Parent=card
+		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,58),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-62);b.Parent=card
 	end
 	local tabs={}
 	render=function()

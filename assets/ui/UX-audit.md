@@ -19,6 +19,28 @@ Gamepad (Controller Emulator): Select = Roblox UI navigation; opening a window s
 (Inventory → Weapons tab, Shop → Passes tab, Settings → Music toggle), gold outline marks the selection, **B** closes
 the open window or menu and clears the selection. Verified live.
 
+## Phone layouts (2026-10-03)
+
+Phones (`viewport < 700 wide or < 500 high`) no longer shrink the desktop window. `Client.PhoneLayouts` gives each
+window a 780x360 canvas (Arena 640x270, Settings 720x290) with its own child positions; `NavigationController`
+applies it when the window is shown, re-applies it for parts built later, and restores the desktop values
+(kept in `Desk*` attributes) when the screen grows. Header plaques/titles are hidden; tabs sit beside the close button.
+
+| Viewport | Lang | Window scale | OVER | OFF | SMALL (<44 px) |
+|---|---|---|---|---|---|
+| 666x374 (Studio window resized, = iPhone 7) | EN | 0.82 (Arena 1.00, Settings 0.89) | 0 | 0 | **0** in HUD + 10 windows + menu |
+| 666x374 | TH | same | 0 | 0 | **0** |
+| 1115x675 after returning from phone size | TH | 0.93 | 0 | 0 | 0 (189 tracked parts all restored) |
+
+Also fixed: phone HUD overlap (minimap + Map button moved to the left column beside Menu, compass text dropped,
+compass targets under the currencies, forecast 190 px, hint line hidden); world-event banner no longer covers PLAY
+(desktop too); desktop Shop buy / Quests tabs / Season close / Arena lobby buttons raised to >= 44 px; Pets and
+Garden empty-state rows were blank and threw an error every render (child named `Text` shadowed by
+`TextButton.Text`); window scale used a stale ScreenGui size after a viewport change.
+
+Measured by resizing the Studio window, not with the Device Simulator: touch input, safe-area notches and real
+devices are still unverified. Inventory capacity counter and Pets stat capsules are hidden on phones (no room).
+
 ## Fixed in this track
 
 - [x] Window titles were cut off ("Setti…", Arena, "Choose a Menu", long Thai titles): `UIKit.Window` heading now
@@ -40,11 +62,9 @@ the open window or menu and clears the selection. Verified live.
 
 ## Open (not fixed — needs a phone layout)
 
-- [ ] **Touch targets on phones.** Windows are drawn at 960×650 with offset layouts and shrunk by one UIScale, so on
-      phones every window control is 17–38 px and Thai text is small. Meeting 44 px needs a phone layout per window
-      (two-column cards, full-width detail, bigger tabs), as the elements-v1 UX spec proposes. Biggest offenders:
-      Shop buy buttons, Quests tabs, Garden actions, Season/Rebirth close.
-- [ ] Desktop/tablet minor: Shop buy buttons (40 px), Quests tabs (38 px), Season close (40 px) are under 44 px.
+- [x] Touch targets on phones and the desktop 38-40 px buttons: done 2026-10-03, see "Phone layouts" above.
+- [ ] Tablet (1023x768) still uses the desktop window at 0.93: controls 44-58 px, not re-measured after this change.
+- [ ] Phone landscape only; portrait phones (width < 500) not designed.
 - [ ] Admin buttons (ADMIN/OWNER, admin-only) overlap window titles on phones.
 - [ ] `MapController` (map-systems work, not committed) binds gamepad **Select** to the map, which is also Roblox's
       "enter UI navigation" button; pick another button (e.g. DPadUp / ButtonY) before committing it.
