@@ -959,8 +959,67 @@ function MapBuilder.BuildAllZones()
 	end
 end
 
+-- Studded-rock mountain range around the island and the hub, plus an invisible wall behind it.
+-- Template: ServerStorage.MapAssets.StuddedRock (Creator Store model, scripts removed, pivot at
+-- the bottom centre). Gaps: the dock (south of the hub) and the boat ride curve (TravelService).
+function MapBuilder.BuildMountains()
+	withHistory("Chop a Tree: Mountains", function()
+		local template = ServerStorage.MapAssets.StuddedRock
+		local root = fresh(mapRoot(), "Mountains")
+		local barrier = F(root, "Barrier")
+		local islandR = Zones.List[1].outer + 25
+		local hubR = HUB.radius + 25
+		local d = flat(HUB.center).Magnitude
+		-- Boat curve (dock → bend → shore), sampled. Copy of Config.Story
+		-- MapBoatBend/MapBoatShore (Story cannot load from the command bar); keep them in sync.
+		local Story = { MapBoatBend = Vector3.new(540, 6, 1010), MapBoatShore = Vector3.new(210, 5.5, 866) }
+		local dock = Vector3.new(HUB.center.X, 5, HUB.center.Z + HUB.radius + 49)
+		local boat = {}
+		for i = 0, 40 do
+			local t = i / 40
+			local p = dock * (1 - t) ^ 2 + Story.MapBoatBend * (2 * (1 - t) * t) + Story.MapBoatShore * t ^ 2
+			table.insert(boat, p)
+		end
+		local function blocked(p)
+			for _, b in boat do
+				if flat(p - b).Magnitude < 40 then return true end
+			end
+			return math.abs(p.X - HUB.center.X) < 45 and p.Z > HUB.center.Z + 100 -- dock
+		end
+		local rng = Random.new(1010)
+		local function range(center, r, inside)
+			local n = math.ceil(2 * math.pi * r / 60)
+			for i = 0, n - 1 do
+				local a = (i + rng:NextNumber(-0.3, 0.3)) / n * 2 * math.pi
+				for row = 0, i % 2 do -- every other slot gets a taller peak behind
+					local p = polar(center, r + row * 35 + rng:NextNumber(-8, 8), a, -6)
+					if not inside(p) and not blocked(p) then
+						local m = template:Clone()
+						m:ScaleTo(rng:NextNumber(7, 10) * (row == 1 and 1.4 or 1))
+						m:PivotTo(CFrame.new(p) * CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0))
+						m.Parent = root
+					end
+				end
+			end
+		end
+		range(Vector3.zero, islandR, function(p) return flat(p - HUB.center).Magnitude < hubR + 20 end)
+		range(HUB.center, hubR, function(p) return flat(p).Magnitude < islandR + 20 end)
+		-- Walls meet where the two circles cross (law of cosines); the hub wall also opens at the dock.
+		local wi, wh = islandR - 15, hubR - 15
+		local islandHalf = math.acos((wi ^ 2 + d ^ 2 - wh ^ 2) / (2 * wi * d)) * wi
+		local hubHalf = math.acos((wh ^ 2 + d ^ 2 - wi ^ 2) / (2 * wh * d)) * wh
+		ringWall(barrier, Vector3.zero, wi, -10, 90, 4, Color3.new(), "MountainWall", { { 0, islandHalf } }, 40)
+		ringWall(barrier, HUB.center, wh, -10, 90, 4, Color3.new(), "MountainWall", { { math.pi, hubHalf }, { 0, 15 } }, 40)
+		for _, wall in barrier:GetChildren() do
+			wall.Transparency = 1
+			wall.CanQuery = false
+		end
+	end)
+end
+
 function MapBuilder.BuildAll()
 	MapBuilder.BuildWorld()
+	MapBuilder.BuildMountains()
 	MapBuilder.BuildVillage()
 	MapBuilder.BuildAllZones()
 end

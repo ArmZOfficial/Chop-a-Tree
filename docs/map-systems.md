@@ -38,14 +38,14 @@ Balance: no paid gates, no new prices/pass IDs and no rarity weight changes. Use
 
 | ID | Zone | Radius / floor y | Unlock | Themed pool |
 |---|---|---|---|---|
-| 1 | Sunny Meadow | 740–900 / 4 | Existing free starter zone | Oak, RoundTree, Pine |
-| 2 | Amber Woods | 650–740 / 12 | Boss + shrine 1 | Maple, Birch, AutumnBall |
-| 3 | Glowcap Bog | 560–650 / 20 | Boss + shrine 2 | Mushroom, TwinShroom, GlowBulb |
-| 4 | Sakura Highlands | 470–560 / 30 | Boss + shrine 3 | Sakura, Weeping, Layered |
-| 5 | Thunder Bamboo | 380–470 / 40 | Boss + shrine 4 | BambooClump, BambooTall, ThunderPalm |
-| 6 | Frostvale | 290–380 / 52 | Boss + shrine 5 | SnowPine, IceSpire, SnowRound |
-| 7 | Crystal Ridge | 200–290 / 64 | Boss + shrine 6 | CrystalTree, Prism, Amethyst |
-| 8 | Lumora Plateau (SkyIsles key) | 0–200 / 78 | Boss + shrine 7 | GoldenTree, LightOrb, SpiritWillow |
+| 1 | Sunny Meadow | 740–900 / 4 | Existing free starter zone | MeadowOak, MeadowLime, MeadowPine |
+| 2 | Amber Woods | 650–740 / 12 | Boss + shrine 1 | AmberMaple, AmberBirch, AmberEmber |
+| 3 | Glowcap Bog | 560–650 / 20 | Boss + shrine 2 | BogViolet, BogAzure, BogTeal |
+| 4 | Sakura Highlands | 470–560 / 30 | Boss + shrine 3 | SakuraPink, SakuraBlush, SakuraRose |
+| 5 | Thunder Bamboo | 380–470 / 40 | Boss + shrine 4 | BambooGreen, BambooSpark, BambooOlive |
+| 6 | Frostvale | 290–380 / 52 | Boss + shrine 5 | FrostPine, FrostIce, FrostSnow |
+| 7 | Crystal Ridge | 200–290 / 64 | Boss + shrine 6 | CrystalPrism, CrystalAmethyst, CrystalTide |
+| 8 | Lumora Plateau (SkyIsles key) | 0–200 / 78 | Boss + shrine 7 | LumoraGold, LumoraPearl, LumoraSun |
 | hub | Rootfall | (0,4,1010), r190 | Safe/free | None |
 
 All zone HP/drop multipliers are 1; rarity bonus 0; travel cost 0. Actual progression remains Balance's x100 per zone with Rebirth/AutoCut/friend/Pet/pass/boost seams. TreeKit retains its existing 55/30/15 themed/neighbour/other mix; pool metadata records the themed references. No extra economic curve.

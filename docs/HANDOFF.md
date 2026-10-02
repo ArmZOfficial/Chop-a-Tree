@@ -4,6 +4,14 @@
 
 ## สถานะล่าสุด
 
+## ภูเขาหินล้อมแมพ + เพลง/เสียงตัดไม้ (2026-10-03, ยังไม่ Publish)
+
+- `MapBuilder.BuildMountains()` (เรียกใน BuildAll ด้วย) สร้าง `Map.Mountains`: โมเดล "Studded Rock" ที่ ArmZ เลือกจาก Creator Store ขยาย ×7–14 วางรอบเกาะ (r = 925) และรอบ Rootfall (r = 215) รวม 147 ลูก / 3,979 parts + `Barrier` กำแพงใส สูง 90 กันผู้เล่นออกนอกแมพ. เว้นช่องท่าเรือ และทางเรือ dock→MapBoatBend→MapBoatShore (ค่าคัดลอกจาก Config.Story; ถ้าแก้ Story ต้องแก้ใน MapBuilder ด้วย). แม่แบบ: `ServerStorage.MapAssets.StuddedRock` (ไม่มีสคริปต์).
+- **คำเตือน:** โมเดลหิน/ต้นไม้ "studded" ที่เป็นของ reupload ใน Creator Store หลายตัวแฝง backdoor `LightConfig`/`Package` ไว้ใต้ `Weld` (ปลอมเป็นโค้ดของ Quenty). ต้องลบสคริปต์ทั้งหมดก่อนใช้ (ทำแบบ AssetPrototypes).
+- เสียง: `ZoneAmbience` เปิดเพลง APM "Time On Our Hands" 9039992866 วนตลอด (Sound ชื่อ `music`, ปุ่ม Music ปิดได้; เสียงฟัน/ล้มชื่อ `sfxChop`/`sfxFall`). `ForestController` เล่นเสียงฟัน 9120950231 ทุก TreeHit และเสียงต้นไม้ล้ม 9120796401 ตอน `hit.dead` (Pro Sound Effects). ตรวจใน Studio: ทั้ง 3 id โหลดได้, เพลงเล่นใน Play, console ไม่มี error. **ยังไม่ได้ตรวจ:** ฟังด้วยหู.
+- ต้นไม้ทั้งหมด (1,470) เปลี่ยนเป็นทรง Kako9's Tree ตามที่ ArmZ สั่ง: `TreeKit` สร้างจากโค้ด 17 parts, 24 แบบ = 8 โซน × 3 ชุดสี + ทรง Classic/Tall/Wide (key ใหม่ เช่น MeadowOak, BogViolet ... อัปเดต `Zones.treePools` แล้ว). เปลี่ยน**ในที่เดิม** (ตำแหน่ง/tier/tag/attribute/RotVein เดิม) ไม่ได้ BuildZone ใหม่ — ถ้า BuildZone ใหม่ภายหลัง ลำดับ rng เปลี่ยน ตำแหน่งต้นไม้/รัง/หีบจะต่างจากเดิม. Map parts รวม 32,362 (ต้นไม้ +~17k) — ถ้ามือถือกระตุกให้ตัด root slab ก่อน.
+- Regression หลังเปลี่ยนต้นไม้: Phase2 **23/23** (restored=true), Phase7 **24/24** (รวมตัดต้นโซน 3 จริง = เสียงฟัน/ล้มรันโดยไม่มี error), ValidateRoutes 263 จุด 0 ปัญหา, tag เท่าเดิม (Tree 1470, ChestSpot 80, Nest 16 ...), console สะอาด. หมายเหตุ: รัน Phase7 ต่อจาก Phase2 ทันทีจะตกข้อ "collidable Trunk" เพราะต้นที่ Phase2 ตัดยังไม่เกิดใหม่ (15 วิ) — รันแยกรอบ.
+
 ## Regression รอบสุดท้าย (บางส่วน) บนเกาะใหม่ + Sword Pack (2026-10-03)
 
 รัน scenario เดิมใน Script VM ของ Studio Play ด้วย **mock profile** (ไม่แตะเซฟจริง; ทุกชุด restore ครบ, console ไม่มี error, ลบ test scripts แล้ว):

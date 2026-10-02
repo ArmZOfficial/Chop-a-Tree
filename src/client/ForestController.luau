@@ -15,6 +15,10 @@ local Forest={}
 local player=Players.LocalPlayer
 local state={active=false,autoAttack=false,autoCut=false,power=0}
 local bars={}
+local SFX={sfxChop=9120950231,sfxFall=9120796401} -- Pro Sound Effects (Roblox library)
+local function sfx(name,parent,volume)
+	local s=Instance.new("Sound");s.Name=name;s.SoundId="rbxassetid://"..SFX[name];s.Volume=volume;s.RollOffMaxDistance=100;s.Parent=parent;s:Play()
+end
 
 function Forest.Start()
 	local gui=UI.New("ScreenGui",{Name="ForestHUD",ResetOnSpawn=false,DisplayOrder=3,Parent=player:WaitForChild("PlayerGui")})
@@ -163,7 +167,9 @@ function Forest.Start()
 		local label=UI.Label(NF.Short(hit.damage)..(hit.crit and " CRIT!" or ""),hit.crit and 26 or 21,{Size=UDim2.fromScale(1,1),TextColor3=hit.crit and UI.Colors.Accent or Color3.new(1,1,1),TextXAlignment=Enum.TextXAlignment.Center,Parent=bill})
 		UI.TextStroke(2).Parent=label
 		Tween:Create(anchor,TweenInfo.new(0.7),{Position=anchor.Position+Vector3.new(0,4,0)}):Play()
-		Tween:Create(label,TweenInfo.new(0.7),{TextTransparency=1}):Play(); Debris:AddItem(anchor,0.8)
+		Tween:Create(label,TweenInfo.new(0.7),{TextTransparency=1}):Play(); Debris:AddItem(anchor,hit.dead and 2.6 or 0.8)
+		sfx("sfxChop",anchor,hit.player==player.UserId and 0.5 or 0.25)
+		if hit.dead then sfx("sfxFall",anchor,0.6) end
 		if hit.dead and hit.tier==6 then
 			local light=Instance.new("PointLight"); light.Color=Color3.fromRGB(100,255,140); light.Brightness=8; light.Range=25; light.Parent=anchor
 			Tween:Create(light,TweenInfo.new(0.7),{Brightness=0}):Play()

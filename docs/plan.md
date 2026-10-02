@@ -15,18 +15,18 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 | วง | โซน | รัศมี (studs) | พื้น y | ต้นไม้ TreeKit (ธีม) |
 |---|---|---|---|---|
-| 1 นอกสุด | Sunny Meadow | 740–900 | 4 | Oak / RoundTree / Pine |
-| 2 | Amber Woods | 650–740 | 12 | Maple / Birch / AutumnBall |
-| 3 | Glowcap Bog | 560–650 | 20 | Mushroom / TwinShroom / GlowBulb |
-| 4 | Sakura Highlands | 470–560 | 30 | Sakura / Weeping / Layered |
-| 5 | Thunder Bamboo | 380–470 | 40 | BambooClump / BambooTall / ThunderPalm |
-| 6 | Frostvale | 290–380 | 52 | SnowPine / IceSpire / SnowRound |
-| 7 | Crystal Ridge | 200–290 | 64 | CrystalTree / Prism / Amethyst |
-| 8 กลาง | Lumora Plateau (key SkyIsles) | 0–200 | 78 | GoldenTree / LightOrb / SpiritWillow + ต้น Lumora ทอง |
+| 1 นอกสุด | Sunny Meadow | 740–900 | 4 | MeadowOak / MeadowLime / MeadowPine |
+| 2 | Amber Woods | 650–740 | 12 | AmberMaple / AmberBirch / AmberEmber |
+| 3 | Glowcap Bog | 560–650 | 20 | BogViolet / BogAzure / BogTeal |
+| 4 | Sakura Highlands | 470–560 | 30 | SakuraPink / SakuraBlush / SakuraRose |
+| 5 | Thunder Bamboo | 380–470 | 40 | BambooGreen / BambooSpark / BambooOlive |
+| 6 | Frostvale | 290–380 | 52 | FrostPine / FrostIce / FrostSnow |
+| 7 | Crystal Ridge | 200–290 | 64 | CrystalPrism / CrystalAmethyst / CrystalTide |
+| 8 กลาง | Lumora Plateau (key SkyIsles) | 0–200 | 78 | LumoraGold / LumoraPearl / LumoraSun + ต้น Lumora ทอง |
 
 - **Hub Rootfall ทิศใต้** (0,4,1010) r190: ท่าเรือใต้สุด, Chest Altar กลางลาน, ร้านขวาน (UpgradeShop) ซ้าย, ร้านไม้ (Sawmill) ขวา, Seed/Egg Conveyor/Bram/Warp/Leaderboards/Arena portal, บ้านผู้เล่น 7 หลัง (กระท่อมสีหลังคาต่างกันบนฐาน), Forest Gate ทิศเหนือเข้า Meadow; กำแพง hub กันเดินอ้อมประตู.
 - ทุกวงเข้าที่แกนใต้: บันไดหิน + torii ZoneGate (ปลดเมื่อชนะบอส) + ป้ายชื่อโซน; ขอบวงบนมี RotHedge; ลานบอส + ศาลเจ้า 75° ตะวันออกของทางเข้า; tier ต้นไม้สูงขึ้นตามระยะรอบวง (ฝั่งเหนือลึกสุด); หีบ 10 + รัง 2 ต่อโซน.
-- ต้นไม้ ~1 ต้น/1600 studs² (140–260 ต่อโซน รวม 1470). Lumora: ลานบอสกลาง + Realm Gate ฝั่งเหนือ.
+- ต้นไม้ ~1 ต้น/1600 studs² (140–260 ต่อโซน รวม 1470) ทรง Kako9's Tree (บล็อก studs 17 parts) สีต่างกันตามโซน + ทรง Classic/Tall/Wide (2026-10-03). ภูเขาหิน Studded Rock ล้อมเกาะ+hub พร้อมกำแพงใสกันออกนอกแมพ (เว้นท่าเรือ/ทางเรือ). Lumora: ลานบอสกลาง + Realm Gate ฝั่งเหนือ.
 - โค้ด: `Config.Zones` (inner/outer/y + `Zones.At` + `Hub`), `tools/map/MapBuilder.luau`, `tools/map/TreeKit.luau`; constraints/ผลตรวจ: [systems §Map](systems.md#map).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
@@ -35,6 +35,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 - UI audit (2026-10-02/03): desktop/tablet/phone/gamepad ผ่านเรื่องข้อความล้น/หลุดจอ; มือถือมีเลย์เอาต์แยก (`PhoneLayouts`) ปุ่ม ≥44px ทุกหน้าต่างที่ 666×374; ค้างตรวจเครื่องจริง ([UX-audit](../assets/ui/UX-audit.md)).
 - สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
+- เสียง (2026-10-03): เพลงพื้นหลัง APM วนตลอด + เสียงฟัน/ต้นล้ม (Pro Sound Effects); id ใน [systems §Models](systems.md#models--builders).
 - Chest opening (ทำแล้ว 2026-10-03): แอนิเมชันเปิดหีบเป็น cosmetic ข้ามได้ ยาวตาม rarity ของอาวุธที่ได้; ตั้งค่า Full/Fast/Off; server สุ่มและเซฟก่อน. มีเสียงละเฟส (คลัง Pro Sound Effects) และตรวจ Open 10 จริงแล้ว; ค้างตรวจมือถือ/จอยเครื่องจริง ([HANDOFF](HANDOFF.md)).
 - Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).
 

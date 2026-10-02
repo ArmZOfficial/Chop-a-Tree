@@ -79,9 +79,9 @@ local list: { Zone } = {
 
 local byKey = {}
 local treePools = {
-	{"Oak","RoundTree","Pine"}, {"Maple","Birch","AutumnBall"}, {"Mushroom","TwinShroom","GlowBulb"},
-	{"Sakura","Weeping","Layered"}, {"BambooClump","BambooTall","ThunderPalm"}, {"SnowPine","IceSpire","SnowRound"},
-	{"CrystalTree","Prism","Amethyst"}, {"GoldenTree","LightOrb","SpiritWillow"},
+	{"MeadowOak","MeadowLime","MeadowPine"}, {"AmberMaple","AmberBirch","AmberEmber"}, {"BogViolet","BogAzure","BogTeal"},
+	{"SakuraPink","SakuraBlush","SakuraRose"}, {"BambooGreen","BambooSpark","BambooOlive"}, {"FrostPine","FrostIce","FrostSnow"},
+	{"CrystalPrism","CrystalAmethyst","CrystalTide"}, {"LumoraGold","LumoraPearl","LumoraSun"},
 }
 local particles = { "", "", "Fireflies", "Petals", "Drizzle", "LightSnow", "Sparkles", "GoldMotes" }
 local lighting = {

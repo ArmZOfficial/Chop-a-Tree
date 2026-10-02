@@ -1355,21 +1355,21 @@ Missing TreeKit kind: {1},Missing TreeKit kind: {1},Missing TreeKit kind: {1},Zo
 Missing region: {1},Missing region: {1},Missing region: {1},ZoneUtil,dev
 Ring seam mismatch: {1},Ring seam mismatch: {1},Ring seam mismatch: {1},ZoneUtil,dev
 Amber Woods,Amber Woods,ป่าอำพัน,Zones,config
-Amethyst,Amethyst,อเมทิสต์,Zones,
-Birch,Birch,เบิร์ช,Zones,
+Amethyst,Amethyst,อเมทิสต์,Zones,unused
+Birch,Birch,เบิร์ช,Zones,unused
 Crystal Ridge,Crystal Ridge,สันเขาคริสตัล,Zones,config
 Frostvale,Frostvale,หุบเขาน้ำแข็ง,Zones,config
 Glowcap Bog,Glowcap Bog,บึงเห็ดเรืองแสง,Zones,config
-Layered,Layered,ชั้นซ้อน,Zones,
+Layered,Layered,ชั้นซ้อน,Zones,unused
 Lumora Plateau,Lumora Plateau,ที่ราบสูงลูมอรา,Zones,config
-Maple,Maple,เมเปิล,Zones,
-Mushroom,Mushroom,เห็ด,Zones,
-Oak,Oak,โอ๊ก,Zones,
-Pine,Pine,สน,Zones,
-Prism,Prism,ปริซึม,Zones,
+Maple,Maple,เมเปิล,Zones,unused
+Mushroom,Mushroom,เห็ด,Zones,unused
+Oak,Oak,โอ๊ก,Zones,unused
+Pine,Pine,สน,Zones,unused
+Prism,Prism,ปริซึม,Zones,unused
 Sakura Highlands,Sakura Highlands,ที่ราบสูงซากุระ,Zones,config
 Thunder Bamboo,Thunder Bamboo,ป่าไผ่สายฟ้า,Zones,config
-Weeping,Weeping,หลิวย้อย,Zones,
+Weeping,Weeping,หลิวย้อย,Zones,unused
 Ancient Cyclone Shardblade,Ancient Cyclone Shardblade,ดาบเศษผลึกไซโคลนดึกดำบรรพ์,catalog:swords.json,
 Ancient Eclipse Bastard Sword,Ancient Eclipse Bastard Sword,ดาบครึ่งมือสุริยุปราคาดึกดำบรรพ์,catalog:swords.json,
 Ancient Eclipse Broadsword,Ancient Eclipse Broadsword,ดาบกว้างสุริยุปราคาดึกดำบรรพ์,catalog:swords.json,

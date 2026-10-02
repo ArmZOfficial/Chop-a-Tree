@@ -1,5 +1,5 @@
 -- Light per-zone ambience (plan 4.12.1 item 7): particles around the camera while the
--- local player stands in a zone. Visual only — no mutations and no Lighting changes,
+-- local player stands in a zone, plus the background music. Visual only — no mutations and no Lighting changes,
 -- so it never fights WeatherController.
 local Players=game:GetService("Players")
 local Zones=require(game.ReplicatedStorage.Shared.Config.Zones)
@@ -21,6 +21,9 @@ Ambience.ZoneAt=Zones.At
 
 function Ambience.Start()
 	local player=Players.LocalPlayer
+	-- One looping track everywhere (APM "Time On Our Hands"); the Settings Music toggle mutes it by name.
+	local music=Instance.new("Sound");music.Name="music";music.SoundId="rbxassetid://9039992866";music.Looped=true;music.Volume=0.2
+	music.Parent=game:GetService("SoundService");music:Play()
 	local anchor=Instance.new("Part");anchor.Name="ZoneAmbience";anchor.Anchored=true;anchor.CanCollide=false;anchor.CanQuery=false;anchor.CanTouch=false
 	anchor.Transparency=1;anchor.Size=Vector3.new(60,1,60);anchor.Parent=workspace
 	local emitter=Instance.new("ParticleEmitter");emitter.Enabled=false;emitter.EmissionDirection=Enum.NormalId.Bottom;emitter.SpreadAngle=Vector2.new(30,30);emitter.Parent=anchor
