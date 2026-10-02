@@ -8,7 +8,7 @@ local Shared=game.ReplicatedStorage.Shared
 local Net=require(Shared.Net)
 local Eggs=require(Shared.Config.Eggs)
 local Config=require(Shared.Config.Base)
-local Math=require(Shared.PetMath)
+local Math=require(Shared.PetMath);local rng=Random.new()
 local Visual=require(Shared.PetVisual)
 local Data=require(script.Parent.DataService)
 local Features=require(script.Parent.FeatureService)
@@ -108,15 +108,22 @@ function Steal.Try(thief,id)
 	local keys={};for k in inc do table.insert(keys,k) end;table.sort(keys)
 	local key;for _,k in keys do if Math.Stealable(inc[k]) then key=k;break end end
 	if not key then return false,"ไม่มีไข่ที่ขโมยได้ (ว่าง ฟักเกิน 75% หรือป้องกันไว้)" end
+	local defence=victim=="bot" and bot.defence or Data.Get(victim,"Pets.upgrades")
+	if rng:NextNumber()<Math.GuardChance(defence.guard) then
+		cooldowns[thief]=cooldowns[thief] or {};cooldowns[thief][id]=os.time()+Config.ThiefCooldown
+		notify(victim,"สัตว์เฝ้าฐานไล่ "..thief.DisplayName.." ออกไปได้!",true)
+		return false,"สัตว์เฝ้าฐานไล่คุณออก! รอ "..Config.ThiefCooldown.." วิก่อนลองฐานนี้อีกครั้ง"
+	end
 	local egg=inc[key];egg.carriedBy=thief.UserId;commit(victim)
 	carrying[thief]={base=id,victim=victim,key=key,egg=egg}
 	cooldowns[thief]=cooldowns[thief] or {};cooldowns[thief][id]=os.time()+Config.ThiefCooldown
-	Pet.SetCarry(thief,Eggs.ById[egg.id].color,Config.StealSlow,victim=="bot" and -1 or victim.UserId)
+	local slow=Math.TrapSlow(defence.trap)
+	Pet.SetCarry(thief,Eggs.ById[egg.id].color,slow,victim=="bot" and -1 or victim.UserId)
 	Collection:AddTag(thief.Character,"EggThief")
 	local prompt=Instance.new("ProximityPrompt");prompt.Name="ReclaimPrompt";prompt.ActionText="ทวงไข่คืน";prompt.ObjectText="EGG THIEF";prompt.HoldDuration=0;prompt.RequiresLineOfSight=false;prompt.MaxActivationDistance=Config.ReclaimRange;prompt.Parent=hr
 	prompt.Triggered:Connect(function(by) Steal.Reclaim(by,thief) end)
 	notify(victim,thief.DisplayName.." ขโมยไข่จากตู้ฟักของคุณ! ตามไปกด E เพื่อทวงคืน",true)
-	return true,"ขโมยไข่แล้ว! วิ่งกลับฐานตัวเอง (เดินช้าลง 25%)"
+	return true,"ขโมยไข่แล้ว! วิ่งกลับฐานตัวเอง (เดินช้าลง "..math.round((1-slow)*100).."%)"
 end
 function Steal.Reclaim(by,thief)
 	local entry=carrying[thief]
@@ -168,13 +175,15 @@ function Steal.CreateBot()
 	if bot then return true,bot.base end
 	for id=1,7 do local b=Garden.BaseById(id)
 		if b and b:GetAttribute("OwnerUserId")==0 then
-			b:SetAttribute("OwnerUserId",-1);bot={base=id,incubator={}}
+			b:SetAttribute("OwnerUserId",-1);bot={base=id,incubator={},defence={}}
 			for i=1,3 do bot.incubator[tostring(i)]={id="egg_meadow",zone=1,rebirthDrop=0,admin_spawned=true,progress=i==3 and 50 or 0,updatedAt=os.time()} end
 			sign(b,"ฐานบอททดสอบ");return true,id
 		end
 	end
 	return false
 end
+-- Admin test seam: the bot base has no profile, so its trap/guard levels live here.
+function Steal.SetBotDefence(trap,guard) if not bot then return false end;bot.defence={trap=trap,guard=guard};return true end
 function Steal.RemoveBot()
 	if not bot then return false end
 	for thief,entry in carrying do if entry.base==bot.base then clear(thief) end end

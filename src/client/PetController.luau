@@ -130,8 +130,9 @@ function Controller.Start()
 			local lockText=now<lockUntil and "ล็อกอยู่ อีก "..(lockUntil-now).." วิ" or (now<ready and "คูลดาวน์ "..(ready-now).." วิ" or "พร้อมล็อก "..Math.LockSeconds(state.upgrades.lock).." วิ")
 			row("Collect","เก็บเงินคอก • "..NF.Short(state.bank).." Coins\nรายได้ +"..NF.Short(state.income).."/วิ • สะสมได้สูงสุด "..Config.OfflineHours.." ชม.",UI.Colors.Orange,function() pet("Collect") end)
 			row("Lock","ล็อกฐาน • "..lockText.."\nบาเรียร์กันคนอื่นเข้า คูลดาวน์ "..Config.LockCooldown.." วิ",now<lockUntil and UI.Colors.Blue or UI.Colors.Purple,function() call("BaseAction","Lock") end)
-			local info={pen={"คอกสัตว์","ช่อง "..Math.PenSlots(state.upgrades.pen)},incubator={"ตู้ฟักเร็วขึ้น","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"ล็อกฐานนานขึ้น",Math.LockSeconds(state.upgrades.lock).." วิ"}}
-			for _,kind in {"pen","incubator","lock"} do local k=kind;local level=state.upgrades[k];local max=Math.MaxLevel(k)
+			local info={pen={"คอกสัตว์","ช่อง "..Math.PenSlots(state.upgrades.pen)},incubator={"ตู้ฟักเร็วขึ้น","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"ล็อกฐานนานขึ้น",Math.LockSeconds(state.upgrades.lock).." วิ"},
+				trap={"กับดักรากหนาม","คนขโมยช้าลง "..math.round((1-Math.TrapSlow(state.upgrades.trap))*100).."%"},guard={"สัตว์เฝ้าฐาน","ไล่คนขโมย "..math.round(Math.GuardChance(state.upgrades.guard)*100).."%"}}
+			for _,kind in {"pen","incubator","lock","trap","guard"} do local k=kind;local level=state.upgrades[k];local max=Math.MaxLevel(k)
 				row("Upgrade_"..k,info[k][1].." • Lv "..level.."/"..max.." • ตอนนี้ "..info[k][2].."\n"..(level>=max and "สูงสุดแล้ว" or "อัปเกรด "..NF.Short(Math.UpgradeCost(k,level)).." Wood"),level>=max and UI.Colors.Disabled or UI.Colors.Green,function() pet("Upgrade",k) end)
 			end
 			local shield=player:GetAttribute("Shield") or ""

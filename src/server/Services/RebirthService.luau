@@ -44,7 +44,7 @@ function Rebirth.Perform(p,expected,force)
 	Data.SetCurrency(p,"Coins",0);Data.SetCurrency(p,"Wood",0)
 	Data.AddCurrency(p,"RebirthTokens",Math.Tokens(rb));Data.Set(p,"Progress.Rebirth",rb+1)
 	Data.Set(p,"Progress.Zone",1);Quest.ResetStory(p)
-	Data.Set(p,"Garden.slots",6);Data.Set(p,"Pets.upgrades",{lock=0,incubator=0,pen=0})
+	Data.Set(p,"Garden.slots",6);Data.Set(p,"Pets.upgrades",{lock=0,incubator=0,pen=0,trap=0,guard=0})
 	Data.Set(p,"Pets.bank",0);Data.Set(p,"Pets.bankAt",os.time())
 	confirmations[p]=nil
 	local spawn=workspace.Map.Village:FindFirstChild("VillageSpawn")

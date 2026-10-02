@@ -49,7 +49,7 @@ DataService.Template = {
 	Inventory = { Weapons = {}, Equipped = "", Chests = {}, Seeds = {}, Fruits = {}, Eggs = {}, Pets = {} },
 	Garden = { slots = 6, plots = {}, starterGiven = false, shopEpoch = 0, bought = {}, sellDay = -1, sold = {} },
 	Merchant = { bought = {} },
-	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, weatherBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0 }, equipSlots = 3 },
+	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, weatherBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0, trap = 0, guard = 0 }, equipSlots = 3 },
 	Run = { Active = false, Level = 1, Exp = 0, Zone = 1, Wood = 0, Coins = 0, Trees = 0, Chests = {}, Seeds = {}, Eggs = {}, StartedAt = 0 },
 	Settings = { AutoAttack = false, AutoCut = false, FriendSteal = false },
 	Meta = { AdminTouched = false, FirstJoin = 0, LastJoin = 0, Joins = 0 },

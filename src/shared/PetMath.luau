@@ -24,7 +24,9 @@ function M.EggPrice(id) local def=Eggs.ById[id];return def.price*B.ZoneScale(def
 function M.HatchSpeed(level) return 1+Base.IncubatorStep*(level or 0) end
 function M.LockSeconds(level) return Base.LockSeconds+Base.LockStep*(level or 0) end
 function M.PenSlots(level) return Base.PenSlots+Base.PenStep*(level or 0) end
-function M.MaxLevel(kind) return ({lock=Base.LockMaxLevel,incubator=Base.IncubatorMaxLevel,pen=Base.PenMaxLevel})[kind] end
+function M.TrapSlow(level) return Base.StealSlow*(1-Base.TrapSlowStep*(level or 0)) end
+function M.GuardChance(level) return Base.GuardChanceStep*(level or 0) end
+function M.MaxLevel(kind) return ({lock=Base.LockMaxLevel,incubator=Base.IncubatorMaxLevel,pen=Base.PenMaxLevel,trap=Base.TrapMaxLevel,guard=Base.GuardMaxLevel})[kind] end
 function M.UpgradeCost(kind,level) return Base.UpgradeWood[kind]*((level or 0)+1)^2 end
 function M.Weighted(pairs,random)
 	local total=0;for _,row in pairs do total+=row[2] end

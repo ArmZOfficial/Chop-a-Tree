@@ -29,6 +29,7 @@
 - PetService owns eggs/incubator/pets/pen/buffs/Mount/belt; StealService owns theft/lock/shield/bots; NestService owns forest nests/guardians.
 - ไข่ขโมยอยู่ profileเจ้าของและ carriedBy จนส่งถึงฐาน แล้วโอนในเธรดเดียวไม่ yield. ห้ามลบตอนเริ่มถือ; protected Robux eggsขโมยไม่ได้.
 - Pet.Mult เป็นจุดบัฟ; ApplySpeed รวม AdminSpeed×Mount×buff×CarryMult. Humanoid float32 assert tolerance ≥1e-3.
+- Base defence (2026-10-02): `Pets.upgrades.trap/guard` (0–3, Wood 2500/3000 × (level+1)²) via the existing Pet.Upgrade/Base tab. Trap multiplies the thief carry speed: 0.75×(1−0.1L), so L3 = 52.5%. Guard rolls 15%/level in Steal.Try before the egg moves; a chased-off thief still gets the base cooldown and the owner is notified. Rebirth resets both with other base upgrades. The bot base reads `Steal.SetBotDefence` (admin `steal.botdefence`). Proof: `tools/tests/BaseDefenceScenario.server.luau` 8/8 vs the bot base, restored; multi-account theft is still unproven.
 - Mount StoryChapter2 gate; ไข่โซน3–8 belt=0. Catalog43หลังเพิ่ม Blood Raven. Phase5 81 checks; botไม่ได้แทน multi-account proof.
 
 ## Story / bosses

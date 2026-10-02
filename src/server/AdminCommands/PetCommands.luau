@@ -41,6 +41,10 @@ return function(Admin,Pet,Steal)
 	Admin.Register({id="steal.botbase",tab="pets",label="สร้างฐานบอทให้ขโมย",sub="ไข่ 3 ใบ (ใบที่ 3 ฟักเกิน 75%)",color="Orange",run=function()
 		local ok,id=Steal.CreateBot();return ok,ok and "ฐานบอทอยู่ที่ฐาน "..id or "ไม่มีฐานว่าง"
 	end})
+	Admin.Register({id="steal.botdefence",tab="pets",label="ฐานบอท: กับดัก+สัตว์เฝ้าสูงสุด",sub="กดอีกครั้งเพื่อปิด",color="Purple",run=function()
+		local on=not (Steal.Bot() and Steal.Bot().defence.trap);local ok=Steal.SetBotDefence(on and 3 or nil,on and 3 or nil)
+		return ok,ok and ("กับดัก/สัตว์เฝ้าฐานบอท: "..(on and "Lv 3" or "ปิด")) or "สร้างฐานบอทก่อน"
+	end})
 	Admin.Register({id="steal.removebot",tab="pets",label="ลบฐานบอท",color="Slate",run=function() return Steal.RemoveBot(),"ลบฐานบอทแล้ว" end})
 	for _,mode in {"on","off"} do local m=mode
 		Admin.Register({id="steal.shield"..m,tab="pets",label=m=="on" and "บังคับเปิดโล่" or "บังคับปิดโล่",sub="โล่ผู้เล่นใหม่/AFK",color=m=="on" and "Blue" or "Red",usesTarget=true,run=function(ctx)

@@ -4,7 +4,9 @@ return table.freeze({
 	PenSlots=8,PenStep=4,PenMaxLevel=4,
 	IncubatorStep=.25,IncubatorMaxLevel=4, -- ×2 hatch speed at max, matching the hatch Game Pass
 	LockSeconds=60,LockStep=20,LockMaxLevel=3,LockCooldown=120,
-	UpgradeWood={lock=2000,incubator=1500,pen=1000},
+	-- Base defence (plan 4.7.8): root traps slow egg thieves further; guard pets can chase a thief off before the egg is taken.
+	TrapSlowStep=.1,TrapMaxLevel=3,GuardChanceStep=.15,GuardMaxLevel=3,
+	UpgradeWood={lock=2000,incubator=1500,pen=1000,trap=2500,guard=3000},
 	OfflineHours=8,EquipSlots=3,MaxEquipSlots=6,MaxEggs=60,MaxPets=200,
 	StealSlow=.75,NestSlow=.8,ThiefCooldown=180,SafeProgress=.75,StealBonus=.1,ReclaimRange=12,
 	NewPlayerShield=1800,AfkShield=600,
