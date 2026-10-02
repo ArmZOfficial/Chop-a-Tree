@@ -46,6 +46,8 @@ Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 directio
 
 UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
 
+Concept-matched [elements-v2](../assets/ui/elements-v2/README.md) imported/assembled: 10 atlases, shared wood/button/nav art and five primary page layouts. Desktop Play: HUD, Inventory, Garden selection/Seeds, Pets tabs, Shop Passes/Products and Rewards Daily/Codes/red X clicked; Incubator illustrations verified after layer fix. Final Garden row-height/encoding and Rewards shade fixes compiled/synced; final screenshots interrupted by concurrent Studio map edits. Luau120 compile (0 errors), 8/8 UI sources match Studio. Mobile/gamepad and all transaction flows remain unverified. Concurrent Sword Pack catalog drops legacy weapon IDs: saved old items need a separate migration; do not restore the old catalog. Remaining catalog/world art and device proof belong to Phase 10; pixel-identical matching not established.
+
 Concept-matched parts ready: [elements-v2](../assets/ui/elements-v2/README.md), 65 elements including state art and ID-bound pet/weapon first sets. Next import/assemble against the five concepts; complete remaining catalog art as needed. Pixel/device matching requires actual Play proof.
 
 ## 8–9. การตัดสินใจที่คงไว้
