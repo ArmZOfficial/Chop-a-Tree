@@ -31,6 +31,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
+- สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
 - Sprint (ทำแล้ว 2026-10-02): Shift/L3/ปุ่ม RUN ×1.5 ไม่มี stamina; ไม่เร่งตอนแบกไข่; ตั้งค่า Hold/Toggle. รายละเอียด [systems §Movement](systems.md#movement--sprint).
 
 - Run จบโดยผู้เล่น End Run ไม่มีเวลาจำกัด; รางวัล/ของถือใช้ RunService และกติกา secure เดิม. ไข่จากรังต้องส่งกลับอย่างถูกต้อง; ออก/ตายต่างจาก secure.
@@ -60,7 +61,7 @@ Regression หลังร้าน 2–7/8a–f รันซ้ำครบแ�
 ค้าง: ไลก์/กระดานฐานยอดนิยม. ตกแต่งฐาน/ของเทศกาล/กับดัก/สัตว์เฝ้า/NPC บท 3–8 ทำแล้ว ยังไม่ Publish.
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 
-Player-facing UI/signs/dialogue/notifications use **English**. Phase 10 direction: simulator-style brown wood windows, large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).
+Player-facing UI/signs/dialogue/notifications are **English + Thai** (Locale). Phase 10 direction: simulator-style brown wood windows, large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).
 
 UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
 

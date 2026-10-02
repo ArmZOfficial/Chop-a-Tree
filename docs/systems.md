@@ -39,6 +39,14 @@ Retro builders (Plastic + Studs, BrickColor-style colours, Neon accents only, no
 - `Config.Movement` + flag `Sprint`. Client `SprintController` ส่ง intent `SprintIntent` ("Sprint", bool / "Mode", Hold|Toggle) จาก Shift, gamepad L3, ปุ่ม RUN (touch, toggle). Server `PetService.SetSprint` ตรวจ (bool, ตัวละครมีชีวิต, flag, ไม่ AdminFly, ไม่แบกไข่, rate limit เฉพาะ start) → `Character.Sprinting`; ความเร็วรวมที่ `Pet.ApplySpeed` = base(AdminSpeed|16) × Pet.SpeedMult × 1.5. ตัวละครใหม่ไม่มี attribute = รีเซ็ต. Arena Place ไม่มีสคริปต์นี้ (ArenaMatch ตั้ง WalkSpeed เอง).
 - Client cosmetics อ่าน attribute: FOV +8 (ramp), ฝุ่นบล็อก; ปิดเมื่อ Reduce Motion/กราฟิกต่ำ. Shift-lock ย้ายไป Ctrl ผ่าน `MouseLockController.BoundKeys`. Photo mode/AdminFly ใช้ Shift ของตัวเอง → sprint ปิด. `Settings.SprintMode` (Reconcile, ไม่เพิ่ม DATA_VERSION) แก้จากหน้าต่าง Settings.
 
+## Localization (EN + TH)
+
+- `Shared.Locale`: English text = key; Thai from `Config.Strings` (generated from `assets/localization/strings.csv` by `tools/gen_strings.py`) + `.thai` of WeaponCatalog/Pets/Seeds/Eggs/Zones. `Translate` = exact → template (`{1}` slots, longest literal first, slots translated recursively) → per line. `Bind(root)` (client) tracks TextLabel/TextButton Text, TextBox PlaceholderText, ProximityPrompt texts and re-translates when code changes them; language change re-applies everything live. Server sends English; client translates at display.
+- Language: `Settings.Language` Auto/en/th (Reconcile, no DATA_VERSION bump) via `SettingIntent` (DataService whitelist + rate limit). Auto = `LocalizationService.RobloxLocaleId` starts with th. Settings window row AUTO/ENGLISH/ไทย.
+- Fonts: UIKit fonts lack Thai glyphs; Roblox falls back to its Thai font automatically — Play capture shows vowels/tone marks intact (Settings/HUD/Inventory). No Thai family available as `rbxasset://fonts/families/*` in Studio.
+- Roblox automatic translation (Creator Hub) is a second layer for text we miss; it cannot translate dynamic text, chat or pass names, and our Thai overrides it. Owner must enable it in Creator Hub (see HANDOFF).
+- Tools: `tools/locale_extract.py` (scan src/client, src/server/Services, src/shared; `--check` fails on missing Thai), `docs/localization-glossary.md`.
+
 ## Garden
 
 - GardenService owns 7ฐาน/OwnerUserId/BaseIndex; ownership reuse ผ่าน BaseById/OwnerOf. GardenSlots runtime30.

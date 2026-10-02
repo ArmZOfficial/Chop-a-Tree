@@ -53,7 +53,7 @@ DataService.Template = {
 	Merchant = { bought = {} },
 	Pets = { incubator = {}, bank = 0, bankAt = 0, beltBought = {}, weatherBought = {}, upgrades = { lock = 0, incubator = 0, pen = 0, trap = 0, guard = 0 }, equipSlots = 3 },
 	Run = { Active = false, Level = 1, Exp = 0, Zone = 1, Wood = 0, Coins = 0, Trees = 0, Chests = {}, Seeds = {}, Eggs = {}, StartedAt = 0 },
-	Settings = { AutoAttack = false, AutoCut = false, FriendSteal = false, SprintMode = "Hold" },
+	Settings = { AutoAttack = false, AutoCut = false, FriendSteal = false, SprintMode = "Hold", Language = "Auto" },
 	Meta = { AdminTouched = false, FirstJoin = 0, LastJoin = 0, Joins = 0 },
 }
 
@@ -385,7 +385,28 @@ local function onPlayerAdded(player: Player)
 	loadedEvent:Fire(player)
 end
 
+-- Client-editable settings (value whitelist). Other settings stay owned by their services.
+local SETTING_VALUES = { Language = { Auto = true, en = true, th = true } }
+local settingAt: { [Player]: number } = {}
+
 function DataService.Init()
+	Net.Event("SettingIntent").OnServerEvent:Connect(function(player, name, value)
+		local allowed = type(name) == "string" and SETTING_VALUES[name]
+		if not allowed or type(value) ~= "string" or not allowed[value] or not profiles[player] then
+			return
+		end
+		local now = os.clock()
+		if now - (settingAt[player] or -math.huge) < 0.25 then
+			return
+		end
+		settingAt[player] = now
+		if DataService.Get(player, "Settings." .. name) ~= value then
+			DataService.Set(player, "Settings." .. name, value)
+		end
+	end)
+	Players.PlayerRemoving:Connect(function(player)
+		settingAt[player] = nil
+	end)
 	Net.Function("DataRequest").OnServerInvoke = function(player)
 		local data = DataService.WaitForData(player, 15)
 		return data

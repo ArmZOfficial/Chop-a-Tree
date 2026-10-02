@@ -26,6 +26,7 @@ local EVENTS = {
 	"ArenaState",
 	"ArenaShow",
 	"SprintIntent", -- client → server: ("Sprint", bool) | ("Mode", "Hold"|"Toggle")
+	"SettingIntent", -- client → server: (name, value) for whitelisted Settings (DataService)
 }
 local FUNCTIONS = {
 	"DataRequest", -- client → server: ขอข้อมูลตัวเองทั้งก้อน
