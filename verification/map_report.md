@@ -40,4 +40,6 @@ Captures: `captures/round_2/`. Fresh verifier score **53/100** (layout 7, trees 
 
 Applied after round 2: mountains taller (front ×8–12, back ×1.6 → tops up to y≈89) and alternate two greys; Glowcap floor dark teal so it no longer matches Crystal Ridge's violet (`rings_34_after_fixes.jpg`).
 
-Still open (design/balance, ArmZ to decide): mountain stud scale (Roblox studs do not scale with part size), Tall/Wide canopies reading as mushrooms, accent caps on most canopies, ground props, ring-1 tree height vs avatar, hub layout/altar/props, lighting.
+Then: Tall/Wide canopies stretch one axis only (Tall height ×1.35, Wide width ×1.3) so no tree reads as a mushroom; white top caps removed from SakuraBlush/CrystalPrism; all 1,470 trees rebuilt in place (`zone1_player_after_fixes.jpg`).
+
+Still open (design/balance, ArmZ to decide): mountain stud scale (Roblox studs do not scale with part size), ground props, ring-1 tree height vs avatar, hub layout/altar/props, lighting.

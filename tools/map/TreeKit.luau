@@ -37,11 +37,12 @@ local WOOD = {
 }
 local CANOPY_CENTER = Vector3.new(-0.5, 12.5, 0.5)
 
--- Canopy styles: horizontal/vertical stretch and lift (template studs).
+-- Canopy styles stretch one axis only so every tree keeps the lobed reference silhouette
+-- (squashed/narrowed canopies read as mushrooms in the 2026-10-03 map review).
 local STYLES = {
 	Classic = { xz = 1, y = 1, lift = 0 },
-	Tall = { xz = 0.85, y = 1.35, lift = 1.5 },
-	Wide = { xz = 1.25, y = 0.8, lift = -0.5 },
+	Tall = { xz = 1, y = 1.35, lift = 1 },
+	Wide = { xz = 1.3, y = 1, lift = 0 },
 }
 
 -- fx = material for the L3 accent blocks (glow/ice/crystal zones).
@@ -69,7 +70,7 @@ local zones = {
 	},
 	{ -- 4 Sakura Highlands
 		palette("SakuraPink", "Wide", rgb(90, 60, 60), rgb(120, 80, 75), rgb(105, 70, 68), rgb(255, 183, 213), rgb(255, 210, 230), rgb(255, 160, 200)),
-		palette("SakuraBlush", "Classic", rgb(90, 60, 60), rgb(120, 80, 75), rgb(105, 70, 68), rgb(255, 230, 240), rgb(255, 200, 220), rgb(250, 250, 250)),
+		palette("SakuraBlush", "Classic", rgb(90, 60, 60), rgb(120, 80, 75), rgb(105, 70, 68), rgb(255, 230, 240), rgb(255, 200, 220), rgb(245, 170, 200)),
 		palette("SakuraRose", "Tall", rgb(70, 50, 50), rgb(100, 70, 65), rgb(85, 60, 58), rgb(230, 120, 170), rgb(255, 160, 200), rgb(200, 90, 140)),
 	},
 	{ -- 5 Thunder Bamboo
@@ -83,7 +84,7 @@ local zones = {
 		palette("FrostSnow", "Wide", rgb(90, 80, 75), rgb(120, 110, 105), rgb(105, 95, 90), rgb(245, 250, 255), rgb(220, 230, 240), rgb(120, 160, 140)),
 	},
 	{ -- 7 Crystal Ridge
-		palette("CrystalPrism", "Classic", rgb(120, 110, 150), rgb(150, 140, 180), rgb(135, 125, 165), rgb(150, 230, 255), rgb(220, 160, 255), rgb(255, 255, 255), GLASS),
+		palette("CrystalPrism", "Classic", rgb(120, 110, 150), rgb(150, 140, 180), rgb(135, 125, 165), rgb(150, 230, 255), rgb(220, 160, 255), rgb(120, 200, 240), GLASS),
 		palette("CrystalAmethyst", "Tall", rgb(110, 100, 140), rgb(140, 130, 170), rgb(125, 115, 155), rgb(160, 100, 220), rgb(190, 140, 240), rgb(230, 190, 255), NEON),
 		palette("CrystalTide", "Wide", rgb(120, 110, 150), rgb(150, 140, 180), rgb(135, 125, 165), rgb(110, 200, 230), rgb(150, 230, 255), rgb(220, 160, 255), NEON),
 	},
