@@ -1,0 +1,140 @@
+{
+  "multiplayer": [
+    {
+      "position": [
+        511.26171875,
+        7.69140625,
+        641.1015625
+      ],
+      "base": 1,
+      "name": "Player1",
+      "zone": 1
+    },
+    {
+      "position": [
+        -182.466796875,
+        7.69140625,
+        799.44140625
+      ],
+      "base": 2,
+      "name": "Player2",
+      "zone": 1
+    },
+    {
+      "position": [
+        -738.794921875,
+        7.69140625,
+        355.78515625
+      ],
+      "base": 3,
+      "name": "Player3",
+      "zone": 1
+    },
+    {
+      "position": [
+        -738.794921875,
+        7.69140625,
+        -355.78515625
+      ],
+      "base": 4,
+      "name": "Player4",
+      "zone": 1
+    },
+    {
+      "position": [
+        -182.466796875,
+        7.69140625,
+        -799.44140625
+      ],
+      "base": 5,
+      "name": "Player5",
+      "zone": 1
+    },
+    {
+      "position": [
+        511.26171875,
+        7.69140625,
+        -641.1015625
+      ],
+      "base": 6,
+      "name": "Player6",
+      "zone": 1
+    },
+    {
+      "position": [
+        820,
+        7.69140625,
+        0
+      ],
+      "base": 7,
+      "name": "Player7",
+      "zone": 1
+    },
+    {
+      "position": [
+        2.83203125,
+        9.791015625,
+        983.439453125
+      ],
+      "name": "Player8",
+      "zone": "hub"
+    },
+    {
+      "position": [
+        -4.0859375,
+        9.791015625,
+        978.64453125
+      ],
+      "name": "Player9",
+      "zone": "hub"
+    }
+  ],
+  "parts": [
+    {
+      "trees": 260,
+      "parts": 1386,
+      "zone": 1
+    },
+    {
+      "trees": 245,
+      "parts": 1434,
+      "zone": 2
+    },
+    {
+      "trees": 213,
+      "parts": 1317,
+      "zone": 3
+    },
+    {
+      "trees": 182,
+      "parts": 1281,
+      "zone": 4
+    },
+    {
+      "trees": 150,
+      "parts": 1172,
+      "zone": 5
+    },
+    {
+      "trees": 140,
+      "parts": 986,
+      "zone": 6
+    },
+    {
+      "trees": 140,
+      "parts": 885,
+      "zone": 7
+    },
+    {
+      "trees": 140,
+      "parts": 857,
+      "zone": 8
+    }
+  ],
+  "migration": {
+    "ok": true,
+    "summary": "Map migration: passed",
+    "detail": ""
+  },
+  "note": "All fixtures. No real player profile migration or Publish. Zone samples=745 meanMs=.012504 peakMs=.0535 (aggregated session, includes single-player time; not total map frame cost)."
+}

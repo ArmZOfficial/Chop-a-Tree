@@ -4,9 +4,11 @@
 
 ## สถานะล่าสุด
 
-## Map scripting system — repo implementation 2026-10-02
+## Map scripting system — Studio QA synchronized 2026-10-02
 
-เพิ่ม Zone/Gate rescue/DayCycle/Map+Compass/Travel+Home+Dock/WorldEvent/Explorer และ Admin QA ใน repo; ยังไม่ซิงก์ Studio เพราะอีกงานใช้ Play (รอผู้ใช้เลือกลำดับ Studio). **148 checks จำลองผ่าน**, compile/balance ผ่าน; ยังไม่มี runtime validator/GUI/device/7-player/performance proof. ตารางสำรวจก่อนแก้, Zones/balance, รายการไฟล์/ข้อจำกัดอยู่ [map-systems](map-systems.md). ผู้ใช้อนุมัติ v3 VisitedZones/Explorer + Common Level1/source-zone1 1ใบต่อโซน, Golden/Timber Wood ×2 ภายใน cap×4. คง boss+shrine, Garden7ฐาน, สูตร/Passเดิม. **ไม่รัน migration กับข้อมูลจริง/ไม่ Publish**; normal Main เปิดเซฟจริง จึงต้องใช้ mock-profile VM ก่อน. งานหีบ/Locale ของอีกงานคงไว้.
+ซิงก์ 31 scripts และตรวจ checksum ตรงกับ repo (ยกเว้น ChestOpening/settings WIP ที่ยังไม่ส่ง Studio). **148 checks จำลองผ่าน**; Studio validator/actual services/UI เริ่มครบ, migration mock ผ่าน; Explorer24จุดครบ8โซนได้ Common Level1/source-zone1 รวม8ใบและกันซ้ำ. วาร์ปปลอดภัย/ปฏิเสธ Infinity/กันเข้าโซน2ที่ล็อก/Golden event ผ่าน. Local Server: ผู้เล่น1–7ได้ BaseIndex1–7ไม่ซ้ำและ track zone1 พร้อมกัน; อีก2ไคลเอนต์ที่เปิดเกินไม่มีฐานซ้ำ. Desktop EN/TH + iPad/iPhone7 ไทยมีภาพ; แก้สี/ขอบวงแผนที่, minimapทับ panel, ปุ่ม map actions มือถือ44px. Zone745samples mean0.012504ms peak0.0535ms (รวมช่วงผู้เล่นน้อย ไม่ใช่เวลาระบบแมพทั้งหมด). รายละเอียด/ตารางbalance/สิ่งค้างอยู่ [map-systems](map-systems.md).
+
+**Studio อยู่ Edit + โหมด QA:** Main server/client ปกติ Disabled; MapQABootstrap/MapClientQA Enabled; DataService.MapUseMockProfiles=true ใช้ ProfileStore.Mock เดิม (ไม่แก้ package). กด Play ตรวจชุดแผนที่ได้ ไม่โหลดเซฟจริง/ไม่เปิด leaderboard/monetization bootstrap. **ไม่รัน migration กับเซฟจริง/ไม่ Publish.** คืน bootstrap ปกติตามขั้นตอนใน map-systems เมื่ออนุมัติเปิดเซฟจริงเท่านั้น. ค้างตามสเปก: gate/dock animation, quest/target compass, tree.spawn/variant scheduler, physical keyboard/gamepad, rejoin endurance, total map budget/FPS. Snapshot/report: artifacts/map-qa/; backup source เดิมอยู่ artifacts/studio-map-backup/ (local).
 
 ## Master prompt run 2026-10-02
 

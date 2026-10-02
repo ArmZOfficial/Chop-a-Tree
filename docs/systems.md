@@ -5,7 +5,7 @@
 
 ## Map
 
-- Map scripting repo work: [implementation/validation](map-systems.md). ZoneService/GateService/TravelService/DayCycle/WorldEvent/Explorer reuse the existing footprint, progression, pooling, Weather, Garden and reward owners. Data v3 is additive and tested synthetically only; Studio integration/performance/device proof pending. Do not start normal Main with v3 to validate migration on a real profile.
+- Map scripting repo work: [implementation/validation](map-systems.md). ZoneService/GateService/TravelService/DayCycle/WorldEvent/Explorer reuse the existing footprint, progression, pooling, Weather, Garden and reward owners. Data v3 is additive and tested synthetically only; Studio sync/validator/isolated mock VM/Explorer/warp and seven-base multiplayer checks passed; desktop/tablet/phone captures available. Studio is left in the guarded map QA bootstrap with ProfileStore.Mock. Total frame cost, real input devices and remaining animations are pending. Do not start normal Main with v3 to validate migration on a real profile.
 
 - PlaceId 93479990217075; GameId 10768831527. **เกาะวงกลม 8 วง (2026-10-02)**: ศูนย์ (0,0), ใต้ = +Z; วง `inner/outer/y` อยู่ใน `Config.Zones` (1 Meadow 740–900 y4 → 7 Crystal 200–290 y64, 8 Lumora ที่ราบ r200 y78). Hub Rootfall = `Zones.Hub` (0,4,1010) r190 นอกโซน. ทั้ง 8 built=true.
 - ตำแหน่งโซนอ่านผ่าน `Zones.At(pos)` ที่เดียว (RunService.ZoneAt + ZoneAmbience); ห้ามคำนวณ footprint เอง. Merchant.Position อยู่ใน hub (36,0,1072).
