@@ -11,6 +11,21 @@
 - MCP เรียก require โมดูลเกมไม่ได้: Edit ใช้ `loadstring(MapBuilder.Source)()` (MapBuilder fallback เองสำหรับ Zones/TreeKit); Play server ไม่มี loadstring → ใช้ test Script ชั่วคราวใน ServerScriptService. หลัง BuildZone ต้องรัน `BuildZoneKeepers.luau` ซ้ำ.
 - ผลตรวจ 2026-10-02: tags ครบ (Tree 1470, ChestSpot 80, Nest 16, ZoneGate 7, WarpStone 9, ZoneSpawn 8, BossArena/Shrine 8, PlayerBase 7, GardenSlot 42, Shop 4, NPC 7, อื่น 1–2), Parts 10,127 (เดิม 18,103); ValidateRoutes Edit 263 samples/0, Play เดิน 16/16 routes; Zones.At ตรง tag 1598/1598; Play `Run.ZoneAt` 8/8 + hub=nil; leak probe ประตู 0. หลังเปลี่ยนภูมิประเทศตรวจใหม่ ไม่อ้างรายงานเดิมแทนผลใหม่.
 
+## Models / builders
+
+Retro builders (Plastic + Studs, BrickColor-style colours, Neon accents only, no hidden Scripts). Model inventory 2026-10-02:
+
+| Model | มี/สร้าง | ที่อยู่ |
+|---|---|---|
+| ต้นไม้ 24 แบบ | สร้างแล้ว | `tools/map/TreeKit.luau` (MapBuilder ใช้) |
+| ท่าเรือ, ร้านขวาน (ขวานยักษ์), ร้านไม้ (กองซุง), Chest Altar + หีบโชว์ Epic, บ้าน 7 หลัง, torii/ประตู, ป้าย, กำแพง, หิน/ตะเกียง/props ต่อโซน | สร้างแล้ว | `tools/map/MapBuilder.luau` |
+| หีบ 5 ระดับ + hinge | สร้างแล้ว | `Shared.ChestBuilder` (Build/SetLid/LevelOf/Levels) |
+| ไอคอนหีบ 2D | สร้างแล้ว (ViewportFrame) | `Shared.ChestIconRenderer.New(rarity, props)` ใน Inventory |
+| ดาบ 380 | สร้างแล้ว (แทร็ก B) | `Shared.WeaponVisual` |
+| Opening Stage props / idle FX / particles | ยัง (แทร็ก J) | อ่าน attribute ใน `FX` ของหีบ |
+
+- ChestBuilder: pivot = กลางพื้น, หน้า −Z; ใช้ `body.PivotOffset` เพราะ `WorldPivot` ถูกเมินเมื่อมี PrimaryPart. CanCollide/CanTouch ปิดทุกชิ้น. Budget ตรวจแล้ว 23/28/30/37/61 (≤25/35/45/60/80). ภาพ/สรุป: [elements-v3](../assets/ui/elements-v3/README.md).
+
 ## Run / weapons
 
 - RunService owns Run/access/award/AutoCut reward/ChestLevel; WeaponService owns random/equip/fuse/delete. Loot+Balance+Config เป็นสูตรร่วม.

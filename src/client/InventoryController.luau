@@ -12,10 +12,10 @@ local Config=require(Shared.Config.Chests)
 local Encounters=require(Shared.Config.WeatherEncounters)
 local Data=require(script.Parent.ClientData)
 local CollectionMath=require(Shared.CollectionMath)
+local ChestIcon=require(Shared.ChestIconRenderer)
 local Inventory={}
 local player=Players.LocalPlayer
 local HINT="Select an item to view details and take action."
-local CHEST_ART={Common="rareChest",Rare="rareChest",Epic="epicChest",Legendary="epicChest",Mythic="epicChest"}
 
 function Inventory.Start()
 	local gui=UI.New("ScreenGui",{Name="InventoryHUD",ResetOnSpawn=false,DisplayOrder=8,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,Parent=player:WaitForChild("PlayerGui")})
@@ -169,14 +169,14 @@ function Inventory.Start()
 			if selectedChest==nil then selectedChest=uid end
 			if selectedChest==uid then chosen=c end
 			local cc=card(chestList,"Chest_"..tostring(uid),selectedChest==uid and "today" or "product",i,selectedChest==uid,function() selectedChest=uid;say();render() end)
-			UI.Art(cc,"rewards",CHEST_ART[c.rarity] or "rareChest",{Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70)})
+			ChestIcon.New(c.rarity,{Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70),Parent=cc})
 			UI.Label(c.rarity.." Chest",20,{Position=UDim2.new(0,6,1,-62),Size=UDim2.new(1,-12,0,28),TextXAlignment=Enum.TextXAlignment.Center,TextColor3=Rarities.Color[c.rarity] and Rarities.Color[c.rarity]:Lerp(Color3.new(1,1,1),.55) or UI.Colors.Text,Parent=cc})
 			UI.Label("Level "..c.level.." • ×"..c.count,16,{Position=UDim2.new(0,6,1,-34),Size=UDim2.new(1,-12,0,24),TextXAlignment=Enum.TextXAlignment.Center,Parent=cc})
 		end
 		if dustOn then
 			if selectedChest==nil then selectedChest="Dust" end
 			local dc=card(chestList,"DustExchange",selectedChest=="Dust" and "today" or "product",#chests+1,selectedChest=="Dust",function() selectedChest="Dust";say();render() end)
-			UI.Art(dc,"rewards","rareChest",{Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70)})
+			ChestIcon.New("Rare",{Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70),Parent=dc})
 			UI.Label("Stardust "..(Data.Get("Currencies.Stardust") or 0),20,{Position=UDim2.new(0,6,1,-62),Size=UDim2.new(1,-12,0,28),TextXAlignment=Enum.TextXAlignment.Center,Parent=dc})
 			UI.Label(Encounters.ChestDust.." = Rare Chest",16,{Position=UDim2.new(0,6,1,-34),Size=UDim2.new(1,-12,0,24),TextXAlignment=Enum.TextXAlignment.Center,Parent=dc})
 		end
@@ -198,11 +198,11 @@ function Inventory.Start()
 			else nameLabel.Text="No weapon";details.Text="Open chests at the village station" end
 		else
 			if selectedChest=="Dust" then
-				setActions("dust");UI.Art(selectionView,"rewards","rareChest",{Size=UDim2.fromScale(1,1)})
+				setActions("dust");ChestIcon.New("Rare",{Size=UDim2.fromScale(1,1),Parent=selectionView})
 				nameLabel.Text="Stardust";powerBar.Visible=true;powerLabel.Text="Stardust";powerValue.Text=tostring(Data.Get("Currencies.Stardust") or 0)
 				details.Text="Exchange "..Encounters.ChestDust.." Stardust\nfor one Rare Chest"
 			elseif chosen then
-				setActions("chest",chosen.count);UI.Art(selectionView,"rewards",CHEST_ART[chosen.rarity] or "rareChest",{Size=UDim2.fromScale(1,1)})
+				setActions("chest",chosen.count);ChestIcon.New(chosen.rarity,{Size=UDim2.fromScale(1,1),Parent=selectionView})
 				nameLabel.Text=chosen.rarity.." Chest";rarity.Visible=true;rarity.BackgroundColor3=(Rarities.Color[chosen.rarity] or UI.Colors.Slate):Lerp(Color3.new(1,1,1),.15);rarityLabel.Text="Level "..chosen.level;rarity.Size=UDim2.fromOffset(120,32)
 				local flags=game.ReplicatedStorage.FeatureFlags
 				local luck=CollectionMath.Luck(Data.Get(),flags:GetAttribute("Rebirth")==true,flags:GetAttribute("IndexBonuses")==true,os.time(),game.ReplicatedStorage:GetAttribute("ServerLuckUntil"))

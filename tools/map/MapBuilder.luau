@@ -21,6 +21,7 @@ end
 
 local Zones = load(game.ReplicatedStorage.Shared.Config.Zones)
 local TreeKit = load(ServerStorage.MapTools.TreeKit)
+local ChestBuilder = load(game.ReplicatedStorage.Shared.ChestBuilder)
 
 local MapBuilder = {}
 
@@ -472,6 +473,8 @@ function MapBuilder.BuildVillage()
 		local rim = disk(altar, V, 8.4, 0.6, Y + 6.4, Color3.fromRGB(255, 214, 79), Enum.Material.Neon, "Rim")
 		rim.CanCollide = false
 		altar.PrimaryPart = altar.Step2
+		-- Display chest (Epic "Gilded Gem") facing the dock; cosmetic, no collision.
+		ChestBuilder.Build(3, CFrame.new(V.X, Y + 6.4, V.Z) * CFrame.Angles(0, math.pi, 0)).Parent = altar
 		tag(altar, "ChestAltar")
 
 		-- Services: axe shop left (west), wood shop right (east) of the altar.
@@ -494,6 +497,17 @@ function MapBuilder.BuildVillage()
 				local s = stall(services, cf, item[4], item[5])
 				s.Name = id
 				tag(s, "Shop", { ShopType = id })
+				if id == "UpgradeShop" then
+					-- Giant axe over the axe shop.
+					local axe = cf * CFrame.new(0, 16, 0) * CFrame.Angles(0, 0, rad(-30))
+					P({ Name = "AxeHandle", Size = Vector3.new(0.8, 9, 0.8), CFrame = axe, Color = Color3.fromRGB(124, 92, 70), CanCollide = false, Parent = s })
+					P({ Name = "AxeHead", Size = Vector3.new(3.4, 2.6, 0.7), CFrame = axe * CFrame.new(1.4, 3.6, 0), Color = Color3.fromRGB(163, 162, 165), CanCollide = false, Parent = s })
+				elseif id == "Sawmill" then
+					-- Log pile beside the wood shop.
+					for _, o in { { 9.7, 1.3 }, { 12.3, 1.3 }, { 11, 3.5 } } do
+						P({ Name = "Log", Shape = Enum.PartType.Cylinder, Size = Vector3.new(7, 2.6, 2.6), CFrame = cf * CFrame.new(o[1], o[2], 0) * CFrame.Angles(0, rad(90), 0), Color = Color3.fromRGB(160, 110, 65), Parent = s })
+					end
+				end
 			elseif id == "EggConveyor" then
 				local m = M(services, id)
 				local belt = P({ Name = "Belt", Size = Vector3.new(26, 1.6, 6), CFrame = cf * CFrame.new(0, 0.8, 0), Color = Color3.fromRGB(40, 44, 52), Material = Enum.Material.DiamondPlate, Parent = m })
