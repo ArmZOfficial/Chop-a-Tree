@@ -9,9 +9,16 @@ local Features = require(script.Parent.FeatureService)
 local Run = require(script.Parent.RunService)
 local Garden = require(script.Parent.GardenService)
 local Arena = require(script.Parent.ArenaService)
+local Net = require(S.Net)
 local Travel = {}
 local busy, cooldowns, connections = {}, {}, {}
-local docks, dockModels = {}, {}
+local docks, dockModels, dockEndpoints = {}, {}, {}
+local rides, rideId = {}, 0
+function Travel.SkipBoat(p, token)
+	local ride=rides[p]
+	if not ride or type(token)~="number" or token~=ride.token or p.Character~=ride.character then return false,"Travel unavailable" end
+	ride.skip=true;return true,"Ready"
+end
 local function root(p)
 	local c = p.Character; local h = c and c:FindFirstChildOfClass("Humanoid")
 	return h and h.Health > 0 and c:FindFirstChild("HumanoidRootPart")
@@ -65,7 +72,20 @@ function Travel.Warp(p, id, source)
 	local spawn = spawnFor(p, id); if not spawn then return false, "Destination unavailable" end
 	local character = p.Character; busy[p] = true
 	local succeeded, result, text = pcall(function()
+		if source then
+			rideId+=1
+			local ride={token=rideId,character=character};rides[p]=ride
+			local duration=Story.MapBoatDuration
+			Net.Event("StoryShow"):FireClient(p,{kind="boat",token=ride.token,boat=source.Parent,from=source.CFrame,to=dockEndpoints[id] and dockEndpoints[id].CFrame or spawn:GetPivot(),bend=Story.MapBoatBend,duration=duration})
+			local untilAt=os.clock()+duration
+			while not ride.skip and os.clock()<untilAt do
+				if p.Parent~=Players or p.Character~=character or not root(p) then return false,"Character not ready" end
+				if not valid(p,id,source) then return false,"Travel unavailable" end
+				task.wait(.05)
+			end
+		end
 		pcall(p.RequestStreamAroundAsync, p, spawn:GetPivot().Position, 3)
+		if source and not rides[p] then return false,"Travel unavailable" end
 		if p.Parent ~= Players or p.Character ~= character or not spawn:IsDescendantOf(workspace) then return false, "Character not ready" end
 		local allowed, reason = valid(p, id, source); if not allowed then return false, reason end
 		local cf = destination(p, spawn); if not cf then return false, "Destination obstructed" end
@@ -77,12 +97,14 @@ function Travel.Warp(p, id, source)
 		cooldowns[p] = os.clock() + 2 -- Same cooldown for every player; pass grants remote access only.
 		return true, "Travel complete"
 	end)
+	local ride=rides[p];rides[p]=nil
+	if ride and p.Parent==Players then Net.Event("StoryShow"):FireClient(p,{kind="boatEnd",token=ride.token}) end
 	busy[p] = nil
 	if not succeeded then warn("[Travel] " .. tostring(result)); return false, "Travel unavailable" end
 	return result, text
 end
 function Travel.Init()
-	table.insert(connections, Players.PlayerRemoving:Connect(function(p) busy[p] = nil; cooldowns[p] = nil end))
+	table.insert(connections, Players.PlayerRemoving:Connect(function(p) busy[p] = nil; cooldowns[p] = nil; rides[p]=nil end))
 	local map=workspace:FindFirstChild("Map");local village=map and map:FindFirstChild("Village");local dock=village and village:FindFirstChild("Dock")
 	local shore=spawnFor(nil,1)
 	local function boat(at,id)
@@ -90,7 +112,7 @@ function Travel.Init()
 		local floor=Instance.new("Part");floor.Name="Hull";floor.Size=Vector3.new(9,1.5,15);floor.CFrame=at;floor.Anchored=true;floor.CanCollide=false;floor.CanTouch=false;floor.CanQuery=false
 		floor.Material=Enum.Material.Plastic;floor.TopSurface=Enum.SurfaceType.Studs;floor.Color=Color3.fromRGB(151,92,45);floor.Parent=model
 		for _,x in {-4,4} do local rail=floor:Clone();rail.Name="Rail";rail.Size=Vector3.new(1,2,15);rail.CFrame=at*CFrame.new(x,1,0);rail.Parent=model end
-		model.PrimaryPart=floor;model.Parent=workspace;table.insert(dockModels,model);docks[floor]=id
+		model.PrimaryPart=floor;model.Parent=workspace;table.insert(dockModels,model);docks[floor]=id;dockEndpoints[id==1 and 0 or 1]=floor
 		local prompt=Instance.new("ProximityPrompt");prompt.ActionText="Travel";prompt.ObjectText=id==1 and "Sunny Meadow" or "Rootfall";prompt.MaxActivationDistance=14;prompt.RequiresLineOfSight=false;prompt.Parent=floor
 		table.insert(connections,prompt.Triggered:Connect(function(p)
 			local ok,msg=Travel.Warp(p,id,floor)
@@ -101,12 +123,13 @@ function Travel.Init()
 	end
 	if dock and shore then
 		boat(dock:GetPivot()+Vector3.new(0,1,15),1)
-		boat(shore:GetPivot()+Vector3.new(12,1,0),0)
+		boat(CFrame.new(Story.MapBoatShore),0)
 	end
 end
 function Travel.Start() end
 function Travel.Destroy()
-	for _,c in connections do c:Disconnect() end;table.clear(connections);table.clear(busy);table.clear(cooldowns);table.clear(docks)
+	for _,ride in rides do ride.skip=true end;table.clear(rides)
+	for _,c in connections do c:Disconnect() end;table.clear(connections);table.clear(busy);table.clear(cooldowns);table.clear(docks);table.clear(dockEndpoints)
 	for _,model in dockModels do model:Destroy() end;table.clear(dockModels)
 end
 return Travel

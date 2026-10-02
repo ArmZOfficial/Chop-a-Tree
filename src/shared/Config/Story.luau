@@ -82,7 +82,8 @@ return table.freeze({
 	WeeklyCount=3,WeeklyScale=6,WeeklyGems=20,
 	IndexGem=1,IndexCompleteGems=50,
 	BossRange=26,BossRespawn=60,BossShare=.02,BossWindow=30,BossGems=25,
-	TalkRange=16,ShrineRange=18,WarpRange=16,
+	TalkRange=16,ShrineRange=18,WarpRange=16,MapBoatDuration=6,
+	MapBoatShore=Vector3.new(210,5.5,866),MapBoatBend=Vector3.new(540,6,1010),
 	Npcs=npcs,
 	ShrineLines={"Green light rises from the shrine. The Rot retreats.","The next zone is now open!"},
 })

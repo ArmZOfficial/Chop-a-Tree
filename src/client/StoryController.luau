@@ -255,6 +255,8 @@ function Controller.Start()
 		-- Guide beam
 		local goal=quest and quest.enabled and target(quest.current)
 		local pos=goal and (goal:IsA("BasePart") and goal.Position or goal:GetPivot().Position)
+		-- The map consumes the existing quest resolver, including streamed-out/blocked targets.
+		beamFolder:SetAttribute("TargetPosition",pos)
 		if hr and pos and (pos-hr.Position).Magnitude>14 then
 			a0.Parent=hr;local flatDir=Vector3.new(pos.X-hr.Position.X,0,pos.Z-hr.Position.Z).Unit
 			anchor.Position=hr.Position+flatDir*10+Vector3.new(0,-1.5,0);beam.Enabled=true;guideBill.Enabled=true
@@ -281,9 +283,21 @@ function Controller.Start()
 		for _,gate in Collection:GetTagged("ZoneGate") do
 			local wall=gate:FindFirstChild("RotBarrier")
 			if wall then
-				originals[wall]=originals[wall] or {wall.Transparency,wall.CanCollide}
+				originals[wall]=originals[wall] or {wall.Transparency,wall.CanCollide,wall.CFrame}
 				local open=table.find(unlocked,gate:GetAttribute("ToZone"))~=nil
-				wall.CanCollide=not open and originals[wall][2];wall.Transparency=open and .9 or originals[wall][1]
+				local saved=originals[wall]
+				wall.CanCollide=not open and saved[2]
+				if saved.open~=open then
+					if saved.tween then saved.tween:Cancel() end
+					local cf=saved[3]+Vector3.new(0,open and wall.Size.Y+2 or 0,0)
+					if saved.open==nil then wall.CFrame=cf;wall.Transparency=open and 1 or saved[1]
+					else
+						-- Only this client's barrier moves; server GateService still guards access.
+						saved.tween=Tween:Create(wall,TweenInfo.new(.7,Enum.EasingStyle.Quad),{CFrame=cf,Transparency=open and 1 or saved[1]})
+						saved.tween:Play()
+					end
+					saved.open=open
+				end
 			end
 		end
 		for _,shrine in Collection:GetTagged("Shrine") do

@@ -7,7 +7,7 @@
 | [HANDOFF](HANDOFF.md) | สถานะ/ผลตรวจล่าสุด/งานถัดไป |
 | [plan](plan.md) | scope/backlog/กฎ product |
 | [systems](systems.md) | seam/gotcha ของระบบที่จะเปลี่ยน; เลือก heading |
-| [Map scripting](map-systems.md) | Zones/ประตู/แผนที่/วาร์ป/DayCycle/Explorer v3, balance, ผล Studio QA/7ฐาน, mock mode และข้อจำกัด |
+| [Map scripting](map-systems.md) | Zones/ประตูเลื่อน/เข็มทิศ/เรือ/rare trees/Explorer v3, balance, Studio QA/7ฐาน/mock save-reopen และข้อจำกัด |
 | [Shop + Season](phase8_shop_season_validation.md) | receipt/Premium/ซีซันและข้อจำกัดล่าสุด |
 | [design](design.md) | ต้องการ spec เต็ม/การตัดสินใจเดิม; ค้นหัวข้อ §3/4/9/14–18 |
 | [weapons](weapons.md) | design อาวุธ100ชิ้น; runtimeดู Config/Weapons |

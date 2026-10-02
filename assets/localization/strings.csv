@@ -1804,3 +1804,21 @@ Night Spirits,Night Spirits,วิญญาณราตรี,MapSystems,
 {1} • {2} studs,{1} • {2} studs,{1} • {2} สตัด,MapSystems,
 Unlock Zone,Unlock Zone,ปลดล็อกโซน,MapSystems,
 Light shrine in Zone {1} to unlock this gate,Light shrine in Zone {1} to unlock this gate,จุดศาลเจ้าในโซน {1} เพื่อปลดล็อกประตูนี้,MapSystems,
+Event,Event,Event,MapController,dev
+Event target,Event target,อีเวนต์,MapController,
+Quest,Quest,Quest,MapController,dev
+Quest target,Quest target,ภารกิจ,MapController,
+Skip boat ride,Skip boat ride,ข้ามการนั่งเรือ,MapController,
+{1} {2} • {3},{1} {2} • {3},{1} {2} • {3},MapController,manual
+{1}Target,{1}Target,{1}Target,MapController,dev
+Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,Eight QA trees maximum; use tree.clear,TreeService,dev
+Enter kind and tier 1–6,Enter kind and tier 1–6,Enter kind and tier 1–6,TreeService,dev
+Map QA mutations require Studio,Map QA mutations require Studio,Map QA mutations require Studio,TreeService,dev
+No safe ground in this zone,No safe ground in this zone,No safe ground in this zone,TreeService,dev
+QA tree spawned,QA tree spawned,QA tree spawned,TreeService,dev
+Stand in an unlocked forest zone,Stand in an unlocked forest zone,Stand in an unlocked forest zone,TreeService,dev
+TreeKit unavailable,TreeKit unavailable,TreeKit unavailable,TreeService,dev
+Unknown TreeKit kind,Unknown TreeKit kind,Unknown TreeKit kind,TreeService,dev
+Ancient Tree,Ancient Tree,ต้นไม้โบราณ,WorldEvents,
+Cursed Tree,Cursed Tree,ต้นไม้ต้องสาป,WorldEvents,
+Giant Tree,Giant Tree,ต้นไม้ยักษ์,WorldEvents,

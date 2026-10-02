@@ -189,6 +189,8 @@ function Forest.Start()
 						local rb=Data.Get("Progress.Rebirth") or 0
 						local weather=game.ReplicatedStorage:FindFirstChild("WeatherState")
 						local health=weather and weather:GetAttribute("HealthMult") or 1
+						local flags=game.ReplicatedStorage:FindFirstChild("FeatureFlags")
+						health*=flags and flags:GetAttribute("MapSystems")==true and (m:GetAttribute("SpecialHP") or 1) or 1
 						local req=Balance.TreeRequiredPower(zone,tier,rb)*health
 						local hp=Balance.TreeHP(zone,tier,rb)*health
 						bars[m].label.Text=state.power<req and ("🔒 Power "..NF.Short(req)) or ("T"..tier.."  "..NF.Short(hp*(m:GetAttribute("HealthRatio") or 1)).." / "..NF.Short(hp))

@@ -48,6 +48,29 @@ local function register(model)
 	trees[model]=s; Tree.Reset(model)
 end
 
+-- Admin-only preview trees reuse the real TreeKit, registry and reward contract.
+function Tree.SpawnQA(player,kind,tier)
+	if not game:GetService("RunService"):IsStudio() then return false,"Map QA mutations require Studio" end
+	local hr=root(player);local zone=hr and require(Shared.Config.Zones).At(hr.Position)
+	if not zone or not Run.CanAccess(player,zone) then return false,"Stand in an unlocked forest zone" end
+	if type(tier)~="number" or tier%1~=0 or tier<1 or tier>6 then return false,"Enter kind and tier 1–6" end
+	local kit=game.ServerStorage:FindFirstChild("MapTools")
+	kit=kit and kit:FindFirstChild("TreeKit");if not kit then return false,"TreeKit unavailable" end
+	local builder=require(kit);local index
+	for i,def in builder.Kinds do if def.key==kind then index=i;break end end
+	if not index then return false,"Unknown TreeKit kind" end
+	local folder=workspace:FindFirstChild("MapQATrees")
+	if folder and #folder:GetChildren()>=8 then return false,"Eight QA trees maximum; use tree.clear" end
+	local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Exclude;params.FilterDescendantsInstances={player.Character}
+	local hit=workspace:Raycast(hr.Position+hr.CFrame.LookVector*12+Vector3.new(0,8,0),Vector3.new(0,-24,0),params)
+	if not hit or require(Shared.Config.Zones).At(hit.Position+Vector3.new(0,2,0))~=zone then return false,"No safe ground in this zone" end
+	if not folder then folder=Instance.new("Folder");folder.Name="MapQATrees";folder.Parent=workspace end
+	local model=builder.Build(index,hit.Position,tier,rng)
+	model:SetAttribute("Zone",zone);model:SetAttribute("Tier",tier);model.Parent=folder
+	Collection:AddTag(model,"Tree");register(model)
+	return true,"QA tree spawned",model
+end
+
 function Tree.SetSpecial(model,kind)
 	local state=trees[model]; if not state or not model.Parent then return false end
 	local def=kind and SpecialConfig[kind]
@@ -194,7 +217,8 @@ function Tree.Nearest(player,maxDistance,autoCut)
 		if model.Parent and s.ratio>0 and model:GetAttribute("Zone")==zone then
 			local p=position(model)
 			local d=flatDistance(hr.Position,p)
-			if d<dist and Run.Power(player)>=Balance.TreeRequiredPower(zone,model:GetAttribute("Tier"),Data.Get(player,"Progress.Rebirth"))*Weather.Def().hp and (not autoCut or not avoidDanger(p,zone)) then best,dist=model,d end
+			local health=Weather.Def().hp*(Features.IsEnabled("MapSystems") and (model:GetAttribute("SpecialHP") or 1) or 1)
+			if d<dist and Run.Power(player)>=Balance.TreeRequiredPower(zone,model:GetAttribute("Tier"),Data.Get(player,"Progress.Rebirth"))*health and (not autoCut or not avoidDanger(p,zone)) then best,dist=model,d end
 		end
 	end
 	return best

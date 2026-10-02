@@ -81,6 +81,7 @@ function StoryService.Init()
 		if action=="Sync" then ok,msg=true,"Ready"
 		elseif action=="Talk" then ok,msg=StoryService.Talk(p,arg)
 		elseif action=="Warp" then ok,msg=StoryService.Warp(p,arg)
+		elseif action=="BoatSkip" then ok,msg=require(script.Parent.TravelService).SkipBoat(p,arg)
 		elseif action=="Shrine" then ok,msg=StoryService.LightShrine(p,arg)
 		elseif action=="Claim" and type(arg)=="table" then ok,msg=Quest.Claim(p,arg.kind,arg.id) end
 		Quest.Send(p,true);return ok,msg

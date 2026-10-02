@@ -37,7 +37,7 @@ function Event.StartEvent(id,zone)
 	local tree
 	if def.tree then
 		local pool={}
-		for model in trees do if model:IsDescendantOf(workspace) and model:GetAttribute("Zone")==zone and model:GetAttribute("HealthRatio")==1 then table.insert(pool,model) end end
+		for model in trees do if model:IsDescendantOf(workspace) and model:GetAttribute("Zone")==zone and model:GetAttribute("HealthRatio")==1 and model:GetAttribute("Alive")~=false and not model:GetAttribute("SpecialKind") then table.insert(pool,model) end end
 		if #pool==0 then return false,"No healthy pooled tree" end
 		tree=pool[rng:NextInteger(1,#pool)];if not Tree.SetSpecial(tree,def.tree) then return false,"Tree unavailable" end
 	end
@@ -60,7 +60,14 @@ function Event.Update()
 	local candidates={}
 	for _,p in Players:GetPlayers() do local id=Run.ZoneAt(p);if id and Run.CanAccess(p,id) and not table.find(candidates,id) then table.insert(candidates,id) end end
 	if #candidates==0 then nextAt=os.clock()+10;return end
-	local ok=Event.StartEvent(rng:NextInteger(1,2)==1 and "GoldenTree" or "TimberRush",candidates[rng:NextInteger(1,#candidates)])
+	local total=0
+	for _,def in C.List do if not def.weather and (def.weight or 0)>0 then total+=def.weight end end
+	if total<=0 then nextAt=os.clock()+C.Cooldown;return end
+	local roll=rng:NextNumber()*total;local chosen
+	for _,def in C.List do if not def.weather and (def.weight or 0)>0 then
+		roll-=def.weight;if roll<=0 then chosen=def.id;break end
+	end end
+	local ok=chosen and Event.StartEvent(chosen,candidates[rng:NextInteger(1,#candidates)])
 	if not ok then nextAt=os.clock()+30 end
 end
 function Event.Init()

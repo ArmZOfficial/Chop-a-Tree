@@ -47,6 +47,13 @@ return function(Admin)
 		return true,"32 outer-bound markers per zone; Zones.At remains authoritative"
 	end,true)
 	register("tree.respawn","QA Respawn Trees",function() for _,tree in Collection:GetTagged("Tree") do Tree.Reset(tree) end;return true,"Trees reset" end,true)
+	register("tree.spawn","QA Spawn TreeKit Kind",function(ctx)
+		local kind,tier=(ctx.args.text or ""):match("^(%S+)%s*(%d*)$")
+		local ok,msg=Tree.SpawnQA(ctx.admin,kind,tonumber(tier) or 1);return ok,msg
+	end,true)
+	register("tree.clear","QA Clear Spawned Trees",function()
+		local folder=workspace:FindFirstChild("MapQATrees");if folder then folder:Destroy() end;return true,"QA trees cleared"
+	end,true)
 	register("tree.special","QA Special Tree",function(ctx)
 		local model=Tree.Nearest(ctx.admin,14,false);if not model then return false,"Stand beside a healthy tree" end
 		return Tree.SetSpecial(model,ctx.args.text),"GoldenTree/GiantTree/AncientTree/CursedTree"

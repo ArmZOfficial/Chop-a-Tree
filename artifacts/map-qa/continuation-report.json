@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-02/03",
+  "sourcesVerified": 13,
+  "qaSetup": "Edit/default viewport; normal Main scripts disabled, native mock opt-in enabled; ProfileStore untouched",
+  "placeId": 93479990217075,
+  "syntheticChecks": 162,
+  "keyboard": {
+    "MOpened": true,
+    "MClosed": true,
+    "input": "native Windows sky key input"
+  },
+  "gate": {
+    "closedY": 22,
+    "openY": 44,
+    "lift": 22,
+    "openCanCollide": false,
+    "openTransparency": 1
+  },
+  "variants": {
+    "GiantTree": {
+      "started": true,
+      "scale": 1.5
+    },
+    "AncientTree": {
+      "started": true,
+      "scale": 1
+    },
+    "CursedTree": {
+      "started": true,
+      "scale": 1
+    }
+  },
+  "limitations": [
+    "Physical gamepad and real-device FPS unavailable",
+    "Profile reopen uses native mock; not a real client/network rejoin",
+    "Timing includes synchronous four-service updates with one player, excludes rendering/network callbacks",
+    "Global CSV has one missing translation in concurrent ChestOpening work"
+  ],
+  "boatSkip": {
+    "ok": true,
+    "seconds": 1.0511102999989816,
+    "msg": "Travel complete",
+    "position": null
+  },
+  "boatCancel": {
+    "ok": false,
+    "seconds": 0.5841408999986015,
+    "msg": "Travel unavailable",
+    "position": null
+  },
+  "boatFinal": {
+    "ok": true,
+    "seconds": 6.033691500000714,
+    "zone": 1,
+    "msg": "Travel complete",
+    "position": [
+      0,
+      8.5,
+      798
+    ]
+  },
+  "boatBack": {
+    "ok": true,
+    "seconds": 6.050299899998208,
+    "msg": "Travel complete",
+    "position": [
+      0,
+      9.600000381469727,
+      980
+    ]
+  },
+  "profileRoundTrip": {
+    "preserved": true,
+    "version": 3,
+    "saved": true,
+    "baseReleased": true,
+    "reopened": true,
+    "backend": "ProfileStore.Mock; existing store/player key"
+  },
+  "bases": {
+    "ok": true,
+    "index": 1,
+    "cycles": 25
+  },
+  "spawn": {
+    "ok": true,
+    "zone": 1,
+    "alive": true,
+    "invalid": false,
+    "kind": "Oak",
+    "msg": "QA tree spawned",
+    "tier": 1,
+    "tag": true
+  },
+  "perf": {
+    "players": 1,
+    "scope": "Zone/Gate/DayCycle/WorldEvent synchronous updates; excludes rendering/network callbacks",
+    "samples": 200,
+    "peakMs": 0.103599999420112,
+    "meanMs": 0.08023699996556388
+  }
+}

@@ -31,7 +31,7 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
 
-- Map scripting (2026-10-02): repo implementation + synthetic checks in [map-systems](map-systems.md). Boss/shrine unlock, x100 progression, seven Garden bases, existing Teleport pass and reward caps retained. Approved Explorer completion reward = one Common Level1/source-zone1 chest per zone (max8); Golden/Timber Wood x2 within overall x4. Studio sync/validator/mock VM/UI phone/tablet/seven-base checks passed; guarded map QA remains enabled. Total frame budget/input-device/rejoin proof and gate/dock/compass/variant work remain pending; no live v3 migration or Publish.
+- Map scripting (2026-10-02/03): implementation + 162 synthetic checks in [map-systems](map-systems.md). Boss/shrine unlock, x100 progression, seven Garden bases, Teleport pass and reward caps retained. Approved Explorer reward = one Common Level1/source-zone1 chest per zone (max8); special trees/Timber Wood x2 within overall x4. Gate slide, quest/event compass, skippable coastal boat ride, tree.spawn/clear and rare variant scheduler implemented and synced. Studio native M, two-way boat/skip/cancel, native mock save/reopen and 25 base release/assign cycles passed. Guarded QA remains enabled; physical gamepad, real client rejoin endurance and seven-player total frame/FPS proof remain pending. No live v3 migration or Publish.
 
 - UI audit (2026-10-02): desktop/tablet/phone/gamepad ผ่านเรื่องข้อความล้น/หลุดจอ; ค้างเลย์เอาต์มือถือให้ปุ่ม ≥44px ([UX-audit](../assets/ui/UX-audit.md)).
 - สองภาษา EN+TH (ทำแล้ว 2026-10-02): ผู้เล่นเลือก Auto/English/ไทย ใน Settings; ดู [systems §Localization](systems.md#localization-en--th).
