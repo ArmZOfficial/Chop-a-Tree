@@ -23,10 +23,12 @@ local function unlocked(id) return table.find(Data.Get("Progress.UnlockedZones")
 local function circle(parent, name, color, pos, size)
 	return UI.New("Frame", { Name = name, BorderSizePixel = 0, BackgroundColor3 = color, Position = pos, AnchorPoint = Vector2.new(.5,.5), Size = size, Parent = parent }, { UI.Corner(999) })
 end
+local function lockedColor(id) return Color3.fromRGB(65+id*7,65+id*7,70+id*7) end
 local function drawRings(parent)
 	for _, z in Zones.List do
 		local point = Util.Project(Vector3.zero, worldCenter, worldSpan)
-		circle(parent, "Zone"..z.id, unlocked(z.id) and z.colors.ground or Color3.fromRGB(80,80,85), UDim2.fromScale(point.X,point.Y), UDim2.fromScale(z.outer*2/worldSpan,z.outer*2/worldSpan))
+		local ring = circle(parent, "Zone"..z.id, unlocked(z.id) and z.colors.ground or lockedColor(z.id), UDim2.fromScale(point.X,point.Y), UDim2.fromScale(z.outer*2/worldSpan,z.outer*2/worldSpan))
+		local border=UI.Stroke(1,z.colors.accent:Lerp(Color3.fromRGB(130,130,135),.7));border.Parent=ring
 	end
 	local at = Util.Project(Zones.Hub.center, worldCenter, worldSpan)
 	circle(parent, "Hub", Color3.fromRGB(212,173,102), UDim2.fromScale(at.X,at.Y), UDim2.fromScale(Zones.Hub.radius*2/worldSpan,Zones.Hub.radius*2/worldSpan))
@@ -40,7 +42,7 @@ local function refresh()
 		local suffix = open and T("Explored {1}/{2}", {count,total}) or T("Defeat boss and light shrine in Zone {1}", {id-1})
 		row.Button:FindFirstChildWhichIsA("TextLabel",true).Text = T(z.name).."\n"..suffix
 		UI.SetButtonColor(row, open and z.colors.accent or UI.Colors.Slate)
-		mapCanvas["Zone"..id].BackgroundColor3 = open and z.colors.ground or Color3.fromRGB(80,80,85)
+		mapCanvas["Zone"..id].BackgroundColor3 = open and z.colors.ground or lockedColor(id)
 	end
 	status.Text = selected and T("Destination: {1}", { selected == "Home" and T("Home") or selected == 0 and T("Rootfall") or T(Zones.List[selected].name) }) or T("Select a zone to travel")
 end
@@ -68,7 +70,7 @@ function Map.Start()
 	mini=UI.New("Frame",{Name="Minimap",AnchorPoint=Vector2.new(1,1),Position=UDim2.new(1,-12,1,-160),Size=UDim2.fromOffset(140,140),BackgroundColor3=Color3.fromRGB(40,70,75),ClipsDescendants=true,Parent=gui},{UI.Corner(999),UI.Stroke(3,UI.Colors.Accent)})
 	for _,z in Zones.List do miniRings[z.id]=circle(mini,"Zone"..z.id,z.colors.ground,UDim2.new(),UDim2.fromScale(z.outer*2/440,z.outer*2/440)) end
 	heading=UI.Label("N",14,{AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,115),Size=UDim2.fromOffset(300,24),TextXAlignment=Enum.TextXAlignment.Center,Parent=gui})
-	panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(740,510),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui})
+	panel=UI.New("Frame",{Name="Panel",ZIndex=20,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(740,526),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui})
 	UI.Window(panel,"World Map","book")
 	mapCanvas=UI.New("Frame",{Name="Island",Position=UDim2.fromOffset(20,66),Size=UDim2.fromOffset(390,390),BackgroundColor3=Color3.fromRGB(44,106,148),ClipsDescendants=true,Parent=panel})
 	drawRings(mapCanvas)
@@ -81,7 +83,7 @@ function Map.Start()
 	end
 	status=UI.Label(T("Select a zone to travel"),15,{Position=UDim2.fromOffset(425,365),Size=UDim2.fromOffset(295,40),TextWrapped=true,Parent=panel})
 	local fade=UI.New("Frame",{Name="TravelFade",Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=100,Parent=gui})
-	local travel=UI.Button({text=T("Travel"),color=UI.Colors.Green,size=UDim2.fromOffset(140,44),onClick=function()
+	local travel=UI.Button({text=T("Travel"),color=UI.Colors.Green,size=UDim2.fromOffset(140,48),onClick=function()
 		if not selected or travelling then return end; travelling=true
 		Tween:Create(fade,TweenInfo.new(.15),{BackgroundTransparency=.3}):Play()
 		task.spawn(function()
@@ -94,12 +96,15 @@ function Map.Start()
 	end});travel.Position=UDim2.fromOffset(425,414);travel.Parent=panel
 	local homeButtons={}
 	for i, destination in {0,"Home"} do
-		local button=UI.Button({text=T(destination==0 and "Rootfall" or "Home"),color=UI.Colors.Blue,size=UDim2.fromOffset(140,32),onClick=function() selected=destination;refresh() end})
+		local button=UI.Button({text=T(destination==0 and "Rootfall" or "Home"),color=UI.Colors.Blue,size=UDim2.fromOffset(140,48),onClick=function() selected=destination;refresh() end})
 		button.Position=UDim2.fromOffset(425+(i-1)*150,464);button.Parent=panel;homeButtons[i]=button
 	end
 	local toggle=UI.Button({text=T("Map"),color=UI.Colors.Blue,size=UDim2.fromOffset(72,38),onClick=function() panel.Visible=not panel.Visible;refresh() end})
 	toggle.AnchorPoint=Vector2.new(1,1);toggle.Position=UDim2.new(1,-12,1,-115);toggle.Parent=gui
-	local north=UI.Button({text=T("North / Camera"),textSize=13,color=UI.Colors.Slate,size=UDim2.fromOffset(145,34),onClick=function() cameraMode=not cameraMode end})
+	table.insert(connections,panel:GetPropertyChangedSignal("Visible"):Connect(function()
+		mini.Visible=not panel.Visible;heading.Visible=not panel.Visible;toggle.Visible=not panel.Visible
+	end))
+	local north=UI.Button({text=T("North / Camera"),textSize=13,color=UI.Colors.Slate,size=UDim2.fromOffset(145,48),onClick=function() cameraMode=not cameraMode end})
 	north.Position=UDim2.fromOffset(575,414);north.Parent=panel
 	table.insert(connections,Input.InputBegan:Connect(function(input,processed)
 		if processed or Input:GetFocusedTextBox() then return end
@@ -127,23 +132,24 @@ function Map.Start()
 			local right=wide and size+35 or 20;local top=wide and 65 or size+75
 			mapCanvas.Position=UDim2.fromOffset(20,65);mapCanvas.Size=UDim2.fromOffset(size,size)
 			local width=w-right-20
-			scroll.Position=UDim2.fromOffset(right,top);scroll.Size=UDim2.fromOffset(width,math.max(45,h-top-154))
+			scroll.Position=UDim2.fromOffset(right,top);scroll.Size=UDim2.fromOffset(width,math.max(45,h-top-164))
 			for _,row in rows do row.Size=UDim2.fromOffset(width-10,55) end
-			status.Position=UDim2.fromOffset(right,h-144);status.Size=UDim2.fromOffset(width,40)
-			travel.Position=UDim2.fromOffset(right,h-100);north.Position=UDim2.fromOffset(right+width/2+3,h-100)
-			travel.Size=UDim2.fromOffset(width/2-4,44);north.Size=UDim2.fromOffset(width/2-4,44)
-			for i,button in homeButtons do button.Position=UDim2.fromOffset(right+(i-1)*(width/2+3),h-52);button.Size=UDim2.fromOffset(width/2-4,32) end
+			status.Position=UDim2.fromOffset(right,h-154);status.Size=UDim2.fromOffset(width,40)
+			travel.Position=UDim2.fromOffset(right,h-112);north.Position=UDim2.fromOffset(right+width/2+3,h-112)
+			travel.Size=UDim2.fromOffset(width/2-4,48);north.Size=UDim2.fromOffset(width/2-4,48)
+			for i,button in homeButtons do button.Position=UDim2.fromOffset(right+(i-1)*(width/2+3),h-56);button.Size=UDim2.fromOffset(width/2-4,48) end
 		else
-			scale.Scale=1;panel.Size=UDim2.fromOffset(740,510)
+			scale.Scale=1;panel.Size=UDim2.fromOffset(740,526)
 			mapCanvas.Position=UDim2.fromOffset(20,66);mapCanvas.Size=UDim2.fromOffset(390,390)
 			scroll.Position=UDim2.fromOffset(425,64);scroll.Size=UDim2.fromOffset(295,300)
 			for _,row in rows do row.Size=UDim2.fromOffset(280,55) end
 			status.Position=UDim2.fromOffset(425,365);status.Size=UDim2.fromOffset(295,40)
-			travel.Position=UDim2.fromOffset(425,414);travel.Size=UDim2.fromOffset(140,44)
-			north.Position=UDim2.fromOffset(575,414);north.Size=UDim2.fromOffset(145,34)
-			for i,button in homeButtons do button.Position=UDim2.fromOffset(425+(i-1)*150,464);button.Size=UDim2.fromOffset(140,32) end
+			travel.Position=UDim2.fromOffset(425,414);travel.Size=UDim2.fromOffset(140,48)
+			north.Position=UDim2.fromOffset(575,414);north.Size=UDim2.fromOffset(145,48)
+			for i,button in homeButtons do button.Position=UDim2.fromOffset(425+(i-1)*150,464);button.Size=UDim2.fromOffset(140,48) end
 		end
 		local size=v.X<700 and 90 or 140;mini.Size=UDim2.fromOffset(size,size)
+		toggle.Size=UDim2.fromOffset(72,(Input.TouchEnabled or v.X<700) and 48 or 38)
 	end
 	if workspace.CurrentCamera then table.insert(connections,workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(fit)) end
 	fit();refresh()
@@ -155,7 +161,7 @@ function Map.Start()
 		local camera=workspace.CurrentCamera
 		local yaw=cameraMode and camera and math.atan2(camera.CFrame.LookVector.X,-camera.CFrame.LookVector.Z) or 0
 		local at=Util.Project(Vector3.zero,hr and hr.Position or worldCenter,440,yaw)
-		for id,ring in miniRings do ring.Position=UDim2.fromScale(at.X,at.Y);ring.BackgroundColor3=unlocked(id) and Zones.List[id].colors.ground or Color3.fromRGB(80,80,85) end
+		for id,ring in miniRings do ring.Position=UDim2.fromScale(at.X,at.Y);ring.BackgroundColor3=unlocked(id) and Zones.List[id].colors.ground or lockedColor(id) end
 		for _,p in Players:GetPlayers() do
 			local root=p.Character and p.Character:FindFirstChild("HumanoidRootPart")
 			if root then marker(p,root.Position,p==player and Color3.new(1,1,1) or Color3.fromRGB(80,220,255)) end

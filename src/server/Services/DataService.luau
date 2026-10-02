@@ -108,6 +108,11 @@ DataService.MIGRATIONS = {
 }
 
 local store = ProfileStore.New(DataService.STORE_NAME, DataService.Template)
+-- Opt-in Studio QA uses ProfileStore's memory backend; the live store and keys remain unchanged.
+if game:GetService("RunService"):IsStudio() and script:GetAttribute("MapUseMockProfiles") == true then
+	store = store.Mock
+	print("[DataService] Map QA: mock profiles (no PlayerData_v1 reads/writes)")
+end
 local profiles: { [Player]: any } = {}
 local loadedEvent = Instance.new("BindableEvent")
 DataService.PlayerLoaded = loadedEvent.Event -- (player)
