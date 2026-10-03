@@ -4,9 +4,35 @@
 (https://create.roblox.com/store/asset/73852738603629/Full-Custom-Inventory-System), free, added 2026-10-03 at ArmZ's request.
 It replaces Roblox's backpack bar with a custom hotbar and an optional backpack grid for `Tool`s.
 
-Lives in Studio only: `StarterGui.ToolHotbar` (ScreenGui with `hotBar`, `Inventory`, `openButton`, and
+Instance tree lives in Studio: `StarterGui.ToolHotbar` (ScreenGui with `hotBar`, `Inventory`, `openButton`, and
 `InventoryController` LocalScript → `SETTINGS` ModuleScript + `toolButton` slot template). It is **not** in the Rojo
 tree or `tools/studio_sync_check.py`; re-insert the asset and re-apply the list below to rebuild it.
+The modified controller, SETTINGS and SlotArt sources are now saved in this directory.
+
+## Reference-style cards (2026-10-03)
+
+- `InventoryController.client.luau` → `InventoryController`; `SETTINGS.luau` → its SETTINGS child;
+  `SlotArt.luau` → its new SlotArt ModuleScript child. Keep the original instance/template tree.
+- SlotArt styles the template at startup: translucent blue, dark rounded outline, number upper left,
+  white wrapped name below the image. Equipped cards get a white outline, 1.08 scale and -4° tilt.
+- 80 px desktop / 60 px compact cards, 12 px gap and 12 px bottom inset. ForestController moves PLAY
+  above the taller cards. NavigationController still hides the bar under windows.
+- Tools with TextureId use their image; weapons without it render their actual inert geometry in a
+  ViewportFrame. The watering can uses generated transparent art `rbxassetid://114410369919234`,
+  source [watering-can.png](../../assets/ui/hotbar/watering-can.png). Art generation: built-in imagegen;
+  prompt: chunky turquoise watering can, curved handle, sprinkler spout, thick dark cartoon outline,
+  pale cyan highlights, classic Roblox silhouette, isolated transparent background, no text/UI.
+- Play with mock profiles: actual watering-can click, number 2 equip/unequip, white border transfer,
+  disabled-preview dimming, inventory hide/close restoration and TextFits passed at 1238×793.
+  60 px card geometry was inspected on the desktop canvas; device viewport/physical touch, Thai,
+  drag swapping and gamepad were not re-tested. Existing animation asset permission warnings remain.
+
+The earlier wood template/settings notes below describe the original installation; SlotArt and the
+saved current sources supersede those visual values.
+
+Motion: staggered card entrance, hover/press rebound, equip outline pulse, cancellation on tool removal
+and Roblox Reduce Motion support. Shared buttons/windows animate through UIKit/NavigationController.
+Native phone simulator evidence and remaining checks: [UI motion validation](../../docs/ui-motion-validation.md).
 
 Review before use (SKILL "Creator Store"): 2 scripts, both client-side; no `require` by asset id, no HttpService,
 no `loadstring`/`getfenv`, no remotes. The model's `READ ME` script and `ThumbnailCamera` were deleted.

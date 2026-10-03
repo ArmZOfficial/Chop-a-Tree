@@ -18,5 +18,5 @@ lines = ["-- สร้างอัตโนมัติจาก assets/localiza
          "return table.freeze({", "\tth = table.freeze({"]
 lines += [f"\t\t[{lua(r['key'])}] = {lua(r['th'])}," for r in keep]
 lines += ["\t}),", "})", ""]
-(ROOT / "src/shared/Config/Strings.luau").write_text("\n".join(lines), encoding="utf-8")
+(ROOT / "src/shared/Config/Strings.luau").write_text("\n".join(lines), encoding="utf-8", newline="\n")
 print(f"Strings.luau: {len(keep)} Thai entries")

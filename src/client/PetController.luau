@@ -9,7 +9,8 @@ local Pets=require(S.Config.Pets);local Eggs=require(S.Config.Eggs);local Config
 local Math=require(S.PetMath);local Visual=require(S.PetVisual);local DecorConfig=require(S.Config.Decor);local ClientData=require(script.Parent.ClientData)
 local Controller={}
 local TABS={{"Incubator","Incubator"},{"Eggs","Eggs"},{"Pets","Pets"},{"Base","Base"},{"Belt","Egg Conveyor"}}
-local TAB_ICONS={Incubator="incubation/eggGrowing",Eggs="egg",Pets="pets/pet_fox",Base="shop",Belt="gear"}
+local TAB_ICONS={Incubator="incubation/eggGrowing",Eggs="egg",Pets="pets/pet_fox",Base="home",Belt="conveyor"}
+local UPGRADE_ICON={pen="fence",incubator="egg",lock="lock",trap="trap",guard="guard"}
 local PLACE={equip="Carry",pen="In pen",[""]="Inventory"}
 local SHIELD={new="New Player (30 min)",afk="AFK Over 10 min",admin="Admin enabled"}
 
@@ -28,21 +29,23 @@ function Controller.Start()
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(960,650),Visible=false,BackgroundTransparency=1,Parent=gui})
 	UI.Window(panel,"Pets","pets/pet_fox",{plaque=330})
 	local caps={}
-	for i,c in {{"Eggs","egg"},{"Pets","pets/pet_bunny"},{"Pen Income","rewards/gemsSmall"}} do
+	for i,c in {{"Eggs","egg"},{"Pets","pets/pet_bunny"},{"Pen Income","coin"}} do
 		local _,value=UI.Capsule(panel,c[2],c[1],{Name="Stat"..i,AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,372+(i-1)*168,.105,-2),Size=UDim2.fromOffset(160,60)});caps[i]=value
 	end
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(40,190),Size=UDim2.fromOffset(880,350),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.Padding(4)})
 	local incubator=UI.New("Frame",{Name="Incubator",BackgroundTransparency=1,Position=UDim2.fromOffset(40,190),Size=UDim2.fromOffset(880,352),Parent=panel})
-	local info,message=UI.InfoBar(panel,"",{Name="Info",Position=UDim2.fromOffset(40,556),Size=UDim2.fromOffset(568,54)},"codes")
+	local info,message=UI.InfoBar(panel,"",{Name="Info",Position=UDim2.fromOffset(40,556),Size=UDim2.fromOffset(568,54)},"talk")
 	local bar=UI.New("Frame",{Name="Actions",BackgroundTransparency=1,Position=UDim2.fromOffset(620,552),Size=UDim2.fromOffset(300,62),Parent=panel})
 	local state;local tab="Incubator";local slot=1;local eggUid;local selected={};local releasePending;local busy=false
 	local HINTS={Incubator="Choose an egg, place it, then hatch when ready.",Eggs="Pick an egg, then choose an empty incubator slot.",Pets="Select pets to carry, pen, fuse or ride.",Base="Collect pen income, upgrade and protect your base.",Belt="Eggs ride the conveyor for a limited time."}
 	local render
 	local gridMode
 	local function setLayout(mode)
-		if gridMode==mode then return end;gridMode=mode
+		local phone=panel:GetAttribute("PhoneLayout")==true
+		local key=mode..":"..tostring(phone)..":"..tab
+		if gridMode==key then return end;gridMode=key
 		local old=list:FindFirstChildOfClass("UIListLayout") or list:FindFirstChildOfClass("UIGridLayout");if old then old:Destroy() end
-		if mode=="grid" then UI.Grid(5,186,10).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
+		if mode=="grid" then UI.Grid(phone and 4 or 5,phone and tab=="Pets" and 130 or 186,10).Parent=list else UI.List(Enum.FillDirection.Vertical,8).Parent=list end
 	end
 	local function say(text,ok) message.Text=text;message.TextColor3=ok==false and Color3.fromRGB(255,140,120) or UI.Colors.Text end
 	local function call(remote,action,arg)
@@ -96,17 +99,10 @@ function Controller.Start()
 		art(c,o.artKey,function() return o.makeArt(c) end)
 		return c
 	end
-	-- List row: wooden card with live text; colour only marks selection/availability.
-	local function row(name,text,color,callback)
-		order+=1;callbacks[name]=callback
-		local r=element(list,name,function()
-			local b=clickable(name);b.Size=UDim2.new(1,-8,0,70)
-			UI.Label("",18,{Name="RowText",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
-			return b
-		end)
-		r.LayoutOrder=order;UI.Skin(r,"cards",color==UI.Colors.Teal and "selected" or (color==UI.Colors.Orange or color==UI.Colors.Purple) and "today" or "product")
-		r.RowText.Text=text;r.RowText.TextTransparency=color==UI.Colors.Disabled and .45 or 0
-		return r
+	-- List row: shared icon card (icon, short title, bar or one line, price chip, status badge).
+	local function row(name,o)
+		order+=1;used[name]=true;callbacks[name]=o.onClick
+		local r=UI.Row(list,name,o);r.LayoutOrder=order;return r
 	end
 	local function actions(defs)
 		for i,a in defs do
@@ -149,7 +145,7 @@ function Controller.Start()
 			s.pct.Visible=growing or false;s.track.Visible=growing or false;s.warn.Visible=(growing or (egg and egg.carriedBy)) and true or false
 			s.name.Visible=not (egg and egg.done)
 			s.name.Text=def and def.name or (not state.base and "No base yet" or "Empty slot")
-			s.name.Position=UDim2.fromOffset(10,growing and 234 or 228)
+				if not panel:GetAttribute("PhoneLayout") then s.name.Position=UDim2.fromOffset(10,growing and 234 or 228) end
 			if growing and def then
 				local p=math.clamp(egg.progress/def.hatch,0,1);s.pct.Text=math.floor(p*100).."% • "..math.ceil((def.hatch-egg.progress)/state.hatchSpeed).."s"
 				UI.SetProgress(s.track,p)
@@ -165,12 +161,15 @@ function Controller.Start()
 	local function selectedPets() local out={};for _,uid in selected do if state.pets[uid] then table.insert(out,uid) end end;return out end
 	local tabs={}
 	local function place(listH,infoX,infoW,infoY,barX,barW,barY)
+		bar.Visible=barW>0
+		if panel:GetAttribute("PhoneLayout") then return end
 		list.Size=UDim2.fromOffset(880,listH);info.Position=UDim2.fromOffset(infoX,infoY);info.Size=UDim2.fromOffset(infoW,54)
 		bar.Position=UDim2.fromOffset(barX,barY);bar.Size=UDim2.fromOffset(barW,62);bar.Visible=barW>0
 	end
 	local draw
 	render=function()
 		if not panel.Visible or not state then return end
+		panel:SetAttribute("PetTab",tab)
 		for key,t in tabs do UI.SetTab(t,tab==key and "green" or nil) end
 		incubator.Visible=tab=="Incubator";list.Visible=tab~="Incubator"
 		setLayout((tab=="Eggs" or tab=="Pets") and "grid" or "list")
@@ -178,6 +177,7 @@ function Controller.Start()
 		table.clear(used);order=0
 		draw();sweep(list);sweep(bar)
 	end
+	panel:GetAttributeChangedSignal("PhoneLayout"):Connect(function() task.defer(render) end)
 	draw=function()
 		for i=#selected,1,-1 do if not state.pets[selected[i]] then table.remove(selected,i) end end
 		if eggUid and not state.eggs[eggUid] then eggUid=nil end
@@ -188,7 +188,7 @@ function Controller.Start()
 			actions({{"Hatch","Hatch Ready Eggs",UI.Colors.Green,function() pet("Hatch") end}})
 		elseif tab=="Eggs" then
 			local keys={};for uid in state.eggs do table.insert(keys,uid) end;table.sort(keys)
-			if #keys==0 then setLayout("list");row("Empty","Find eggs in forest nests, chests or the village conveyor, or steal from other bases",UI.Colors.Slate,function() end) end
+			if #keys==0 then setLayout("list");row("Empty",{icon="egg",title="No eggs yet",sub="Find them in forest nests, chests or the village conveyor"}) end
 			for _,uid in keys do local key=uid;local egg=state.eggs[uid];local def=Eggs.ById[egg.id]
 				card("Egg_"..uid,{sprite="product",title=def.name,sub="Hatch "..math.ceil((def.hatch-egg.progress)/60).." min"..(egg.stolen and " • Stolen" or ""),selected=eggUid==uid,
 					artKey=egg.id,makeArt=function(parent) local a=UI.Art(parent,"incubation","eggGrowing",{Position=UDim2.fromOffset(34,14),Size=UDim2.new(1,-68,1,-78)});a.ImageColor3=def.color:Lerp(Color3.new(1,1,1),.45);return a end,
@@ -202,10 +202,10 @@ function Controller.Start()
 				if rank[x.place or ""]~=rank[y.place or ""] then return rank[x.place or ""]<rank[y.place or ""] end
 				local rx,ry=table.find(Pets.Order,Pets.ById[x.id].rarity),table.find(Pets.Order,Pets.ById[y.id].rarity)
 				if rx~=ry then return (rx or 0)>(ry or 0) end;return a<b end)
-			if #keys==0 then setLayout("list");row("Empty","No pets yet. Hatch eggs at your base",UI.Colors.Slate,function() end) end
+			if #keys==0 then setLayout("list");row("Empty",{icon="pets/pet_fox",title="No pets yet",sub="Hatch eggs at your base"}) end
 			for _,uid in keys do local key=uid;local p=state.pets[uid];local def=Pets.ById[p.id];local on=table.find(selected,uid)~=nil
 				local sprite=({Common="common",Rare="rare",Epic="epic",Legendary="legendary",Mythic="mythic"})[def.rarity] or "mythic"
-				card("Pet_"..uid,{sprite=sprite,title=def.name,sub="★"..p.tier.." • "..PLACE[p.place or ""],selected=on,mark=state.mount==uid and "🐾" or (p.place=="equip" and "✓" or nil),
+				card("Pet_"..uid,{sprite=sprite,title=def.name,sub="Tier "..p.tier.." • "..PLACE[p.place or ""],selected=on,mark=state.mount==uid and "🐾" or (p.place=="equip" and "✓" or nil),
 					artKey=p.id,makeArt=function(parent)
 						local a=UI.Art(parent,"pets",p.id,{Position=UDim2.fromOffset(20,12),Size=UDim2.new(1,-40,1,-74)});if a then return a end
 						local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(14,10),Size=UDim2.new(1,-28,1,-70),Ambient=Color3.new(1,1,1),Parent=parent})
@@ -225,35 +225,43 @@ function Controller.Start()
 		elseif tab=="Base" then
 			local base=myBase(state.base);local now=os.time()
 			local lockUntil=base and base:GetAttribute("LockUntil") or 0;local ready=base and base:GetAttribute("LockReadyAt") or 0
-			local lockText=now<lockUntil and "Locked for "..(lockUntil-now).." sec" or (now<ready and "Cooldown "..(ready-now).." sec" or "Lock Ready "..Math.LockSeconds(state.upgrades.lock).." sec")
-			row("Collect","Collect Pen Income • "..NF.Short(state.bank).." Coins\nIncome +"..NF.Short(state.income).."/sec • Storage limit "..Config.OfflineHours.." hrs",UI.Colors.Orange,function() pet("Collect") end)
-			row("Lock","Lock Base • "..lockText.."\nBarrier blocks visitors Cooldown "..Config.LockCooldown.." sec",now<lockUntil and UI.Colors.Blue or UI.Colors.Purple,function() call("BaseAction","Lock") end)
-			local infoText={pen={"Pet Pen","Slot "..Math.PenSlots(state.upgrades.pen)},incubator={"Faster Incubator","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"Longer Base Lock",Math.LockSeconds(state.upgrades.lock).." sec"},
-				trap={"Thorn Root Trap","Thief slowed by "..math.round((1-Math.TrapSlow(state.upgrades.trap))*100).."%"},guard={"Base Guard","Chasing thief "..math.round(Math.GuardChance(state.upgrades.guard)*100).."%"}}
+			local locked,cooling=now<lockUntil,now>=lockUntil and now<ready
+			row("Collect",{icon="coin",title="Pen Income",sub="+"..NF.Short(state.income).."/s • max "..Config.OfflineHours.."h",chip={icon="coin",text=NF.Short(state.bank)},
+				badge={text="Collect",kind=state.bank>0 and "ready" or nil},style=state.bank>0 and "today" or "product",onClick=function() pet("Collect") end})
+			row("Lock",{icon="lock",title="Lock Base",sub=locked and "Visitors blocked" or "Blocks visitors for "..Math.LockSeconds(state.upgrades.lock).."s",
+				badge=locked and {text=(lockUntil-now).."s",kind="gold"} or cooling and {text=(ready-now).."s"} or {text="Lock",kind="ready"},style=locked and "selected" or "product",onClick=function() call("BaseAction","Lock") end})
+			local infoText={pen={"Pet Pen",Math.PenSlots(state.upgrades.pen).." slots"},incubator={"Faster Incubator","×"..Math.HatchSpeed(state.upgrades.incubator)},lock={"Longer Base Lock",Math.LockSeconds(state.upgrades.lock).."s"},
+				trap={"Thorn Root Trap","−"..math.round((1-Math.TrapSlow(state.upgrades.trap))*100).."% speed"},guard={"Base Guard",math.round(Math.GuardChance(state.upgrades.guard)*100).."% chase"}}
 			for _,kind in {"pen","incubator","lock","trap","guard"} do local k=kind;local level=state.upgrades[k];local max=Math.MaxLevel(k)
-				row("Upgrade_"..k,infoText[k][1].." • Lv "..level.."/"..max.." • Now "..infoText[k][2].."\n"..(level>=max and "Max reached" or "Upgrade "..NF.Short(Math.UpgradeCost(k,level)).." Wood"),level>=max and UI.Colors.Disabled or UI.Colors.Green,function() pet("Upgrade",k) end)
+				row("Upgrade_"..k,{icon=UPGRADE_ICON[k],title=infoText[k][1].." • "..infoText[k][2],progress=level/max,count=level.."/"..max,
+					chip=level<max and {icon="wood",text=NF.Short(Math.UpgradeCost(k,level))} or nil,badge=level>=max and {text="Max",kind="gold"} or {text="Upgrade",kind="ready"},onClick=function() pet("Upgrade",k) end})
 			end
 			local shield=player:GetAttribute("Shield") or ""
-			row("Shield","Theft Shield: "..(SHIELD[shield] or "None").."\nEggs over 75% hatched and hatched pets cannot be stolen",shield~="" and UI.Colors.Blue or UI.Colors.Slate,function() end)
-			row("FriendSteal","Friends can steal eggs: "..(state.friendSteal and "Open" or "Close").."\nClick to toggle",UI.Colors.Slate,function() call("BaseAction","FriendSteal",not state.friendSteal) end)
+			row("Shield",{icon="shield",title="Theft Shield",sub=shield~="" and SHIELD[shield] or "Eggs over 75% hatched are safe",badge=shield~="" and {text="ON",kind="ready"} or {text="OFF"}})
+			row("FriendSteal",{icon="friends",title="Friends can steal eggs",badge=state.friendSteal and {text="ON",kind="ready"} or {text="OFF",kind="red"},onClick=function() call("BaseAction","FriendSteal",not state.friendSteal) end})
 			-- Decoration: place where you stand on your slab; rotate/remove act on the nearest piece.
 			local decor=ClientData.Get("Decor.items") or {};local shrines=ClientData.Get("Progress.Shrines") or {};local count,beauty=0,0
 			for _,it in decor do count+=1;beauty+=DecorConfig.ById[it.id] and DecorConfig.ById[it.id].beauty or 0 end
-			row("DecorInfo","Base Decor • Beauty "..beauty.." • "..count.."/"..DecorConfig.MaxItems.." items\nStand on your base floor to place it. No effect on power",UI.Colors.Slate,function() end)
-			row("DecorRotate","Rotate Nearest Decoration 90°",UI.Colors.Teal,function() call("DecorAction","Rotate") end)
-			row("DecorRemove","Store Nearest Decoration (refund "..math.round(DecorConfig.Refund*100).."% Wood)",UI.Colors.Red,function() call("DecorAction","Remove") end)
+			row("DecorInfo",{icon="flower",title="Base Decor",sub="Stand on your base floor to place",chip={icon="star",text=tostring(beauty)},badge={text=count.."/"..DecorConfig.MaxItems}})
+			row("DecorRotate",{icon="rotate",title="Rotate nearest decoration",badge={text="90°",kind="ready"},onClick=function() call("DecorAction","Rotate") end})
+			row("DecorRemove",{icon="box",title="Store nearest decoration",sub="Refund "..math.round(DecorConfig.Refund*100).."% Wood",badge={text="Store",kind="red"},onClick=function() call("DecorAction","Remove") end})
 			local weather=game.ReplicatedStorage:FindFirstChild("WeatherState");local festival=weather and weather:GetAttribute("festival")
 			for _,def in DecorConfig.List do local id=def.id;local locked=(def.zone and not shrines[tostring(def.zone)]) or (def.festival and def.festival~=festival)
-				local note=def.festival and (locked and "Festival only" or "This festival only! Place at your position") or (locked and "Locked: light shrine in zone "..def.zone or "Place at Your Position")
-				row("Decor_"..id,def.name.." • "..NF.Short(def.price).." Wood • Beauty +"..def.beauty.."\n"..note,locked and UI.Colors.Disabled or (def.festival and UI.Colors.Orange or UI.Colors.Green),function() call("DecorAction","Place",id) end)
+				row("Decor_"..id,{icon=locked and "lock" or def.festival and "star" or "flower",title=def.name,sub=locked and (def.festival and "Festival only" or "Light the shrine in zone "..def.zone) or "Beauty +"..def.beauty,
+					chip={icon="wood",text=NF.Short(def.price)},badge=not locked and {text="Place",kind="ready"} or nil,dim=locked,style=def.festival and not locked and "today" or "product",
+					onClick=function() call("DecorAction","Place",id) end})
 			end
 		else
 			local now=os.time()
 			local offer=state.weatherOffer
-			if offer then row("WeatherBuy",Eggs.ById[offer.id].name.." • "..NF.Short(offer.price).." Coins\n"..(offer.bought and "Already purchased this visit" or "One egg per Aurora event"),offer.bought and UI.Colors.Slate or UI.Colors.Purple,function() pet("BuyWeather") end) end
+			if offer then local def=Eggs.ById[offer.id]
+				row("WeatherBuy",{icon="egg",iconColor=def.color:Lerp(Color3.new(1,1,1),.35),title=def.name,sub="One egg per Aurora event",chip={icon="coin",text=NF.Short(offer.price)},
+					badge=offer.bought and {text="Purchased",kind="claimed"} or {text="Buy",kind="ready"},style=offer.bought and "product" or "today",dim=offer.bought,onClick=function() pet("BuyWeather") end})
+			end
 			for _,r in Math.BeltWindow(now) do local epoch=r.epoch;local def=Eggs.ById[r.id];local bought=state.beltBought[tostring(r.epoch)]
-				row("Belt_"..r.epoch,def.name.." • "..NF.Short(Math.EggPrice(r.id)).." Coins • Zone "..def.zone.."\nHatch "..math.ceil(def.hatch/60).." min • "..(bought and "Purchased" or "On conveyor for "..math.max(0,r.leavesAt-now).." sec"),
-					bought and UI.Colors.Disabled or UI.Colors.Orange,function() pet("Buy",epoch) end)
+				row("Belt_"..r.epoch,{icon="egg",iconColor=def.color:Lerp(Color3.new(1,1,1),.35),title=def.name,sub="Zone "..def.zone.." • Hatch "..math.ceil(def.hatch/60).." min",
+					chip={icon="coin",text=NF.Short(Math.EggPrice(r.id))},badge=bought and {text="Purchased",kind="claimed",width=150} or {text=math.max(0,r.leavesAt-now).."s",kind="gold"},dim=bought,
+					onClick=function() pet("Buy",epoch) end})
 			end
 		end
 	end

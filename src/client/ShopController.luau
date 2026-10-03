@@ -37,8 +37,8 @@ function Shop.Start()
 	UI.Window(panel,"Shop","shop",{plaque=330,center=true})
 	local message=UI.Label("",14,{Name="Message",Visible=false,Parent=panel})
 	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(40,188),Size=UDim2.fromOffset(880,384),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,10),UI.Padding(4)})
-	local featured=UI.New("Frame",{Name="Featured",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=1,Parent=list},{UI.Grid(3,244,12)})
-	local others=UI.New("Frame",{Name="Others",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=2,Parent=list},{UI.Grid(3,122,12)})
+	local featured=UI.New("Frame",{Name="Featured",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=1,Parent=list},{UI.Grid(3,252,12)})
+	local others=UI.New("Frame",{Name="Others",BackgroundTransparency=1,Size=UDim2.new(1,-10,0,0),AutomaticSize=Enum.AutomaticSize.Y,LayoutOrder=2,Parent=list},{UI.Grid(3,146,12)})
 	local footer=UI.New("Frame",{Name="Footer",BackgroundTransparency=1,AnchorPoint=Vector2.new(.5,0),Position=UDim2.new(.5,0,0,580),Size=UDim2.fromOffset(330,44),Parent=panel})
 	UI.Skin(footer,"chrome","infoRow")
 	local footerLabel=UI.Label("",20,{Size=UDim2.fromScale(1,1),TextXAlignment=Enum.TextXAlignment.Center,TextWrapped=false,TextColor3=Color3.fromRGB(255,220,120),ZIndex=3,Parent=footer})
@@ -74,7 +74,7 @@ function Shop.Start()
 		art(card,key,product,{Position=UDim2.fromOffset(20,12),Size=UDim2.new(1,-40,0,112)})
 		UI.Label(title(product),32,{Name="Title",Position=UDim2.fromOffset(12,122),Size=UDim2.new(1,-24,0,38),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
 		UI.Label((desc:gsub("%s+"," ")),17,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(14,160),Size=UDim2.new(1,-28,0,22),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
-		local b=UI.Button({text=buy,textSize=28,color=color,size=UDim2.new(1,-28,0,58),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,14,1,-64);b.Parent=card
+		local b=UI.Button({text=buy,textSize=28,color=color,size=UDim2.new(1,-28,0,64),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,14,1,-70);b.Parent=card
 	end
 	-- Small card: illustration left, text and price right.
 	local function small(product,key,desc,buy,color,onClick,order)
@@ -82,8 +82,8 @@ function Shop.Start()
 		art(card,key,product,{Position=UDim2.fromOffset(12,11),Size=UDim2.fromOffset(100,100)})
 		UI.Label(title(product),21,{Name="Title",Position=UDim2.fromOffset(118,10),Size=UDim2.new(1,-130,0,28),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
 		-- Description fills the gap between title and button (the button used to cover its second line).
-		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,1,-88),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
-		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,46),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-50);b.Parent=card
+		UI.Label(desc,14,{Name="Desc",FontFace=UI.FontBold,Position=UDim2.fromOffset(120,36),Size=UDim2.new(1,-134,1,-106),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,TextColor3=UI.Colors.TextDim,TextScaled=true,Parent=card})
+		local b=UI.Button({text=buy,textSize=22,color=color,size=UDim2.new(1,-128,0,64),onClick=onClick});b.Name="Purchase";b.Position=UDim2.new(0,118,1,-68);b.Parent=card
 	end
 	local tabs={}
 	render=function()

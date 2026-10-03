@@ -1,6 +1,6 @@
 # Chop a Tree — แผนหลักฉบับย่อ (ร่าง 19)
 
-อัปเดต 2026-10-02. สถานะ/ผลตรวจล่าสุดอยู่ [HANDOFF](HANDOFF.md); กฎอยู่ [SKILL](../SKILL.md).
+อัปเดต 2026-10-03. สถานะ/ผลตรวจล่าสุดอยู่ [HANDOFF](HANDOFF.md); กฎอยู่ [SKILL](../SKILL.md).
 อ่านรายละเอียดเฉพาะงานจาก [INDEX](INDEX.md). Spec รายละเอียด: [design reference](design.md) — เลือกหัวข้อ ไม่อ่านทั้งไฟล์.
 
 ## 0. เกมและขอบเขต
@@ -31,6 +31,10 @@ Loop: ฟันต้นไม้ → End Run → หีบ/อาวุธ → 
 - โค้ด: `Config.Zones` (inner/outer/y + `Zones.At` + `Hub`), `tools/map/MapBuilder.luau`, `tools/map/TreeKit.luau`; constraints/ผลตรวจ: [systems §Map](systems.md#map).
 
 ## 4. ข้อตกลง gameplay ที่คงไว้
+
+- UI motion (2026-10-03): ปุ่ม UIKit เด้ง, หน้าต่างเปิดแบบ pop, ToolHotbar เข้าไล่ช่อง/วงแสงเมื่อเลือก; คง responsive geometry และ equip/server intents. Native mock simulator + rapid-toggle/removal ผ่าน; source 5/5 synced, ไม่ Publish. [ผลตรวจ](ui-motion-validation.md).
+
+- Tool hotbar ตามภาพอ้างอิง (2026-10-03): การ์ดฟ้า 80/60px มีรูป/ชื่อ/เลข ขอบขาวเมื่อเลือก; โมเดลอาวุธจริง + ไอคอนบัวรดน้ำเจนแล้ว. Source เก็บใน `vendor/tool-hotbar`, Studio sync แล้ว; mock click/key/equip/window-hide ผ่าน. device viewport/ทัช/จอย/ไทย/drag รอบนี้ยังไม่ตรวจ; ไม่ Publish. [รายละเอียด](../vendor/tool-hotbar/README.md).
 
 - Map scripting (2026-10-02/03): implementation + 162 synthetic checks in [map-systems](map-systems.md). Boss/shrine unlock, x100 progression, seven Garden bases, Teleport pass and reward caps retained. Approved Explorer reward = one Common Level1/source-zone1 chest per zone (max8); special trees/Timber Wood x2 within overall x4. Gate slide, quest/event compass, skippable coastal boat ride, tree.spawn/clear and rare variant scheduler implemented and synced. Studio native M, two-way boat/skip/cancel, native mock save/reopen and 25 base release/assign cycles passed. Guarded QA remains enabled; physical gamepad, real client rejoin endurance and seven-player total frame/FPS proof remain pending. No live v3 migration or Publish.
 
@@ -68,6 +72,12 @@ Regression หลังร้าน 2–7/8a–f รันซ้ำครบแ�
 **คอสเมติกให้รอ ArmZ สั่ง.** ไม่ประกาศ Beta/Publish เอง. Milestone M4 เป้าหมาย Beta หลังตรวจ readiness; M5 PvP, M6 polish (รายละเอียด design §16).
 
 Player-facing UI/signs/dialogue/notifications are **English + Thai** (Locale). Phase 10 direction (2026-10-03): **Studs theme** from the `Asset 3d` reference kit — bright window per system with stud overlay and ink outline, gold selected states ([tokens](../assets/ui/studs/README.md)); large original icons, outlined labels, red close/green buy buttons, rarity grids with previews and blurred scene; one modal at a time. Keep live prices and existing systems. Actual Play proof/remaining item art: [Phase 10 UI](systems.md#phase-10-ui).
+
+Row UI continuation complete (2026-10-03): Quests/Pets/Season/Rebirth/Leaderboard use shared icon rows and 48 Studs icons. Mobile refresh/footer/confirmation and Season column overlap fixed; affected windows pass EN/TH phone/tablet/desktop audits and mock reward clicks ([validation](ui-row-continuation-validation.md)).
+
+UI polish complete (2026-10-03): shared scroll padding/edge fades, pinned paged Index, illustrated Garden/merchant states and stock rows, Inventory stats/chance tiles, complete first Pet grid row on phones, larger Garden/Shop purchase targets, bilingual caption fixes. Desktop/phone/notched-phone/tablet layout checks and visible-list start/middle/end checks pass ([validation](ui-polish-validation.md)). Real touch/gamepad/portrait, paid flow and child playtesting remain open; not published.
+
+Rounded menu follow-up (2026-10-03): gradients round their own backgrounds and match the window fill; responsive menu drawer shows every tile on landscape phones, with shade/click blocking and a larger phone Menu control. Demo1 `103920925204515` walk/run is permission-enabled and verified in R15 movement/sprint/respawn; preload failure retains avatar animation. Shared motion is being integrated by the concurrent hotbar chat ([validation](ui-rounded-menu-animation-validation.md)).
 
 UI art/design ready: [elements-v1](../assets/ui/elements-v1/UX.md), 36 reusable sprites + five screen concepts. Assemble shared art first, then Garden/Pets selection with contextual actions; keep service rules/live English labels. New pack integration and mobile/gamepad proof remain pending.
 

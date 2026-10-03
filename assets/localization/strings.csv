@@ -2,6 +2,7 @@ key,en,th,context,note
 Achievement not found,Achievement not found,ไม่พบความสำเร็จนี้,AchievementService,
 Achievements Unavailable,Achievements Unavailable,ระบบความสำเร็จยังไม่พร้อม,AchievementService,
 Data not ready,Data not ready,ข้อมูลยังไม่พร้อม,AchievementService,
+Incomplete,Incomplete,ยังไม่ครบ,AchievementService,
 Invalid command,Invalid command,คำสั่งไม่ถูกต้อง,AchievementService,
 Please wait,Please wait,กรุณารอสักครู่,AchievementService,
 Reward already claimed,Reward already claimed,รับรางวัลไปแล้ว,AchievementService,
@@ -234,10 +235,13 @@ Wood +{1}  Coins +{2}  Friends +{3}{4},Wood +{1}  Coins +{2}  Friends +{3}{4},�
 Chilled,Chilled,เย็นเยือก,Garden,
 Misty,Misty,หมอก,Garden,
 Wet,Wet,เปียก,Garden,
-All bases occupied. Your garden will be ready when a base opens,All bases occupied. Your garden will be ready when a base opens,ฐานเต็มทุกหลัง สวนของคุณจะพร้อมเมื่อมีฐานว่าง,GardenController,
+After the daily limit: {1}× value,After the daily limit: {1}× value,หลังขายครบโควตารายวัน: รับมูลค่า {1} เท่า,GardenController,
+All bases occupied. Your garden will be ready when a base opens,All bases occupied. Your garden will be ready when a base opens,ฐานเต็มทุกหลัง สวนของคุณจะพร้อมเมื่อมีฐานว่าง,GardenController,unused
 Are you sure you want to cut this tree?,Are you sure you want to cut this tree?,แน่ใจไหมว่าจะตัดต้นนี้?,GardenController,
+Arrives in {1} • Stays 10 min,Arrives in {1} • Stays 10 min,มาถึงใน {1} • อยู่ 10 นาที,GardenController,
 Buy,Buy,ซื้อ,GardenController,
 Cancel,Cancel,ยกเลิก,GardenController,
+Come back later for special items,Come back later for special items,กลับมาอีกครั้งเพื่อดูสินค้าพิเศษ,GardenController,
 Could not reach the server. Try again,Could not reach the server. Try again,ติดต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง,GardenController,
 Cut,Cut,ตัด,GardenController,
 Cut Tree,Cut Tree,ตัดต้นไม้,GardenController,
@@ -245,21 +249,29 @@ Empty,Empty,ว่าง,GardenController,
 "Find seeds in trees, chests or the village shop","Find seeds in trees, chests or the village shop",หาเมล็ดได้จากต้นไม้ หีบ หรือร้านในหมู่บ้าน,GardenController,
 Fruit,Fruit,ผลไม้,GardenController,
 Fruit in {1}s,Fruit in {1}s,ออกผลใน {1} วิ,GardenController,
+Fruit selling,Fruit selling,ขายผลไม้,GardenController,
 Fruit {1} • Value,Fruit {1} • Value,ผลไม้ {1} • มูลค่า,GardenController,
 Fruit {1}s,Fruit {1}s,ผลไม้ {1} วิ,GardenController,
 "Full-price items today (UTC): {1}
 Can exceed cap by ×{2}","Full-price items today (UTC): {1}
 Can exceed cap by ×{2}","สินค้าราคาเต็มวันนี้ (UTC): {1}
-เกินเพดานได้ ×{2}",GardenController,
+เกินเพดานได้ ×{2}",GardenController,unused
+Full-price sales left today,Full-price sales left today,โควตาขายเต็มราคาที่เหลือวันนี้,GardenController,
 Garden,Garden,สวน,GardenController,
 Garden / Seeds,Garden / Seeds,สวน / เมล็ด,GardenController,
 Garden ready,Garden ready,สวนพร้อมแล้ว,GardenController,
+Gems,Gems,เพชร,GardenController,
 Growing,Growing,กำลังโต,GardenController,
 Growing {1}%,Growing {1}%,กำลังโต {1}%,GardenController,
 Harvest,Harvest,เก็บเกี่ยว,GardenController,
 Max Slots,Max Slots,ช่องสูงสุด,GardenController,
+Meet in Rootfall Village,Meet in Rootfall Village,พบกันที่หมู่บ้านรูทฟอล,GardenController,
 Merchant,Merchant,พ่อค้า,GardenController,
-Merchant absent. Arrives at :30 UTC every hour for 10 min,Merchant absent. Arrives at :30 UTC every hour for 10 min,พ่อค้าไม่อยู่ มาทุกชั่วโมงที่นาที :30 UTC นาน 10 นาที,GardenController,
+Merchant absent. Arrives at :30 UTC every hour for 10 min,Merchant absent. Arrives at :30 UTC every hour for 10 min,พ่อค้าไม่อยู่ มาทุกชั่วโมงที่นาที :30 UTC นาน 10 นาที,GardenController,unused
+Merchant is here,Merchant is here,พ่อค้ามาถึงแล้ว,GardenController,
+Merchant is on the way,Merchant is on the way,พ่อค้ากำลังเดินทางมา,GardenController,
+Merchant is resting,Merchant is resting,พ่อค้ากำลังพัก,GardenController,
+No seeds yet,No seeds yet,ยังไม่มีเมล็ด,GardenController,
 "Pick a plot, then press Plant","Pick a plot, then press Plant",เลือกแปลง แล้วกดปลูก,GardenController,
 Plant,Plant,ปลูก,GardenController,
 Plant here,Plant here,ปลูกตรงนี้,GardenController,
@@ -268,6 +280,9 @@ Primary,Primary,Primary,GardenController,
 Ready,Ready,พร้อม,GardenController,
 Ready to harvest,Ready to harvest,พร้อมเก็บเกี่ยว,GardenController,
 Ready to plant,Ready to plant,พร้อมปลูก,GardenController,
+Restock,Restock,Restock,GardenController,config
+Restocks in {1},Restocks in {1},เติมสินค้าใน {1},GardenController,
+Seed shop,Seed shop,ร้านเมล็ด,GardenController,
 Seeds,Seeds,เมล็ด,GardenController,
 Select Seed,Select Seed,เลือกเมล็ด,GardenController,
 Select a seed first,Select a seed first,เลือกเมล็ดก่อน,GardenController,
@@ -279,6 +294,9 @@ Shop,Shop,ร้านค้า,GardenController,
 Slot {1},Slot {1},ช่อง {1},GardenController,
 Slot {1} • {2},Slot {1} • {2},ช่อง {1} • {2},GardenController,
 Slot{1},Slot{1},Slot{1},GardenController,
+Sold out,Sold out,ขายหมดแล้ว,GardenController,
+"Special seeds, eggs and chests","Special seeds, eggs and chests",เมล็ด ไข่ และหีบพิเศษ,GardenController,
+Stock {1},Stock {1},เหลือ {1},GardenController,
 Sync,Sync,Sync,GardenController,
 Tab{1},Tab{1},Tab{1},GardenController,
 Toggle,Toggle,สลับ,GardenController,
@@ -286,18 +304,21 @@ Upgrade,Upgrade,อัปเกรด,GardenController,
 Upgrade Slots,Upgrade Slots,อัปเกรดช่อง,GardenController,
 Upgrade • {1} Wood,Upgrade • {1} Wood,อัปเกรด • {1} ไม้,GardenController,
 Value,Value,มูลค่า,GardenController,
+Waiting for a base,Waiting for a base,กำลังรอฐานว่าง,GardenController,
 Water,Water,รดน้ำ,GardenController,
 Watered,Watered,รดน้ำแล้ว,GardenController,
 "Yes, Cut It","Yes, Cut It",ใช่ ตัดเลย,GardenController,
+Your garden opens when a base is free,Your garden opens when a base is free,สวนจะพร้อมเมื่อมีฐานว่าง,GardenController,
 {1} seed,{1} seed,เมล็ด{1},GardenController,
+{1} • Stock {2},{1} • Stock {2},{1} • เหลือ {2},GardenController,
 "{1} • {2} Coins • Left {3}
 {4} • Restock in {5} sec","{1} • {2} Coins • Left {3}
 {4} • Restock in {5} sec","{1} • {2} เหรียญ • เหลือ {3}
-{4} • เติมของใน {5} วิ",GardenController,
+{4} • เติมของใน {5} วิ",GardenController,unused
 "{1} • {2} {3} • Left {4}
 Merchant leaves in {5} sec","{1} • {2} {3} • Left {4}
 Merchant leaves in {5} sec","{1} • {2} {3} • เหลือ {4}
-พ่อค้าจะไปใน {5} วิ",GardenController,
+พ่อค้าจะไปใน {5} วิ",GardenController,unused
 Base {1} · Empty,Base {1} · Empty,ฐาน {1} · ว่าง,GardenService,
 Buy Seeds / Sell Fruit,Buy Seeds / Sell Fruit,ซื้อเมล็ด / ขายผลไม้,GardenService,
 Buy seeds at the village shop,Buy seeds at the village shop,ซื้อเมล็ดได้ที่ร้านในหมู่บ้าน,GardenService,
@@ -339,17 +360,22 @@ Watering Can,Watering Can,บัวรดน้ำ,GardenService,
 Unlock Zone,Unlock Zone,ปลดล็อกโซน,GateController,
 Light shrine in Zone {1} to unlock this gate,Light shrine in Zone {1} to unlock this gate,จุดศาลเจ้าในโซน {1} เพื่อปลดล็อกประตูนี้,GateService,
 Coins,Coins,เหรียญ,HUD,
-Gems,Gems,เพชร,HUD,
 Added to inventory • Close,Added to inventory • Close,เพิ่มเข้าคลังแล้ว • ปิด,InventoryController,unused
+Area,Area,ระยะฟัน,InventoryController,
+Chest chances,Chest chances,โอกาสได้รับจากหีบ,InventoryController,
 Chests,Chests,หีบ,InventoryController,
 "Clear trees around a chest spot, then End Run","Clear trees around a chest spot, then End Run",ตัดต้นไม้รอบจุดหีบ แล้วกดจบรอบ,InventoryController,
 Click Delete again to permanently remove this weapon,Click Delete again to permanently remove this weapon,กดลบอีกครั้งเพื่อลบอาวุธนี้ถาวร,InventoryController,
 Click Fuse again to use 3 items and the Wood shown,Click Fuse again to use 3 items and the Wood shown,กดหลอมอีกครั้งเพื่อใช้ 3 ชิ้นและไม้ตามที่แสดง,InventoryController,
+Close,Close,ปิด,InventoryController,
+"Collect forest chests, then open them in the village","Collect forest chests, then open them in the village",เก็บหีบจากป่า แล้วเปิดที่หมู่บ้าน,InventoryController,
 Connection failed,Connection failed,เชื่อมต่อล้มเหลว,InventoryController,
 Connection failed. Try again,Connection failed. Try again,เชื่อมต่อล้มเหลว ลองใหม่,InventoryController,
 Delete,Delete,ลบ,InventoryController,
 Done,Done,เสร็จ,InventoryController,
+Drop chances,Drop chances,โอกาสได้รับ,InventoryController,
 Dust,Dust,ผงดาว,InventoryController,
+Equipped • Stats,Equipped • Stats,สวมอยู่ • ดูข้อมูล,InventoryController,
 Exchange,Exchange,แลก,InventoryController,
 "Exchange {1} Stardust
 for one Rare Chest","Exchange {1} Stardust
@@ -357,30 +383,39 @@ for one Rare Chest","แลก {1} ผงดาว
 เป็นหีบหายาก 1 ใบ",InventoryController,
 Fuse,Fuse,หลอม,InventoryController,
 Fuse 3,Fuse 3,หลอม 3,InventoryController,
+Fuse cost,Fuse cost,ค่าหลอม,InventoryController,
 Fuse ★{1}: 3 matching + {2} Wood,Fuse ★{1}: 3 matching + {2} Wood,หลอม ★{1}: ของเหมือนกัน 3 ชิ้น + {2} ไม้,InventoryController,
+Fuse: combine 3 matching weapons,Fuse: combine 3 matching weapons,หลอม: ใช้อาวุธแบบเดียวกัน 3 ชิ้น,InventoryController,
 GIANT ,GIANT ,ยักษ์ ,InventoryController,
 "GIANT!
 ","GIANT!
 ","ยักษ์!
 ",InventoryController,unused
+Giant,Giant,ยักษ์,InventoryController,manual
 Giant ,Giant ,ยักษ์ ,InventoryController,
 "IL {1} • Giant {2}
 {3}","IL {1} • Giant {2}
 {3}","IL {1} • ยักษ์ {2}
-{3}",InventoryController,
+{3}",InventoryController,unused
 "IL {1} • ★{2} • Speed {3} • Area {4}
 {5}","IL {1} • ★{2} • Speed {3} • Area {4}
 {5}","IL {1} • ★{2} • ความเร็ว {3} • พื้นที่ {4}
 {5}",InventoryController,
 Inventory,Inventory,คลังของ,InventoryController,
 Inventory / Chests,Inventory / Chests,คลังของ / หีบ,InventoryController,
+Level,Level,เลเวล,InventoryController,
 Level {1},Level {1},เลเวล {1},InventoryController,
 Level {1} • ×{2},Level {1} • ×{2},เลเวล {1} • ×{2},InventoryController,
+Max,Max,สูงสุด,InventoryController,
+Max stars reached,Max stars reached,ดาวเต็มแล้ว,InventoryController,
 Max ★5 reached,Max ★5 reached,ครบ ★5 แล้ว,InventoryController,
 No chests,No chests,ไม่มีหีบ,InventoryController,
-"No chests yet. Clear trees around a chest spot, then End Run","No chests yet. Clear trees around a chest spot, then End Run",ยังไม่มีหีบ ตัดต้นไม้รอบจุดหีบ แล้วกดจบรอบ,InventoryController,
+No chests yet,No chests yet,ยังไม่มีหีบ,InventoryController,
+"No chests yet. Clear trees around a chest spot, then End Run","No chests yet. Clear trees around a chest spot, then End Run",ยังไม่มีหีบ ตัดต้นไม้รอบจุดหีบ แล้วกดจบรอบ,InventoryController,unused
 No weapon,No weapon,ไม่มีอาวุธ,InventoryController,
-"No weapons yet. Collect forest chests, then open them in the village","No weapons yet. Collect forest chests, then open them in the village",ยังไม่มีอาวุธ เก็บหีบจากป่า แล้วไปเปิดที่หมู่บ้าน,InventoryController,
+No weapons yet,No weapons yet,ยังไม่มีอาวุธ,InventoryController,
+"No weapons yet. Collect forest chests, then open them in the village","No weapons yet. Collect forest chests, then open them in the village",ยังไม่มีอาวุธ เก็บหีบจากป่า แล้วไปเปิดที่หมู่บ้าน,InventoryController,unused
+One weapon per chest • Giant is a separate roll,One weapon per chest • Giant is a separate roll,หีบละ 1 อาวุธ • สุ่มยักษ์แยกต่างหาก,InventoryController,
 Open,Open,เปิด,InventoryController,
 Open 1,Open 1,เปิด 1,InventoryController,
 Open 10,Open 10,เปิด 10,InventoryController,
@@ -391,11 +426,17 @@ Power,Power,พลัง,InventoryController,
 Rare,Rare,หายาก,InventoryController,
 Rebirth,Rebirth,เกิดใหม่,InventoryController,
 "Requires 3 weapons with matching type, IL, stars, Giant and Rot","Requires 3 weapons with matching type, IL, stars, Giant and Rot",ต้องใช้อาวุธ 3 ชิ้นที่ชนิด IL ดาว ยักษ์ และ Rot ตรงกัน,InventoryController,
+Rot,Rot,พลังร็อต,InventoryController,
 Select an item to view details and take action.,Select an item to view details and take action.,เลือกไอเทมเพื่อดูรายละเอียดและจัดการ,InventoryController,
+Speed,Speed,ความเร็ว,InventoryController,
 Stardust,Stardust,ผงดาว,InventoryController,
 Stardust {1},Stardust {1},ผงดาว {1},InventoryController,
+Stars,Stars,ดาว,InventoryController,
+Stat{1},Stat{1},Stat{1},InventoryController,
 Try again,Try again,ลองใหม่,InventoryController,
 Unknown item,Unknown item,ไอเทมไม่รู้จัก,InventoryController,
+Weapon level {1} • Giant is a separate roll,Weapon level {1} • Giant is a separate roll,อาวุธเลเวล {1} • สุ่มยักษ์แยกต่างหาก,InventoryController,
+Weapon stats,Weapon stats,ข้อมูลอาวุธ,InventoryController,
 Weapons,Weapons,อาวุธ,InventoryController,
 "{1}
 Kept safe in your save — it will update automatically","{1}
@@ -464,6 +505,7 @@ Item unavailable this visit,Item unavailable this visit,ไม่มีของ
 Merchant not here yet,Merchant not here yet,พ่อค้ายังไม่มา,MerchantService,
 Purchase limit reached for this visit,Purchase limit reached for this visit,ซื้อครบจำนวนของรอบนี้แล้ว,MerchantService,
 Squirrel Merchant,Squirrel Merchant,พ่อค้ากระรอก,MerchantService,
+System disabled,System disabled,ระบบปิดอยู่,MerchantService,
 The squirrel merchant has arrived! Leaves in 10 min,The squirrel merchant has arrived! Leaves in 10 min,พ่อค้ากระรอกมาแล้ว! จะไปใน 10 นาที,MerchantService,
 View Items,View Items,ดูสินค้า,MerchantService,
 Visit the traveling merchant in the village outside a run,Visit the traveling merchant in the village outside a run,ไปหาพ่อค้าเร่ในหมู่บ้านนอกรอบออกป่า,MerchantService,
@@ -535,68 +577,79 @@ You can carry only one egg at a time,You can carry only one egg at a time,ถื
 Zone not unlocked yet,Zone not unlocked yet,โซนยังไม่ปลดล็อก,NestService,
  • Rideable, • Rideable, • ขี่ได้,PetController,
  • Stolen, • Stolen, • ขโมยมา,PetController,
++{1}/s • max {2}h,+{1}/s • max {2}h,+{1}/วิ • สูงสุด {2} ชม.,PetController,
 AFK Over 10 min,AFK Over 10 min,AFK เกิน 10 นาที,PetController,
 Add to Pen,Add to Pen,ใส่คอก,PetController,
 Admin enabled,Admin enabled,เปิดโดยแอดมิน,PetController,
-Already purchased this visit,Already purchased this visit,ซื้อไปแล้วในรอบนี้,PetController,
+Already purchased this visit,Already purchased this visit,ซื้อไปแล้วในรอบนี้,PetController,unused
 Back,Back,กลับ,PetController,
 Back to Incubator,Back to Incubator,กลับไปตู้ฟัก,PetController,
 Base,Base,ฐาน,PetController,
+Base Decor,Base Decor,ของแต่งฐาน,PetController,
 "Base Decor • Beauty {1} • {2}/{3} items
 Stand on your base floor to place it. No effect on power","Base Decor • Beauty {1} • {2}/{3} items
 Stand on your base floor to place it. No effect on power","ตกแต่งฐาน • ความสวย {1} • {2}/{3} ชิ้น
-ยืนบนพื้นฐานเพื่อวาง ไม่มีผลต่อพลัง",PetController,
+ยืนบนพื้นฐานเพื่อวาง ไม่มีผลต่อพลัง",PetController,unused
 Base Guard,Base Guard,ผู้เฝ้าฐาน,PetController,
+Beauty +{1},Beauty +{1},ความสวย +{1},PetController,
 Belt,Belt,สายพาน,PetController,
+Blocks visitors for {1}s,Blocks visitors for {1}s,กันผู้มาเยือน {1} วิ,PetController,
 Carry,Carry,ติดตัว,PetController,
-Chasing thief {1}%,Chasing thief {1}%,ไล่ขโมย {1}%,PetController,
+Chasing thief {1}%,Chasing thief {1}%,ไล่ขโมย {1}%,PetController,unused
 "Choose an egg, place it, then hatch when ready.","Choose an egg, place it, then hatch when ready.",เลือกไข่ วางลงตู้ แล้วฟักเมื่อพร้อม,PetController,
 Choose an empty slot to place the {1},Choose an empty slot to place the {1},เลือกช่องว่างเพื่อวาง{1},PetController,
 Click Release again to confirm (permanent),Click Release again to confirm (permanent),กดปล่อยอีกครั้งเพื่อยืนยัน (ถาวร),PetController,
-Close,Close,ปิด,PetController,
 Collect,Collect,เก็บ,PetController,
 "Collect Pen Income • {1} Coins
 Income +{2}/sec • Storage limit {3} hrs","Collect Pen Income • {1} Coins
 Income +{2}/sec • Storage limit {3} hrs","เก็บรายได้คอก • {1} เหรียญ
-รายได้ +{2}/วิ • เก็บได้สูงสุด {3} ชม.",PetController,
+รายได้ +{2}/วิ • เก็บได้สูงสุด {3} ชม.",PetController,unused
 "Collect pen income, upgrade and protect your base.","Collect pen income, upgrade and protect your base.",เก็บรายได้คอก อัปเกรด และป้องกันฐานของคุณ,PetController,
 Conveyor,Conveyor,สายพาน,PetController,
-Cooldown {1} sec,Cooldown {1} sec,คูลดาวน์ {1} วิ,PetController,
+Cooldown {1} sec,Cooldown {1} sec,คูลดาวน์ {1} วิ,PetController,unused
 Dismount,Dismount,ลงจากหลัง,PetController,
 Egg Conveyor,Egg Conveyor,สายพานไข่,PetController,
 Egg Incubator,Egg Incubator,ตู้ฟักไข่,PetController,
 Eggs,Eggs,ไข่,PetController,
 Eggs & Pets,Eggs & Pets,ไข่ & สัตว์เลี้ยง,PetController,
+Eggs over 75% hatched are safe,Eggs over 75% hatched are safe,ไข่ที่ฟักเกิน 75% ปลอดภัย,PetController,
 Eggs ride the conveyor for a limited time.,Eggs ride the conveyor for a limited time.,ไข่อยู่บนสายพานแค่ช่วงเวลาหนึ่ง,PetController,
 Empty slot,Empty slot,ช่องว่าง,PetController,
 Faster Incubator,Faster Incubator,ตู้ฟักเร็วขึ้น,PetController,
 Festival only,Festival only,เฉพาะเทศกาล,PetController,
-"Find eggs in forest nests, chests or the village conveyor, or steal from other bases","Find eggs in forest nests, chests or the village conveyor, or steal from other bases",หาไข่ได้จากรังในป่า หีบ สายพานในหมู่บ้าน หรือขโมยจากฐานอื่น,PetController,
+"Find eggs in forest nests, chests or the village conveyor, or steal from other bases","Find eggs in forest nests, chests or the village conveyor, or steal from other bases",หาไข่ได้จากรังในป่า หีบ สายพานในหมู่บ้าน หรือขโมยจากฐานอื่น,PetController,unused
+"Find them in forest nests, chests or the village conveyor","Find them in forest nests, chests or the village conveyor",หาได้จากรังในป่า หีบ หรือสายพานในหมู่บ้าน,PetController,
+Friends can steal eggs,Friends can steal eggs,เพื่อนขโมยไข่ได้,PetController,
 "Friends can steal eggs: {1}
 Click to toggle","Friends can steal eggs: {1}
 Click to toggle","เพื่อนขโมยไข่ได้: {1}
-กดเพื่อสลับ",PetController,
+กดเพื่อสลับ",PetController,unused
 Hatch,Hatch,ฟัก,PetController,
 Hatch Ready Eggs,Hatch Ready Eggs,ฟักไข่ที่พร้อม,PetController,
+Hatch eggs at your base,Hatch eggs at your base,ฟักไข่ที่ฐานของคุณ,PetController,
 Hatch {1} min{2},Hatch {1} min{2},ฟัก {1} นาที{2},PetController,
 In pen,In pen,อยู่ในคอก,PetController,
 Incubator,Incubator,ตู้ฟัก,PetController,
+Light the shrine in zone {1},Light the shrine in zone {1},จุดศาลเจ้าในโซน {1},PetController,
 Lock,Lock,ล็อก,PetController,
+Lock Base,Lock Base,ล็อกฐาน,PetController,
 "Lock Base • {1}
 Barrier blocks visitors Cooldown {2} sec","Lock Base • {1}
 Barrier blocks visitors Cooldown {2} sec","ล็อกฐาน • {1}
-กำแพงกันผู้มาเยือน คูลดาวน์ {2} วิ",PetController,
-Lock Ready {1} sec,Lock Ready {1} sec,ล็อกพร้อมใน {1} วิ,PetController,
-Locked for {1} sec,Locked for {1} sec,ล็อกอยู่ {1} วิ,PetController,
-Locked: light shrine in zone {1},Locked: light shrine in zone {1},ล็อก: จุดศาลเจ้าในโซน {1},PetController,
+กำแพงกันผู้มาเยือน คูลดาวน์ {2} วิ",PetController,unused
+Lock Ready {1} sec,Lock Ready {1} sec,ล็อกพร้อมใน {1} วิ,PetController,unused
+Locked for {1} sec,Locked for {1} sec,ล็อกอยู่ {1} วิ,PetController,unused
+Locked: light shrine in zone {1},Locked: light shrine in zone {1},ล็อก: จุดศาลเจ้าในโซน {1},PetController,unused
 Longer Base Lock,Longer Base Lock,ล็อกฐานนานขึ้น,PetController,
-Max reached,Max reached,ถึงขีดสูงสุดแล้ว,PetController,
+Max reached,Max reached,ถึงขีดสูงสุดแล้ว,PetController,unused
 Mount,Mount,ขี่,PetController,
 New Player (30 min),New Player (30 min),ผู้เล่นใหม่ (30 นาที),PetController,
 No base yet,No base yet,ยังไม่มีฐาน,PetController,
-No pets yet. Hatch eggs at your base,No pets yet. Hatch eggs at your base,ยังไม่มีสัตว์เลี้ยง ฟักไข่ที่ฐานของคุณ,PetController,
-None,None,ไม่มี,PetController,
-On conveyor for {1} sec,On conveyor for {1} sec,อยู่บนสายพาน {1} วิ,PetController,
+No eggs yet,No eggs yet,ยังไม่มีไข่,PetController,
+No pets yet,No pets yet,ยังไม่มีสัตว์เลี้ยง,PetController,
+No pets yet. Hatch eggs at your base,No pets yet. Hatch eggs at your base,ยังไม่มีสัตว์เลี้ยง ฟักไข่ที่ฐานของคุณ,PetController,unused
+None,None,ไม่มี,PetController,unused
+On conveyor for {1} sec,On conveyor for {1} sec,อยู่บนสายพาน {1} วิ,PetController,unused
 One egg per Aurora event,One egg per Aurora event,ไข่หนึ่งฟองต่อออโรราหนึ่งครั้ง,PetController,
 Pen,Pen,คอก,PetController,
 Pen Income,Pen Income,รายได้คอก,PetController,
@@ -605,52 +658,62 @@ Pick an egg for slot {1},Pick an egg for slot {1},เลือกไข่สำ
 "Pick an egg, then choose an empty incubator slot.","Pick an egg, then choose an empty incubator slot.",เลือกไข่ แล้วเลือกช่องว่างในตู้ฟัก,PetController,
 Place,Place,วาง,PetController,
 Place Egg,Place Egg,วางไข่,PetController,
-Place at Your Position,Place at Your Position,วางตรงตำแหน่งของคุณ,PetController,
+Place at Your Position,Place at Your Position,วางตรงตำแหน่งของคุณ,PetController,unused
 Purchased,Purchased,ซื้อแล้ว,PetController,
+Refund {1}% Wood,Refund {1}% Wood,คืนไม้ {1}%,PetController,
 Release,Release,ปล่อย,PetController,
 Remove,Remove,เอาออก,PetController,
 Rotate,Rotate,หมุน,PetController,
-Rotate Nearest Decoration 90°,Rotate Nearest Decoration 90°,หมุนของตกแต่งที่ใกล้ที่สุด 90°,PetController,
+Rotate Nearest Decoration 90°,Rotate Nearest Decoration 90°,หมุนของตกแต่งที่ใกล้ที่สุด 90°,PetController,unused
+Rotate nearest decoration,Rotate nearest decoration,หมุนของแต่งที่ใกล้ที่สุด,PetController,
 Select 3 matching species/tier pets,Select 3 matching species/tier pets,เลือกสัตว์เลี้ยงสายพันธุ์/ระดับเดียวกัน 3 ตัว,PetController,
 Select Egg,Select Egg,เลือกไข่,PetController,
 Select one pet,Select one pet,เลือกสัตว์เลี้ยง 1 ตัว,PetController,
 "Select pets to carry, pen, fuse or ride.","Select pets to carry, pen, fuse or ride.",เลือกสัตว์เลี้ยงเพื่อพาไปด้วย ใส่คอก หลอม หรือขี่,PetController,
 Shield,Shield,โล่,PetController,
-Stat{1},Stat{1},Stat{1},PetController,
+Stand on your base floor to place,Stand on your base floor to place,ยืนบนพื้นฐานเพื่อวาง,PetController,
 Steal Egg,Steal Egg,ขโมยไข่,PetController,
 Store,Store,เก็บ,PetController,
-Store Nearest Decoration (refund {1}% Wood),Store Nearest Decoration (refund {1}% Wood),เก็บของตกแต่งที่ใกล้ที่สุด (คืนไม้ {1}%),PetController,
+Store Nearest Decoration (refund {1}% Wood),Store Nearest Decoration (refund {1}% Wood),เก็บของตกแต่งที่ใกล้ที่สุด (คืนไม้ {1}%),PetController,unused
+Store nearest decoration,Store nearest decoration,เก็บของแต่งที่ใกล้ที่สุด,PetController,
 Stow,Stow,เก็บเข้าคลัง,PetController,
+Theft Shield,Theft Shield,โล่กันขโมย,PetController,
 "Theft Shield: {1}
 Eggs over 75% hatched and hatched pets cannot be stolen","Theft Shield: {1}
 Eggs over 75% hatched and hatched pets cannot be stolen","โล่กันขโมย: {1}
-ไข่ที่ฟักเกิน 75% และสัตว์ที่ฟักแล้วขโมยไม่ได้",PetController,
-Thief slowed by {1}%,Thief slowed by {1}%,ขโมยช้าลง {1}%,PetController,
-This festival only! Place at your position,This festival only! Place at your position,เฉพาะเทศกาลนี้! วางตรงตำแหน่งของคุณ,PetController,
+ไข่ที่ฟักเกิน 75% และสัตว์ที่ฟักแล้วขโมยไม่ได้",PetController,unused
+Thief slowed by {1}%,Thief slowed by {1}%,ขโมยช้าลง {1}%,PetController,unused
+This festival only! Place at your position,This festival only! Place at your position,เฉพาะเทศกาลนี้! วางตรงตำแหน่งของคุณ,PetController,unused
 Thorn Root Trap,Thorn Root Trap,กับดักรากหนาม,PetController,
-Upgrade {1} Wood,Upgrade {1} Wood,อัปเกรด {1} ไม้,PetController,
-{1} sec,{1} sec,{1} วิ,PetController,
+Tier {1} • {2},Tier {1} • {2},ดาว {1} • {2},PetController,
+Upgrade {1} Wood,Upgrade {1} Wood,อัปเกรด {1} ไม้,PetController,unused
+Visitors blocked,Visitors blocked,กันผู้มาเยือนอยู่,PetController,
+Zone {1} • Hatch {2} min,Zone {1} • Hatch {2} min,โซน {1} • ฟัก {2} นาที,PetController,
+{1} sec,{1} sec,{1} วิ,PetController,unused
 {1} selected • Fuse needs 3 matching species/tier,{1} selected • Fuse needs 3 matching species/tier,เลือกแล้ว {1} ตัว • หลอมต้องใช้สายพันธุ์/ระดับเดียวกัน 3 ตัว,PetController,
+{1} slots,{1} slots,{1} ช่อง,PetController,
 "{1} • Lv {2}/{3} • Now {4}
 {5}","{1} • Lv {2}/{3} • Now {4}
 {5}","{1} • Lv {2}/{3} • ตอนนี้ {4}
-{5}",PetController,
+{5}",PetController,unused
 "{1} • {2} Coins
 {3}","{1} • {2} Coins
 {3}","{1} • {2} เหรียญ
-{3}",PetController,
+{3}",PetController,unused
 "{1} • {2} Coins • Zone {3}
 Hatch {4} min • {5}","{1} • {2} Coins • Zone {3}
 Hatch {4} min • {5}","{1} • {2} เหรียญ • โซน {3}
-ฟัก {4} นาที • {5}",PetController,
+ฟัก {4} นาที • {5}",PetController,unused
 "{1} • {2} Wood • Beauty +{3}
 {4}","{1} • {2} Wood • Beauty +{3}
 {4}","{1} • {2} ไม้ • ความสวย +{3}
-{4}",PetController,
+{4}",PetController,unused
 "{1} ★{2} • {3}{4} • {5}
 +{6}/sec In pen • Bonus {7} +{8}%{9}","{1} ★{2} • {3}{4} • {5}
 +{6}/sec In pen • Bonus {7} +{8}%{9}","{1} ★{2} • {3}{4} • {5}
 +{6}/วิ ในคอก • โบนัส {7} +{8}%{9}",PetController,
+{1}% chase,{1}% chase,ไล่ {1}%,PetController,
+−{1}% speed,−{1}% speed,ช้าลง {1}%,PetController,
 ⚠ Theft in progress!,⚠ Theft in progress!,⚠ กำลังถูกขโมย!,PetController,
 ⚠ Your egg is being stolen! Press E to reclaim,⚠ Your egg is being stolen! Press E to reclaim,⚠ ไข่ของคุณกำลังถูกขโมย! กด E เพื่อชิงคืน,PetController,
 🔒 Stealable below {1}%,🔒 Stealable below {1}%,🔒 ขโมยได้เมื่อต่ำกว่า {1}%,PetController,
@@ -697,7 +760,6 @@ Place eggs in your own base incubator,Place eggs in your own base incubator,ว�
 Secret,Secret,ลับ,PetService,
 Select 3 matching pets,Select 3 matching pets,เลือกสัตว์เลี้ยงที่เหมือนกัน 3 ตัว,PetService,
 Slot occupied or no egg available,Slot occupied or no egg available,ช่องไม่ว่างหรือไม่มีไข่,PetService,
-Speed,Speed,ความเร็ว,PetService,
 This egg is no longer on the conveyor,This egg is no longer on the conveyor,ไข่นี้ไม่อยู่บนสายพานแล้ว,PetService,
 This egg was already purchased,This egg was already purchased,ไข่นี้ถูกซื้อไปแล้ว,PetService,
 This pet cannot be ridden,This pet cannot be ridden,สัตว์เลี้ยงตัวนี้ขี่ไม่ได้,PetService,
@@ -829,17 +891,25 @@ Run chests gain +1 level per tier,Run chests gain +1 level per tier,หีบจ
 Skilled Lumberjack,Skilled Lumberjack,คนตัดไม้ชำนาญ,Rebirth,
 Thriving Forest,Thriving Forest,ป่ารุ่งเรือง,Rebirth,
 Wood Add 50% per tier (max ×2),Wood Add 50% per tier (max ×2),ไม้ +50% ต่อระดับ (สูงสุด ×2),Rebirth,
-Buy • {1} Token,Buy • {1} Token,ซื้อ • {1} โทเคน,RebirthController,
++1 pet carried,+1 pet carried,พาสัตว์เลี้ยง +1,RebirthController,
++12.5% Epic+ chest chance,+12.5% Epic+ chest chance,โอกาสหีบมหากาพย์ขึ้นไป +12.5%,RebirthController,
++50% Coins,+50% Coins,เหรียญ +50%,RebirthController,
++50% Wood,+50% Wood,ไม้ +50%,RebirthController,
+Auto Cut penalty −5%,Auto Cut penalty −5%,ลดโทษตัดอัตโนมัติ 5%,RebirthController,
+Beat the Zone {1} boss,Beat the Zone {1} boss,ชนะบอสโซน {1},RebirthController,
+Buy • {1} Token,Buy • {1} Token,ซื้อ • {1} โทเคน,RebirthController,unused
 Confirm,Confirm,ยืนยัน,RebirthController,
 Confirm Rebirth,Confirm Rebirth,ยืนยันการเกิดใหม่,RebirthController,
+Cycle,Cycle,วัฏจักร,RebirthController,
 "Cycle {1} • Permanent Power ×{2} • Rot ×{3}
 {4} Token • Defeat the boss in zone {5} + {6} Coins • Earned {7} Token","Cycle {1} • Permanent Power ×{2} • Rot ×{3}
 {4} Token • Defeat the boss in zone {5} + {6} Coins • Earned {7} Token","วัฏจักร {1} • พลังถาวร ×{2} • Rot ×{3}
-{4} โทเคน • ปราบบอสโซน {5} + {6} เหรียญ • ได้ {7} โทเคน",RebirthController,
-Max tier,Max tier,ระดับสูงสุด,RebirthController,
+{4} โทเคน • ปราบบอสโซน {5} + {6} เหรียญ • ได้ {7} โทเคน",RebirthController,unused
+Max tier,Max tier,ระดับสูงสุด,RebirthController,unused
 New Cycle • REBIRTH,New Cycle • REBIRTH,วัฏจักรใหม่ • เกิดใหม่,RebirthController,
 Prepare,Prepare,เตรียมตัว,RebirthController,
 REBIRTH,REBIRTH,เกิดใหม่,RebirthController,
+Requirement,Requirement,Requirement,RebirthController,name
 "Resets Coins, Wood, zones/story, base upgrades and uncollected pen income
 
 Keeps weapons, pets, eggs, chests, Gems, Index, garden trees and permanent skills
@@ -849,10 +919,20 @@ Keeps weapons, pets, eggs, chests, Gems, Index, garden trees and permanent skill
 Trees beyond starting slots still bear fruit. Buy back slots before replanting","รีเซ็ตเหรียญ ไม้ โซน/เนื้อเรื่อง การอัปเกรดฐาน และรายได้คอกที่ยังไม่เก็บ
 
 เก็บอาวุธ สัตว์เลี้ยง ไข่ หีบ เพชร สมุดสะสม ต้นไม้ในสวน และสกิลถาวรไว้
-ต้นไม้ที่เกินช่องเริ่มต้นยังออกผลได้ ซื้อช่องคืนก่อนปลูกใหม่",RebirthController,
+ต้นไม้ที่เกินช่องเริ่มต้นยังออกผลได้ ซื้อช่องคืนก่อนปลูกใหม่",RebirthController,unused
+"Resets: Coins, Wood, zones, story, base upgrades
+
+Keeps: weapons, pets, eggs, chests, Gems, Index, garden, skills","Resets: Coins, Wood, zones, story, base upgrades
+
+Keeps: weapons, pets, eggs, chests, Gems, Index, garden, skills","รีเซ็ต: เหรียญ ไม้ โซน เนื้อเรื่อง อัปเกรดฐาน
+
+เก็บไว้: อาวุธ สัตว์เลี้ยง ไข่ หีบ เพชร สมุดสะสม สวน สกิล",RebirthController,
 Run,Run,ออกป่า,RebirthController,
+Run chests +1 level,Run chests +1 level,หีบในรอบ +1 เลเวล,RebirthController,
 Start New Cycle,Start New Cycle,เริ่มวัฏจักรใหม่,RebirthController,
 Start a New Cycle?,Start a New Cycle?,เริ่มวัฏจักรใหม่ไหม?,RebirthController,
+Tokens,Tokens,โทเคน,RebirthController,
+×{1}  Rot ×{2},×{1}  Rot ×{2},×{1}  Rot ×{2},RebirthController,
 "Confirm resetting Coins, Wood, zones and base upgrades","Confirm resetting Coins, Wood, zones and base upgrades",ยืนยันการรีเซ็ตเหรียญ ไม้ โซน และการอัปเกรดฐาน,RebirthService,
 Confirmation expired,Confirmation expired,การยืนยันหมดเวลา,RebirthService,
 Cycle changed. Please confirm again,Cycle changed. Please confirm again,วัฏจักรเปลี่ยนแล้ว กรุณายืนยันอีกครั้ง,RebirthService,
@@ -872,7 +952,7 @@ Starting cycle {1} done! +{2} Rebirth Token,Starting cycle {1} done! +{2} Rebirt
 Upgrade {1} to tier {2},Upgrade {1} to tier {2},อัปเกรด {1} เป็นระดับ {2},RebirthService,
 Wait for your character to spawn,Wait for your character to spawn,รอให้ตัวละครเกิดก่อน,RebirthService,
 Boosts,Boosts,บูสต์,RewardService,
- • Studio store, • Studio store, • ร้านในสตูดิโอ,RewardsController,
+ • Studio store, • Studio store, • ร้านในสตูดิโอ,RewardsController,unused
 %1 Chest Lv,%1 Chest Lv,หีบ%1 Lv,RewardsController,
 "Active boosts
 {1}","Active boosts
@@ -885,6 +965,7 @@ Claimed,Claimed,รับแล้ว,RewardsController,
 Codes,Codes,โค้ด,RewardsController,
 Daily,Daily,รายวัน,RewardsController,
 Daily reset: 00:00 UTC • Missing a day resets your streak,Daily reset: 00:00 UTC • Missing a day resets your streak,รีเซ็ตรายวัน: 00:00 UTC • ขาดหนึ่งวันสตรีคจะเริ่มใหม่,RewardsController,
+Damage,Damage,ดาเมจ,RewardsController,
 Day {1},Day {1},วันที่ {1},RewardsController,
 Day{1},Day{1},Day{1},RewardsController,
 Enter Code,Enter Code,ใส่โค้ด,RewardsController,
@@ -894,20 +975,24 @@ Each code can be redeemed once and has an expiry date","ใส่โค้ดเ
 แต่ละโค้ดใช้ได้ครั้งเดียวและมีวันหมดอายุ",RewardsController,
 Epic,Epic,มหากาพย์,RewardsController,
 Global,Global,ทั่วโลก,RewardsController,
-Global ≈ • {1},Global ≈ • {1},ทั่วโลก ≈ • {1},RewardsController,
+Global ≈ • {1},Global ≈ • {1},ทั่วโลก ≈ • {1},RewardsController,unused
+Income,Income,รายได้,RewardsController,
 Leaderboard,Leaderboard,กระดานอันดับ,RewardsController,
+Likes,Likes,ไลก์,RewardsController,
 Login Streak: <font color='#FFD24A'>{1} day{2}</font>,Login Streak: <font color='#FFD24A'>{1} day{2}</font>,ล็อกอินต่อเนื่อง: <font color='#FFD24A'>{1} วัน{2}</font>,RewardsController,
 No active timed boosts,No active timed boosts,ไม่มีบูสต์จับเวลาที่ใช้งานอยู่,RewardsController,
 No eligible rankings yet,No eligible rankings yet,ยังไม่มีอันดับที่เข้าเกณฑ์,RewardsController,
 Rank{1},Rank{1},Rank{1},RewardsController,
 Redeem,Redeem,แลกรับ,RewardsController,
-Refresh,Refresh,รีเฟรช,RewardsController,
+Refresh,Refresh,รีเฟรช,RewardsController,unused
 Rewards / Leaderboard,Rewards / Leaderboard,รางวัล / กระดานอันดับ,RewardsController,
-Season {1} • {2}{3},Season {1} • {2}{3},ซีซัน {1} • {2}{3},RewardsController,
+Scope,Scope,Scope,RewardsController,name
+Season {1} • {2}{3},Season {1} • {2}{3},ซีซัน {1} • {2}{3},RewardsController,unused
 Server,Server,เซิร์ฟเวอร์,RewardsController,
-This server,This server,เซิร์ฟเวอร์นี้,RewardsController,
-This server • Actual values,This server • Actual values,เซิร์ฟเวอร์นี้ • ค่าจริง,RewardsController,
+This server,This server,เซิร์ฟเวอร์นี้,RewardsController,unused
+This server • Actual values,This server • Actual values,เซิร์ฟเวอร์นี้ • ค่าจริง,RewardsController,unused
 Today,Today,วันนี้,RewardsController,
+Trees,Trees,ต้นไม้,RewardsController,
 Wood,Wood,ไม้,RewardsController,
 {1} ×2 • {2} min left,{1} ×2 • {2} min left,{1} ×2 • เหลือ {2} นาที,RewardsController,
 Common,Common,ธรรมดา,RunService,
@@ -924,14 +1009,18 @@ Season 4 • Lantern Grove,Season 4 • Lantern Grove,ซีซัน 4 • ป�
 {1} ×2 • {2} min,{1} ×2 • {2} min,{1} ×2 • {2} นาที,Season,
 Buy Premium • {1},Buy Premium • {1},ซื้อพรีเมียม • {1},SeasonController,
 Claim All,Claim All,รับทั้งหมด,SeasonController,
-Claim • {1},Claim • {1},รับ • {1},SeasonController,
+Claim • {1},Claim • {1},รับ • {1},SeasonController,unused
 Free,Free,ฟรี,SeasonController,
+Head{1},Head{1},Head{1},SeasonController,name
+Level {1}/{2} • {3} days left,Level {1}/{2} • {3} days left,เลเวล {1}/{2} • เหลือ {3} วัน,SeasonController,
 Level{1},Level{1},Level{1},SeasonController,
 No active season. Wait for the next season,No active season. Wait for the next season,ไม่มีซีซันที่เปิดอยู่ รอซีซันถัดไป,SeasonController,
 Premium,Premium,พรีเมียม,SeasonController,
 Premium ✓ Unlocked,Premium ✓ Unlocked,พรีเมียม ✓ ปลดล็อกแล้ว,SeasonController,
 Prompt,Prompt,Prompt,SeasonController,
 Season Pass • {1},Season Pass • {1},ซีซันพาส • {1},SeasonController,
+XP {1}/{2},XP {1}/{2},XP {1}/{2},SeasonController,
+×2 • {1} min,×2 • {1} min,×2 • {1} นาที,SeasonController,
 Invalid level,Invalid level,เลเวลไม่ถูกต้อง,SeasonService,
 No active season,No active season,ไม่มีซีซันที่เปิดอยู่,SeasonService,
 No rewards available,No rewards available,ไม่มีรางวัลให้รับ,SeasonService,
@@ -1013,7 +1102,6 @@ Egg bag full. Egg returned,Egg bag full. Egg returned,ถุงไข่เต�
 Egg reclaimed!,Egg reclaimed!,ชิงไข่คืนแล้ว!,StealService,
 Egg stolen! Run back to your base (speed reduced by {1}%),Egg stolen! Run back to your base (speed reduced by {1}%),ขโมยไข่สำเร็จ! วิ่งกลับฐาน (ความเร็วลดลง {1}%),StealService,
 End your run before stealing eggs,End your run before stealing eggs,จบรอบก่อนขโมยไข่,StealService,
-Friends can steal eggs,Friends can steal eggs,เพื่อนขโมยไข่ได้,StealService,
 Friends cannot steal eggs,Friends cannot steal eggs,เพื่อนขโมยไข่ไม่ได้,StealService,
 Friends cannot steal your eggs,Friends cannot steal your eggs,เพื่อนขโมยไข่ของคุณไม่ได้,StealService,
 Guard chased you away! Wait {1} sec before trying this base again,Guard chased you away! Wait {1} sec before trying this base again,ผู้เฝ้าไล่คุณไปแล้ว! รอ {1} วิ ก่อนลองฐานนี้อีกครั้ง,StealService,
@@ -1139,71 +1227,86 @@ Zap! My fur stands up from static electricity. I am not scared!,Zap! My fur stan
 "
 Zone available in Phase 7","
 Zone available in Phase 7","
-โซนเปิดใน Phase 7",StoryController,
+โซนเปิดใน Phase 7",StoryController,unused
  (Phase 7), (Phase 7), (Phase 7),StoryController,
++1 Gem per discovery • +50 per full set,+1 Gem per discovery • +50 per full set,ค้นพบ +1 เพชร • ครบชุด +50,StoryController,unused
++1 Gem per discovery • Full set +50,+1 Gem per discovery • Full set +50,พบใหม่ +1 เพชร • ครบชุด +50,StoryController,
 Achievements,Achievements,ความสำเร็จ,StoryController,
 Available in Phase 7,Available in Phase 7,เปิดใน Phase 7,StoryController,
+Awards,Awards,ความสำเร็จ,StoryController,
 Camera,Camera,กล้อง,StoryController,
 Chapter,Chapter,บทที่,StoryController,
-Claim +{1} Gems,Claim +{1} Gems,รับ +{1} เพชร,StoryController,
-Claim reward & title,Claim reward & title,รับรางวัลและฉายา,StoryController,
+Claim +{1} Gems,Claim +{1} Gems,รับ +{1} เพชร,StoryController,unused
+Claim reward & title,Claim reward & title,รับรางวัลและฉายา,StoryController,unused
 Collected,Collected,เก็บแล้ว,StoryController,
-Current,Current,ปัจจุบัน,StoryController,
+Current,Current,ปัจจุบัน,StoryController,unused
 Daily Quests,Daily Quests,ภารกิจรายวัน,StoryController,
+Defeat the previous boss and light its shrine,Defeat the previous boss and light its shrine,ชนะบอสก่อนหน้าและจุดศาลเจ้า,StoryController,
 "Discover: +1 Gem • Complete a category: +50 Gems
 Your collection stays after Rebirth","Discover: +1 Gem • Complete a category: +50 Gems
 Your collection stays after Rebirth","ค้นพบ: +1 เพชร • สะสมครบหมวด: +50 เพชร
-ของสะสมยังอยู่หลังเกิดใหม่",StoryController,
+ของสะสมยังอยู่หลังเกิดใหม่",StoryController,unused
+Equipped,Equipped,สวมใส่แล้ว,StoryController,
+Find mutations,Find mutations,ค้นหากลายพันธุ์,StoryController,
 GUARDIAN,GUARDIAN,ผู้พิทักษ์,StoryController,
+Go,Go,ไป,StoryController,
 Guardian cleansed!,Guardian cleansed!,ชำระล้างผู้พิทักษ์แล้ว!,StoryController,
 Harvests,Harvests,การเก็บเกี่ยว,StoryController,
+Hatch eggs,Hatch eggs,ฟักไข่,StoryController,
 Home,Home,บ้าน,StoryController,
 "Home
 Return to your base","Home
 Return to your base","บ้าน
-กลับไปที่ฐานของคุณ",StoryController,
-Incomplete,Incomplete,ยังไม่ครบ,StoryController,
+กลับไปที่ฐานของคุณ",StoryController,unused
 Index,Index,สมุดสะสม,StoryController,
+Kept after Rebirth,Kept after Rebirth,คงอยู่หลังเกิดใหม่,StoryController,unused
 Main,Main,หลัก,StoryController,
-Main Quests,Main Quests,ภารกิจหลัก,StoryController,
+Main Quests,Main Quests,ภารกิจหลัก,StoryController,unused
 Main Story Complete,Main Story Complete,เนื้อเรื่องหลักจบแล้ว,StoryController,
 Mutation,Mutation,การกลายพันธุ์,StoryController,
 NPC,NPC,NPC,StoryController,
 Next,Next,ถัดไป,StoryController,
-Now: {1}{2}{3},Now: {1}{2}{3},ตอนนี้: {1}{2}{3},StoryController,
+Not found,Not found,ยังไม่พบ,StoryController,
+Now: {1}{2}{3},Now: {1}{2}{3},ตอนนี้: {1}{2}{3},StoryController,unused
+Open forest chests,Open forest chests,เปิดหีบจากป่า,StoryController,
+Page {1} / {2},Page {1} / {2},หน้า {1} / {2},StoryController,
+Plant seeds,Plant seeds,ปลูกเมล็ด,StoryController,
+Previous,Previous,Previous,StoryController,config
 Quests • Index • Warp,Quests • Index • Warp,ภารกิจ • สมุดสะสม • วาร์ป,StoryController,
 Remove your displayed title,Remove your displayed title,ถอดฉายาที่แสดงอยู่,StoryController,
-Reward claimed,Reward claimed,รับรางวัลแล้ว,StoryController,
-Rewards {1} Gems,Rewards {1} Gems,รางวัล {1} เพชร,StoryController,
+Reward claimed,Reward claimed,รับรางวัลแล้ว,StoryController,unused
+Rewards {1} Gems,Rewards {1} Gems,รางวัล {1} เพชร,StoryController,unused
+Rootfall Village,Rootfall Village,หมู่บ้านรูทฟอลล์,StoryController,
 "Rootfall Village
 End your current run and return home","Rootfall Village
 End your current run and return home","หมู่บ้านรูทฟอลล์
-จบรอบปัจจุบันแล้วกลับบ้าน",StoryController,
-Select Title,Select Title,เลือกฉายา,StoryController,
+จบรอบปัจจุบันแล้วกลับบ้าน",StoryController,unused
+Select Title,Select Title,เลือกฉายา,StoryController,unused
 Shrine,Shrine,ศาลเจ้า,StoryController,
 Step{1},Step{1},Step{1},StoryController,
 Story,Story,เนื้อเรื่อง,StoryController,
-System disabled,System disabled,ระบบปิดอยู่,StoryController,
-Title Equipped,Title Equipped,สวมฉายาแล้ว,StoryController,
+Title Equipped,Title Equipped,สวมฉายาแล้ว,StoryController,unused
 Trees / Seeds,Trees / Seeds,ต้นไม้ / เมล็ด,StoryController,
-Undiscovered,Undiscovered,ยังไม่ค้นพบ,StoryController,
+Undiscovered,Undiscovered,ยังไม่ค้นพบ,StoryController,unused
 WORLD BOSS,WORLD BOSS,บอสโลก,StoryController,
-Warp and start a run,Warp and start a run,วาร์ปและเริ่มออกป่า,StoryController,
+Warp and start a run,Warp and start a run,วาร์ปและเริ่มออกป่า,StoryController,unused
 Warp{1},Warp{1},Warp{1},StoryController,
 Weekly,Weekly,รายสัปดาห์,StoryController,
 Weekly Quests,Weekly Quests,ภารกิจรายสัปดาห์,StoryController,
 Zone,Zone,โซน,StoryController,
+Zone available in Phase 7,Zone available in Phase 7,โซนจะเปิดใน Phase 7,StoryController,
+Zone {1} • {2},Zone {1} • {2},โซน {1} • {2},StoryController,
 "Zone {1} • {2}
 {3}","Zone {1} • {2}
 {3}","โซน {1} • {2}
-{3}",StoryController,
+{3}",StoryController,unused
 {1} studs,{1} studs,{1} สตัด,StoryController,
-{1} • Resets in {2} hrs,{1} • Resets in {2} hrs,{1} • รีเซ็ตใน {2} ชม.,StoryController,
+{1} • Resets in {2} hrs,{1} • Resets in {2} hrs,{1} • รีเซ็ตใน {2} ชม.,StoryController,unused
 "{1} • {2}/{3} • {4} Gems
 {5} • {6}","{1} • {2}/{3} • {4} Gems
 {5} • {6}","{1} • {2}/{3} • {4} เพชร
-{5} • {6}",StoryController,
-🔒 Defeat the previous boss and light its shrine,🔒 Defeat the previous boss and light its shrine,🔒 ปราบบอสก่อนหน้าและจุดศาลเจ้าก่อน,StoryController,
+{5} • {6}",StoryController,unused
+🔒 Defeat the previous boss and light its shrine,🔒 Defeat the previous boss and light its shrine,🔒 ปราบบอสก่อนหน้าและจุดศาลเจ้าก่อน,StoryController,unused
 🔒 Requires Power {1},🔒 Requires Power {1},🔒 ต้องมีพลัง {1},StoryController,
  — Unlock Zone {1}, — Unlock Zone {1}, — ปลดล็อกโซน {1},StoryService,
 "Cycle {1} cycles already... The Rot grows stronger, but so do you!","Cycle {1} cycles already... The Rot grows stronger, but so do you!",ผ่านมา {1} วัฏจักรแล้ว... ความเน่าแข็งแกร่งขึ้น แต่เจ้าก็เช่นกัน!,StoryService,
@@ -1249,14 +1352,19 @@ QA tree spawned,QA tree spawned,QA tree spawned,TreeService,dev
 Stand in an unlocked forest zone,Stand in an unlocked forest zone,Stand in an unlocked forest zone,TreeService,dev
 TreeKit unavailable,TreeKit unavailable,TreeKit unavailable,TreeService,dev
 Unknown TreeKit kind,Unknown TreeKit kind,Unknown TreeKit kind,TreeService,dev
+Bottom,Bottom,Bottom,UIKit,config
 Parent,Parent,Parent,UIKit,
+Position,Position,Position,UIKit,config
+Size,Size,Size,UIKit,config
 Tab,Tab,Tab,UIKit,
+Top,Top,Top,UIKit,config
+Visible,Visible,Visible,UIKit,config
+{1}Edges,{1}Edges,{1}Edges,UIKit,config
 CHEST ALTAR,CHEST ALTAR,แท่นหีบ,WeaponService,
 Chest no longer available,Chest no longer available,หีบนี้ไม่มีแล้ว,WeaponService,
 Chest opened,Chest opened,เปิดหีบแล้ว,WeaponService,
 Chests unavailable,Chests unavailable,ระบบหีบยังไม่พร้อม,WeaponService,
 "End your run, then visit the village chest station","End your run, then visit the village chest station",จบรอบ แล้วไปที่แท่นหีบในหมู่บ้าน,WeaponService,
-Equipped,Equipped,สวมใส่แล้ว,WeaponService,
 Free 15-minute chest received! Open at the village station,Free 15-minute chest received! Open at the village station,ได้รับหีบฟรีทุก 15 นาที! เปิดที่แท่นในหมู่บ้าน,WeaponService,
 Fuse at the village station after ending your run,Fuse at the village station after ending your run,หลอมได้ที่แท่นในหมู่บ้านหลังจบรอบ,WeaponService,
 Fused to ★{1},Fused to ★{1},หลอมเป็น ★{1},WeaponService,
@@ -1867,7 +1975,6 @@ Chop Arena · PvP,Chop Arena · PvP,สนามประลอง Chop · PvP,m
 Forest Gate → {1},Forest Gate → {1},ประตูป่า → {1},manual,manual
 Frost Warden,Frost Warden,ผู้คุมน้ำแข็ง,manual,manual
 Frostfields,Frostfields,ทุ่งน้ำแข็ง,manual,manual
-Giant,Giant,ยักษ์,manual,manual
 Glowshroom Marsh,Glowshroom Marsh,บึงเห็ดเรืองแสง,manual,manual
 Maple Colossus,Maple Colossus,ยักษ์เมเปิล,manual,manual
 Maple Forest,Maple Forest,ป่าเมเปิล,manual,manual

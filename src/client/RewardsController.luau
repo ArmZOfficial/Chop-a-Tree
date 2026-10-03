@@ -3,6 +3,8 @@ local Players=game:GetService("Players");local S=game.ReplicatedStorage.Shared
 local UI=require(S.UIKit);local Net=require(S.Net);local NF=require(S.NumberFormat)
 local Daily=require(S.Config.Daily);local Boards=require(S.Config.Leaderboards)
 local Controller={}
+-- Leaderboard metric tabs: icon + one short word.
+local METRIC={TreesCut={"tree","Trees"},HighestHit={"sword","Damage"},Rebirth={"cycle","Rebirth"},Income={"coin","Income"},Likes={"heart","Likes"}}
 local function rewardArt(r)
 	if r.chest then return r.chest.rarity=="Epic" and "epicChest" or "rareChest" end
 	if r.boost then return r.boost.kind=="Wood" and "woodBoost" or "luckBoost" end
@@ -56,22 +58,14 @@ function Controller.Start()
 	local boost=UI.Label("",18,{Name="Boosts",Position=UDim2.fromOffset(110,262),Size=UDim2.fromOffset(652,120),TextXAlignment=Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Top,Parent=codes})
 	-- Leaderboard
 	local board=UI.New("Frame",{Name="Boards",Position=UDim2.fromOffset(44,188),Size=UDim2.fromOffset(872,424),BackgroundTransparency=1,Parent=panel})
-	local metricTabs,scopeTabs={},{}
-	local mw=math.floor((872-(#Boards.Metrics-1)*8)/#Boards.Metrics)
-	for i,def in Boards.Metrics do local d=def
-		metricTabs[d.id]=UI.Tab({name=d.id,text=d.name,size=UDim2.fromOffset(mw,46),position=UDim2.fromOffset((i-1)*(mw+8),0),parent=board,textSize=18,onClick=function() metric=d.id;render() end})
+	-- One row of metric tabs plus a Server/Global toggle; boards refresh by themselves while open.
+	local metricTabs={}
+	for i,def in Boards.Metrics do local d=def;local m=METRIC[d.id] or {"trophy",d.name}
+		metricTabs[d.id]=UI.Tab({name=d.id,text=m[2],icon=m[1],iconSize=30,size=UDim2.fromOffset(136,52),position=UDim2.fromOffset((i-1)*144,0),parent=board,textSize=18,onClick=function() metric=d.id;render() end})
 	end
-	for i,s in {{"Server","This server"},{"Global","Global"}} do local id=s[1]
-		scopeTabs[id]=UI.Tab({name=id,text=s[2],size=UDim2.fromOffset(170,44),position=UDim2.fromOffset((i-1)*178,54),parent=board,textSize=18,onClick=function() scope=id;render() end})
-	end
-	button("Refresh","Refresh",board,UDim2.new(1,-160,0,52),UDim2.fromOffset(160,48),function() request("LeaderboardRequest") end)
-	local mode=UI.Label("",14,{Name="Status",FontFace=UI.FontBold,Position=UDim2.fromOffset(364,54),Size=UDim2.new(1,-536,0,44),TextColor3=UI.Colors.TextDim,Parent=board})
-	local ranks=UI.New("ScrollingFrame",{Name="Ranks",Position=UDim2.fromOffset(0,108),Size=UDim2.new(1,0,1,-108),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=board},{UI.List(Enum.FillDirection.Vertical,6)})
-	local rankRows={};for i=1,Boards.Top do
-		local r=UI.New("Frame",{Name="Rank"..i,BackgroundTransparency=1,Size=UDim2.new(1,-10,0,46),LayoutOrder=i,Parent=ranks});UI.Skin(r,"chrome","infoRow")
-		if i<=3 then UI.Icon(r,"trophy",{Position=UDim2.fromOffset(10,4),Size=UDim2.fromOffset(38,38),ImageColor3=({Color3.new(1,1,1),Color3.fromRGB(210,215,225),Color3.fromRGB(230,160,110)})[i],ZIndex=3}) end
-		rankRows[i]=UI.Label("",20,{Name="Text",Position=UDim2.fromOffset(58,0),Size=UDim2.new(1,-74,1,0),TextWrapped=false,ZIndex=3,Parent=r})
-	end
+	local scopeTab=UI.Tab({name="Scope",text="Server",icon="home",iconSize=30,size=UDim2.fromOffset(144,52),position=UDim2.new(1,-144,0,0),parent=board,textSize=18,state="green",onClick=function() scope=scope=="Server" and "Global" or "Server";render() end})
+	local ranks=UI.New("ScrollingFrame",{Name="Ranks",Position=UDim2.fromOffset(0,64),Size=UDim2.new(1,0,1,-64),BackgroundTransparency=1,ScrollBarThickness=6,ScrollBarImageColor3=Color3.fromRGB(240,180,90),AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=board},{UI.List(Enum.FillDirection.Vertical,6)})
+	local MEDAL={Color3.new(1,1,1),Color3.fromRGB(205,215,230),Color3.fromRGB(235,150,95)}
 	local flags=game.ReplicatedStorage:WaitForChild("FeatureFlags");local tabButtons={}
 	local function sync() if tab=="Daily" then request("DailyAction","Sync") elseif tab=="Boards" then request("LeaderboardRequest") end end
 	for i,t in {{"Daily","Daily","gift"},{"Codes","Codes","season"},{"Boards","Leaderboard","trophy"}} do local key=t[1]
@@ -86,7 +80,7 @@ function Controller.Start()
 		daily.Visible=tab=="Daily";codes.Visible=tab=="Codes";board.Visible=tab=="Boards"
 		for key,b in tabButtons do UI.SetTab(b,tab==key and "gold" or nil) end
 		for key,b in metricTabs do UI.SetTab(b,metric==key and "gold" or nil) end
-		for key,b in scopeTabs do UI.SetTab(b,scope==key and "green" or nil) end
+		local scopeLabel=scopeTab:FindFirstChild("TabLabel",true);if scopeLabel then scopeLabel.Text=scope=="Server" and "Server" or "Global" end
 		if dailyState then
 			streak.Text="Login Streak: <font color='#FFD24A'>"..dailyState.streak.." day"..(dailyState.streak==1 and "" or "s").."</font>"
 			for i in Daily.Rewards do
@@ -100,10 +94,13 @@ function Controller.Start()
 			UI.SetButtonColor(claim,dailyState.claimed and UI.Colors.Slate or UI.Colors.Green)
 		end
 		if boardState then
-			mode.Text="Season "..boardState.season.." • "..(scope=="Server" and "This server • Actual values" or "Global ≈ • "..boardState.status)..(boardState.studio and " • Studio store" or "")
-			local data=(scope=="Server" and boardState.localBoards or boardState.globalBoards)[metric] or {}
-			for i,row in rankRows do local entry=data[i];row.Parent.Visible=entry~=nil;row.Text=entry and (i..".  "..entry.name.."   "..(scope=="Global" and "≈ " or "")..NF.Short(entry.value)) or "" end
-			if #data==0 then rankRows[1].Parent.Visible=true;rankRows[1].Text="No eligible rankings yet" end
+			local data=(scope=="Server" and boardState.localBoards or boardState.globalBoards)[metric] or {};local icon=(METRIC[metric] or {"trophy"})[1]
+			for i=1,Boards.Top do local entry=data[i];local name="Rank"..i
+				if entry then UI.Row(ranks,name,{icon=i<=3 and "medal" or nil,iconColor=MEDAL[i],title=(i>3 and i..".  " or "")..entry.name,chip={icon=icon,text=(scope=="Global" and "≈" or "")..NF.Short(entry.value),width=150},style=i==1 and "today" or "product"}).LayoutOrder=i
+				elseif ranks:FindFirstChild(name) then ranks[name]:Destroy() end
+			end
+			local empty=ranks:FindFirstChild("Empty")
+			if #data==0 then UI.Row(ranks,"Empty",{icon="trophy",title="No eligible rankings yet"}) elseif empty then empty:Destroy() end
 		end
 		local Data=require(script.Parent.ClientData);local now=os.time();local active={}
 		for kind,expires in Data.Get("Boosts") or {} do if expires>now then table.insert(active,kind.." ×2 • "..math.ceil((expires-now)/60).." min left") end end
@@ -111,6 +108,8 @@ function Controller.Start()
 	end
 	local function feature() openButton.Visible=flags:GetAttribute("Daily") or flags:GetAttribute("Codes") or flags:GetAttribute("Leaderboard");if not openButton.Visible then close() end end
 	for _,key in {"Daily","Codes","Leaderboard"} do flags:GetAttributeChangedSignal(key):Connect(feature) end;feature()
-	task.spawn(function() while true do task.wait(1);if panel.Visible then render();if tab=="Daily" and dailyState and os.time()>=dailyState.nextAt then sync() end end end end)
+	task.spawn(function() local last=0;while true do task.wait(1);if panel.Visible then render()
+		if tab=="Daily" and dailyState and os.time()>=dailyState.nextAt then sync() end
+		if tab=="Boards" and os.clock()-last>=Boards.RefreshSeconds then last=os.clock();sync() end end end end)
 end
 return Controller

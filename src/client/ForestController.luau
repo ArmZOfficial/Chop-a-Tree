@@ -129,6 +129,8 @@ function Forest.Start()
 		local width,height=camera.ViewportSize.X,camera.ViewportSize.Y
 		local scale=math.min(1,height/480,width/980)
 		local compact=width<700 or height<500
+		play.Position=UDim2.new(.5,0,1,compact and -80 or -108)
+		hint.Position=UDim2.new(.5,0,1,-196)
 		panel.Size=UDim2.fromOffset(compact and 176 or 216,math.min(350,height-190))
 		panel.AnchorPoint=Vector2.new(1,0);panel.Position=UDim2.new(1,-12,0,compact and 175 or 200)
 		top.AnchorPoint=Vector2.new(.5,1);top.Position=UDim2.new(.5,0,1,-170);top.Size=UDim2.fromOffset(math.min(390,width-24),92)

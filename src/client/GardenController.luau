@@ -4,6 +4,7 @@ local Collection=game:GetService("CollectionService")
 local S=game.ReplicatedStorage.Shared
 local Net=require(S.Net);local UI=require(S.UIKit);local NF=require(S.NumberFormat)
 local Seeds=require(S.Config.Seeds);local Math=require(S.GardenMath);local GardenConfig=require(S.Config.Garden)
+local MerchantMath=require(S.MerchantMath);local MerchantConfig=require(S.Config.Merchant)
 local Garden={}
 function Garden.Start()
 	local player=Players.LocalPlayer
@@ -103,15 +104,14 @@ function Garden.Start()
 		c.Title.Text=o.title or ""
 		return c
 	end
-	local function row(name,text,color,onClick)
-		callbacks[name]=onClick
-		local r=element(name,function()
-			local b=UI.New("TextButton",{Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.new(1,-8,0,70)})
-			UI.Label("",18,{Name="RowText",Position=UDim2.fromOffset(22,4),Size=UDim2.new(1,-44,1,-8),Parent=b})
-			return b
-		end)
-		UI.Skin(r,"cards",color==UI.Colors.Orange and "today" or "product")
-		r.RowText.Text=text;r.RowText.TextTransparency=color==UI.Colors.Disabled and .45 or 0
+	local function row(name,o)
+		order+=1;used[name]=true;local r=UI.Row(list,name,o);r.LayoutOrder=order
+	end
+	local function empty(name,icon,title,hint)
+		order+=1;used[name]=true;local r=UI.EmptyState(list,name,{icon=icon,title=title,sub=hint});r.LayoutOrder=order
+	end
+	local function clock(seconds)
+		seconds=math.max(0,math.ceil(seconds));return string.format("%02d:%02d",math.floor(seconds/60),seconds%60)
 	end
 	local tabs={}
 	render=function()
@@ -119,8 +119,12 @@ function Garden.Start()
 		for key,t in tabs do UI.SetTab(t,tab==key and "green" or nil) end
 		local gardenTab=tab=="Garden" or tab=="Seeds"
 		selection.Visible=gardenTab
-		list.Size=gardenTab and UDim2.fromOffset(600,352) or UDim2.fromOffset(880,352)
-		slotsBar.Size=gardenTab and UDim2.fromOffset(600,58) or UDim2.fromOffset(880,58)
+		slotsBar.Visible=tab~="Merchant"
+		if not panel:GetAttribute("PhoneLayout") then
+			list.Size=gardenTab and UDim2.fromOffset(600,352) or UDim2.fromOffset(880,352)
+			slotsBar.Size=gardenTab and UDim2.fromOffset(600,58) or UDim2.fromOffset(880,58)
+		end
+		panel:SetAttribute("GardenTab",tab)
 		layoutRows(gardenTab);table.clear(used);order=0
 		if seedUid and not state.seeds[seedUid] then seedUid=nil end
 		local seed=seedUid and state.seeds[seedUid]
@@ -145,12 +149,12 @@ function Garden.Start()
 		confirm.Visible=cutPending~=nil;plotActions.Visible=cutPending==nil
 		-- Bottom bar
 		local count=0;for _,f in state.fruits do count+=f.count end
-		if tab=="Shop" then slotsLabel.Text="Fruit "..count.." • Value";slotsValue.Text=NF.Short((Math.SellQuote(state.fruits,state.sold)));slotsValue.Position=UDim2.fromOffset(250,0)
+		if tab=="Shop" then slotsLabel.Text="Fruit "..count.." • Value";slotsValue.Text=NF.Short((Math.SellQuote(state.fruits,state.sold)))
 		else slotsLabel.Text="Planting Slots";slotsValue.Text=state.slots.." / "..GardenConfig.MaxSlots end
 		upgrade.Visible=tab~="Shop";sell.Visible=tab=="Shop"
 		local ulabel=upgrade.Button:FindFirstChildWhichIsA("TextLabel",true);ulabel.Text=state.slots>=GardenConfig.MaxSlots and "Max Slots" or ("Upgrade • "..NF.Short(state.upgrade).." Wood")
 		if tab=="Garden" then
-			if not state.base then row("NoBase","All bases occupied. Your garden will be ready when a base opens",UI.Colors.Slate,function() end) end
+			if not state.base then empty("NoBase","home","Waiting for a base","Your garden opens when a base is free") end
 			for i=1,state.slots do local index=i;local p=state.plots[tostring(i)];local d=p and Seeds.ById[p.id]
 				local o={atlas="garden",selected=slot==i,onClick=function() slot=index;cutPending=nil;render() end,title=d and d.name or ("Slot "..i)}
 				if not p then o.sprite="plotEmpty";o.pill=(slot==i and seed) and "Plant here" or (slot==i and "Select Seed" or "Empty");o.kind=(slot==i and seed) and "gold" or nil
@@ -161,30 +165,41 @@ function Garden.Start()
 			end
 		elseif tab=="Seeds" then
 			local keys={};for uid in state.seeds do table.insert(keys,uid) end;table.sort(keys)
-			if #keys==0 then row("Empty","Find seeds in trees, chests or the village shop",UI.Colors.Slate,function() end) end
+			if #keys==0 then empty("Empty","leaf","No seeds yet","Find seeds in trees, chests or the village shop") end
 			for _,uid in keys do local key=uid;local s=state.seeds[uid];local d=Seeds.ById[s.id]
 				card("Seed_"..uid,{atlas="garden",sprite="seedPouch",tint=d.color:Lerp(Color3.new(1,1,1),.6),selected=seedUid==uid,title=d.name.." ×"..s.count,pill=d.rarity.." • "..math.floor(d.grow/60).."m",
 					onClick=function() seedUid=key;tab="Garden";cutPending=nil;render();say("Pick a plot, then press Plant") end})
 			end
 		elseif tab=="Merchant" then
 			local m=state.merchant
-			if not m then row("NoMerchant","Merchant absent. Arrives at :30 UTC every hour for 10 min",UI.Colors.Slate,function() end) else
+			if not m then
+				local _,arrival=MerchantMath.Visit(state.now)
+				local enabled=game.ReplicatedStorage.FeatureFlags:GetAttribute("Merchant")==true
+				empty("NoMerchant","bag",enabled and "Merchant is on the way" or "Merchant is resting",enabled and ("Arrives in "..clock((arrival or state.now+MerchantConfig.Period)-state.now).." • Stays 10 min") or "Come back later for special items")
+				row("MerchantGuide",{icon="pin",title="Meet in Rootfall Village",sub="Special seeds, eggs and chests"})
+			else
+				row("MerchantTimer",{icon="timer",title="Merchant is here",chip={icon="timer",text=clock(m.endsAt-state.now)}})
 				for _,o in m.offers do local id=o.id
-					row("Merchant_"..id,o.name.." • "..NF.Short(o.price).." "..o.currency.." • Left "..o.left.."\nMerchant leaves in "..math.max(0,m.endsAt-state.now).." sec",o.left>0 and UI.Colors.Purple or UI.Colors.Disabled,function() request("MerchantBuy",id) end)
+					local kind=MerchantConfig.ById[id].kind
+					row("Merchant_"..id,{icon=kind=="seed" and "leaf" or kind=="egg" and "egg" or "chest",title=o.name,sub="Stock "..o.left,chip={icon=o.currency=="Gems" and "gem" or "coin",text=NF.Short(o.price)},badge={text=o.left>0 and "Buy" or "Sold out",kind=o.left>0 and "ready" or nil},dim=o.left<=0,onClick=function() request("MerchantBuy",id) end})
 				end
 			end
 		else
-			local caps={};for id,n in GardenConfig.SellCaps do table.insert(caps,id.." "..math.max(0,n-(state.sold[id] or 0)).."/"..n) end;table.sort(caps)
-			row("SellCaps","Full-price items today (UTC): "..table.concat(caps," • ").."\nCan exceed cap by ×"..GardenConfig.OverCapMult,UI.Colors.Slate,function() end)
+			row("Restock",{icon="timer",title="Seed shop",sub="Restocks in "..clock(state.restockAt-state.now)})
 			for _,d in Seeds.List do local id=d.id
-				row("Buy_"..id,d.name.." • "..NF.Short(Math.SeedPrice(id,state.shopZone)).." Coins • Left "..state.stock[id].."\n"..d.rarity.." • Restock in "..math.max(0,state.restockAt-state.now).." sec",state.stock[id]>0 and UI.Colors.Orange or UI.Colors.Disabled,function() request("Buy",id) end)
+				row("Buy_"..id,{icon="leaf",iconColor=d.color:Lerp(Color3.new(1,1,1),.6),title=d.name,sub=d.rarity.." • Stock "..state.stock[id],chip={icon="coin",text=NF.Short(Math.SeedPrice(id,state.shopZone))},badge={text=state.stock[id]>0 and "Buy" or "Sold out",kind=state.stock[id]>0 and "ready" or nil},dim=state.stock[id]<=0,onClick=function() request("Buy",id) end})
+			end
+			row("SellHelp",{icon="coin",title="Fruit selling",sub="After the daily limit: "..GardenConfig.OverCapMult.."× value"})
+			for _,d in Seeds.List do local cap=GardenConfig.SellCaps[d.id]
+				if cap then row("Cap_"..d.id,{icon="leaf",title=d.name,sub="Full-price sales left today",count=math.max(0,cap-(state.sold[d.id] or 0)).."/"..cap,progress=math.max(0,cap-(state.sold[d.id] or 0))/cap}) end
 			end
 		end
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") and not used[v.Name] then v:Destroy();callbacks[v.Name]=nil end end
 	end
 	for i,t in {{"Garden","Garden","leaf"},{"Seeds","Seeds","garden/seedPouch"},{"Shop","Shop","shop"},{"Merchant","Merchant","bag"}} do local target=t[1]
-		tabs[target]=UI.Tab({name="Tab"..target,text=t[2],icon=t[3],size=UDim2.fromOffset(144,60),position=UDim2.fromOffset(40+(i-1)*152,122),parent=panel,textSize=23,iconSize=34,onClick=function() tab=target;cutPending=nil;render() end})
+		tabs[target]=UI.Tab({name="Tab"..target,text=t[2],icon=t[3],size=UDim2.fromOffset(144,60),position=UDim2.fromOffset(40+(i-1)*152,122),parent=panel,textSize=23,iconSize=34,onClick=function() tab=target;list.CanvasPosition=Vector2.zero;cutPending=nil;render() end})
 	end
+	panel:GetAttributeChangedSignal("PhoneLayout"):Connect(function() task.defer(render) end)
 	local function show(target)
 		local inv=player.PlayerGui:FindFirstChild("InventoryHUD");if inv then inv.Panel.Visible=false end -- the old chest Result window is gone (ChestOpening)
 		if target then tab=target end;panel.Visible=true;cutPending=nil;render();request("Sync")

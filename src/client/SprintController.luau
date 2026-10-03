@@ -7,6 +7,7 @@ local RunService=game:GetService("RunService")
 local GuiService=game:GetService("GuiService")
 local Tween=game:GetService("TweenService")
 local Debris=game:GetService("Debris")
+local ContentProvider=game:GetService("ContentProvider")
 local Shared=game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Movement=require(Shared.Config.Movement)
 local Net=require(Shared.Net)
@@ -30,6 +31,40 @@ end
 
 function Sprint.Start()
 	local player=Players.LocalPlayer
+	-- Reuse Roblox Animate so idle/jump/climb/emotes and speed-based playback keep their normal behavior.
+	local function locomotion(character)
+		task.spawn(function()
+			local animate=character:WaitForChild("Animate",30)
+			if not animate or character~=player.Character then return end
+			local connections={}
+			local function apply(animation)
+				if not animation:IsA("Animation") then return end
+				local folder=animation.Parent
+				if folder.Parent~=animate or (folder.Name~="walk" and folder.Name~="run") then return end
+				local function set()
+					if animation.AnimationId~=Movement.LocomotionAnimation then animation.AnimationId=Movement.LocomotionAnimation end
+				end
+				set();table.insert(connections,animation:GetPropertyChangedSignal("AnimationId"):Connect(set))
+			end
+			for _,animation in animate:GetDescendants() do apply(animation) end
+			table.insert(connections,animate.DescendantAdded:Connect(apply))
+			character.Destroying:Once(function() for _,connection in connections do connection:Disconnect() end end)
+		end)
+	end
+	task.spawn(function()
+		local animation=Instance.new("Animation");animation.AnimationId=Movement.LocomotionAnimation
+		local loaded=false
+		local ok=pcall(function()
+			ContentProvider:PreloadAsync({animation},function(_,status) loaded=status==Enum.AssetFetchStatus.Success end)
+		end)
+		animation:Destroy()
+		if not ok or not loaded then
+			warn("[Movement] Demo1 unavailable; keeping avatar walk/run. Grant the experience animation access, then rejoin.")
+			return
+		end
+		player.CharacterAdded:Connect(locomotion)
+		if player.Character then locomotion(player.Character) end
+	end)
 	local flags=game:GetService("ReplicatedStorage"):WaitForChild("FeatureFlags")
 	local want,sent=false,false
 	local function blocked()

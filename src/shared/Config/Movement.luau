@@ -3,6 +3,7 @@
 -- Clients only send intent (SprintIntent); the server validates and sets Character.Sprinting.
 return table.freeze({
 	WalkSpeed = 16,
+	LocomotionAnimation = "rbxassetid://103920925204515", -- Demo1: walk and run; default Animate owns blending/rate.
 	SprintMultiplier = 1.5,
 	SprintAcceleration = 0.25, -- seconds for the client FOV ramp (cosmetic)
 	SprintFov = 8, -- extra camera FOV while sprinting (0 with Reduce Motion)

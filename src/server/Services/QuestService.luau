@@ -93,7 +93,7 @@ end
 local function sideRows(p,kind)
 	local d=Quest.Side(p,kind);local rows={};local scale=kind=="weekly" and Story.WeeklyScale or 1
 	for _,id in d.ids do local q=dailyById[id];local need=q.count*scale
-		table.insert(rows,{id=id,text=kind=="weekly" and string.gsub(q.text,"%d+",tostring(need)) or q.text,have=math.clamp(stat(p,q.stat)-d.base[id],0,need),need=need,claimed=d.claimed[id]==true,gems=kind=="weekly" and Story.WeeklyGems or Story.DailyGems})
+		table.insert(rows,{id=id,text=kind=="weekly" and string.gsub(q.text,"%d+",tostring(need)) or q.text,have=math.clamp(stat(p,q.stat)-d.base[id],0,need),need=need,claimed=d.claimed[id]==true,stat=q.stat,gems=kind=="weekly" and Story.WeeklyGems or Story.DailyGems})
 	end
 	return rows,(d.key+1)*(kind=="daily" and 86400 or 604800)-(kind=="weekly" and 259200 or 0)
 end
@@ -134,7 +134,7 @@ function Quest.Send(p,force)
 	if not Data.IsLoaded(p) or not p.Parent then return end
 	local s,c=Quest.Step(p);local current
 	if s then local have,need=Quest.Progress(p,s);current={text=s.text,kind=s.kind,stat=s.stat,zone=s.zone or c.zone,npc=s.npc,have=have,need=need,blocked=Quest.Blocked(s)} end
-	local steps={};if c then for i,step in c.steps do steps[i]={text=step.text,done=i<Data.Get(p,"Quests.main.step")} end end
+	local steps={};if c then for i,step in c.steps do steps[i]={text=step.text,kind=step.kind,stat=step.stat,done=i<Data.Get(p,"Quests.main.step")} end end
 	local daily,dailyEnds=sideRows(p,"daily");local weekly,weeklyEnds=sideRows(p,"weekly")
 	local packet={enabled=Features.IsEnabled("Story"),chapter=Data.Get(p,"Progress.StoryChapter"),title=c and c.title or "Main Story Complete",steps=steps,current=current,
 		daily=daily,dailyEnds=dailyEnds,weekly=weekly,weeklyEnds=weeklyEnds,index=Quest.IndexCounts(p)}

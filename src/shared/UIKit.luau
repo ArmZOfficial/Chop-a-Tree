@@ -56,6 +56,9 @@ function UIKit.New(className: string, props: Props?, children: { Instance }?): a
 	if props and props.Parent then
 		inst.Parent = props.Parent
 	end
+	if inst:IsA("ScrollingFrame") then
+		task.defer(function() if inst.Parent then UIKit.ScrollEdges(inst) end end)
+	end
 	return inst
 end
 local New = UIKit.New
@@ -153,6 +156,21 @@ UIKit.Windows=table.freeze({
  ArenaHUD={rgb(170,30,40),rgb(255,186,0)},
 })
 local DEFAULT={rgb(64,86,140),rgb(0,150,255)}
+-- Every list: padding keeps full cards' outlines intact and the scrollbar gets its own lane.
+function UIKit.ScrollEdges(scroll: ScrollingFrame)
+ local owner=scroll:FindFirstAncestorWhichIsA("ScreenGui")
+ if owner and owner.Name=="AdminPanel" then return end
+ if scroll:GetAttribute("SoftEdges") then return end
+ scroll:SetAttribute("SoftEdges",true)
+ scroll.ClipsDescendants=true
+ scroll.VerticalScrollBarInset=Enum.ScrollBarInset.ScrollBar
+ local padding=scroll:FindFirstChildOfClass("UIPadding") or New("UIPadding",{Parent=scroll})
+ for _,key in {"PaddingTop","PaddingBottom","PaddingLeft","PaddingRight"} do
+  local value=(padding :: any)[key];(padding :: any)[key]=UDim.new(value.Scale,math.max(value.Offset,8))
+ end
+ -- No colour overlay at the edges: it never matched the ink panels behind lists and muddied the cards
+ -- (ArmZ 2026-10-03). Rows clip cleanly inside the padded frame; the scrollbar shows there is more.
+end
 -- color nil = window colour; alpha = see-through ink panel; lip = 3D bottom edge;
 -- studs = overlay transparency (1 = none); glyph = drawn symbol (close/delete/claimed).
 local function st(color: Color3?, radius: number, stroke: number, studs: number, lip: boolean?, alpha: number?, glyph: string?)
@@ -307,18 +325,36 @@ function UIKit.Button(o: ButtonOptions): (Frame, TextButton)
 	button:SetAttribute("Fill",color);UIKit.Skin(button,"controls",color==C.Slate and "inert" or "buttonGreen");base.Visible=false
 	for _,l in button:GetDescendants() do if l:IsA("UIStroke") and l.Parent:IsA("TextLabel") then l.Thickness=math.max(2,(o.textSize or 17)/10) end end
 	local pressed = false
-	button.MouseButton1Down:Connect(function()
-		pressed = true
-		button.Position = UDim2.fromOffset(0, shadow - 1)
+	local hovered = false
+	local focused = false
+	local motionScale = New("UIScale", {Name="ButtonMotion", Parent=button})
+	local scaleTween: Tween? = nil
+	local moveTween: Tween? = nil
+	local function animate()
+		if scaleTween then scaleTween:Cancel() end
+		if moveTween then moveTween:Cancel() end
+		local reduced = game:GetService("GuiService").ReducedMotionEnabled
+		local scale = if o.disabled then 1 else (if pressed then 0.96 else (if hovered or focused then 1.025 else 1))
+		scaleTween = TweenService:Create(motionScale, TweenInfo.new(reduced and 0 or 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale=scale})
+		moveTween = TweenService:Create(button, TweenInfo.new(reduced and 0 or 0.1), {Position=UDim2.fromOffset(0, pressed and shadow-1 or 0)})
+		scaleTween:Play();moveTween:Play()
+	end
+	button.InputBegan:Connect(function(input)
+		if o.disabled then return end
+		if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then pressed=true;animate() end
 	end)
 	local function release()
 		if pressed then
 			pressed = false
-			button.Position = UDim2.fromOffset(0, 0)
+			animate()
 		end
 	end
-	button.MouseButton1Up:Connect(release)
-	button.MouseLeave:Connect(release)
+	button.InputEnded:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then release() end end)
+	button.MouseEnter:Connect(function() hovered=true;animate() end)
+	button.MouseLeave:Connect(function() hovered=false;pressed=false;animate() end)
+	button.SelectionGained:Connect(function() focused=true;animate() end)
+	button.SelectionLost:Connect(function() focused=false;pressed=false;animate() end)
+	button.Destroying:Connect(function() if scaleTween then scaleTween:Cancel() end;if moveTween then moveTween:Cancel() end end)
 	button.Activated:Connect(function()
 		if o.disabled or not o.onClick then
 			return
@@ -419,7 +455,7 @@ end
 function UIKit.Icon(parent: Instance, id: string, props: Props?): ImageLabel?
  local atlas=require(game.ReplicatedStorage.Shared.Config.UIIcons)
  local r=atlas.Rects[id];if not r then return nil end
- local p: Props={Name="Art",BackgroundTransparency=1,Size=UDim2.fromOffset(64,64),ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..atlas.AssetId,ImageRectOffset=Vector2.new(r[1],r[2]),ImageRectSize=Vector2.new(r[3],r[4]),Parent=parent}
+ local p: Props={Name="Art",BackgroundTransparency=1,Size=UDim2.fromOffset(64,64),ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..(r[5] or atlas.AssetId),ImageRectOffset=Vector2.new(r[1],r[2]),ImageRectSize=Vector2.new(r[3],r[4]),Parent=parent}
  if props then for k,v in props do p[k]=v end end
  return New("ImageLabel",p)
 end
@@ -473,7 +509,21 @@ function UIKit.Tab(o: Props): TextButton
  local tab=New("TextButton",{Name=o.name or "Tab",AutoButtonColor=false,Text="",BackgroundTransparency=1,Size=o.size or UDim2.fromOffset(200,54),Position=o.position or UDim2.new(),LayoutOrder=o.layoutOrder or 0,Parent=o.parent})
  local row=New("Frame",{Name="Content",BackgroundTransparency=1,Size=UDim2.new(1,0,1,-4),ZIndex=3,Parent=tab},{New("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,HorizontalAlignment=Enum.HorizontalAlignment.Center,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,10),SortOrder=Enum.SortOrder.LayoutOrder})})
  if o.icon then UIKit.Symbol(row,o.icon,{Name="TabIcon",Size=UDim2.fromOffset(o.iconSize or 38,o.iconSize or 38),LayoutOrder=1,ZIndex=3}) end
- UIKit.Label(o.text,o.textSize or 26,{Name="TabLabel",AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.fromOffset(0,40),TextWrapped=false,LayoutOrder=2,ZIndex=3,Parent=row}):FindFirstChildOfClass("UIStroke").Thickness=2.5
+ local base=o.textSize or 26
+ local label=UIKit.Label(o.text,base,{Name="TabLabel",AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.fromOffset(0,40),TextWrapped=false,LayoutOrder=2,ZIndex=3,Parent=row})
+ label:FindFirstChildOfClass("UIStroke").Thickness=2.5
+ -- Shrink long labels (Merchant, Thai) to the tab. Width is measured at the current size and scaled to base;
+ -- the guard stops the resize re-firing this handler, and growing needs 2px so rounding cannot oscillate.
+ local fitting=false
+ local function fit()
+  if fitting then return end
+  local icon=row:FindFirstChild("TabIcon");local s=icon and icon.AbsoluteSize.X/(o.iconSize or 38) or 1
+  local room=tab.AbsoluteSize.X-(icon and icon.AbsoluteSize.X+10*s or 0)-14*s
+  if label.AbsoluteSize.X<=0 or room<=0 then return end
+  local size=math.clamp(math.floor(base*room/(label.AbsoluteSize.X*base/label.TextSize)),12,base)
+  if size<label.TextSize or size>=label.TextSize+2 or (size==base and label.TextSize~=base) then fitting=true;label.TextSize=size;fitting=false end
+ end
+ label:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit);tab:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
  tab.Activated:Connect(function() if o.onClick then o.onClick() end end)
  UIKit.SetTab(tab,o.state)
  return tab
@@ -521,6 +571,84 @@ function UIKit.SetBadge(badge: GuiObject, text: string, kind: string?)
  local art=UIKit.Skin(badge,"controls",sprite);if art then art.ZIndex=badge.ZIndex end
  local label=badge:FindFirstChild("BadgeLabel") :: TextLabel?
  if label then label.Text=text;label.Position=UDim2.fromOffset(kind=="claimed" and 18 or 0,0) end
+end
+
+-- List card: icon, short title, then a progress bar or one short line, an optional reward chip and a
+-- status badge on the right. Built once per name and updated in place (lists refresh every second).
+-- o={icon,iconColor?,title,sub?,progress?(0..1),count?,chip?={icon,text},badge?={text,kind},style?(cards sprite),dim?,onClick?}
+-- A calm, illustrated empty state: one reason and one useful next step.
+function UIKit.EmptyState(parent: Instance, name: string, o: Props): TextButton
+ local r=parent:FindFirstChild(name) :: TextButton
+ if not r then
+  r=New("TextButton",{Name=name,Text="",Selectable=false,AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.new(1,-8,0,190),Parent=parent})
+  UIKit.Icon(r,o.icon or "box",{Name="StateIcon",AnchorPoint=Vector2.new(.5,0),Position=UDim2.fromScale(.5,.06),Size=UDim2.fromOffset(68,68)})
+  UIKit.Label("",22,{Name="Heading",Position=UDim2.fromScale(.05,.45),Size=UDim2.fromScale(.9,.22),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=r})
+  New("UITextSizeConstraint",{MaxTextSize=22,Parent=r.Heading})
+  UIKit.Label("",17,{Name="Hint",FontFace=UIKit.FontBody,Position=UDim2.fromScale(.05,.68),Size=UDim2.fromScale(.9,.26),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=r})
+  New("UITextSizeConstraint",{MaxTextSize=17,Parent=r.Hint})
+ end
+ UIKit.Skin(r,"cards","product");r.Heading.Text=o.title;r.Hint.Text=o.sub or ""
+ return r
+end
+local rowClick=setmetatable({},{__mode="k"})
+function UIKit.Row(parent: Instance, name: string, o: Props): TextButton
+ local r=parent:FindFirstChild(name) :: TextButton?
+ if not r then
+  r=New("TextButton",{Name=name,Text="",AutoButtonColor=false,BackgroundTransparency=1,Size=UDim2.new(1,-8,0,64),Parent=parent})
+  local row=r :: TextButton
+  row.Activated:Connect(function() local fn=rowClick[row];if fn then fn() end end)
+  UIKit.Label("",20,{Name="Title",TextWrapped=false,ZIndex=4,Parent=row}).TextScaled=true
+  New("UITextSizeConstraint",{MaxTextSize=20,MinTextSize=12,Parent=row.Title})
+  UIKit.Label("",15,{Name="Sub",FontFace=UIKit.FontBody,TextColor3=Color3.fromRGB(235,240,250),TextWrapped=false,ZIndex=4,Parent=row}).TextScaled=true
+  New("UITextSizeConstraint",{MaxTextSize=15,MinTextSize=10,Parent=row.Sub})
+  local _,fill=UIKit.Progress(row,{Name="Bar",Size=UDim2.fromOffset(200,22),ZIndex=4});fill.ZIndex=5
+  UIKit.Label("",15,{Name="Count",TextWrapped=false,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4,Parent=row})
+  local chip=New("Frame",{Name="Chip",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,.5),Size=UDim2.fromOffset(104,40),ZIndex=4,Parent=row})
+  UIKit.Label("",20,{Name="ChipText",Position=UDim2.fromOffset(38,0),Size=UDim2.new(1,-38,1,0),TextWrapped=false,ZIndex=4,Parent=chip}).TextScaled=true
+  New("UITextSizeConstraint",{MaxTextSize=21,MinTextSize=11,Parent=chip.ChipText})
+  UIKit.Badge(row,"","gold",{Name="Status",AnchorPoint=Vector2.new(1,.5),Position=UDim2.new(1,-12,.5,0),Size=UDim2.fromOffset(120,40),ZIndex=4})
+ end
+ local row=r :: any
+ rowClick[row]=o.onClick
+ UIKit.Skin(row,"cards",o.style or "product")
+ local h=o.height or 64;row.Size=UDim2.new(1,-8,0,h)
+ -- Icon (rebuilt only when the symbol changes).
+ local key=(o.icon or "").."#"..(o.iconColor and o.iconColor:ToHex() or "")
+ if row:GetAttribute("IconKey")~=key then
+  local old=row:FindFirstChild("RowIcon");if old then old:Destroy() end
+  local art=o.icon and UIKit.Symbol(row,o.icon,{Name="RowIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,12,.5,0),Size=UDim2.fromOffset(46,46),ZIndex=4})
+  if art and o.iconColor then art.ImageColor3=o.iconColor end
+  row:SetAttribute("IconKey",key)
+ end
+ local icon=row:FindFirstChild("RowIcon");local left=icon and 70 or 18
+ -- Right side: badge, then chip.
+ local right=12
+ local badge=row.Status;badge.Visible=o.badge~=nil
+ if o.badge then UIKit.SetBadge(badge,o.badge.text,o.badge.kind);badge.Size=UDim2.fromOffset(o.badge.width or 120,40);right+=badge.Size.X.Offset+10 end
+ local chip=row.Chip;chip.Visible=o.chip~=nil
+ if o.chip then
+  chip.Size=UDim2.fromOffset(o.chip.width or 104,40);chip.Position=UDim2.new(1,-right,.5,0);chip.ChipText.Text=o.chip.text
+  local cKey=o.chip.icon..(o.chip.color and o.chip.color:ToHex() or "")
+  if chip:GetAttribute("IconKey")~=cKey then local old=chip:FindFirstChild("ChipIcon");if old then old:Destroy() end
+   local a=UIKit.Symbol(chip,o.chip.icon,{Name="ChipIcon",AnchorPoint=Vector2.new(0,.5),Position=UDim2.new(0,0,.5,0),Size=UDim2.fromOffset(34,34),ZIndex=4});if a and o.chip.color then a.ImageColor3=o.chip.color end
+   chip:SetAttribute("IconKey",cKey) end
+  right+=chip.Size.X.Offset+8
+ end
+ -- Middle: title on top, then a bar (with count) or a short line; a lone title is centred.
+ local title,sub,bar,count=row.Title,row.Sub,row.Bar,row.Count
+ local lower=o.progress~=nil or (o.sub~=nil and o.sub~="")
+ title.Text=o.title or "";title.Position=UDim2.fromOffset(left,lower and 7 or 0);title.Size=UDim2.new(1,-left-right,0,lower and 26 or h)
+ bar.Visible=o.progress~=nil;count.Visible=o.progress~=nil and o.count~=nil
+ if o.progress then
+  local cw=o.count and 74 or 0
+  bar.Position=UDim2.fromOffset(left,h-30);bar.Size=UDim2.new(1,-left-right-cw,0,22);UIKit.SetProgress(bar,o.progress,o.barColor)
+  count.Text=o.count or "";count.Position=UDim2.new(1,-right-cw+8,0,h-30);count.Size=UDim2.fromOffset(cw-8,22)
+ end
+ sub.Visible=o.progress==nil and o.sub~=nil and o.sub~=""
+ sub.Text=o.sub or "";sub.Position=UDim2.fromOffset(left,36);sub.Size=UDim2.new(1,-left-right,0,20)
+ local fade=o.dim and .45 or 0
+ title.TextTransparency=fade;sub.TextTransparency=fade;if icon then (icon :: any).ImageTransparency=fade end
+ return row
 end
 
 -- Track with native fill; value is 0..1.

@@ -11,7 +11,11 @@ local Data=require(script.Parent.ClientData)
 local Progression=require(S.Config.Progression);local CollectionMath=require(S.CollectionMath)
 local Controller={}
 local WeaponVisual=require(S.WeaponVisual);local Rarities=require(S.Config.Rarities)
-local TABS={{"Main","Main Quests"},{"Daily","Daily"},{"Weekly","Weekly"},{"Index","Index"},{"Achievements","Achievements"},{"Warp","Warp"}}
+local TABS={{"Main","Story","book"},{"Daily","Daily","timer"},{"Weekly","Weekly","season"},{"Index","Index","star"},{"Achievements","Awards","medal"},{"Warp","Warp","pin"}}
+-- Row icons per quest objective (stat or step kind), so a row reads without its text.
+local STAT_ICON={TreesCut="tree",ChestsOpened="chest",EggsHatched="egg",SeedsPlanted="leaf",Harvests="leaf",BossKills="boss"}
+local KIND_ICON={talk="talk",zone="pin",boss="boss",shrine="shrine"}
+local function taskIcon(s) return s and (KIND_ICON[s.kind] or STAT_ICON[s.stat]) or "book" end
 local CATS={{"weapons","Weapons"},{"pets","Pets"},{"seeds","Trees / Seeds"},{"mutations","Mutation"}}
 
 local function tagged(tag,attr,value)
@@ -97,9 +101,24 @@ function Controller.Start()
 	local panel=UI.New("Frame",{Name="Panel",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(780,570),Visible=false,BackgroundColor3=UI.Colors.Panel,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(14)})
 	UI.Label("Quests • Index • Warp",22,{Parent=panel})
 	local message=UI.Label("",14,{Name="Message",Position=UDim2.fromOffset(0,32),Size=UDim2.new(1,0,0,28),Parent=panel})
-	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,112),Size=UDim2.new(1,0,1,-170),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
+	local list=UI.New("ScrollingFrame",{Name="Items",Position=UDim2.fromOffset(0,116),Size=UDim2.new(1,0,1,-120),BackgroundTransparency=1,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new(),Parent=panel},{UI.List(Enum.FillDirection.Vertical,8)})
 	local indexCategory="weapons"
+	local indexPage=1
+	local summary=UI.New("Frame",{Name="CollectionSummary",Position=UDim2.fromOffset(0,116),Size=UDim2.new(1,0,0,64),BackgroundTransparency=1,Visible=false,Parent=panel},{UI.Grid(4,60,8)})
+	local collectionHint=UI.Label("",15,{Name="CollectionHint",FontFace=UI.FontBody,Position=UDim2.fromOffset(0,181),Size=UDim2.new(1,0,0,24),TextXAlignment=Enum.TextXAlignment.Center,Visible=false,Parent=panel})
+	local pages=UI.New("Frame",{Name="CollectionPages",Position=UDim2.new(0,0,1,-60),Size=UDim2.new(1,0,0,60),BackgroundTransparency=1,Visible=false,Parent=panel})
+	local pageLabel=UI.Label("",18,{Position=UDim2.fromOffset(114,0),Size=UDim2.new(1,-228,0,28),TextXAlignment=Enum.TextXAlignment.Center,Parent=pages})
+	UI.Label("+1 Gem per discovery • Full set +50",14,{FontFace=UI.FontBody,Position=UDim2.fromOffset(114,30),Size=UDim2.new(1,-228,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=pages})
+	local categoryTabs={};local symbols={weapons="sword",pets="egg",seeds="leaf",mutations="bolt"}
 	local tab="Main";local busy=false;local render
+	local pageCount=1
+	for i,step in {-1,1} do local direction=step
+		local b=UI.Button({text=step<0 and "Back" or "Next",textSize=20,color=UI.Colors.Blue,size=UDim2.fromOffset(106,62),onClick=function() indexPage=math.clamp(indexPage+direction,1,pageCount);list.CanvasPosition=Vector2.zero;render() end})
+		b.Name=step<0 and "Previous" or "Next";b.Position=step<0 and UDim2.new() or UDim2.new(1,-106,0,0);b.Parent=pages
+	end
+	for _,c in CATS do local cat=c[1]
+		categoryTabs[cat]=UI.Tab({name=cat,text=c[2],icon=symbols[cat],iconSize=32,textSize=18,parent=summary,onClick=function() indexCategory=cat;indexPage=1;list.CanvasPosition=Vector2.zero;render() end})
+	end
 	local function call(action,arg,remote)
 		if busy then return end;busy=true
 		task.spawn(function()
@@ -111,44 +130,47 @@ function Controller.Start()
 		end)
 	end
 	-- Rows are updated in place so clicks are not lost during the 1-second refresh.
-	local callbacks,keep,order={},{},0
-	local function row(name,text,color,callback)
-		order+=1;callbacks[name]=callback;keep[name]=true
-		local b=list:FindFirstChild(name)
-		if b then local label=b.Button:FindFirstChildWhichIsA("TextLabel",true);if label then label.Text=text end;UI.SetButtonColor(b,color)
-		else b=UI.Button({text=text,color=color,size=UDim2.new(1,-7,0,54),onClick=function() local fn=callbacks[name];if fn then fn() end end});b.Name=name;b.Parent=list end
-		b.LayoutOrder=order;return b
-	end
-	local function none() end
+	local keep,order={},0
+	local function card(name,o) order+=1;keep[name]=true;local r=UI.Row(list,name,o);r.LayoutOrder=order;return r end
 	local function sideRows(rows,kind,ends)
-		row("Reset_"..kind,(kind=="daily" and "Daily Quests" or "Weekly Quests").." • Resets in "..math.max(0,math.floor((ends-os.time())/3600)).." hrs",UI.Colors.Slate,none)
-		for _,q in rows do local id=q.id
-			row(kind.."_"..id,q.text.." • "..q.have.."/"..q.need.."\n"..(q.claimed and "Reward claimed" or (q.have>=q.need and "Claim +"..q.gems.." Gems" or "Rewards "..q.gems.." Gems")),
-				q.claimed and UI.Colors.Disabled or (q.have>=q.need and UI.Colors.Green or UI.Colors.Blue),function() call("Claim",{kind=kind,id=id}) end)
+		card("Reset_"..kind,{icon="timer",title=kind=="daily" and "Daily Quests" or "Weekly Quests",chip={icon="timer",text=math.max(0,math.floor((ends-os.time())/3600)).."h"}})
+		for _,q in rows do local id=q.id;local ready=q.have>=q.need and not q.claimed
+			card(kind.."_"..id,{icon=STAT_ICON[q.stat] or "book",title=q.text,progress=q.have/q.need,count=q.have.."/"..q.need,chip={icon="gem",text="+"..q.gems},
+				badge=q.claimed and {text="",kind="claimed",width=48} or ready and {text="Claim",kind="ready"} or nil,style=ready and "today" or "product",dim=q.claimed,
+				onClick=function() call("Claim",{kind=kind,id=id}) end})
 		end
 	end
 	render=function()
 		if not panel.Visible or not quest then return end
-		for _,t in TABS do local b=panel:FindFirstChild("Tab"..t[1]);if b then UI.SetButtonColor(b,t[1]==tab and UI.Colors.Orange or UI.Colors.Purple) end end -- selected tab
+		summary.Visible=tab=="Index";pages.Visible=tab=="Index";collectionHint.Visible=tab=="Index";message.Visible=tab~="Index"
+		if not panel:GetAttribute("PhoneLayout") then
+			list.Position=UDim2.fromOffset(0,tab=="Index" and 208 or 116)
+			list.Size=UDim2.new(1,0,1,tab=="Index" and -274 or -120)
+		end
+		panel:SetAttribute("StoryTab",tab)
+		for _,t in TABS do local b=panel:FindFirstChild("Tab"..t[1]);if b then UI.SetTab(b,t[1]==tab and "gold" or nil) end end -- selected tab
 		keep,order={},0
 		if tab=="Main" then
-			row("Chapter",quest.title,UI.Colors.Purple,none)
-			for i,s in quest.steps do row("Step"..i,(s.done and "✓ " or (i==#quest.steps+1 and "" or "• "))..s.text,s.done and UI.Colors.Green or UI.Colors.Slate,none) end
-			if quest.current then row("Current","Now: "..quest.current.text..(quest.current.need>1 and " ("..quest.current.have.."/"..quest.current.need..")" or "")..(quest.current.blocked and "\nZone available in Phase 7" or ""),UI.Colors.Orange,none) end
+			local done=0;for _,st in quest.steps do if st.done then done+=1 end end
+			card("Chapter",{icon="book",title=quest.title,progress=#quest.steps>0 and done/#quest.steps or 1,count=done.."/"..#quest.steps,style="selected"})
+			local now=false
+			for i,st in quest.steps do
+				local cur=not st.done and not now and quest.current or nil;if cur then now=true end
+				card("Step"..i,{icon=st.done and "check" or taskIcon(cur or st),title=st.text,dim=st.done,style=cur and "today" or "product",
+					progress=cur and cur.need>1 and cur.have/cur.need or nil,count=cur and cur.need>1 and cur.have.."/"..cur.need or nil,sub=cur and cur.blocked and "Zone available in Phase 7" or nil})
+			end
 		elseif tab=="Daily" then sideRows(quest.daily,"daily",quest.dailyEnds)
 		elseif tab=="Weekly" then sideRows(quest.weekly,"weekly",quest.weeklyEnds)
         elseif tab=="Index" then
             local idx=Data.Get("Index") or {}
-            keep.CollectionSummary=true;keep.CollectionGrid=true
+            collectionHint.Text=indexCategory=="weapons" and "Open forest chests" or indexCategory=="pets" and "Hatch eggs" or indexCategory=="seeds" and "Plant seeds" or "Find mutations"
+            keep.CollectionGrid=true
             local keys={};for id in idx[indexCategory] or {} do table.insert(keys,id) end;table.sort(keys)
-            local signature=indexCategory..":"..table.concat(keys,",")
+            local signature=indexCategory..":"..indexPage..":"..tostring(panel:GetAttribute("PhoneLayout"))..":"..table.concat(keys,",")
             local currentGrid=list:FindFirstChild("CollectionGrid")
             if not currentGrid or currentGrid:GetAttribute("Signature")~=signature then
-            local old=list:FindFirstChild("CollectionSummary");if old then old:Destroy() end
-            local summary=UI.New("Frame",{Name="CollectionSummary",Size=UDim2.new(1,-7,0,64),BackgroundTransparency=1,LayoutOrder=0,Parent=list},{UI.Grid(4,60,8)});keep.CollectionSummary=true
-            local symbols={weapons="axe",pets="egg",seeds="leaf",mutations="season"}
             for _,c in CATS do local cat=c[1];local n=quest.index[cat]
-                local button=UI.Button({text=c[2].."\n"..n.have.." / "..n.total,textSize=16,color=indexCategory==cat and UI.Colors.Orange or UI.Colors.Rail,onClick=function() indexCategory=cat;render() end});button.Name=cat;button.Parent=summary
+                local t=categoryTabs[cat];t.Content.TabLabel.Text=c[2].."\n"..n.have.."/"..n.total;UI.SetTab(t,indexCategory==cat and "gold" or nil)
             end
             local oldGrid=list:FindFirstChild("CollectionGrid");if oldGrid then oldGrid:Destroy() end
             local defs=indexCategory=="weapons" and Weapons.List or indexCategory=="pets" and Pets.List or indexCategory=="seeds" and Seeds.List or {}
@@ -157,49 +179,62 @@ function Controller.Start()
                 for id in Pets.Mutations do if not Mutations.Values[id] then table.insert(defs,{id=id,name=id}) end end
                 table.sort(defs,function(a,b) return a.id<b.id end)
             end
-            local gallery=UI.New("Frame",{Name="CollectionGrid",BackgroundTransparency=1,Size=UDim2.new(1,-7,0,math.ceil(#defs/4)*140),LayoutOrder=1,Parent=list},{UI.Grid(4,130,10)});keep.CollectionGrid=true
+            defs=table.clone(defs)
+            table.sort(defs,function(a,b)
+                local aa=idx[indexCategory] and idx[indexCategory][a.id] and 1 or 0
+                local bb=idx[indexCategory] and idx[indexCategory][b.id] and 1 or 0
+                if aa~=bb then return aa>bb end
+                return a.id<b.id
+            end)
+            local perPage=panel:GetAttribute("PhoneLayout") and 8 or 12
+            pageCount=math.max(1,math.ceil(#defs/perPage));indexPage=math.clamp(indexPage,1,pageCount)
+            pageLabel.Text="Page "..indexPage.." / "..pageCount
+            local first,last=(indexPage-1)*perPage+1,math.min(indexPage*perPage,#defs)
+            local cellHeight=panel:GetAttribute("PhoneLayout") and 104 or 120
+            local gallery=UI.New("Frame",{Name="CollectionGrid",BackgroundTransparency=1,Size=UDim2.new(1,-7,0,math.ceil((last-first+1)/4)*(cellHeight+10)-10),LayoutOrder=1,Parent=list},{UI.Grid(4,cellHeight,10)});keep.CollectionGrid=true
             gallery:SetAttribute("Signature",signature)
-            for i,def in defs do
+            for i=first,last do local def=defs[i]
                 local discovered=idx[indexCategory] and idx[indexCategory][def.id]
-                local color=discovered and (def.rarity and Rarities.Color[def.rarity] or UI.Colors.Green) or UI.Colors.PanelDark
+                local color=discovered and (def.rarity and Rarities.Color[def.rarity] or UI.Colors.Green) or Color3.fromRGB(30,106,125)
                 local card=UI.New("Frame",{Name="Entry_"..def.id,BackgroundColor3=color,LayoutOrder=i,Parent=gallery},{UI.Corner(10),UI.Stroke(3)})
-                UI.Label(discovered and def.name or "Undiscovered",14,{Position=UDim2.fromOffset(3,3),Size=UDim2.new(1,-6,0,32),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
-                if indexCategory=="weapons" then
-                    local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(4,35),Size=UDim2.new(1,-8,1,-55),Ambient=Color3.new(1,1,1),Parent=card})
+                UI.Label(discovered and def.name or "Not found",17,{Position=UDim2.new(0,6,1,-48),Size=UDim2.new(1,-12,0,26),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
+                if discovered and indexCategory=="weapons" then
+                    local view=UI.New("ViewportFrame",{BackgroundTransparency=1,Position=UDim2.fromOffset(8,4),Size=UDim2.new(1,-16,1,-54),Ambient=Color3.new(1,1,1),Parent=card})
                     local world=UI.New("WorldModel",{Parent=view});local model=WeaponVisual.Build(def,{giant=false},true);model.Parent=world
-                    if not discovered then for _,v in model:GetDescendants() do if v:IsA("BasePart") then v.Color=Color3.fromRGB(15,12,10) end end end
                     local cf,size=model:GetBoundingBox();local cam=UI.New("Camera",{FieldOfView=35,CFrame=CFrame.lookAt(cf.Position+Vector3.new(size.X*.3,size.Y*.15,math.max(size.Magnitude,4)*1.45),cf.Position),Parent=view});view.CurrentCamera=cam
                 else
-                    UI.Icon(card,symbols[indexCategory],{Position=UDim2.new(.5,-32,0,39),Size=UDim2.fromOffset(64,64),ImageColor3=discovered and Color3.new(1,1,1) or Color3.new(0,0,0)})
+                    UI.Icon(card,discovered and symbols[indexCategory] or "lock",{Position=UDim2.new(.5,-30,0,10),Size=UDim2.fromOffset(60,60),ImageTransparency=discovered and 0 or .15})
                 end
-                UI.Label(discovered and "Collected" or "?",13,{Position=UDim2.new(0,0,1,-24),Size=UDim2.new(1,0,0,22),TextXAlignment=Enum.TextXAlignment.Center,Parent=card})
+                UI.Label(discovered and "Collected" or "",14,{FontFace=UI.FontBody,Position=UDim2.new(0,4,1,-22),Size=UDim2.new(1,-8,0,20),TextXAlignment=Enum.TextXAlignment.Center,TextScaled=true,Parent=card})
+                if discovered then UI.Icon(card,"check",{Position=UDim2.new(1,-30,0,4),Size=UDim2.fromOffset(26,26),ZIndex=5}) end
             end
             end
-            row("IndexRewards","Discover: +1 Gem • Complete a category: +50 Gems\nYour collection stays after Rebirth",UI.Colors.Slate,none).LayoutOrder=10000
 		elseif tab=="Achievements" then
 			local d=Data.Get();local enabled=game.ReplicatedStorage.FeatureFlags:GetAttribute("Achievements")==true
-			row("TitleNone","Remove your displayed title",UI.Colors.Slate,function() call("Equip","","AchievementAction") end)
+			card("TitleNone",{icon="medal",title="Remove your displayed title",dim=(d.Achievements.equipped or "")=="",onClick=function() call("Equip","","AchievementAction") end})
 			for _,def in Progression.Achievements do local a=def;local claimed=d.Achievements.claimed[a.id];local have=CollectionMath.AchievementProgress(d,a)
 				local equipped=d.Achievements.equipped==a.id
-				local text=a.name.." • "..NF.Short(have).."/"..NF.Short(a.need).." • "..a.gems.." Gems\n"..a.title.." • "..(not enabled and "System disabled" or (claimed and (equipped and "Title Equipped" or "Select Title") or (have>=a.need and "Claim reward & title" or "Incomplete")))
-				row("Achievement_"..a.id,text,equipped and UI.Colors.Purple or (claimed or have>=a.need) and UI.Colors.Green or UI.Colors.Slate,function() if enabled then call(claimed and "Equip" or "Claim",a.id,"AchievementAction") end end)
+				local ready=not claimed and have>=a.need
+				card("Achievement_"..a.id,{icon=STAT_ICON[a.stat] or "medal",title=a.name,sub=claimed and a.title or nil,progress=not claimed and math.min(1,have/a.need) or nil,count=NF.Short(math.min(have,a.need)).."/"..NF.Short(a.need),
+					chip=not claimed and {icon="gem",text="+"..a.gems} or nil,style=equipped and "selected" or ready and "today" or "product",
+					badge=not enabled and {text="Off"} or equipped and {text="Equipped",kind="gold"} or claimed and {text="Equip",kind="ready"} or ready and {text="Claim",kind="ready"} or nil,
+					onClick=function() if enabled then call(claimed and "Equip" or "Claim",a.id,"AchievementAction") end end})
 			end
 		else
 			local unlocked=Data.Get("Progress.UnlockedZones") or {1}
-			row("Warp0","Rootfall Village\nEnd your current run and return home",UI.Colors.Green,function() call("Warp",0) end)
-			row("WarpHome","Home\nReturn to your base",UI.Colors.Green,function() call("Warp","Home") end) -- was on the removed world map
+			card("Warp0",{icon="flag",title="Rootfall Village",badge={text="Go",kind="ready"},onClick=function() call("Warp",0) end})
+			card("WarpHome",{icon="home",title="Home",badge={text="Go",kind="ready"},onClick=function() call("Warp","Home") end}) -- was on the removed world map
 			for _,z in Zones.List do local id=z.id;local open=table.find(unlocked,id)~=nil and z.built
-				row("Warp"..id,"Zone "..id.." • "..z.name.."\n"..(open and "Warp and start a run" or (not z.built and "Available in Phase 7" or "🔒 Defeat the previous boss and light its shrine")),open and UI.Colors.Teal or UI.Colors.Disabled,function() if open then call("Warp",id) end end)
+				card("Warp"..id,{icon=open and "pin" or "lock",title="Zone "..id.." • "..z.name,sub=not open and (not z.built and "Available in Phase 7" or "Defeat the previous boss and light its shrine") or nil,
+					badge=open and {text="Go",kind="ready"} or nil,dim=not open,onClick=function() if open then call("Warp",id) end end})
 			end
 		end
 		for _,v in list:GetChildren() do if v:IsA("GuiObject") and not keep[v.Name] then v:Destroy() end end
 	end
 	for i,t in TABS do local target=t[1]
-		local b=UI.Button({text=t[2],color=UI.Colors.Purple,size=UDim2.new(1/#TABS,-8,0,50),onClick=function() tab=target;message.Text="";render() end})
-		b.Name="Tab"..target;b.Position=UDim2.new((i-1)/#TABS,0,0,60);b.Parent=panel
+		UI.Tab({name="Tab"..target,text=t[2],icon=t[3],iconSize=30,textSize=18,size=UDim2.new(1/#TABS,-8,0,50),position=UDim2.new((i-1)/#TABS,0,0,60),parent=panel,onClick=function() tab=target;list.CanvasPosition=Vector2.zero;message.Text="";render() end})
 	end
-	local close=UI.Button({text="Close",color=UI.Colors.Slate,size=UDim2.new(1,0,0,50),onClick=function() panel.Visible=false end})
-	close.Name="Close";close.Position=UDim2.new(0,0,1,-50);close.Parent=panel
+	panel:GetAttributeChangedSignal("PhoneLayout"):Connect(function() task.defer(render) end)
 	local function resize() local size=workspace.CurrentCamera.ViewportSize;panel.Size=UDim2.fromOffset(math.min(780,size.X-28),math.min(570,size.Y-56)) end
 	local function show(target)
 		for _,name in {"InventoryHUD","GardenHUD","PetHUD"} do local other=player.PlayerGui:FindFirstChild(name);if other and other:FindFirstChild("Panel") then other.Panel.Visible=false end end

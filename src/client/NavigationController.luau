@@ -25,8 +25,8 @@ local specs={
 local function icon(parent,id)
  local canvas=UI.New("Frame",{Name="Icon",BackgroundTransparency=1,Position=UDim2.new(.5,-34,0,4),Size=UDim2.fromOffset(68,64),Parent=parent})
  local rect=Atlas.Rects[id]
- if rect then UI.New("ImageLabel",{Name="Art",BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..Atlas.AssetId,ImageRectOffset=Vector2.new(rect[1],rect[2]),ImageRectSize=Vector2.new(rect[3],rect[4]),Parent=canvas})
- else for row=0,1 do for col=0,1 do UI.New("Frame",{Position=UDim2.fromOffset(16+col*21,11+row*21),Size=UDim2.fromOffset(16,16),BackgroundColor3=Color3.fromRGB(255,213,92),Parent=canvas},{UI.Corner(4),UI.Stroke(2)}) end end end
+ if rect then UI.New("ImageLabel",{Name="Art",BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ScaleType=Enum.ScaleType.Fit,Image="rbxassetid://"..(rect[5] or Atlas.AssetId),ImageRectOffset=Vector2.new(rect[1],rect[2]),ImageRectSize=Vector2.new(rect[3],rect[4]),Parent=canvas})
+ else for row=0,1 do for col=0,1 do UI.New("Frame",{Position=UDim2.fromScale(.19+col*.34,.16+row*.36),Size=UDim2.fromScale(.28,.29),BackgroundColor3=Color3.fromRGB(255,213,92),Parent=canvas},{UI.Corner(4),UI.Stroke(2)}) end end end
 end
 function Navigation.Start()
 	local pg=Players.LocalPlayer.PlayerGui
@@ -35,8 +35,11 @@ function Navigation.Start()
 	-- Concept rail: while a primary window is open its menu tiles stack beside the window.
 	local side=UI.New("Frame",{Name="SideRail",BackgroundTransparency=1,AnchorPoint=Vector2.new(1,.5),Size=UDim2.fromOffset(104,630),Visible=false,Parent=gui},{UI.List(Enum.FillDirection.Vertical,6,Enum.HorizontalAlignment.Center)})
 	local sideScale=UI.New("UIScale",{Parent=side})
-	local RAIL=104
-	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(490,330),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
+	local RAIL,GAP=104,10 -- rail width and its gap to the window edge
+	local drawer=UI.New("Frame",{Name="MoreMenus",AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(520,360),BackgroundColor3=UI.Colors.Panel,Visible=false,Parent=gui},{UI.Corner(18),UI.Stroke(4),UI.Padding(16)})
+	local drawerShade=UI.New("TextButton",{Name="MenuShade",Text="",AutoButtonColor=false,Selectable=false,BackgroundColor3=UI.Colors.Outline,BackgroundTransparency=.45,Size=UDim2.fromScale(1,1),ZIndex=0,Visible=false,Parent=gui})
+	drawerShade.Activated:Connect(function() drawer.Visible=false end)
+	UI.New("TextButton",{Name="ClickBlocker",Text="",AutoButtonColor=false,Selectable=false,BackgroundTransparency=1,Size=UDim2.fromScale(1,1),ZIndex=0,Parent=drawer})
 	UI.Label("Choose a Menu",24,{Parent=drawer})
 	local grid=UI.New("ScrollingFrame",{Name="Menus",BackgroundTransparency=1,Position=UDim2.fromOffset(0,62),Size=UDim2.new(1,0,1,-62),CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=4,Parent=drawer},{UI.Grid(4,100,12),UI.Padding(4)}) -- padding: tile outlines are not clipped
 	local records,panels={},{};local compact=false;local layout;local hidBackpack=false
@@ -46,22 +49,28 @@ function Navigation.Start()
 		local open=false;for _,r in panels do if r.panel.Visible then open=true;r.panel.Visible=false end end
 		drawer.Visible=open or not drawer.Visible
 	end});more.Name="More";more.LayoutOrder=99;more.Parent=rail
-	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(72,80),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
+	local mobile=UI.Button({text="Menu",color=UI.Colors.Orange,size=UDim2.fromOffset(126,62),onClick=function() drawer.Visible=not drawer.Visible end});mobile.Name="Menu";mobile.Position=UDim2.fromOffset(10,65);mobile.Parent=gui
 	local function dress(holder,label,id)
 		local b=holder:FindFirstChild("Button");if not b then return end
 		b.BackgroundColor3=Color3.fromRGB(164,98,49)
         local border=b:FindFirstChildOfClass("UIStroke");if border then border.Thickness=4;border.Color=Color3.fromRGB(31,23,16) end
         local corner=b:FindFirstChildOfClass("UICorner");if corner then corner.CornerRadius=UDim.new(0,12) end
         UI.Skin(b,"chrome","navNormal");holder:SetAttribute("ArtCard",true)
-        local t=b:FindFirstChildWhichIsA("TextLabel",true);t.Text=label;t.TextSize=20;t.TextScaled=true;UI.New("UITextSizeConstraint",{MaxTextSize=20,MinTextSize=11,Parent=t});t.TextColor3=Color3.new(1,1,1);t.Position=UDim2.new(0,-5,1,-29);t.Size=UDim2.new(1,10,0,28);UI.TextStroke(3).Parent=t
+        local t=b:FindFirstChildWhichIsA("TextLabel",true);t.Text=label;t.TextSize=20;t.TextScaled=true;UI.New("UITextSizeConstraint",{MaxTextSize=20,MinTextSize=11,Parent=t});t.TextColor3=Color3.new(1,1,1);t.Position=UDim2.new(0,3,1,-29);t.Size=UDim2.new(1,-6,0,28);UI.TextStroke(3).Parent=t
 		icon(b,id);b.Activated:Connect(function() if holder~=more and holder~=mobile then drawer.Visible=false end end)
 	end
-	dress(more,"More","menu");dress(mobile,"Menu","menu");mobile:FindFirstChild("Button").Icon.Size=UDim2.fromOffset(42,35);mobile.Button.Icon.Position=UDim2.new(.5,-21,0,3)
+	dress(more,"More","menu");dress(mobile,"Menu","menu")
+	mobile.Button.Icon.Size=UDim2.fromOffset(38,38);mobile.Button.Icon.Position=UDim2.fromOffset(8,10)
+	local menuLabel=mobile.Button:FindFirstChildWhichIsA("TextLabel",true)
+	menuLabel.Position=UDim2.fromOffset(50,9);menuLabel.Size=UDim2.new(1,-56,0,40);menuLabel.TextWrapped=false;menuLabel.TextScaled=true
 	-- Phone layouts: {Position,Size} per named child (false = hidden); desktop values are restored
 	-- when the screen is no longer compact.
 	-- Re-applied whenever the window is shown or gains children: controllers build parts lazily.
 	local function reflow(panel,spec,on)
 		if not on and not panel:GetAttribute("PhoneLayout") then return end
+		if panel.Parent.Name=="PetHUD" then spec=Phone.PetLayout(panel:GetAttribute("PetTab")) end
+		if panel.Parent.Name=="StoryHUD" then spec=Phone.StoryLayout(panel:GetAttribute("StoryTab")) end
+		if panel.Parent.Name=="GardenHUD" then spec=Phone.GardenLayout(panel:GetAttribute("GardenTab")) end
 		panel:SetAttribute("PhoneLayout",on)
 		for path,r in spec do
 			local o=panel;for part in path:gmatch("[^.]+") do o=o and o:FindFirstChild(part) end
@@ -73,12 +82,36 @@ function Navigation.Start()
 			end
 		end
 	end
+	-- Animate a multiplier over responsive scale; layout remains the owner of geometry.
+	local function applyScale(panel,scale,value)
+		panel:SetAttribute("LayoutScale",value)
+		local motion=panel:FindFirstChild("EntranceMotion")
+		scale.Scale=value*(motion and motion.Value or 1)
+	end
+	local function animatePanel(panel)
+		local motion=UI.New("NumberValue",{Name="EntranceMotion",Value=1,Parent=panel})
+		local tween
+		motion:GetPropertyChangedSignal("Value"):Connect(function()
+			local scale=panel:FindFirstChildOfClass("UIScale")
+			if scale then scale.Scale=(panel:GetAttribute("LayoutScale") or 1)*motion.Value end
+		end)
+		panel:GetPropertyChangedSignal("Visible"):Connect(function()
+			if tween then tween:Cancel() end
+			if not panel.Visible or GuiService.ReducedMotionEnabled then motion.Value=1;return end
+			motion.Value=.94
+			tween=game:GetService("TweenService"):Create(motion,TweenInfo.new(.24,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),{Value=1})
+			tween:Play()
+		end)
+		panel.Destroying:Connect(function() if tween then tween:Cancel() end end)
+	end
+	animatePanel(drawer)
 	local function fit(panel,w,h,primary)
 		local v=workspace.CurrentCamera.ViewportSize;local scale=panel:FindFirstChildOfClass("UIScale") or UI.New("UIScale",{Parent=panel})
 		local owner=panel:FindFirstAncestorWhichIsA("ScreenGui")
 		local spec=owner and Phone[owner.Name.."."..panel.Name];local pad=40
 		if spec then if panel.Visible or not compact then reflow(panel,spec,compact) end;if compact then local sz=spec._size;w,h,pad=sz and sz[1] or Phone.W,sz and sz[2] or Phone.H,16 end end
-		if compact and owner and (primary or panel.Name=="Panel" or panel.Name=="Settings") then
+		if compact and panel.Name=="MoreMenus" then pad=16 end
+		if compact and owner and (primary or panel.Name=="Panel" or panel.Name=="Settings" or panel.Name=="MoreMenus") then
 			-- Phone: use the full screen height (the window may cover the topbar strip) and stay right of
 			-- Roblox's top-left buttons; +40 keeps the corner close button on screen.
 			local inset=GuiService:GetGuiInset().Y;local area=Vector2.new(v.X,v.Y-inset) -- not owner.AbsoluteSize: it lags a viewport change
@@ -86,17 +119,19 @@ function Navigation.Start()
 			local beside=math.min(1,(area.X-left-12)/(w+pad),(area.Y+inset-8)/(h+pad))
 			local below=math.min(1,(area.X-12)/(w+pad),(area.Y-8)/(h+pad)) -- narrow phones: under the topbar instead
 			local s=math.max(beside,below)
-			panel.Size=UDim2.fromOffset(w,h);scale.Scale=s;panel.AnchorPoint=Vector2.new(.5,.5)
+			panel.Size=UDim2.fromOffset(w,h);applyScale(panel,scale,s);panel.AnchorPoint=Vector2.new(.5,.5)
 			panel.Position=beside>=below and UDim2.new(0,left+(area.X-left)/2,.5,-inset/2+6*s) or UDim2.new(.5,0,.5,6*s)
 			return s
 		end
-		local rail=primary and not compact and RAIL or 0
-		panel.Size=UDim2.fromOffset(w,h);scale.Scale=math.min(1,(v.X-24-rail)/w,(v.Y-68)/h)
-		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*scale.Scale,.5,8*scale.Scale)
-		elseif panel.Name=="Panel" or panel.Name=="Settings" then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.fromScale(.5,.5) end -- undo the phone placement
-		return scale.Scale
+		local rail=primary and not compact and RAIL+GAP or 0
+		local s=math.min(1,(v.X-24-rail)/w,(v.Y-68)/h)
+		panel.Size=UDim2.fromOffset(w,h);applyScale(panel,scale,s)
+		if primary then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.new(.5,rail/2*s,.5,8*s)
+		elseif panel.Name=="Panel" or panel.Name=="Settings" or panel.Name=="MoreMenus" then panel.AnchorPoint=Vector2.new(.5,.5);panel.Position=UDim2.fromScale(.5,.5) end -- undo the phone placement
+		return s
 	end
 	local function bindPanel(panel,owner,w,h,primary)
+		animatePanel(panel)
         local titles={InventoryHUD={"Inventory","bag"},PetHUD={"Pets","egg"},GardenHUD={"Garden","leaf"},ShopHUD={"Shop","shop"},RewardsHUD={"Rewards","gift"},StoryHUD={"Quests & Index","book"},SeasonHUD={"Season Pass","season"},RebirthHUD={"Rebirth","cycle"},ArenaHUD={"Chop Arena","arena"},NavigationHUD={"Settings","gear"}}
         local title=titles[owner.Name]
         if panel.Name=="Panel" or panel.Name=="Settings" then UI.Window(panel,title and title[1],title and title[2]) else UI.Window(panel) end
@@ -116,6 +151,8 @@ function Navigation.Start()
 			if layout then layout() end
 		end)
 		local spec,pending=Phone[owner.Name.."."..panel.Name],false
+		if owner.Name=="PetHUD" then panel:GetAttributeChangedSignal("PetTab"):Connect(function() if layout then layout() end end) end
+		for _,attribute in {"StoryTab","GardenTab"} do panel:GetAttributeChangedSignal(attribute):Connect(function() if layout then layout() end end) end
 		if spec then panel.DescendantAdded:Connect(function()
 			if compact and panel.Visible and not pending then pending=true;task.defer(function() pending=false;reflow(panel,spec,compact) end) end
 		end) end
@@ -156,10 +193,10 @@ function Navigation.Start()
         local row=UI.New("Frame",{Name=key,Position=UDim2.fromOffset(0,50+(i-1)*66),Size=UDim2.new(1,0,0,58),BackgroundColor3=UI.Colors.PanelDark,Parent=settings},{UI.Corner(12),UI.Stroke(2,UI.Colors.Rail)})
         UI.Label(key,26,{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-120,1,-16),Parent=row})
         local toggle
-        toggle=UI.Button({text="ON",textSize=24,color=UI.Colors.Green,size=UDim2.fromOffset(88,52),onClick=function()
+        toggle=UI.Button({text="ON",textSize=22,color=UI.Colors.Green,size=UDim2.fromOffset(138,52),onClick=function()
             muteState[key]=not muteState[key];for _,s in game:GetDescendants() do sound(s) end
             toggle.Button:FindFirstChildWhichIsA("TextLabel",true).Text=muteState[key] and "OFF" or "ON";UI.SetButtonColor(toggle,muteState[key] and UI.Colors.Red or UI.Colors.Green)
-        end});toggle.Name="Toggle";toggle.Position=UDim2.new(1,-98,0,3);toggle.Parent=row;lift(toggle)
+        end});toggle.Name="Toggle";toggle.Position=UDim2.new(1,-148,0,3);toggle.Parent=row;lift(toggle)
     end
     game.DescendantAdded:Connect(function(s) task.defer(sound,s) end)
     do -- Sprint mode (Hold / Toggle); saved in Settings.SprintMode by the server
@@ -198,16 +235,26 @@ function Navigation.Start()
 	layout=function()
 		local v=workspace.CurrentCamera.ViewportSize;compact=v.X<700 or v.Y<500
 		local modal,active=false,nil;for _,r in panels do local s=fit(r.panel,r.w,r.h,r.primary);if r.panel.Visible and r.owner.Enabled then modal=true;if r.primary and not compact then active=r;sideScale.Scale=s end end end
-		rail.Visible=not compact and not modal;mobile.Visible=compact and not modal;drawer.Visible=drawer.Visible and not modal
+		drawer.Visible=drawer.Visible and not modal
+		rail.Visible=not compact and not modal and not drawer.Visible;mobile.Visible=compact and not modal and not drawer.Visible
 		side.Visible=active~=nil
-		if active then local s=sideScale.Scale;side.Position=UDim2.new(.5,RAIL/2*s-active.w*s/2+16*s,.5,8*s) end
-		fit(drawer,490,330)
+		-- Rail sits fully left of the window (window centre is shifted right by (RAIL+GAP)/2).
+		if active then local s=sideScale.Scale;side.Position=UDim2.new(.5,((RAIL+GAP)/2-active.w/2-GAP)*s,.5,8*s) end
+		local portrait=compact and v.Y>v.X
+		local columns=compact and (portrait and 3 or 6) or 4
+		local menuGrid=grid:FindFirstChildOfClass("UIGridLayout")
+		menuGrid.CellSize=UDim2.new(1/columns,-12*(columns-1)/columns-2,0,compact and 112 or 100)
+		drawerShade.Visible=drawer.Visible
+		local inset=GuiService:GetGuiInset().Y
+		drawerShade.Position=UDim2.fromOffset(0,-inset);drawerShade.Size=UDim2.new(1,0,1,inset)
         local obscured=modal or drawer.Visible
         blur.Size=obscured and 18 or 0
         -- Lift the open window's ScreenGui above every HUD (compass 22, event/zone banners 5...) so its
         -- shade covers them; Blur only affects the 3D view, never GUI.
         local raised={};for _,r in panels do if r.panel.Visible and r.owner.Enabled then raised[r.owner]=true end end
         for _,r in panels do r.owner.DisplayOrder=raised[r.owner] and 30 or r.owner:GetAttribute("BaseDisplayOrder") end
+        -- The side rail lives in this ScreenGui: keep it above the raised window and its shade so it stays clickable.
+        if active then gui.DisplayOrder=31 elseif drawer.Visible then gui.DisplayOrder=30 elseif not raised[gui] then gui.DisplayOrder=gui:GetAttribute("BaseDisplayOrder") or 20 end
         -- The tool hotbar would sit on top of window footers: StarterGui.ToolHotbar when installed
         -- (it turns Roblox's backpack bar off for good), Roblox's own bar otherwise.
         local hotbar=pg:FindFirstChild("ToolHotbar")
@@ -233,6 +280,10 @@ function Navigation.Start()
             UI.Skin(r.holder.Button,"chrome",lit and ((r.owner.Name=="PetHUD" or r.owner.Name=="GardenHUD") and "navGreen" or "navGold") or "navNormal")
         end
         more.Parent=active and side or rail;more.Size=active and UDim2.fromOffset(100,100) or UDim2.fromOffset(94,100)
+        -- Drawer height follows its tiles (heading 62 + padding 32 + ScrollEdges padding 16 + 2 slack), so no empty band below the last row.
+        local tiles=0;for _,c in grid:GetChildren() do if c:IsA("GuiObject") and c.Visible then tiles+=1 end end
+        local rows=math.max(1,math.ceil(tiles/columns))
+        fit(drawer,compact and (portrait and 420 or 780) or 520,math.min(portrait and 600 or 360,112+rows*(compact and 112 or 100)+(rows-1)*12))
 		local tracker=pg:FindFirstChild("StoryHUD") and pg.StoryHUD:FindFirstChild("Tracker")
 		if tracker then tracker.Visible=not obscured;tracker.AnchorPoint=Vector2.new(1,0);tracker.Position=UDim2.new(1,-12,0,92);tracker.Size=UDim2.fromOffset(compact and 190 or 240,90) end
 	end

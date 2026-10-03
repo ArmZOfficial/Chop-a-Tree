@@ -1,8 +1,39 @@
 # Chop a Tree — HANDOFF
 
-อัปเดต 2026-10-03 (ไทย). ล่าสุด: UI ธีมใหม่ Studs (จาก `Asset 3d`) + ไอคอนเมนูชุด Studs 16 ตัว, ตกแต่งแมพด้วย Nature Asset Pack + VFX Pack (`BuildDressing`), ไลก์ฐาน + กระดาน Popular Bases, regression ครบทุกชุดบนเกาะวงกลม + Sword Pack, แก้ UI modal. ยังไม่ Publish. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
+อัปเดต 2026-10-03 (ไทย). ล่าสุด: UI ขอบเลื่อนนุ่ม + สมุดสะสมแบ่งหน้า + พ่อค้า/ข้อมูลหีบและอาวุธอ่านง่าย; ซิงก์ Studio แล้ว. ยังไม่ Publish. เริ่มอ่านไฟล์นี้ → [plan](plan.md) → [INDEX](INDEX.md) เฉพาะงาน. กฎทำงาน: [SKILL](../SKILL.md).
 
 ## สถานะล่าสุด
+
+## เก็บงาน UI ให้เนี๊ยบ (2026-10-03, ต่อจากแชท Codex ที่หมดโควตา)
+
+- ArmZ ไม่เอาแถบไล่สีขอบรายการ (ทับการ์ดจนขุ่น): `UIKit.ScrollEdges` เหลือ padding/scrollbar lane/clip เรียบ ไม่มี overlay. `ScrollEdgeAudit` ตรวจตามสัญญาใหม่.
+- `UIKit.Tab` ย่อชื่อแท็บยาวให้พอดี (Merchant/ไทย) มี guard กัน re-entrancy; ชื่ออาวุธในการ์ดไม่พองเกิน 16px; ชื่อหีบที่เลือกเป็นสีขาว; Season render ทุกครั้งที่เปิด + ปุ่ม Claim All/Premium เต็มแถว ตัวใหญ่ขึ้น; ปุ่ม Rebirth ใหญ่ 22px; Settings toggle กว้างเท่ากัน; เมนู More สูงตามจำนวนไอคอน ไม่มีที่ว่าง/สกรอลเกิน; ป้ายไอคอนเมนูไม่ล้นขอบ.
+- Desktop 1238×793 mock Play: HUD + 10 หน้าต่าง OVER/OFF/SMALL 0, scroll 8 รายการผ่าน, แท็บ EN/TH ล้น 0, console สะอาด. compile ผ่าน, 6 ไฟล์ checksum ตรง Studio. คืน mock data, ลบ PolishUIQA จาก Studio (สำเนาอยู่ `tools/ui/UIPolishHarness.server.luau`), กลับ Edit. ยังไม่ตรวจภาพมือถือรอบนี้. ไม่ Publish.
+
+## แอนิเมชัน UI (2026-10-03)
+
+- UIKit ปุ่มเด้งเมื่อ hover/focus/กด, Navigation เปิดหน้าต่าง/เมนูจาก 94% → 100% โดยคง responsive scale; ToolHotbar ปรากฏไล่ช่อง เด้งเมื่อเลือก และวงแสงฟ้าสั้น ๆ. ยกเลิก tween เก่า/ตอนลบของ, รองรับ Roblox Reduce Motion. ใช้รูปเดิม.
+- Native mock Play 749×361: กดเมนู/คลัง/บัวรดน้ำผ่าน, วัด scale/pulse ตามเวลา, เปิด–ปิดเร็ว 6 รอบกลับ scale เดิม, clone/remove 8 รอบเหลือ 2 ช่อง/2 rings. UIAudit ทุกหน้าหลัก OVER/OFF/SMALL=0; compile/diff ผ่าน, source 5/5 ตรง Studio, console สะอาด. ไม่ Publish. ผล/ข้อจำกัด [UI motion validation](ui-motion-validation.md).
+
+## ช่องเครื่องมือด้านล่างตามภาพอ้างอิง (2026-10-03)
+
+- ToolHotbar เป็นการ์ดฟ้าโปร่ง รูปด้านบน ชื่อขาวด้านล่าง เลขมุมซ้าย; ช่องที่ถือขอบขาว/ขยาย/เอียงเล็กน้อย. อาวุธใช้ภาพจากโมเดลจริง; บัวรดน้ำเจน PNG โปร่งใสและอัปโหลด `114410369919234` แล้ว. PLAY ขยับพ้นช่องใหม่.
+- เก็บ controller/SETTINGS/SlotArt ใน `vendor/tool-hotbar` และซิงก์ Studio; ต้นไม้ instance ของ asset ยังอยู่เฉพาะ Studio. ผล mock Play: คลิกบัวรดน้ำ, เลข 2 สวม/ถอด, ขอบเลือก, disabled dim, เปิด/ปิดคลังซ่อน/คืนแถบ, TextFits ผ่าน. ดู 60px บน canvas desktop แล้ว; ยังไม่ตรวจ device viewport/ทัช/จอย/ไทย/drag รอบนี้. ไม่ Publish. รายละเอียด [tool-hotbar](../vendor/tool-hotbar/README.md).
+
+## UI ขอบเลื่อน / สมุดสะสม / ข้อมูลอ่านง่าย (2026-10-03)
+
+- `UIKit.ScrollEdges` เพิ่ม padding/inset และไล่สีขอบบน–ล่างของรายการที่ล้น; แถวเต็มไม่เสียขอบ ส่วนแถวระหว่างเลื่อนค่อย ๆ จางเข้าขอบ. ไม่ปล่อยรายการทับหัว/ปุ่มท้ายหน้าต่าง.
+- Index ตรึงหมวดพร้อมชื่อ/จำนวน, เก็บแล้วขึ้นก่อน, ช่องไม่พบเป็นล็อกพร้อมคำแนะนำรวม, แบ่งหน้า 12/8 ช่อง desktop/phone. พ่อค้าเป็นภาพ + countdown จาก MerchantMath, สินค้าใช้ icon/ราคา/stock; หน้าสวน Shop/Merchant เต็มความกว้างบนมือถือ.
+- คลังมีปุ่มดูสถิติอาวุธ/โอกาสหีบเป็นช่องไอคอนและเปอร์เซ็นต์ชื่อเต็ม; คง Loot.Odds/สูตร/ธุรกรรมเดิม. แถวสัตว์เลี้ยงแรกแสดงครบบนมือถือ; ขยายปุ่ม Garden/Shop และแก้ caption ภาษาอังกฤษ/ไทย.
+- ตรวจ EN/TH บน desktop, iPhone 7, iPhone 17 Pro safe area, iPad 6; final OVER/OFF/SMALL 0, scroll start/middle/end 0 failures, กดหมวด/เปลี่ยนหน้า/ปิด dialog ผ่าน. พ่อค้ามาถึงตามเวลาจริงและ UI เปลี่ยนผ่าน. compile 204, locale 1,850 keys ขาดไทย 0, source 9/9 ตรง Studio, diff check ผ่าน, console ไม่มี runtime error. คืน mock fixture/flags, ลบ PolishUIQA, กลับ Edit/default viewport แล้ว.
+- รายละเอียด/วิธีวัด/ข้อจำกัด: [UI polish validation](ui-polish-validation.md). ปุ่ม Shop เล็กที่ค้างจากรอบก่อนแก้แล้ว. เครื่องจริง/ทัช/จอย/portrait/paid flow/เด็กเล่นจริงยังไม่ได้พิสูจน์; PvP และงาน catalog ที่ค้างไม่เปลี่ยน.
+
+## ต่อ UI แถวไอคอน + มือถือ (2026-10-03)
+
+- งานเดิมในภาพทำต่อครบ: `UIKit.Row` ใช้ไอคอน/หัวข้อสั้น/แถบความคืบหน้า/ชิปรางวัล/สถานะร่วมกัน; ไอคอน 3 ชีต 48 ตัว, กระดานเหลือ 5 metric + Server/Global, เมนูข้างหน้าต่างอยู่เหนือ modal และคลิกสลับได้.
+- แก้ Pets refresh เขียนพิกัด desktop ทับมือถือ, จัดปุ่มสัตว์ 6 ปุ่มเต็มแถว, เพิ่มหัว Free/Premium บนมือถือและแก้คอลัมน์ Season ซ้อนกัน, จัด Rebirth confirmation พร้อมข้อความปุ่มอยู่เหนือพื้นผิว. เพิ่มขนาดปุ่มให้ผ่าน safe area ของ iPhone 17 Pro.
+- ตรวจ mock Play: จอ 666×374 และ 749×361, tablet 1023×767, desktop 1238×793; 5 หน้าต่างที่แก้ OVER/OFF/SMALL = 0. คลิก 14 แท็บ Pets/Quests/Rewards ทั้ง EN/TH; รับรางวัล Quest/Season, สลับ Global/Likes, Prepare/Cancel และ SideRail ผ่าน. Console รอบสุดท้ายไม่มี error; locale 1,800 keys ขาดไทย 0; compile 202 ไฟล์; source 11/11 ตรง Studio. คืนข้อมูลจำลอง, ลบ RowUIHarness จาก Studio, กลับ Edit/default viewport แล้ว.
+- ผลและขอบเขต: [UI validation](ui-row-continuation-validation.md). ค้างเครื่องจริง/ทัช/จอย/แนวตั้ง, กระดาน DataStore จริง; Shop ยังมีปุ่มซื้อเล็กจากเดิม (นอกงานนี้). งาน Weapons ที่ค้างแยกไม่ได้แก้.
 
 ## UI/UX ธีมใหม่ "Studs" จาก Asset 3d (2026-10-03, ArmZ สั่ง, ยังไม่ Publish)
 
