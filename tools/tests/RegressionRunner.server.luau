@@ -5,6 +5,9 @@
 assert(game:GetService("RunService"):IsStudio())
 local SSS = game:GetService("ServerScriptService")
 local Http = game:GetService("HttpService")
+-- The harness reads Players[1] when enabled: wait for the player so the runner can start with Play.
+local plr = game.Players:GetPlayers()[1] or game.Players.PlayerAdded:Wait()
+local _ = plr.Character or plr.CharacterAdded:Wait()
 local harness = SSS:WaitForChild("RegressionHarness")
 harness.Enabled = true
 local t = os.clock()

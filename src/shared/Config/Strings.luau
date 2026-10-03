@@ -813,6 +813,7 @@ return table.freeze({
 		["Season 2 • Moonlit Forest"] = "ซีซัน 2 • ป่าแสงจันทร์",
 		["Season 3 • Silver Snow Forest"] = "ซีซัน 3 • ป่าหิมะเงิน",
 		["Season 4 • Lantern Grove"] = "ซีซัน 4 • ป่าโคมไฟ",
+		["Season 5 • Heartwood Orchard"] = "ซีซัน 5 • สวนไม้หัวใจ",
 		["Season Pass"] = "ซีซันพาส",
 		["Season Pass Level {1}! Open Season to claim rewards"] = "ซีซันพาสเลเวล {1}! เปิดหน้าซีซันเพื่อรับรางวัล",
 		["Season Pass Premium"] = "ซีซันพาสพรีเมียม",
